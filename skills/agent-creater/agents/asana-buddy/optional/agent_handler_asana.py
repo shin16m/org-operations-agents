@@ -6,8 +6,9 @@ Usage (example):
 
 Requires: `ASANA_TOKEN` in the process environment, or the same key in a `.env` file
 discovered under the current working directory or any parent directory, or under this
-script's directory and its parents (first match wins). Existing environment variables
-are not overwritten by `.env`.
+script's directory and its parents (first match wins). A legacy file at
+``skills/agent-creater/optional/.env`` is also loaded when present. Existing environment
+variables are not overwritten by `.env`.
 """
 import os
 import sys
@@ -21,7 +22,11 @@ ASANA_BASE = "https://app.asana.com/api/1.0"
 
 
 def _find_dotenv_path() -> Optional[Path]:
-    """Return the first existing .env path when walking up from cwd and from this file."""
+    """Return the first existing .env path when walking up from cwd and from this file.
+
+    Also checks legacy ``skills/agent-creater/optional/.env`` (sibling of ``agents/``) so
+    older layouts keep working until the file is moved next to these scripts.
+    """
     seen: set[Path] = set()
     anchors = (Path.cwd(), Path(__file__).resolve().parent)
     for anchor in anchors:
@@ -33,6 +38,15 @@ def _find_dotenv_path() -> Optional[Path]:
             candidate = resolved / ".env"
             if candidate.is_file():
                 return candidate
+    # Legacy: agent-creater/optional/.env when this file lives under agents/<slug>/optional/
+    script_parent = Path(__file__).resolve().parent
+    try:
+        agent_creater = script_parent.parents[2]  # .../optional -> .../agent-creater
+        legacy = (agent_creater / "optional" / ".env").resolve()
+        if legacy.is_file():
+            return legacy
+    except IndexError:
+        pass
     return None
 
 

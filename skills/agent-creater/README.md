@@ -3,6 +3,7 @@
 使い方（概要）
 
 1. VS Code の Copilot Chat で、`skills/agent-creater/prompts.md` にある「初期問診テンプレ」を貼り付けて実行してください。
+   個別エージェントの実体（ペルソナ・スクリプト等）は `skills/agent-creater/agents/<agent-slug>/` にまとめる。具体例は `agents/asana-buddy/AGENT.md` を参照。
 2. ユーザーの回答を集めたら、Copilot に対して出力フォーマット指示（prompts.md内）を与えて設計を生成します。
 3. 生成された結果をレビューし、必要なら追加の問いかけで微調整してください。
 
