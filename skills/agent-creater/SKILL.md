@@ -5,6 +5,8 @@
 
 このリポジトリでは **作成した各エージェントを `skills/agent-creater/agents/<agent-slug>/` にまとめる** 方針です（ペルソナ・オプションスクリプト・エージェント固有ドキュメントを同居）。例: [`agents/asana-buddy/AGENT.md`](agents/asana-buddy/AGENT.md)
 
+関連: 課題整理から Asana 用ハンドオフ JSON までを出す **`skills/issue-story-planner/SKILL.md`**（[`issue-story-planner`](../issue-story-planner/SKILL.md)）を upstream とし、実タスク作成は `asana-buddy` に渡す二段構成にできる。
+
 ## フォルダ契約（1 エージェント = 1 スラッグ）
 
 ルート: `skills/agent-creater/agents/<agent-slug>/`

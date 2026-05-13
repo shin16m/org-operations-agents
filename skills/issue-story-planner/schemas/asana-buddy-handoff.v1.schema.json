@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/asana-buddy-handoff.v1.schema.json",
+  "title": "AsanaBuddyHandoff",
+  "description": "Handoff from issue-story-planner to asana-buddy (v1.1). subtasks[] order = top-to-bottom work order (first item = do first); API consumers should create subtasks in reverse order when Asana stacks newest on top. Each subtask must include background, summary, and done_when for Asana notes assembly.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "epic", "subtasks"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.1"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": { "type": "string", "description": "Human-readable bundle name for chat/UI." },
+        "locale": { "type": "string", "description": "BCP 47 locale, e.g. ja-JP." }
+      }
+    },
+    "epic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "notes_markdown"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Asana parent task name."
+        },
+        "notes_markdown": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Markdown for parent task notes: problems, resolution story, how to run the work."
+        }
+      }
+    },
+    "subtasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "background", "summary", "done_when"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Asana subtask name."
+          },
+          "background": {
+            "type": "string",
+            "minLength": 1,
+            "description": "背景 — why this work exists, context, constraints."
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "description": "概要 — what to do in plain language."
+          },
+          "done_when": {
+            "type": "string",
+            "minLength": 1,
+            "description": "完了条件 — concrete completion criteria / acceptance."
+          },
+          "pillar": {
+            "type": "string",
+            "description": "Optional swimlane / theme label; consumers may prefix notes with 柱: …"
+          }
+        }
+      }
+    }
+  }
+}
