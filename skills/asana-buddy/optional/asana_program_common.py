@@ -20,6 +20,41 @@ from agent_handler_asana import ASANA_BASE, create_task
 
 FALLBACK_PROJECT_GID = "1214771428861230"
 
+TASK_OPT_FIELDS = "name,notes,completed,permalink_url,parent.gid,parent.name"
+
+
+def fetch_task(task_gid: str, token: str) -> dict[str, Any]:
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        headers=headers,
+        params={"opt_fields": TASK_OPT_FIELDS},
+    )
+    r.raise_for_status()
+    return r.json()["data"]
+
+
+def set_task_completed(task_gid: str, completed: bool, token: str) -> dict[str, Any]:
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.put(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        json={"data": {"completed": completed}},
+        headers=headers,
+    )
+    r.raise_for_status()
+    return r.json()["data"]
+
+
+def list_subtasks(parent_gid: str, token: str) -> list[dict[str, Any]]:
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(
+        f"{ASANA_BASE}/tasks/{parent_gid}/subtasks",
+        headers=headers,
+        params={"opt_fields": "name,completed,gid"},
+    )
+    r.raise_for_status()
+    return r.json()["data"]
+
 
 def assemble_subtask_notes(
     background: str,

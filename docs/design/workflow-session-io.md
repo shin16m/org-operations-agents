@@ -10,7 +10,7 @@
 |------------|-----|------|
 | `session_id` | string | 任意のセッション識別子（例: UUID または日時） |
 | `raw_request` | string | 利用者が intake で渡した生課題（自然言語） |
-| `current_step_id` | enum | `intake` \| `plan` \| `review` \| `gate` \| `execute` |
+| `current_step_id` | enum | `intake` \| `plan` \| `review` \| `gate` \| `execute` \| `work` |
 | `handoff_path` | string? | 保存した Handoff JSON のパス |
 | `review_result_path` | string? | `PlanReviewResult` JSON のパス |
 | `workflow_id` | string | 例: `default` |
@@ -31,10 +31,14 @@
 | `review` | plan-reviewer | Handoff 案 | `PlanReviewResult` |
 | `gate` | workflow-orchestrator | Handoff + PlanReviewResult | execute 可否・プロンプト |
 | `execute` | asana-buddy | 承認済み Handoff | Asana タスク |
+| `work` | task-executor | Asana 子タスク GID | `TaskWorkResult` + 完了マーク |
+
+拡張（execute 後）: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml)
 
 ## 起動条件
 
 - **intake:** セッション開始時。`current_step_id` は `intake` または未設定。
 - **gate:** `review_passed` 満た後。`PlanReviewResult.status` が `passed` / `passed_with_notes`。
+- **work:** execute 後。サブタスク実行依頼時（`task-executor`）。完了マークはエージェント判断可。
 
-生課題のみで orchestrator（intake）を起動できる。plan / review / execute の実処理は各スキルに委譲する。
+生課題のみで orchestrator（intake）を起動できる。plan / review / execute / work の実処理は各スキルに委譲する。

@@ -11,6 +11,7 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**集。課
 | [`issue-story-planner`](skills/issue-story-planner/SKILL.md) | 課題 → ストーリー → Handoff v1.1 |
 | [`plan-reviewer`](skills/plan-reviewer/SKILL.md) | Handoff の品質・リスクレビュー |
 | [`asana-buddy`](skills/asana-buddy/SKILL.md) | Handoff → Asana タスク |
+| [`task-executor`](skills/task-executor/SKILL.md) | Asana サブタスクの実行（work） |
 
 ## 標準 workflow（review 必須）
 
@@ -60,11 +61,18 @@ ASANA_PROJECT_ID=...
 
 詳細: [`docs/e2e/default-workflow.md`](docs/e2e/default-workflow.md)
 
+### タスク化のあと（実行）
+
+Asana に載ったサブタスクを実行するときは、**課題文だけ**で依頼できます（例: 「エピックの【1/7】を実行して」）。エージェントが `task-executor` と `fetch_task.py` / `complete_task.py` を使います。
+
+拡張 workflow: [`workflows/with-execution.yaml`](workflows/with-execution.yaml)
+
 ## エピック進行
 
 - 基盤構築: [`handoff.agent-workflow-orchestration.json`](skills/issue-story-planner/examples/handoff.agent-workflow-orchestration.json)
 - オーケストレーター入口化: [`handoff.orchestrator-intake-entry.json`](skills/issue-story-planner/examples/handoff.orchestrator-intake-entry.json)
 - スキルレビュー是正: [`handoff.skill-review-remediation.json`](skills/issue-story-planner/examples/handoff.skill-review-remediation.json)
+- タスク実行エージェント: [`handoff.task-executor-agent.json`](skills/issue-story-planner/examples/handoff.task-executor-agent.json)
 
 棚卸し: [`docs/inventory/skills-inventory.md`](docs/inventory/skills-inventory.md)
 

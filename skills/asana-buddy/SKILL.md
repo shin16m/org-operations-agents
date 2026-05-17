@@ -56,12 +56,21 @@ workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必
 親＋子の一括は次のいずれか:
 
 - **推奨:** [`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) — `AsanaBuddyHandoff` v1.1 JSON をそのまま投入。運用で review 必須を強制する場合は `--require-review-result path/to/review.json` を付与（`PlanReviewResult` の `status` が `passed` / `passed_with_notes` であること）
-- **既存エピックの更新:** [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) — Handoff JSON から親 `notes` と子タスクの `name` / `notes` を一括更新。`--complete-through 11 --complete-only` で子タスクを完了にできる。
+- **既存エピックの更新:** [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) — Handoff を同期（子タイトルの **【n/m】** で対応付け）。`--complete-through N --complete-only` で一括完了。通常の作業完了は [`complete_task.py`](optional/complete_task.py)
 - **テーマ別:** `asana_<テーマ>_program.py` — 定数 `SUBTASKS` から投入（[`asana_program_common.py`](optional/asana_program_common.py) の `notes_from_legacy_body` で v1.1 形式に整形）
 
 ## 一括プログラムの命名
 
 テーマ別の親タスク＋サブタスク投入用は `optional/asana_<テーマ>_program.py`（例: 物価・家計、社会課題、`optional/asana_hikikomori_support_program.py`（ひきこもり支援）、`optional/asana_ai_agent_adoption_program.py`（AIエージェント普及の阻害要因））を置く。
+
+## task-executor 連携（読取・完了）
+
+| スクリプト | 用途 |
+|------------|------|
+| [`optional/fetch_task.py`](optional/fetch_task.py) | `--gid` で name / notes / completed を表示。`--list-subtasks` で子一覧 |
+| [`optional/complete_task.py`](optional/complete_task.py) | `--gid -y` で完了マーク |
+
+実行本体は [`task-executor`](../task-executor/SKILL.md)。本スキルは Asana API の薄いラッパのみ。
 
 ## 環境変数
 

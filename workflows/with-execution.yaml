@@ -1,0 +1,45 @@
+# Extended workflow: default v2 + work (task execution)
+# default.yaml は変更しない。本ファイルは default v2 の全段階 + work を明示したコピー（extends は未解釈）。
+id: with-execution
+version: "1"
+description: intake → plan → review → gate → execute → work
+
+policy:
+  review_required: true
+  entry_step: intake
+  entry_agent: workflow-orchestrator
+  note: タスク化まで default と同じ。サブタスク実行は work 段階（with-execution を参照）
+
+steps:
+  - id: intake
+    agent: workflow-orchestrator
+    gate_after: null
+
+  - id: plan
+    agent: issue-story-planner
+    gate_after: null
+
+  - id: review
+    agent: plan-reviewer
+    required: true
+    gate_after: review_passed
+
+  - id: gate
+    agent: workflow-orchestrator
+    gate_after: handoff_approved
+
+  - id: execute
+    agent: asana-buddy
+    gate_after: null
+
+  - id: work
+    agent: task-executor
+    role: サブタスク実行。done_when 達成後 complete_task -y（エージェント判断可）
+    gate_after: null
+
+gates:
+  review_passed:
+    description: plan-reviewer の PlanReviewResult が passed または passed_with_notes
+    blocks: [gate, execute, work]
+  handoff_approved:
+    description: gate で execute へ進行確認

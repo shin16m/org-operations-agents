@@ -31,7 +31,13 @@ execute に進めるか、差し戻し先を示してください。
 
 以前 planner 先頭で運用していた場合も、**新規依頼は orchestrator（intake）から**始めてください（[`README.md`](../../README.md)）。
 
+## workflow の選び方
+
+| 目的 | ファイル |
+|------|----------|
+| タスク化まで | [`workflows/default.yaml`](../../workflows/default.yaml) |
+| タスク化 + サブタスク実行 | [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) |
+
 ## 参照
 
-- workflow: [`workflows/default.yaml`](../../workflows/default.yaml) v2
 - I/O: [`docs/design/workflow-session-io.md`](../../docs/design/workflow-session-io.md)

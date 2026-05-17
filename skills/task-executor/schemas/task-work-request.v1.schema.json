@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/task-work-request.v1.schema.json",
+  "title": "TaskWorkRequest",
+  "description": "Input to task-executor for a single Asana subtask.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_gid"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "task_gid": {
+      "type": "string",
+      "minLength": 1
+    },
+    "parent_gid": {
+      "type": "string",
+      "minLength": 1
+    },
+    "locale": {
+      "type": "string"
+    }
+  }
+}

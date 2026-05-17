@@ -25,36 +25,30 @@ DEFAULT_HANDOFF = (
 )
 DEFAULT_PARENT = "1214879346897459"
 
-# Order matters: first match wins; index = subtasks[] position
-# More specific patterns first (avoid "1/11" matching inside "11/11", "1/5" in "11/5" N/A)
-MATCH_RULES: list[tuple[str, int]] = [
-    (r"5/5", 4),
-    (r"4/5", 3),
-    (r"3/5", 2),
-    (r"2/5", 1),
-    (r"1/5", 0),
-    (r"11/11", 10),
-    (r"10/11", 9),
-    (r"9/11", 8),
-    (r"8/11", 7),
-    (r"7/11", 6),
-    (r"6/11", 5),
-    (r"5/11", 4),
-    (r"4/11", 3),
-    (r"3/11", 2),
-    (r"2/11", 1),
-    (r"1/11", 0),
-]
+# 【n/m】 in title → 0-based index (n - 1). Validates total against handoff length when given.
+_SUBTASK_BRACKET_RE = re.compile(r"【\s*(\d+)\s*/\s*(\d+)\s*")
 
 
-def match_index(name: str) -> int | None:
-    for pat, idx in MATCH_RULES:
-        if re.search(pat, name):
-            return idx
-    return None
+def parse_subtask_index(name: str, expected_count: int | None = None) -> int | None:
+    """Return 0-based subtasks[] index from title, or None if not matched / invalid."""
+    m = _SUBTASK_BRACKET_RE.search(name)
+    if not m:
+        return None
+    n_s, total_s = m.group(1), m.group(2)
+    n, total = int(n_s), int(total_s)
+    if n < 1 or total < 1 or n > total:
+        return None
+    if expected_count is not None and total != expected_count:
+        return None
+    return n - 1
 
 
-def complete_subtasks(parent_gid: str, token: str, through: int | None = None) -> None:
+def complete_subtasks(
+    parent_gid: str,
+    token: str,
+    through: int | None = None,
+    expected_count: int | None = None,
+) -> None:
     """Mark subtasks 1..through (1-based) completed by title match."""
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.get(
@@ -64,7 +58,7 @@ def complete_subtasks(parent_gid: str, token: str, through: int | None = None) -
     )
     r.raise_for_status()
     for t in r.json()["data"]:
-        idx = match_index(t["name"])
+        idx = parse_subtask_index(t["name"], expected_count)
         if idx is None:
             continue
         n = idx + 1
@@ -90,7 +84,7 @@ def main() -> None:
         "--complete-through",
         type=int,
         default=None,
-        help="Mark subtasks 1..N completed (by n/5 or n/11 title match)",
+        help="Mark subtasks 1..N completed (match 【n/m】 in title)",
     )
     p.add_argument(
         "--complete-only",
@@ -101,17 +95,18 @@ def main() -> None:
 
     handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
     expected = handoff["subtasks"]
+    expected_count = len(expected)
 
     load_env_from_dotfile()
     token = get_token()
     headers = {"Authorization": f"Bearer {token}"}
 
     if args.dry_run:
-        print("dry-run parent", args.parent, "subtasks", len(expected))
+        print("dry-run parent", args.parent, "subtasks", expected_count)
         return
 
     if args.complete_through is not None:
-        complete_subtasks(args.parent, token, args.complete_through)
+        complete_subtasks(args.parent, token, args.complete_through, expected_count)
 
     if args.complete_only:
         print("complete-only done")
@@ -134,7 +129,7 @@ def main() -> None:
 
     used: set[int] = set()
     for t in asana_tasks:
-        idx = match_index(t["name"])
+        idx = parse_subtask_index(t["name"], expected_count)
         if idx is None:
             print("unmatched", t["gid"], t["name"][:60])
             continue

@@ -74,6 +74,24 @@ review_passed を確認し、execute（asana-buddy）に進めるか判断して
 
 以前 planner 先頭で運用していた場合、**新規依頼は step 0（intake）から**。
 
+## オプション: work — サブタスク実行
+
+workflow: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml)
+
+1. execute で作成した子タスク GID を確認:
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\fetch_task.py --gid <PARENT_GID> --list-subtasks
+```
+
+2. **task-executor** — 「GID ○○ を実行して」と自然言語で依頼（スキル名のコピペ不要）
+
+3. 完了マーク:
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
+```
+
 ## 検証記録
 
 - 基盤 11 タスク: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)
