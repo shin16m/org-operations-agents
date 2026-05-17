@@ -1,22 +1,30 @@
 # ワークフロー I/O 契約・ゲート・オーケストレーター責務
 
-タスク 2 成果物。registry / workflow 実体は [`workflows/`](../../workflows/)。
+registry / workflow 実体は [`workflows/`](../../workflows/)。セッション状態は [`workflow-session-io.md`](workflow-session-io.md)。
 
-## 段階とスロット
+## 段階とスロット（default v2）
 
 | 段階 ID | スロット | 担当スキル | 入力 | 出力 |
 |---------|----------|------------|------|------|
-| `plan` | plan | issue-story-planner | 課題・テーマ（自然言語） | `AsanaBuddyHandoff` v1.1 |
+| `intake` | orchestrate | workflow-orchestrator | 生課題（自然言語） | plan 委譲 `prompt_snippet` |
+| `plan` | plan | issue-story-planner | 課題（orchestrator 経由） | `AsanaBuddyHandoff` v1.1 |
 | `review` | review | plan-reviewer | Handoff v1.1 案 | `PlanReviewResult` + 改訂 Handoff（任意） |
-| `orchestrate` | orchestrate | workflow-orchestrator | 改訂 Handoff、現段階 | 次に呼ぶスキル・ゲート状態 |
+| `gate` | orchestrate | workflow-orchestrator | 改訂 Handoff + PlanReviewResult | execute 可否・`prompt_snippet` |
 | `execute` | execute | asana-buddy | 承認済み Handoff v1.1 | Asana 親＋子タスク |
 
 ## ゲート
 
 | ゲート ID | 条件 | 未達時 |
 |-----------|------|--------|
-| `review_passed` | **`plan-reviewer` 必須。** `PlanReviewResult.status` が `passed` または `passed_with_notes` | 未達時は Asana 投入不可。差し戻しは `plan` へ。人間目視のみは不可 |
-| `handoff_approved` | `review_passed` 済みのうえ、人間が orchestrator 経由で execute 可と明示 | `execute` を案内しない |
+| `review_passed` | **`plan-reviewer` 必須。** `PlanReviewResult.status` が `passed` または `passed_with_notes` | `gate` / `execute` 不可。差し戻しは `plan` |
+| `handoff_approved` | `review_passed` 済みのうえ、人間が orchestrator（gate）経由で execute 可と明示 | `execute` を案内しない |
+
+## orchestrator の二役
+
+| step | 役割 |
+|------|------|
+| `intake` | 課題受付。利用者の**唯一の入口**（新規依頼の開始点） |
+| `gate` | review 後の execute 判定 |
 
 ## 変更境界（新規スキル追加時）
 
@@ -29,25 +37,31 @@
 
 **禁止:** workflow-orchestrator / issue-story-planner / plan-reviewer が他スキルの雛形を新規作成すること。
 
-## シーケンス（デフォルト）
+## シーケンス（デフォルト v2）
 
 ```mermaid
 sequenceDiagram
   participant U as 利用者
+  participant O as workflow-orchestrator
   participant P as issue-story-planner
   participant R as plan-reviewer
-  participant O as workflow-orchestrator
   participant A as asana-buddy
 
+  U->>O: 生課題（intake）
+  O-->>U: plan 用 prompt
   U->>P: 課題
   P-->>U: Handoff 案
   U->>R: Handoff 案
-  R-->>U: PlanReviewResult + 改訂 Handoff
-  U->>O: 改訂 Handoff
-  O-->>U: 次は execute / ゲート OK
+  R-->>U: PlanReviewResult
+  U->>O: Handoff + 結果（gate）
+  O-->>U: execute 用 prompt
   U->>A: Handoff JSON
   A-->>U: Asana URL
 ```
+
+## 移行（v1 → v2）
+
+以前は `plan` 先頭（planner を最初に起動）。**新規依頼は `workflow-orchestrator`（intake）から**開始する（[`README.md`](../../README.md)）。
 
 ## 新規 SKILL 実体
 

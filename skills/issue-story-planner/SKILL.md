@@ -7,7 +7,7 @@
 ## 標準パイプライン（plan スロット・review 必須）
 
 ```
-issue-story-planner（本スキル）→ plan-reviewer（必須）→ workflow-orchestrator → asana-buddy
+workflow-orchestrator（intake）→ issue-story-planner（本スキル）→ plan-reviewer（必須）→ workflow-orchestrator（gate）→ asana-buddy
 ```
 
 - **新規エージェント**をタスク案に含める場合、実装は [`agent-creater`](../agent-creater/SKILL.md) に委任と明記する（本スキルは `skills/<slug>/` を生成しない）。

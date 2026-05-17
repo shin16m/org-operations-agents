@@ -26,8 +26,13 @@ DEFAULT_HANDOFF = (
 DEFAULT_PARENT = "1214879346897459"
 
 # Order matters: first match wins; index = subtasks[] position
-# More specific patterns first (avoid "1/11" matching inside "11/11")
+# More specific patterns first (avoid "1/11" matching inside "11/11", "1/5" in "11/5" N/A)
 MATCH_RULES: list[tuple[str, int]] = [
+    (r"5/5", 4),
+    (r"4/5", 3),
+    (r"3/5", 2),
+    (r"2/5", 1),
+    (r"1/5", 0),
     (r"11/11", 10),
     (r"10/11", 9),
     (r"9/11", 8),
@@ -85,7 +90,7 @@ def main() -> None:
         "--complete-through",
         type=int,
         default=None,
-        help="Mark subtasks 1..N completed (by n/11 title match)",
+        help="Mark subtasks 1..N completed (by n/5 or n/11 title match)",
     )
     p.add_argument(
         "--complete-only",

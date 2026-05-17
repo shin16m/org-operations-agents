@@ -34,7 +34,7 @@
 
 ## ゲート
 
-- `passed` / `passed_with_notes` → 下流 [`workflow-orchestrator`](../workflow-orchestrator/SKILL.md) / [`asana-buddy`](../asana-buddy/SKILL.md) 可
+- `passed` / `passed_with_notes` → 下流 [`workflow-orchestrator`（gate）](../workflow-orchestrator/SKILL.md) → [`asana-buddy`](../asana-buddy/SKILL.md) 可
 - `needs_revision` / `blocked` → `issue-story-planner` へ差し戻し。Asana 投入不可
 
 ## 安全

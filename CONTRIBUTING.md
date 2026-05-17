@@ -19,7 +19,9 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 
 ## ワークフロー運用
 
-- 標準 workflow では **`plan-reviewer` による review は必須**。Handoff を Asana に載せる前に `PlanReviewResult`（`passed` / `passed_with_notes`）を得ること。
+- 標準 workflow（v2）の入口は **`workflow-orchestrator`（intake）**。順序: intake → plan → review → gate → execute（[`workflows/default.yaml`](workflows/default.yaml)）。
+- **`plan-reviewer` による review は必須**。Handoff を Asana に載せる前に `PlanReviewResult`（`passed` / `passed_with_notes`）を得ること。
+- **移行:** 以前 issue-story-planner 先頭で運用していた場合も、**新規依頼は orchestrator（intake）から**開始する。
 
 ## 検証
 

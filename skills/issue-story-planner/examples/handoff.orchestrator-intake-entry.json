@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "workflow-orchestrator を課題の唯一の入口にする（plan-reviewer 差し戻し反映）",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】オーケストレーター入口化・課題受付からの一連ワークフロー",
+    "notes_markdown": "## 課題点の整理\n\n- **利用者の期待:** オーケストレーターに課題を渡し、issue-story-planner → plan-reviewer → … へ進む**単一窓口**イメージ。\n- **現状:** `workflows/default.yaml` は `plan` 先頭。orchestrator は review 後のゲートのみ（3 番目）。\n- **ギャップ:** 生課題の受付 I/O 未定義。orchestrator の**二役**（入口 intake / review 後の gate）が設計・文書に明示されていない。\n- **制約:** review 必須。新規スキルは agent-creater のみ。誘導型（Cursor 手動起動）。\n\n## orchestrator の二役（設計の芯）\n\n| 役割 | step id（案） | タイミング |\n|------|----------------|------------|\n| **intake** | `intake` | 利用者が生課題を渡す。plan へ委譲プロンプトを出す |\n| **gate** | `gate` | plan-reviewer 通過後。`handoff_approved` を確認し execute へ |\n\n※ 先頭 intake だけにすると現行の `handoff_approved` とずれる。workflow は **intake → plan → review → gate → execute** を採用する。\n\n## 解決ストーリー\n\n1. 入口 I/O（WorkflowSession）— step id とフィールド名を task 1–2 で統一\n2. default.yaml 再定義 — 上記 5 段階 + `review_required` 維持\n3. orchestrator SKILL — intake 用・gate 用の prompt_snippet を分離\n4. README / E2E / I/O 統一 + **旧フロー（planner 先頭）からの移行一行**\n5. タスク 3–4 完了後にドライラン\n\n## 目指す利用像\n\n```\n利用者 → orchestrator（intake・課題）\n       → issue-story-planner → plan-reviewer\n       → orchestrator（gate・execute 可否）\n       → asana-buddy\n```\n\n## 移行（旧利用者向け）\n\n以前は README のクイックスタートが issue-story-planner 先頭だった。**入口は workflow-orchestrator に変更**する旨を README / CONTRIBUTING に明記する（タスク 4）。\n\n## 進め方\n\nサブタスク 1→5 を上から。epic notes 内の `../../` パスはリポジトリ用（Asana 投入時はそのまま載せてよいがリンクは環境依存）。"
+  },
+  "subtasks": [
+    {
+      "title": "【1/5・設計】入口 I/O（WorkflowSession・step id 統一）",
+      "pillar": "設計",
+      "background": "plan-reviewer 指摘: WorkflowSession のフィールドと workflow の step id（intake / gate）がずれると SKILL の prompt がブレる。",
+      "summary": "docs/design に WorkflowSession 草案を書く。フィールド例: raw_request, current_step_id（intake|plan|review|gate|execute）, handoff_path, review_result_path。step id はタスク 2 の YAML と同一語彙に固定する。",
+      "done_when": "I/O 表に WorkflowSession と各 step の入出力があり、intake / gate の二役が表で説明されている。"
+    },
+    {
+      "title": "【2/5・設計】default.yaml を intake→plan→review→gate→execute に再定義",
+      "pillar": "設計",
+      "background": "先頭 intake のみでは handoff_approved ゲートと整合しない。review 後の orchestrator 再入（gate）を steps に含める必要がある。",
+      "summary": "workflows/default.yaml を 5 段階に再定義: intake（orchestrator）→ plan → review（plan-reviewer, review_passed）→ gate（orchestrator, handoff_approved）→ execute。registry の slot を合わせる。YAML コメントに旧 plan 先頭からの変更理由を記載。",
+      "done_when": "default.yaml と agent-registry.yaml が更新され、intake と gate の両方が orchestrator を指し、ゲート review_passed / handoff_approved が定義されている。"
+    },
+    {
+      "title": "【3/5・実装】workflow-orchestrator SKILL（intake 用・gate 用プロンプト分離）",
+      "pillar": "実装",
+      "background": "SKILL が review 後ゲート中心のままでは入口になれない。二役それぞれの起動例が必要。",
+      "summary": "SKILL.md / README に (A) 課題受付 intake テンプレ → plan 委譲、(B) PlanReviewResult 受領後の gate テンプレ → execute 委譲を分けて記載。やらないことは維持。",
+      "done_when": "README に「課題を渡す」起動例と「review 後に再開」起動例の2系統があり、各 prompt_snippet が列挙されている。"
+    },
+    {
+      "title": "【4/5・整備】README・E2E・I/O 契約の入口統一と移行注記",
+      "pillar": "整備",
+      "background": "planner 先頭の旧手順で運用している利用者が迷う。plan-reviewer は移行一行をタスク 4 に含めるよう指摘。",
+      "summary": "README.md、docs/e2e/default-workflow.md、workflow-io-contract.md を orchestrator intake 起点に統一。CONTRIBUTING または README に「以前 planner 先頭だった場合は orchestrator から開始」と移行節を追加。",
+      "done_when": "3 文書のシーケンスが intake→…→gate→execute で一致し、移行注記が README または CONTRIBUTING に存在する。"
+    },
+    {
+      "title": "【5/5・検証】intake→execute ドライラン（タスク 3・4 完了後）",
+      "pillar": "検証",
+      "background": "タスク 3 完了前は現行 SKILL のままでは手順が再現できない。検証タイミングを誤解しないよう明示する（plan-reviewer 指摘）。",
+      "summary": "タスク 3・4 マージ後、架空課題で orchestrator（intake）→ planner → reviewer → orchestrator（gate）→ handoff_to_asana を実行し docs/verification に記録する。",
+      "done_when": "ドライラン記録に二回の orchestrator 起動（intake / gate）が含まれ、再現手順が書かれている。"
+    }
+  ]
+}

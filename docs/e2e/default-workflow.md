@@ -1,15 +1,29 @@
-# デフォルト E2E 手順（plan → review（必須）→ orchestrate → execute）
+# デフォルト E2E 手順（intake → plan → review（必須）→ gate → execute）
 
-workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml)（`policy.review_required: true`）
+workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v2（`policy.review_required: true`, `entry_step: intake`）
 
 ## 前提
 
 - リポジトリルートで `.venv` 構築済み（[`skills/asana-buddy/optional/setup_venv.ps1`](../../skills/asana-buddy/optional/setup_venv.ps1)）
 - `skills/asana-buddy/optional/.env` に `ASANA_TOKEN`（任意 `ASANA_PROJECT_ID`）
 
+## 0. intake — workflow-orchestrator（ここから開始）
+
+**入力:** 生課題（自然言語）
+
+**プロンプト例:**
+
+```
+あなたは workflow-orchestrator スキルです（intake モード）。
+課題: 〈依頼内容〉
+issue-story-planner への prompt_snippet を返してください。
+```
+
+返却されたプロンプトで次の plan を実行する。
+
 ## 1. plan — issue-story-planner
 
-**入力:** 課題テーマ（自然言語）
+**入力:** 課題テーマ（intake から委譲されたプロンプトでも可）
 
 **プロンプト例:**
 
@@ -18,7 +32,7 @@ workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml)（`pol
 AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須）の JSON を1つだけ出力してください。
 ```
 
-**出力ファイル例:** `handoff.draft.json`（ユーザーが保存）
+**出力:** `handoff.draft.json`
 
 ## 2. review — plan-reviewer（必須・省略不可）
 
@@ -32,14 +46,15 @@ AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須
 
 **出力:** `review.result.json`、必要なら `handoff.revised.json`
 
-## 3. orchestrate — workflow-orchestrator
+## 3. gate — workflow-orchestrator
 
 **入力:** 改訂 Handoff + PlanReviewResult
 
 **プロンプト例:**
 
 ```
-あなたは workflow-orchestrator スキルです。review_passed を確認し、execute（asana-buddy）に進めるか判断してください。
+あなたは workflow-orchestrator スキルです（gate モード）。
+review_passed を確認し、execute（asana-buddy）に進めるか判断してください。
 ```
 
 ## 4. execute — asana-buddy
@@ -50,9 +65,11 @@ AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須
 .\.venv\Scripts\python.exe .\skills\asana-buddy\optional\handoff_to_asana.py --handoff .\handoff.revised.json -y --if-not-exists
 ```
 
-## ワークフロー拡張例（スモーク）
+## 移行
 
-1. `workflows/agent-registry.yaml` に `slug: example-dummy`（`enabled: false` 可）を追加
-2. `workflows/default.yaml` に段階を1つ挿入する案を PR で検討（本番は orchestrator が未登録 slug でエラーを返すことを確認）
+以前 planner 先頭で運用していた場合、**新規依頼は step 0（intake）から**。
 
-詳細検証記録: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)
+## 検証記録
+
+- 基盤 11 タスク: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)
+- 入口化 5 タスク: [`docs/verification/orchestrator-intake-dryrun.md`](../verification/orchestrator-intake-dryrun.md)

@@ -1,11 +1,25 @@
-# Agent registry (draft). 新規 slug の実体は agent-creater で作成してからここに登録する。
-version: "1"
+# Agent registry. 新規 slug の実体は agent-creater で作成してから登録する。
+version: "2"
 
 agents:
+  - slug: workflow-orchestrator
+    slot: orchestrate
+    skill_path: skills/workflow-orchestrator
+    enabled: true
+    workflow_steps: [intake, gate]
+    io:
+      intake_input: raw_request（自然言語）
+      gate_input: AsanaBuddyHandoff + PlanReviewResult
+      reads:
+        - workflows/default.yaml
+        - workflows/agent-registry.yaml
+      session_doc: docs/design/workflow-session-io.md
+
   - slug: issue-story-planner
     slot: plan
     skill_path: skills/issue-story-planner
     enabled: true
+    note: 通常は orchestrator（intake）から委譲されて起動する
     io:
       output_schema: skills/issue-story-planner/schemas/asana-buddy-handoff.v1.schema.json
       output_kind: AsanaBuddyHandoff
@@ -19,16 +33,6 @@ agents:
       input_kind: AsanaBuddyHandoff
       output_kind: PlanReviewResult
       schema_doc: docs/design/plan-reviewer-contract.md
-
-  - slug: workflow-orchestrator
-    slot: orchestrate
-    skill_path: skills/workflow-orchestrator
-    enabled: true
-    io:
-      input_kind: AsanaBuddyHandoff
-      reads:
-        - workflows/default.yaml
-        - workflows/agent-registry.yaml
 
   - slug: asana-buddy
     slot: execute

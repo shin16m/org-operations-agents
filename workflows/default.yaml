@@ -1,12 +1,20 @@
-# Default workflow for agent-create-supporter
+# Default workflow — orchestrator intake entry (v2)
+# 変更: v1 は plan 先頭。v2 から intake → plan → review → gate → execute。
 id: default
-version: "1"
-description: plan → review（必須）→ orchestrate → execute
+version: "2"
+description: intake → plan → review（必須）→ gate → execute
 
 policy:
-  review_required: true  # plan-reviewer による review 段階を省略不可（人間レビューのみでは不可）
+  review_required: true
+  entry_step: intake
+  entry_agent: workflow-orchestrator
 
 steps:
+  - id: intake
+    agent: workflow-orchestrator
+    role: 課題受付。plan へ委譲プロンプトを返す
+    gate_after: null
+
   - id: plan
     agent: issue-story-planner
     gate_after: null
@@ -16,8 +24,9 @@ steps:
     required: true
     gate_after: review_passed
 
-  - id: orchestrate
+  - id: gate
     agent: workflow-orchestrator
+    role: review 後。handoff_approved を確認し execute へ
     gate_after: handoff_approved
 
   - id: execute
@@ -26,7 +35,7 @@ steps:
 
 gates:
   review_passed:
-    description: plan-reviewer の PlanReviewResult が passed または passed_with_notes（必須段階）
-    blocks: [orchestrate, execute]
+    description: plan-reviewer の PlanReviewResult が passed または passed_with_notes
+    blocks: [gate, execute]
   handoff_approved:
-    description: 利用者が execute 段階へ進行を確認
+    description: gate 段階で利用者が execute へ進行を確認

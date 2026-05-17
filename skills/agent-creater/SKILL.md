@@ -18,7 +18,7 @@ agent-creater（新規スキル生成のみ）
     ↓ 登録
 workflows/agent-registry.yaml + workflows/*.yaml
     ↓ 段階実行
-issue-story-planner → plan-reviewer（必須）→ workflow-orchestrator → asana-buddy
+workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必須）→ workflow-orchestrator（gate）→ asana-buddy
 ```
 
 参照: [`docs/inventory/skills-inventory.md`](../../docs/inventory/skills-inventory.md) · 設計 Handoff [`../issue-story-planner/examples/handoff.agent-workflow-orchestration.json`](../issue-story-planner/examples/handoff.agent-workflow-orchestration.json)

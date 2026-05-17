@@ -7,7 +7,7 @@
 ## 標準パイプライン（execute スロット・review 必須）
 
 ```
-issue-story-planner → plan-reviewer（必須）→ workflow-orchestrator → asana-buddy（本スキル）
+workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必須）→ workflow-orchestrator（gate）→ asana-buddy（本スキル）
 ```
 
 - 投入は **`AsanaBuddyHandoff` v1.1**（[`handoff_to_asana.py`](optional/handoff_to_asana.py)）。

@@ -1,19 +1,37 @@
 # workflow-orchestrator
 
-[`workflows/default.yaml`](../../workflows/default.yaml) と [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml) を参照し、現段階・ゲート・**次に呼ぶスキル**を案内する薄いルータです。
+**課題の入口。** 生課題を受け取り（intake）、plan → review の後に execute 可否を判定（gate）する。
 
-**作成経路:** [`agent-creater`](../agent-creater/SKILL.md) 契約で整備。
+詳細: [`SKILL.md`](SKILL.md)
 
-## 使い方
+## 使い方（2 系統）
 
-1. 改訂済み Handoff と（あれば）`PlanReviewResult` を渡す
-2. オーケストレーターが `review_passed` / `handoff_approved` を確認
-3. 次スキル（通常 `asana-buddy`）と起動プロンプト例を返す
+### 1. intake — 課題を渡す（ここから開始）
 
-新規エージェントが必要な場合は **agent-creater** へ誘導（本スキルは雛形を生成しない）。
+```
+あなたは workflow-orchestrator スキルです（intake モード）。
+課題: 〈依頼内容を自然言語で〉
+issue-story-planner への prompt_snippet を返してください。
+```
 
-詳細: [`SKILL.md`](SKILL.md)、I/O: [`docs/design/workflow-io-contract.md`](../../docs/design/workflow-io-contract.md)
+返却されたプロンプトで **issue-story-planner** を起動 → Handoff JSON を保存。
 
-## 未登録スキル
+### 2. gate — review 後
 
-registry に無い slug を workflow が参照した場合、エラー内容と registry 更新手順を返す（実行はしない）。
+Handoff と `PlanReviewResult`（`passed` 必須）を渡す:
+
+```
+あなたは workflow-orchestrator スキルです（gate モード）。
+execute に進めるか、差し戻し先を示してください。
+```
+
+通過後 **asana-buddy** で Asana 投入。
+
+## 移行
+
+以前 planner 先頭で運用していた場合も、**新規依頼は orchestrator（intake）から**始めてください（[`README.md`](../../README.md)）。
+
+## 参照
+
+- workflow: [`workflows/default.yaml`](../../workflows/default.yaml) v2
+- I/O: [`docs/design/workflow-session-io.md`](../../docs/design/workflow-session-io.md)
