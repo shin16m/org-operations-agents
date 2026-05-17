@@ -40,7 +40,12 @@
 2. **`subtasks`** — 配列は **着手順（先頭＝最初にやること）**。Asana が「新しいサブタスクを上に積む」表示になりやすいため、**API では配列の逆順で `create_subtask`** すること（[`optional/asana_inflation_2026_household_program.py`](optional/asana_inflation_2026_household_program.py) の `reversed(SUBTASKS)` と同じ方針）。
 3. **各子タスクの Asana `notes`** — ハンドオフでは `background`（背景）・`summary`（概要）・`done_when`（完了条件）が**必須**。消費側はこれらを 1 本の `notes` にまとめる（例: `## 背景` / `## 概要` / `## 完了条件` の Markdown 見出しで連結）。`pillar` がある場合は先頭に `柱: {pillar}\n\n` を付けてから続けてよい。
 
-単発タスクのみなら引き続き `agent_handler_asana.py` の `--name` / `--notes` を使う。親＋子の一括なら `asana_<テーマ>_program.py` パターンに合わせてハンドオフ JSON から定数を生成する運用を推奨する。
+単発タスクのみなら引き続き `agent_handler_asana.py` の `--name` / `--notes` を使う。
+
+親＋子の一括は次のいずれか:
+
+- **推奨:** [`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) — `AsanaBuddyHandoff` v1.1 JSON をそのまま投入（`assemble_subtask_notes` で notes 組み立て）
+- **テーマ別:** `asana_<テーマ>_program.py` — 定数 `SUBTASKS` から投入（[`asana_program_common.py`](optional/asana_program_common.py) の `notes_from_legacy_body` で v1.1 形式に整形）
 
 ## 一括プログラムの命名
 

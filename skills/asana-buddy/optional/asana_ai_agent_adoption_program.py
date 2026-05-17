@@ -12,85 +12,21 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
-
-import requests
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
-from agent_handler_asana import (  # noqa: E402
-    ASANA_BASE,
-    create_task,
-    get_token,
-    load_env_from_dotfile,
+from agent_handler_asana import create_task, get_token, load_env_from_dotfile  # noqa: E402
+from asana_program_common import (  # noqa: E402
+    create_subtasks_reversed,
+    find_project_task_by_exact_name,
+    list_accessible_projects,
+    notes_from_legacy_body,
+    resolve_project_with_fallback,
 )
-
-FALLBACK_PROJECT_GID = "1214771428861230"
-
-
-def resolve_project_id(explicit: str | None) -> str | None:
-    if explicit:
-        return explicit
-    for key in ("ASANA_PROJECT_ID", "ASANA_PROJECT_GID", "ASANA_PROJECT"):
-        v = os.getenv(key)
-        if v:
-            return v.strip()
-    return None
-
-
-def find_project_task_by_exact_name(project_gid: str, name: str, token: str) -> str | None:
-    headers = {"Authorization": f"Bearer {token}"}
-    url: str | None = f"{ASANA_BASE}/projects/{project_gid}/tasks"
-    params: dict[str, str | int] = {"opt_fields": "name,gid", "limit": 100}
-    while url:
-        r = requests.get(url, params=params, headers=headers)
-        r.raise_for_status()
-        body = r.json()
-        for t in body.get("data") or []:
-            if (t.get("name") or "") == name:
-                return str(t["gid"])
-        next_page = body.get("next_page") or {}
-        url = next_page.get("uri")
-        params = {}
-    return None
-
-
-def list_accessible_projects(token: str) -> None:
-    headers = {"Authorization": f"Bearer {token}"}
-    r = requests.get(
-        f"{ASANA_BASE}/users/me",
-        params={"opt_fields": "workspaces.gid,workspaces.name"},
-        headers=headers,
-    )
-    r.raise_for_status()
-    workspaces = r.json()["data"].get("workspaces") or []
-    print("projects (non-archived):\n")
-    for w in workspaces:
-        wgid, wname = w["gid"], w.get("name", "")
-        pr = requests.get(
-            f"{ASANA_BASE}/projects",
-            params={"workspace": wgid, "opt_fields": "name,gid,archived", "limit": 100},
-            headers=headers,
-        )
-        pr.raise_for_status()
-        rows = [x for x in pr.json()["data"] if not x.get("archived")]
-        print(f"workspace: {wname} ({wgid}) count={len(rows)}")
-        for p in rows:
-            print(f"  {p['gid']}\t{p.get('name', '')}")
-        print()
-
-
-def create_subtask(parent_gid: str, name: str, notes: str, token: str) -> dict:
-    headers = {"Authorization": f"Bearer {token}"}
-    payload = {"data": {"name": name, "notes": notes, "parent": parent_gid}}
-    r = requests.post(f"{ASANA_BASE}/tasks", json=payload, headers=headers)
-    r.raise_for_status()
-    return r.json()["data"]
-
 
 EPIC_NAME = "【普及阻害要因】AIエージェントの技術・組織・信頼性の整理と対策ストーリー"
 
@@ -234,14 +170,7 @@ def main() -> None:
         list_accessible_projects(token)
         return
 
-    project_id = resolve_project_id(args.project)
-    if not project_id:
-        project_id = FALLBACK_PROJECT_GID
-        print(
-            f"warn: using fallback project_gid={FALLBACK_PROJECT_GID} "
-            "(set ASANA_PROJECT_ID or pass --project)",
-            file=sys.stderr,
-        )
+    project_id = resolve_project_with_fallback(args.project)
 
     if args.if_not_exists:
         existing = find_project_task_by_exact_name(project_id, EPIC_NAME, token)
@@ -262,10 +191,12 @@ def main() -> None:
     epic = create_task(project_id, EPIC_NAME, EPIC_NOTES, token)
     print("created_parent", epic.get("gid"), epic.get("permalink_url", ""))
 
-    for title, body, pillar in reversed(SUBTASKS):
-        notes = f"柱: {pillar}\n\n{body}"
-        sub = create_subtask(epic["gid"], title, notes, token)
-        print("created_subtask", sub.get("gid"))
+    create_subtasks_reversed(
+        epic["gid"],
+        SUBTASKS,
+        token,
+        notes_for_item=lambda item: notes_from_legacy_body(item[1], item[2]),
+    )
 
 
 if __name__ == "__main__":

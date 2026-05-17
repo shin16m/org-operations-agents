@@ -30,8 +30,8 @@ skills/
     ├── README.md          # 人間向け（必須）
     ├── SKILL.md           # スキル定義（必須）
     ├── personas/
-    │   ├── <slug>_buddy.json   # または任意名 *.json
-    │   └── <slug>_buddy.md
+    │   ├── <persona-name>.json
+    │   └── <persona-name>.md
     ├── optional/          # 外部連携・スクリプトがある場合のみ
     │   ├── requirements.txt
     │   └── ...
@@ -54,7 +54,7 @@ skills/
 - ユーザー問診テンプレを提示し要件を整理する
 - エージェントの役割定義、インプット/アウトプット設計を生成する
 - Copilot Chat で使えるプロンプトテンプレ（複数候補）を生成する
-- 上記フォルダ契約に沿った最小ファイル構成（SKILL.md / personas / optional）を提案する
+- 上記フォルダ契約に沿った最小ファイル構成（README.md / SKILL.md / personas / optional）を提案する
 - 外部連携（例: Asana）の設計アドバイス（実鍵はユーザーが管理）
 
 ## 入力（想定）
