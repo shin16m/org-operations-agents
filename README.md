@@ -1,6 +1,8 @@
 # agent-create-supporter
 
-Git で共有する **Cursor / Copilot 用エージェントスキル**集。課題をプラン化し、レビュー・オーケストレーションを経て Asana にタスク化する。
+Git で共有する **Cursor / Copilot 用エージェントスキル**集。宣言的 workflow・エージェント挙動・Asana 連携を定義する。課題をプラン化し、レビュー・オーケストレーションを経て Asana にタスク化する。
+
+> **スコープ:** 製品アプリ（MVP）のソースは本リポジトリには置かない。実装成果物は別リポジトリまたは Asana 投入後の課内フロー（`development-delivery`）で扱う。
 
 ## スキル一覧
 

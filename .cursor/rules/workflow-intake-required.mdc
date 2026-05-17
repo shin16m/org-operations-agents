@@ -1,11 +1,11 @@
 ---
-description: 実装・Webアプリ依頼でも intake から開始。エージェントが L1 まで進行し、Asana 投入前に人間承認（gate）を挟む
+description: 製品実装依頼でも intake から開始。エージェントが L1 まで進行し、Asana 投入前に人間承認（gate）を挟む
 alwaysApply: true
 ---
 
 # 標準 workflow 厳守（このリポジトリ）
 
-このリポジトリは **宣言的 workflow** を採用する。利用者が「アプリを作って」「実装して」と言っただけでは、**いきなりコードや `apps/` を書き始めない**。
+このリポジトリは **宣言的 workflow とエージェント挙動の定義** が主目的である。利用者が「作って」「実装して」と言っただけでは、**Handoff・レビュー・gate を経ずに製品コードの実装をこのリポジトリへ書き始めない**（成果物は別リポジトリまたは Asana 投入後の課内フローで扱う）。
 
 ## エージェントの進行責務（L1）
 
@@ -43,7 +43,7 @@ Asana 投入後は **task-dispatcher → product-manager**（`department=develop
 
 ## 禁止（明示指示がない限り）
 
-- Handoff なしで `apps/` や大規模実装を開始する
+- Handoff なしで製品実装（別リポジトリ想定のコード）をこのリポジトリに直接書き始める
 - `plan-reviewer` を飛ばして Asana 投入する
 - ローカルだけ完了し、Asana を未完了のままにする
 - `complete_task.py` だけ実行し、署名コメントを省略する
@@ -60,4 +60,4 @@ Asana 投入後は **task-dispatcher → product-manager**（`department=develop
 
 ## 開始時の一言（エージェント）
 
-実装系の依頼を受けたら、最初に **intake として Handoff 方針を示し**、**同一セッションで plan → review まで進め、gate で承認を仰ぐ**旨を短く伝える。
+実装・機能追加の依頼を受けたら、最初に **intake として Handoff 方針を示し**、**同一セッションで plan → review まで進め、gate で承認を仰ぐ**旨を短く伝える。
