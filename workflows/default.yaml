@@ -26,7 +26,7 @@ steps:
 
   - id: gate
     agent: workflow-orchestrator
-    role: review 後。handoff_approved を確認し execute へ
+    role: review 後。Handoff 要約を人間に提示し handoff_approved（Asana 投入前の明示承認）を得てから execute へ
     gate_after: handoff_approved
 
   - id: execute
@@ -38,4 +38,4 @@ gates:
     description: plan-reviewer の PlanReviewResult が passed または passed_with_notes
     blocks: [gate, execute]
   handoff_approved:
-    description: gate 段階で利用者が execute へ進行を確認
+    description: gate 段階で利用者が Asana タスク作成（execute）へ進行を明示承認。承認前は handoff_to_asana.py を実行しない

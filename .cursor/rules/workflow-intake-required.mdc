@@ -1,5 +1,5 @@
 ---
-description: 実装・Webアプリ依頼でも workflow-orchestrator（intake）から開始し、review と Asana 同期を省略しない
+description: 実装・Webアプリ依頼でも intake から開始。エージェントが L1 まで進行し、Asana 投入前に人間承認（gate）を挟む
 alwaysApply: true
 ---
 
@@ -7,13 +7,23 @@ alwaysApply: true
 
 このリポジトリは **宣言的 workflow** を採用する。利用者が「アプリを作って」「実装して」と言っただけでは、**いきなりコードや `apps/` を書き始めない**。
 
+## エージェントの進行責務（L1）
+
+**利用者に「次は issue-story-planner を起動してください」と丸投げしない。** 同一セッション内でエージェントが次を実行する:
+
+1. **intake** — 課題受付・方針提示
+2. **plan** — Handoff JSON を `work/handoff.*.json` に保存
+3. **review** — `PlanReviewResult` を `work/plan-review.*.json` に保存（省略不可）
+4. **gate** — 人間へ Handoff 要約を提示し、**Asana タスク作成の承認**を待つ
+5. **execute** — 承認後のみ `asana-buddy`（`handoff_to_asana.py --require-review-result`）
+
 ## 必須の順序（L1）
 
 ```
 workflow-orchestrator（intake）
   → issue-story-planner（Handoff JSON）
   → plan-reviewer（PlanReviewResult・省略不可）
-  → workflow-orchestrator（gate）
+  → workflow-orchestrator（gate）※ 人間承認・Asana 投入前
   → asana-buddy（handoff_to_asana.py --require-review-result）
 ```
 
@@ -42,6 +52,12 @@ Asana 投入後は **task-dispatcher → product-manager**（`department=develop
 
 利用者が **「workflow を省略」「ドキュメントだけ」「Asana 不要」** と明示したときのみ短絡可。それ以外は intake から報告する。
 
+## gate（人間承認）
+
+- `review_passed` 後、**Asana に親・子タスクを作る前に** orchestrator がエピック要約・サブタスク一覧・レビュー結果を提示する。
+- 利用者が **「承認」「Asana に投入して」** 等と明示するまで `handoff_to_asana.py` を実行しない。
+- 差し戻しは「修正して再 gate」— planner / reviewer をエージェントが再実行する。
+
 ## 開始時の一言（エージェント）
 
-実装系の依頼を受けたら、最初に **intake として Handoff 方針を示し**、上記順序で進める旨を短く伝える。
+実装系の依頼を受けたら、最初に **intake として Handoff 方針を示し**、**同一セッションで plan → review まで進め、gate で承認を仰ぐ**旨を短く伝える。

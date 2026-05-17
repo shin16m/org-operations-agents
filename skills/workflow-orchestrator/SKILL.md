@@ -21,13 +21,17 @@
 
 1. 利用者の **生課題**（自然言語）を受け取る
 2. `WorkflowSession` を初期化（`current_step_id: intake`）
-3. **次:** `issue-story-planner` 用の `prompt_snippet` を返す（plan 本文は書かない）
+3. **同一セッションで plan → review まで進める**（利用者に別チャット起動を求めない）
+4. Handoff を `work/handoff.*.json`、レビューを `work/plan-review.*.json` に保存
+5. **gate** へ進み、Asana 投入前に人間承認を仰ぐ（intake 単体で終了しない）
 
-### B. gate（execute 判定）
+### B. gate（execute 判定・Asana 投入前の人間承認）
 
 1. `PlanReviewResult` で `review_passed` を確認（人間目視のみは不可）
-2. `handoff_approved` を確認
-3. **次:** `asana-buddy` 用 `prompt_snippet` または差し戻し先（`plan` / `plan-reviewer`）
+2. Handoff 要約（エピック名・子タスク一覧・レビュー status）を利用者に提示
+3. **`handoff_approved` を得るまで** `handoff_to_asana.py` を実行しない（「承認」「Asana に投入して」等の明示）
+4. 承認後: `asana-buddy` を実行（または `prompt_snippet` を返す）
+5. 差し戻し時は `plan` / `plan-reviewer` をエージェントが再実行
 
 ## 現段階 ID
 

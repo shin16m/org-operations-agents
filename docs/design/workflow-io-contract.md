@@ -17,7 +17,12 @@ registry / workflow 実体は [`workflows/`](../../workflows/)。セッション
 | ゲート ID | 条件 | 未達時 |
 |-----------|------|--------|
 | `review_passed` | **`plan-reviewer` 必須。** `PlanReviewResult.status` が `passed` または `passed_with_notes` | `gate` / `execute` 不可。差し戻しは `plan` |
-| `handoff_approved` | `review_passed` 済みのうえ、人間が orchestrator（gate）経由で execute 可と明示 | `execute` を案内しない |
+| `handoff_approved` | `review_passed` 済みのうえ、人間が orchestrator（gate）経由で **Asana タスク作成（execute）** を明示承認 | `handoff_to_asana.py` を実行しない |
+
+## エージェント進行（L1）
+
+- **intake 担当エージェント**は、利用者に planner/reviewer の起動を委ねず、**同一セッションで** plan（Handoff 保存）→ review（PlanReviewResult 保存）→ gate（要約提示）まで進める。
+- **execute（Asana 投入）**は `handoff_approved` 後のみ。承認前に「次は別エージェントを起動してください」とだけ返して終了しない。
 
 ## orchestrator の二役
 
