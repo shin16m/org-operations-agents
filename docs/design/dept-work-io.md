@@ -29,6 +29,18 @@
 
 スキーマ: [`skills/product-manager/schemas/dept-work-complete.v1.schema.json`](../../skills/product-manager/schemas/dept-work-complete.v1.schema.json)
 
+### Asana 完了同期（必須）
+
+**ローカルで `done_when` を満たしても、Asana 上が未完了のままにしない。**
+
+| タイミング | 担当 | 操作 |
+|------------|------|------|
+| 子タスク 1 件の課内作業完了 | **product-manager** | `complete_task.py --gid <子GID> -y` を **`DeptWorkComplete` 出力の直前に実行** |
+| 同一セッションで複数子を連続完了 | product-manager または orchestrator | `sync_handoff_epic.py --parent <親GID> --handoff <path> --complete-through N --complete-only` |
+| 全子完了後 | **workflow-orchestrator** | 親エピックを `complete_task.py --gid <親GID> -y` で完了（任意だが推奨）→ 利用者へエピック完了報告 |
+
+`DeptWorkComplete.status: completed` と Asana の `completed: true` は**セット**で維持する。片方だけ完了は運用エラーとみなす。
+
 ## 課内レビュー結果
 
 | 種別 | 用途 | `review_kind` | スキーマ |

@@ -13,8 +13,19 @@
    - **developer** — 実装・修正
    - **reviewer** — 各レビュー・動作検証
 4. `MismatchReviewResult.fix_target == code` 時: developer へ修正依頼（doc-writer 業務は一旦完了）
-5. 子の `done_when` を満たしたら `DeptWorkComplete` を出力し `complete_task.py -y` を実行してよい
+5. 子の `done_when` を満たしたら **必ず** `complete_task.py` を実行してから `DeptWorkComplete` を出力する（順序固定）
 6. **workflow-orchestrator** へ完了を報告
+
+## Asana 完了（必須・順序）
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <子GID> -y
+```
+
+- **`DeptWorkComplete` を出す前に**上記を実行すること。ローカル成果物だけ完成させて Asana を未完了のまま残すのは**禁止**。
+- 同一エピックで連続して N 件まで完了した場合:  
+  `sync_handoff_epic.py --parent <親GID> --handoff <handoff.json> --complete-through N --complete-only`
+- 詳細: [`docs/design/dept-work-io.md`](../../docs/design/dept-work-io.md)「Asana 完了同期」
 
 ## やらないこと
 

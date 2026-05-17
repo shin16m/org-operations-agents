@@ -86,11 +86,13 @@ workflow: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml)
 
 2. **task-executor** — 「GID ○○ を実行して」と自然言語で依頼（スキル名のコピペ不要）
 
-3. 完了マーク:
+3. 完了マーク（**作業完了とセットで必須**。ローカルのみ完了にしない）:
 
 ```powershell
 .\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
 ```
+
+配賦 workflow（`with-dispatch`）では [`dispatch-workflow.md`](dispatch-workflow.md) の「子タスク完了」「エピック完了」を参照。
 
 ## 検証記録
 

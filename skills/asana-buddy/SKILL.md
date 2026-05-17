@@ -69,6 +69,9 @@ workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必
 |------------|------|
 | [`optional/fetch_task.py`](optional/fetch_task.py) | `--gid` で name / notes / completed を表示。`--list-subtasks` で子一覧 |
 | [`optional/complete_task.py`](optional/complete_task.py) | `--gid -y` で完了マーク |
+| [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) | `--complete-through N --complete-only` で子【1/N】…【N/N】を一括完了 |
+
+**運用:** ローカルで `done_when` を満たしたら、**必ず**上記で Asana を同期する（product-manager / orchestrator）。詳細は [`docs/design/dept-work-io.md`](../../docs/design/dept-work-io.md)。
 
 実行本体は [`task-executor`](../task-executor/SKILL.md)。本スキルは Asana API の薄いラッパのみ。
 

@@ -27,6 +27,10 @@ execute に進めるか、差し戻し先を示してください。
 
 通過後 **asana-buddy** で Asana 投入。
 
+### 3. 作業完了後 — Asana 同期
+
+課内作業で `done_when` を満たしたら、**必ず** Asana 子タスクを `complete_task.py -y` で完了にする（詳細: [`SKILL.md`](SKILL.md)「Asana 完了同期」）。全子完了後に親エピックも完了にしてから利用者へ報告する。
+
 ## 移行
 
 以前 planner 先頭で運用していた場合も、**新規依頼は orchestrator（intake）から**始めてください（[`README.md`](../../README.md)）。

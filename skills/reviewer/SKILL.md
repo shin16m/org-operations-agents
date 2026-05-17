@@ -17,7 +17,7 @@
 - `fix_target: document` → doc-writer が仕様修正
 - `fix_target: code` → product-manager が developer へ修正依頼（doc-writer 業務完了）
 
-`status: passed*` のとき PM へ提出。
+`status: passed*` のとき PM へ提出。PM は **`complete_task.py -y` → `DeptWorkComplete`** の順で子タスクを閉じる（[`docs/design/dept-work-io.md`](../../docs/design/dept-work-io.md)）。
 
 ## やらないこと
 

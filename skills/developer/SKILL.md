@@ -9,6 +9,7 @@
 3. レビュー OK → **reviewer**（`review_kind: verification`）へ動作検証依頼
 4. 検証 OK → **product-manager** へ開発完了報告
 5. PM からの修正依頼（ミスマッチ `fix_target: code` 等）に対応
+6. 実装・修正が `done_when` を満たしたら **product-manager** へ報告（PM が `complete_task.py -y` を実行するまで Asana は未完了のままにしない）
 
 ## やらないこと
 

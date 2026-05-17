@@ -29,15 +29,31 @@
 
 要件定義（doc-writer）→ レビュー → 開発（developer）→ レビュー・検証 → 詳細仕様（doc-writer）→ 整合レビュー → `DeptWorkComplete`
 
-## 4. 子タスク完了
+## 4. 子タスク完了（必須）
+
+**ローカル作業が終わったら、必ず Asana も完了にする。** `DeptWorkComplete` や利用者報告の前に実行する。
 
 ```powershell
 .\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
 ```
 
+同一エピックで【1/N】…【N/N】まで連続完了した場合（Handoff の `【n/m】` タイトルが付いているとき）:
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\sync_handoff_epic.py `
+  --handoff .\work\handoff.<theme>.json `
+  --parent <PARENT_GID> `
+  --complete-through N `
+  --complete-only
+```
+
 ## 5. エピック完了
 
-全子が完了したら **workflow-orchestrator** が利用者へエピック完了を報告。
+1. `fetch_task.py --gid <PARENT_GID> --list-subtasks` で未完了子が無いことを確認
+2. （推奨）親エピックを `complete_task.py --gid <PARENT_GID> -y` で完了
+3. **workflow-orchestrator** が利用者へエピック完了を報告
+
+未完了の子が残ったまま「完了しました」と報告しない。
 
 ## 分析課
 
