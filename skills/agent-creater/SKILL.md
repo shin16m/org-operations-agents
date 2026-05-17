@@ -5,6 +5,24 @@
 
 **本スキルは特定エージェントの実装を含みません。** リポジトリ内の実装済みスキル例: [`../asana-buddy/SKILL.md`](../asana-buddy/SKILL.md)（Asana タスク化）、[`../issue-story-planner/SKILL.md`](../issue-story-planner/SKILL.md)（課題→ストーリー→ハンドオフ JSON）。後者と asana-buddy は **上流→下流** の組み合わせ例（設計は issue-story-planner、Asana 作成は asana-buddy）。
 
+## 新規エージェント作成の唯一の入口（リポジトリ運用）
+
+本リポジトリで **`skills/<slug>/` を新規に作るときは本スキル（agent-creater）にのみ委任**する。`issue-story-planner`・`plan-reviewer`・`workflow-orchestrator` は他スキルの雛形を書かない。
+
+生成後: [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml) 登録 → [`workflows/default.yaml`](../../workflows/default.yaml) 等を更新（[`CONTRIBUTING.md`](../../CONTRIBUTING.md)）。
+
+## エコシステム（本リポジトリ）
+
+```
+agent-creater（新規スキル生成のみ）
+    ↓ 登録
+workflows/agent-registry.yaml + workflows/*.yaml
+    ↓ 段階実行
+issue-story-planner → plan-reviewer → workflow-orchestrator → asana-buddy
+```
+
+参照: [`docs/inventory/skills-inventory.md`](../../docs/inventory/skills-inventory.md) · 設計 Handoff [`../issue-story-planner/examples/handoff.agent-workflow-orchestration.json`](../issue-story-planner/examples/handoff.agent-workflow-orchestration.json)
+
 ## フォルダ契約（1 エージェント = 1 スラッグ）
 
 ルート: **`skills/<agent-slug>/`**（`agent-creater` の子ディレクトリではない）

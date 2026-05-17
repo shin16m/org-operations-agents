@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "agent-create-supporter: 推奨進め方付き・オーケストレーション基盤",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】マルチエージェント基盤・プラン品質ゲート・Git共有整備",
+    "notes_markdown": "## 課題点の整理\n\n- **エージェントが未完成**: 個別スキルはあるが E2E（課題 → 堅牢なプラン → Asana → 着手）が回らない。\n- **プランのレビューがない** / **オーケストレーターがない** / **Git 共有手順が不足** / **エージェント拡充時に workflow が硬直**。\n\n## 拡張性・委任（要約）\n\n- 新規 `skills/<slug>/` の作成は **`agent-creater` のみ**（他スキル・オーケストレーターは生成しない）。\n- workflow は宣言的定義 + **agent-registry**。オーケストレーターは薄いルータ。\n- 詳細は本エピック配下サブタスクおよび `skills/issue-story-planner/examples/handoff.agent-workflow-orchestration.json` を参照。\n\n## 推奨進め方（このエピックの進行ルール）\n\n**スキル全文を先に直し切ってから着手する必要はない。** サブタスク順がそのまま推奨順序。\n\n| フェーズ | サブタスク | 意図 |\n|----------|------------|------|\n| **分析** | 1 棚卸し | ギャップ・レガシー・スロット案を表に固定（SKILL 未整備項目もここで列挙） |\n| **設計** | 2–4 | I/O・registry/workflow・plan-reviewer 契約を先に固める |\n| **方針（軽量）** | 5 | 実装前に既存3スキルへ1節だけ追記（迷い防止。本格整備は後） |\n| **実装** | 6–7 | **agent-creater で** plan-reviewer / orchestrator を生成 |\n| **統合** | 8 | E2E 手順・workflow 変更例 |\n| **整備（本格）** | 9 | 設計・実装後に SKILL 全面整合・registry 連携 |\n| **共有** | 10 | ルート README / CONTRIBUTING |\n| **検証** | 11 | ドライラン + workflow 拡張スモーク |\n\n**やらないこと:** 棚卸しを飛ばして実装から入る / 設計前に SKILL を全面改訂して二重手間を増やす。\n\n## 目指すワークフロー\n\n```\nplan (issue-story-planner) → review (plan-reviewer) → gate (workflow-orchestrator) → execute (asana-buddy)\n新規スキル追加: agent-creater で生成 → registry + workflow 更新\n```\n\n## 進め方\n\n- サブタスクは **上から順**（Asana 上の並びは必要なら手動で合わせる）。\n- 単一の設計参照: リポジトリ内 `handoff.agent-workflow-orchestration.json`。"
+  },
+  "subtasks": [
+    {
+      "title": "【1/11・分析】エージェント構成・ギャップ・SKILL未反映項目の棚卸し",
+      "pillar": "分析",
+      "background": "エピック着手前に SKILL を全面改訂する必要はないが、何が未整備かは最初に一覧化しないと後続がブレる。",
+      "summary": "`skills/` 一覧、スロット案、レガシー `agent-creater/agents/` の扱い、Handoff 例との差分、**各 SKILL に未反映の方針**（委任・パイプライン・registry）を棚卸し表にする。参照: 本 Handoff JSON・親 notes の推奨進め方表。",
+      "done_when": "棚卸し表がリポジトリにあり、サブタスク 2–11 への対応行と、agent-creater＝新規作成唯一入口が明記されている。"
+    },
+    {
+      "title": "【2/11・設計】ワークフロー I/O 契約・ゲート・オーケストレーター責務",
+      "pillar": "設計",
+      "background": "実装・SKILL 本格更新の前に、段階間のデータと責務分界を固定する。",
+      "summary": "Handoff v1.1・レビュー結果・人間承認の I/O 表とゲート（レビュー未了→Asana 禁止）。新規 SKILL 実体は agent-creater 経由のみと境界面（registry / workflow / 個別 SKILL）を一覧化。",
+      "done_when": "I/O 契約表・シーケンス図があり、タスク 6–7 の実装がブロックされない。"
+    },
+    {
+      "title": "【3/11・設計】宣言的 workflow と agent-registry",
+      "pillar": "設計",
+      "background": "エージェント追加のたびにオーケストレーター SKILL を書き換えないための設計。",
+      "summary": "`workflows/` と registry 草案。新 slug の実体は agent-creater、registry には slug・I/O 参照・有効フラグのみ。CONTRIBUTING 草案に追加3ステップを書く。",
+      "done_when": "サンプル workflow 1 本・registry スキーマ草案・「agent-creater→registry→workflow」手順がある。"
+    },
+    {
+      "title": "【4/11・設計】plan-reviewer の観点と出力スキーマ",
+      "pillar": "設計",
+      "background": "タスク 6 で agent-creater 生成する前に、review スロットの契約を固定する。",
+      "summary": "レビュー観点・重大度・改訂 Handoff・差し戻し条件。workflow の `review` で消費可能な出力形式を定義。",
+      "done_when": "設計メモと出力例があり、registry 上の plan-reviewer エントリ案と整合する。"
+    },
+    {
+      "title": "【5/11・方針】既存3スキルへ最小追記（実装 6・7 の前）",
+      "pillar": "方針",
+      "background": "SKILL 全面改訂はタスク 9 で行う。一方、agent-creater 生成前に方針だけ無いと実装が迷う。",
+      "summary": "agent-creater / issue-story-planner / asana-buddy の各 SKILL.md に **1節ずつ**追記: ①新規エージェントは agent-creater のみ ②推奨パイプライン plan→review→asana（review 未実装時は人間レビュー可）③asana 投入は Handoff 推奨。詳細・registry はタスク 9 へ委ねる。",
+      "done_when": "3 SKILL に上記が短く明記され、タスク 9 で本格整備する旨が各所に書かれている。"
+    },
+    {
+      "title": "【6/11・実装】plan-reviewer（agent-creater で生成）",
+      "pillar": "実装",
+      "background": "タスク 4 の設計とタスク 5 の方針追記の後が安全。手書きで skills/ を新規作成しない。",
+      "summary": "**agent-creater** で plan-reviewer を生成・保存。タスク 4 の I/O に合わせ SKILL を調整。registry 草案に slug（slot: review）を追加。",
+      "done_when": "`skills/plan-reviewer/` が標準ツリーで存在し、作成経路が README にあり、registry 草案に載っている。"
+    },
+    {
+      "title": "【7/11・実装】workflow-orchestrator（agent-creater で生成）",
+      "pillar": "実装",
+      "background": "タスク 2–3 の設計に基づき設定駆動のルータを実装。他エージェントの雛形は書かない。",
+      "summary": "**agent-creater** で workflow-orchestrator を生成。workflow + registry を読みゲート・次スキルを案内。新規エージェント需要時は agent-creater へ誘導。",
+      "done_when": "`skills/workflow-orchestrator/` が存在し、未登録スキルで明示エラー、SKILL に委任ルールが書かれている。"
+    },
+    {
+      "title": "【8/11・統合】E2E 手順書・起動例・workflow 変更例",
+      "pillar": "統合",
+      "background": "新スキルと orchestrator が揃ったあと、利用者向け手順を一本化する。",
+      "summary": "デフォルト E2E（plan→review→orchestrator→asana）の Copilot/Cursor 起動例。review 差し替え・ゲート挿入の workflow 最小変更例。",
+      "done_when": "手順書にデフォルト E2E と拡張例が載り、入力・出力ファイルパスが列挙されている。"
+    },
+    {
+      "title": "【9/11・整備】既存スキル本格更新（registry・Handoff・エコシステム図）",
+      "pillar": "整備",
+      "background": "タスク 5 は最小追記のみ。設計・新スキル実装後に、Handoff 例と整合した SKILL 本格更新を行う。",
+      "summary": "agent-creater / issue-story-planner / asana-buddy（+ 必要なら新スキル）の SKILL・README を整合。エコシステム図、Handoff 例リンク、registry フィールド例、レガシー paths の整理方針。",
+      "done_when": "各 SKILL が親 notes のパイプラインと一致し、`handoff.agent-workflow-orchestration.json` へリンクがある。"
+    },
+    {
+      "title": "【10/11・共有】ルート README / CONTRIBUTING",
+      "pillar": "共有",
+      "background": "Git クローン者がスキル一覧と拡張手順を README だけで辿れるようにする。",
+      "summary": "ルート README（スキル一覧・venv/Asana・推奨 workflow・サブタスク進行の要約）。CONTRIBUTING（agent-creater 必須・registry・workflow チェックリスト）。",
+      "done_when": "新規クローン者が README のみで venv と handoff 投入まで到達でき、CONTRIBUTING に拡張手順がある。"
+    },
+    {
+      "title": "【11/11・検証】E2E ドライラン＋ workflow 拡張スモーク",
+      "pillar": "検証",
+      "background": "ドキュメントと実態の最終一致確認。",
+      "summary": "デフォルト workflow で plan→review→handoff_to_asana。registry にダミー slug + workflow 1 ノード追加のスモーク。結果を README に記録。",
+      "done_when": "ドライラン記録（中間 JSON・Asana URL）とスモーク手順があり、タスク 9–10 の記述と実操作が一致している。"
+    }
+  ]
+}

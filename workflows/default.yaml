@@ -1,0 +1,27 @@
+# Default workflow for agent-create-supporter
+id: default
+version: "1"
+description: plan → review → orchestrate → execute
+
+steps:
+  - id: plan
+    agent: issue-story-planner
+    gate_after: null
+
+  - id: review
+    agent: plan-reviewer
+    gate_after: review_passed
+
+  - id: orchestrate
+    agent: workflow-orchestrator
+    gate_after: handoff_approved
+
+  - id: execute
+    agent: asana-buddy
+    gate_after: null
+
+gates:
+  review_passed:
+    description: plan-reviewer が passed または passed_with_notes
+  handoff_approved:
+    description: 利用者が execute 段階へ進行を確認

@@ -4,6 +4,16 @@
 
 人間向けのセットアップ・コマンド例は [`README.md`](README.md) を参照。
 
+## 推奨パイプライン（execute スロット）
+
+```
+issue-story-planner → plan-reviewer（または人間レビュー）→ workflow-orchestrator → asana-buddy（本スキル）
+```
+
+- 投入は **`AsanaBuddyHandoff` v1.1** を推奨（[`handoff_to_asana.py`](optional/handoff_to_asana.py)）。
+- レビュー未了の Handoff をそのまま投入しない（`plan-reviewer` 未導入時は人間確認で代替）。
+- エコシステム: [`docs/inventory/skills-inventory.md`](../../docs/inventory/skills-inventory.md) · E2E [`docs/e2e/default-workflow.md`](../../docs/e2e/default-workflow.md) · 基盤 Handoff 例 [`../issue-story-planner/examples/handoff.agent-workflow-orchestration.json`](../issue-story-planner/examples/handoff.agent-workflow-orchestration.json)
+
 ## レイアウト
 
 - `README.md` — 利用者向けの概要・セットアップ・スクリプト一覧
@@ -32,7 +42,7 @@
 
 - **スキル本文**: [`../issue-story-planner/SKILL.md`](../issue-story-planner/SKILL.md)
 - **JSON Schema**: [`../issue-story-planner/schemas/asana-buddy-handoff.v1.schema.json`](../issue-story-planner/schemas/asana-buddy-handoff.v1.schema.json)
-- **例**: [`../issue-story-planner/examples/handoff.example.json`](../issue-story-planner/examples/handoff.example.json)
+- **例**: [`../issue-story-planner/examples/handoff.example.json`](../issue-story-planner/examples/handoff.example.json) · [`handoff.agent-workflow-orchestration.json`](../issue-story-planner/examples/handoff.agent-workflow-orchestration.json)
 
 ### 消費側の約束事
 
@@ -45,6 +55,7 @@
 親＋子の一括は次のいずれか:
 
 - **推奨:** [`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) — `AsanaBuddyHandoff` v1.1 JSON をそのまま投入（`assemble_subtask_notes` で notes 組み立て）
+- **既存エピックの更新:** [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) — Handoff JSON から親 `notes` と子タスクの `name` / `notes` を一括更新。`--complete-through 11 --complete-only` で子タスクを完了にできる。
 - **テーマ別:** `asana_<テーマ>_program.py` — 定数 `SUBTASKS` から投入（[`asana_program_common.py`](optional/asana_program_common.py) の `notes_from_legacy_body` で v1.1 形式に整形）
 
 ## 一括プログラムの命名

@@ -4,6 +4,16 @@
 
 このスキルは、**課題点の整理**、**解決ストーリー（なぜその順序で進めるか）**、**Asana 等に落とし込める粒度のタスク案**までを一気通貫でまとめる。外部 API は呼ばず、**構造化アウトプット**を返す。実際の Asana 作成は [`asana-buddy`](../asana-buddy/SKILL.md) スキル（スクリプト／対話）に委ねる。
 
+## 推奨パイプライン（plan スロット）
+
+```
+issue-story-planner（本スキル）→ plan-reviewer → workflow-orchestrator → asana-buddy
+```
+
+- **新規エージェント**をタスク案に含める場合、実装は [`agent-creater`](../agent-creater/SKILL.md) に委任と明記する（本スキルは `skills/<slug>/` を生成しない）。
+- `plan-reviewer` 未使用時は人間が Handoff をレビューしてから Asana 投入してよい。
+- registry / workflow の詳細は [`docs/design/workflow-io-contract.md`](../../docs/design/workflow-io-contract.md)（本格な SKILL 相互リンクは今後整備）。
+
 ## いつ使うか
 
 - テーマやプロジェクトの「課題」「前提」「ゴール」がまだ文章に散らばっている
@@ -91,3 +101,14 @@
 3. （任意）ユーザーがコピーしやすい Asana 用の一行メモ
 
 このスキルは **設計・文書化** に特化する。Asana トークンやプロジェクト GID は [`asana-buddy`](../asana-buddy/SKILL.md) 側の運用に従う。
+
+## エコシステム・例
+
+| リソース | 用途 |
+|----------|------|
+| [`examples/handoff.example.json`](examples/handoff.example.json) | 汎用 Handoff 例 |
+| [`examples/handoff.agent-workflow-orchestration.json`](examples/handoff.agent-workflow-orchestration.json) | 基盤エピック・メタ設計の参照 Handoff |
+| [`docs/design/workflow-io-contract.md`](../../docs/design/workflow-io-contract.md) | パイプライン I/O |
+| [`workflows/default.yaml`](../../workflows/default.yaml) | 宣言的 workflow |
+
+**本スキルは新規 `skills/<slug>/` を生成しない** → [`agent-creater`](../agent-creater/SKILL.md)。
