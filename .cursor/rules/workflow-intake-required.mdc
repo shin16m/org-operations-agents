@@ -1,0 +1,47 @@
+---
+description: 実装・Webアプリ依頼でも workflow-orchestrator（intake）から開始し、review と Asana 同期を省略しない
+alwaysApply: true
+---
+
+# 標準 workflow 厳守（このリポジトリ）
+
+このリポジトリは **宣言的 workflow** を採用する。利用者が「アプリを作って」「実装して」と言っただけでは、**いきなりコードや `apps/` を書き始めない**。
+
+## 必須の順序（L1）
+
+```
+workflow-orchestrator（intake）
+  → issue-story-planner（Handoff JSON）
+  → plan-reviewer（PlanReviewResult・省略不可）
+  → workflow-orchestrator（gate）
+  → asana-buddy（handoff_to_asana.py --require-review-result）
+```
+
+- 参照: [`workflows/default.yaml`](workflows/default.yaml) · [`CONTRIBUTING.md`](CONTRIBUTING.md)
+
+## 実装依頼時（L2/L3）
+
+Asana 投入後は **task-dispatcher → product-manager**（`department=development`）で子タスクごとに進める。
+
+| 段階 | 必須 |
+|------|------|
+| 要件 / 仕様 | doc-writer → **reviewer**（`work/reviews/` に JSON） |
+| 実装 | developer → **code review** → **verification** |
+| 子タスク完了 | `comment_task.py`（署名付き）→ `complete_task.py -y` |
+
+- 参照: [`workflows/development-delivery.yaml`](workflows/development-delivery.yaml) · [`docs/design/dept-work-io.md`](docs/design/dept-work-io.md)
+
+## 禁止（明示指示がない限り）
+
+- Handoff なしで `apps/` や大規模実装を開始する
+- `plan-reviewer` を飛ばして Asana 投入する
+- ローカルだけ完了し、Asana を未完了のままにする
+- `complete_task.py` だけ実行し、署名コメントを省略する
+
+## 例外
+
+利用者が **「workflow を省略」「ドキュメントだけ」「Asana 不要」** と明示したときのみ短絡可。それ以外は intake から報告する。
+
+## 開始時の一言（エージェント）
+
+実装系の依頼を受けたら、最初に **intake として Handoff 方針を示し**、上記順序で進める旨を短く伝える。
