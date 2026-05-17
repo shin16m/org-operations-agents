@@ -55,7 +55,7 @@ workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必
 
 親＋子の一括は次のいずれか:
 
-- **推奨:** [`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) — `AsanaBuddyHandoff` v1.1 JSON をそのまま投入（`assemble_subtask_notes` で notes 組み立て）
+- **推奨:** [`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) — `AsanaBuddyHandoff` v1.1 JSON をそのまま投入。運用で review 必須を強制する場合は `--require-review-result path/to/review.json` を付与（`PlanReviewResult` の `status` が `passed` / `passed_with_notes` であること）
 - **既存エピックの更新:** [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) — Handoff JSON から親 `notes` と子タスクの `name` / `notes` を一括更新。`--complete-through 11 --complete-only` で子タスクを完了にできる。
 - **テーマ別:** `asana_<テーマ>_program.py` — 定数 `SUBTASKS` から投入（[`asana_program_common.py`](optional/asana_program_common.py) の `notes_from_legacy_body` で v1.1 形式に整形）
 
@@ -65,4 +65,4 @@ workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必
 
 ## 環境変数
 
-Asana 用 `.env` の標準置き場所は **`optional/.env`（本スキル直下）** です。以前 `skills/agent-creater/agents/asana-buddy/optional/.env` に置いていた場合も、スクリプトがフォールバック読み込みします。
+Asana 用 `.env` の標準置き場所は **`optional/.env`（本スキル直下）** です。

@@ -1,15 +1,19 @@
 # E2E ドライラン記録
 
-タスク 11 成果物。
-
 ## 実施日
 
-2026-05-17（エピック実装セッション）
+- 2026-05-17 — マルチエージェント基盤エピック
+- 2026-05-17 — workflow v2（orchestrator intake）・スキルレビュー是正
 
-## スコープ
+## スコープ（v2）
 
-- リポジトリ内ドキュメント・スキル・workflow/registry の整合確認
-- 本エピック Handoff の Asana 投入は実施済み（過去セッション）
+| 段階 | 確認内容 |
+|------|----------|
+| intake | workflow-orchestrator → planner 委譲プロンプト |
+| plan | issue-story-planner → Handoff v1.1 |
+| review | plan-reviewer → PlanReviewResult v1.0 |
+| gate | workflow-orchestrator → execute 委譲 |
+| execute | handoff_to_asana.py（任意 `--require-review-result`） |
 
 ## 中間成果物（パス）
 
@@ -17,22 +21,25 @@
 |------|----------|
 | 設計 | `docs/inventory/skills-inventory.md` |
 | I/O | `docs/design/workflow-io-contract.md` |
+| セッション | `docs/design/workflow-session-io.md` |
 | registry | `workflows/agent-registry.yaml` |
-| workflow | `workflows/default.yaml` |
+| workflow | `workflows/default.yaml` v2 |
 | review 契約 | `docs/design/plan-reviewer-contract.md` |
-| Handoff 参照 | `skills/issue-story-planner/examples/handoff.agent-workflow-orchestration.json` |
+| review スキーマ | `skills/plan-reviewer/schemas/plan-review-result.v1.schema.json` |
 | E2E 手順 | `docs/e2e/default-workflow.md` |
+| 入口化 dryrun | `docs/verification/orchestrator-intake-dryrun.md` |
 
-## Asana
+## Asana エピック（参考）
 
-- 親エピック: https://app.asana.com/1/1214766054680431/project/1214771428861230/task/1214879346897459
+- 基盤構築: https://app.asana.com/1/1214766054680431/project/1214771428861230/task/1214879346897459
+- オーケストレーター入口化: https://app.asana.com/1/1214766054680431/project/1214771428861230/task/1214873888809993
 
 ## 拡張スモーク（registry）
 
-- `workflows/agent-registry.yaml` に未登録 slug を workflow が参照した場合、orchestrator SKILL は「registry 更新手順」を返す設計（[`workflow-orchestrator/SKILL.md`](../../skills/workflow-orchestrator/SKILL.md)）
-- ダミー slug 追加の手順は CONTRIBUTING「新エージェント追加」に記載
+- 未登録 slug 参照時、orchestrator SKILL は registry 更新手順を返す（[`workflow-orchestrator/SKILL.md`](../../skills/workflow-orchestrator/SKILL.md)）
 
 ## 結果
 
-- タスク 9–10 の README / CONTRIBUTING / SKILL リンクと実ファイルが一致
-- 第三者はルート README → venv → `docs/e2e/default-workflow.md` で再現可能
+- ルート README → intake 起点の v2 手順で再現可能
+- `handoff_to_asana.py --require-review-result` で review ゲートを CLI 強制可能
+- レガシー `skills/agent-creater/agents/asana-buddy/` 削除済み

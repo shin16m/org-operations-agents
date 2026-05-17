@@ -32,6 +32,8 @@ agents:
     io:
       input_kind: AsanaBuddyHandoff
       output_kind: PlanReviewResult
+      output_schema: skills/plan-reviewer/schemas/plan-review-result.v1.schema.json
+      schema_version: "1.0"
       schema_doc: docs/design/plan-reviewer-contract.md
 
   - slug: asana-buddy

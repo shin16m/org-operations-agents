@@ -6,8 +6,7 @@ Usage (example):
 
 Requires: `ASANA_TOKEN` in the process environment, or the same key in a `.env` file
 discovered under the current working directory or any parent directory, or under this
-script's directory and its parents (first match wins). Legacy paths under
-``skills/agent-creater/`` are also checked when present. Existing environment variables
+script's directory and its parents (first match wins). Existing environment variables
 are not overwritten by `.env`.
 """
 import os
@@ -21,29 +20,8 @@ import requests
 ASANA_BASE = "https://app.asana.com/api/1.0"
 
 
-def _repo_root_from_script() -> Optional[Path]:
-    """Return repository root (parent of ``skills/``) when this file is under ``skills/``."""
-    for parent in Path(__file__).resolve().parents:
-        if parent.name == "skills" and parent.parent.is_dir():
-            return parent.parent
-    return None
-
-
-def _legacy_dotenv_candidates() -> list[Path]:
-    root = _repo_root_from_script()
-    if root is None:
-        return []
-    skills = root / "skills"
-    return [
-        skills / "agent-creater" / "agents" / "asana-buddy" / "optional" / ".env",
-    ]
-
-
 def _find_dotenv_path() -> Optional[Path]:
-    """Return the first existing .env path when walking up from cwd and from this file.
-
-    Also checks legacy paths under ``skills/agent-creater/`` for older layouts.
-    """
+    """Return the first existing .env path when walking up from cwd and from this file."""
     seen: set[Path] = set()
     anchors = (Path.cwd(), Path(__file__).resolve().parent)
     for anchor in anchors:
@@ -55,9 +33,6 @@ def _find_dotenv_path() -> Optional[Path]:
             candidate = resolved / ".env"
             if candidate.is_file():
                 return candidate
-    for legacy in _legacy_dotenv_candidates():
-        if legacy.is_file():
-            return legacy
     return None
 
 

@@ -25,4 +25,4 @@ skills/<agent-slug>/
 ## 注意点
 
 - 外部 API キー（Asana 等）はこのリポジトリに含めず、各スキルの `optional/.env` 等でユーザーが管理する。
-- **`skills/agent-creater/agents/` への配置はしない**（廃止済み）。
+- **`skills/agent-creater/agents/` への配置はしない**（廃止済み・ディレクトリなし）。

@@ -18,7 +18,7 @@ issue-story-planner への prompt_snippet を返してください。
 
 ### 2. gate — review 後
 
-Handoff と `PlanReviewResult`（`passed` 必須）を渡す:
+Handoff と `PlanReviewResult`（`status` が `passed` または `passed_with_notes`）を渡す:
 
 ```
 あなたは workflow-orchestrator スキルです（gate モード）。

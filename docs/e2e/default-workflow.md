@@ -62,8 +62,13 @@ review_passed を確認し、execute（asana-buddy）に進めるか判断して
 **入力:** 承認済み Handoff JSON
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\handoff_to_asana.py --handoff .\handoff.revised.json -y --if-not-exists
+.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\handoff_to_asana.py `
+  --handoff .\handoff.revised.json `
+  --require-review-result .\review.result.json `
+  -y --if-not-exists
 ```
+
+`--require-review-result` は運用上 review 必須を CLI で強制する（省略時は SKILL 上の前提のみ）。
 
 ## 移行
 

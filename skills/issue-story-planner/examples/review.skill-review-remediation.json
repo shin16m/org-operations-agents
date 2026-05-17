@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "status": "passed_with_notes",
+  "summary": "スキルレビュー指摘の是正 Handoff は着手順・完了条件が明確。実装後に棚卸しと CLI ゲートを再確認すること。",
+  "findings": [
+    {
+      "severity": "low",
+      "category": "risk",
+      "message": "レガシー削除後、旧パスに .env だけ残している環境は skills/asana-buddy/optional/.env へ移す必要がある。",
+      "subtask_index": 5
+    }
+  ],
+  "revised_handoff": null
+}

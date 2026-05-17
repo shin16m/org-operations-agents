@@ -5,6 +5,15 @@ import os
 import sys
 from typing import Any, Callable, Sequence
 
+
+def console_safe(text: str) -> str:
+    """Encode for the current stdout (e.g. cp932 on Windows) without raising."""
+    enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+    try:
+        return text.encode(enc, errors="replace").decode(enc, errors="replace")
+    except LookupError:
+        return text.encode("utf-8", errors="replace").decode("utf-8")
+
 import requests
 
 from agent_handler_asana import ASANA_BASE, create_task
@@ -139,6 +148,42 @@ def resolve_project_with_fallback(explicit: str | None) -> str:
         file=sys.stderr,
     )
     return FALLBACK_PROJECT_GID
+
+
+REVIEW_PASSED_STATUSES = frozenset({"passed", "passed_with_notes"})
+
+
+def load_review_result(path: str) -> dict[str, Any]:
+    import json
+    from pathlib import Path
+
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    if data.get("schema_version") != "1.0":
+        raise ValueError('review result schema_version must be "1.0"')
+    status = data.get("status")
+    if status not in REVIEW_PASSED_STATUSES:
+        raise ValueError(
+            f"review status must be one of {sorted(REVIEW_PASSED_STATUSES)}, got {status!r}"
+        )
+    if not (data.get("summary") or "").strip():
+        raise ValueError("review result summary is required")
+    findings = data.get("findings")
+    if not isinstance(findings, list):
+        raise ValueError("review result findings must be an array")
+    for i, item in enumerate(findings):
+        if not isinstance(item, dict):
+            raise ValueError(f"review result findings[{i}] must be an object")
+        for key in ("severity", "category", "message"):
+            if not (item.get(key) or "").strip():
+                raise ValueError(f"review result findings[{i}].{key} is required")
+    high = [f for f in findings if f.get("severity") == "high"]
+    if high and status in REVIEW_PASSED_STATUSES:
+        print(
+            f"警告: status={status!r} だが findings に severity=high が {len(high)} 件。"
+            " orchestrator（gate）で差し戻しを検討してください。",
+            file=sys.stderr,
+        )
+    return data
 
 
 def load_handoff(path: str) -> dict[str, Any]:

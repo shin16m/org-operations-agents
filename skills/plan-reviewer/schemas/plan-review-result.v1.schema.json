@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/plan-review-result.v1.schema.json",
+  "title": "PlanReviewResult",
+  "description": "Output from plan-reviewer (v1.0).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "summary", "findings"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "passed_with_notes", "needs_revision", "blocked"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "category", "message"],
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "goal_alignment",
+              "risk",
+              "task_granularity",
+              "io_contract",
+              "agent_creater"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "subtask_index": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "revised_handoff": {
+      "type": "object",
+      "description": "Full AsanaBuddyHandoff v1.1 when status is needs_revision"
+    }
+  }
+}

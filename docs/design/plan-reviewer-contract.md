@@ -8,7 +8,7 @@
 
 ## 出力: `PlanReviewResult`
 
-機械可読は JSON 1 ブロック。スキーマはリポジトリ内で運用（v1 草案）。
+機械可読は JSON 1 ブロック。スキーマ: [`skills/plan-reviewer/schemas/plan-review-result.v1.schema.json`](../../skills/plan-reviewer/schemas/plan-review-result.v1.schema.json)
 
 ```json
 {
@@ -54,6 +54,10 @@
 
 - `needs_revision` 時は `revised_handoff` に完全な `AsanaBuddyHandoff` v1.1 を載せてよい。
 - `passed` / `passed_with_notes` 時は `revised_handoff` は省略可（入力 Handoff をそのまま次へ）。
+
+## Handoff との対応（将来）
+
+現状 CLI は review JSON と Handoff JSON の**内容の対応を検証しない**。将来は `PlanReviewResult` に任意フィールド `handoff_meta_title`（`meta.title` と一致）等を載せ、`handoff_to_asana.py` で照合する案。
 
 ## 差し戻し条件
 

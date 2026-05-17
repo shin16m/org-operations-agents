@@ -34,6 +34,14 @@
 
 [`workflows/default.yaml`](../../workflows/default.yaml) の `policy.review_required: true`
 
+## registry 未登録 slug
+
+`workflows/default.yaml` が参照する `agent` が [`agent-registry.yaml`](../../workflows/agent-registry.yaml) に無い、または `enabled: false` の場合:
+
+- `execute` / 次段階の案内は**しない**
+- `blocked_reason` に slug を明記する
+- [`CONTRIBUTING.md`](../../CONTRIBUTING.md) の「新エージェント追加」（agent-creater → registry → workflow）を案内する
+
 ## やらないこと
 
 - Handoff の新規作成（→ issue-story-planner）

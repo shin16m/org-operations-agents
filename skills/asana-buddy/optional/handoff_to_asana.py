@@ -3,8 +3,8 @@
 
 Usage:
   python handoff_to_asana.py --handoff ../issue-story-planner/examples/handoff.example.json --list-projects
-  python handoff_to_asana.py --handoff handoff.json -y --dry-run
-  python handoff_to_asana.py --handoff handoff.json -y --if-not-exists
+  python handoff_to_asana.py --handoff handoff.json --require-review-result review.json -y --dry-run
+  python handoff_to_asana.py --handoff handoff.json --require-review-result review.json -y --if-not-exists
   python handoff_to_asana.py --handoff handoff.json -y --project <GID>
 """
 from __future__ import annotations
@@ -19,11 +19,13 @@ if str(_SCRIPT_DIR) not in sys.path:
 
 from agent_handler_asana import create_task, get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import (  # noqa: E402
+    console_safe,
     create_subtasks_reversed,
     find_project_task_by_exact_name,
     handoff_subtask_notes,
     list_accessible_projects,
     load_handoff,
+    load_review_result,
     resolve_project_with_fallback,
 )
 
@@ -40,6 +42,12 @@ def main() -> None:
         action="store_true",
         help="Skip if epic.title already exists as top-level project task",
     )
+    p.add_argument(
+        "--require-review-result",
+        metavar="PATH",
+        default=None,
+        help="Require PlanReviewResult JSON with status passed or passed_with_notes",
+    )
     args = p.parse_args()
 
     load_env_from_dotfile()
@@ -48,6 +56,10 @@ def main() -> None:
     if args.list_projects:
         list_accessible_projects(token)
         return
+
+    if args.require_review_result:
+        review = load_review_result(args.require_review_result)
+        print("review_ok", review.get("status"))
 
     data = load_handoff(args.handoff)
     epic = data["epic"]
@@ -64,8 +76,10 @@ def main() -> None:
 
     if args.dry_run:
         print(
-            f"dry-run: would create 1 parent + {len(subtasks)} subtasks "
-            f"project_gid={project_id} epic={epic_title!r}"
+            console_safe(
+                f"dry-run: would create 1 parent + {len(subtasks)} subtasks "
+                f"project_gid={project_id} epic={epic_title!r}"
+            )
         )
         return
 

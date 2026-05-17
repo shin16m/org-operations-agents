@@ -102,12 +102,16 @@ workflow-orchestrator（intake）→ issue-story-planner（本スキル）→ pl
 
 このスキルは **設計・文書化** に特化する。Asana トークンやプロジェクト GID は [`asana-buddy`](../asana-buddy/SKILL.md) 側の運用に従う。
 
+人間向け: [`README.md`](README.md)
+
 ## エコシステム・例
 
 | リソース | 用途 |
 |----------|------|
 | [`examples/handoff.example.json`](examples/handoff.example.json) | 汎用 Handoff 例 |
 | [`examples/handoff.agent-workflow-orchestration.json`](examples/handoff.agent-workflow-orchestration.json) | 基盤エピック・メタ設計の参照 Handoff |
+| [`examples/handoff.orchestrator-intake-entry.json`](examples/handoff.orchestrator-intake-entry.json) | オーケストレーター入口化 |
+| [`examples/handoff.skill-review-remediation.json`](examples/handoff.skill-review-remediation.json) | スキルレビュー指摘の是正 |
 | [`docs/design/workflow-io-contract.md`](../../docs/design/workflow-io-contract.md) | パイプライン I/O |
 | [`workflows/default.yaml`](../../workflows/default.yaml) | 宣言的 workflow |
 

@@ -11,6 +11,7 @@
 - `SKILL.md` — 本ファイル
 - `personas/` — plan_reviewer.json / .md
 - 契約: [`docs/design/plan-reviewer-contract.md`](../../docs/design/plan-reviewer-contract.md)
+- スキーマ: [`schemas/plan-review-result.v1.schema.json`](schemas/plan-review-result.v1.schema.json)
 - registry: [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml) の `plan-reviewer`
 
 ## 入力
