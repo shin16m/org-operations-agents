@@ -17,6 +17,10 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 
 `skills/agent-creater/agents/` 配下は配置しない。正は `skills/<slug>/`。
 
+## ワークフロー運用
+
+- 標準 workflow では **`plan-reviewer` による review は必須**。Handoff を Asana に載せる前に `PlanReviewResult`（`passed` / `passed_with_notes`）を得ること。
+
 ## 検証
 
 - E2E: [`docs/e2e/default-workflow.md`](docs/e2e/default-workflow.md)

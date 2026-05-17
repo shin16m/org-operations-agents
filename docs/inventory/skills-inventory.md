@@ -33,7 +33,7 @@
 |-------|-------------------------|------|
 | `agent-creater` | 唯一の作成入口・エコシステム図 | 5 最小 → 9 本格 |
 | `issue-story-planner` | plan→review→asana、agent-creater 委任 | 5 → 9 |
-| `asana-buddy` | レビュー済み Handoff 推奨、パイプライン | 5 → 9 |
+| `asana-buddy` | plan-reviewer 必須後のみ Handoff 投入 | 5 → 9 |
 
 ## レガシー
 

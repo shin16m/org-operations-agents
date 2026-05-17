@@ -4,15 +4,15 @@
 
 このスキルは、**課題点の整理**、**解決ストーリー（なぜその順序で進めるか）**、**Asana 等に落とし込める粒度のタスク案**までを一気通貫でまとめる。外部 API は呼ばず、**構造化アウトプット**を返す。実際の Asana 作成は [`asana-buddy`](../asana-buddy/SKILL.md) スキル（スクリプト／対話）に委ねる。
 
-## 推奨パイプライン（plan スロット）
+## 標準パイプライン（plan スロット・review 必須）
 
 ```
-issue-story-planner（本スキル）→ plan-reviewer → workflow-orchestrator → asana-buddy
+issue-story-planner（本スキル）→ plan-reviewer（必須）→ workflow-orchestrator → asana-buddy
 ```
 
 - **新規エージェント**をタスク案に含める場合、実装は [`agent-creater`](../agent-creater/SKILL.md) に委任と明記する（本スキルは `skills/<slug>/` を生成しない）。
-- `plan-reviewer` 未使用時は人間が Handoff をレビューしてから Asana 投入してよい。
-- registry / workflow の詳細は [`docs/design/workflow-io-contract.md`](../../docs/design/workflow-io-contract.md)（本格な SKILL 相互リンクは今後整備）。
+- **Handoff 出力後は必ず [`plan-reviewer`](../plan-reviewer/SKILL.md) を通す。** 人間の目視のみでは review 段階を満たさない（[`workflows/default.yaml`](../../workflows/default.yaml) の `review_required`）。
+- registry / workflow: [`docs/design/workflow-io-contract.md`](../../docs/design/workflow-io-contract.md)
 
 ## いつ使うか
 

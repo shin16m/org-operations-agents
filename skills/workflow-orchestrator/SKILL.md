@@ -17,6 +17,14 @@
 3. **次に呼ぶスキル**と Copilot/Cursor 用の短い起動プロンプト例
 4. registry 未登録 slug → 明示エラー + CONTRIBUTING の拡張手順を案内
 
+## review 必須（ワークフロー政策）
+
+[`workflows/default.yaml`](../../workflows/default.yaml) の `policy.review_required: true` に従う。
+
+- **`plan-reviewer` を経ていない Handoff は `execute` に進めない。**
+- `PlanReviewResult` が無い、または `status` が `needs_revision` / `blocked` のときは [`plan-reviewer`](../plan-reviewer/SKILL.md) または `plan` へ差し戻す。
+- 人間が「確認した」と言っただけでは `review_passed` とみなさない。
+
 ## やらないこと
 
 - Handoff の新規作成（→ issue-story-planner）

@@ -1,6 +1,6 @@
-# デフォルト E2E 手順（plan → review → orchestrate → execute）
+# デフォルト E2E 手順（plan → review（必須）→ orchestrate → execute）
 
-タスク 8 成果物。workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml)
+workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml)（`policy.review_required: true`）
 
 ## 前提
 
@@ -20,7 +20,7 @@ AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須
 
 **出力ファイル例:** `handoff.draft.json`（ユーザーが保存）
 
-## 2. review — plan-reviewer
+## 2. review — plan-reviewer（必須・省略不可）
 
 **入力:** `handoff.draft.json`
 

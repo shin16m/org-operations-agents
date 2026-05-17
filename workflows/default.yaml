@@ -1,7 +1,10 @@
 # Default workflow for agent-create-supporter
 id: default
 version: "1"
-description: plan → review → orchestrate → execute
+description: plan → review（必須）→ orchestrate → execute
+
+policy:
+  review_required: true  # plan-reviewer による review 段階を省略不可（人間レビューのみでは不可）
 
 steps:
   - id: plan
@@ -10,6 +13,7 @@ steps:
 
   - id: review
     agent: plan-reviewer
+    required: true
     gate_after: review_passed
 
   - id: orchestrate
@@ -22,6 +26,7 @@ steps:
 
 gates:
   review_passed:
-    description: plan-reviewer が passed または passed_with_notes
+    description: plan-reviewer の PlanReviewResult が passed または passed_with_notes（必須段階）
+    blocks: [orchestrate, execute]
   handoff_approved:
     description: 利用者が execute 段階へ進行を確認

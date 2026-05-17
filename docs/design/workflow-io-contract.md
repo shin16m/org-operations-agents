@@ -15,8 +15,8 @@
 
 | ゲート ID | 条件 | 未達時 |
 |-----------|------|--------|
-| `review_passed` | `PlanReviewResult.status` が `passed` または `passed_with_notes` | Asana 投入不可。差し戻しは `plan` へ |
-| `handoff_approved` | 人間が orchestrator 経由で execute 可と明示 | `execute` を案内しない |
+| `review_passed` | **`plan-reviewer` 必須。** `PlanReviewResult.status` が `passed` または `passed_with_notes` | 未達時は Asana 投入不可。差し戻しは `plan` へ。人間目視のみは不可 |
+| `handoff_approved` | `review_passed` 済みのうえ、人間が orchestrator 経由で execute 可と明示 | `execute` を案内しない |
 
 ## 変更境界（新規スキル追加時）
 

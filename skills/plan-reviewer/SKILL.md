@@ -1,6 +1,8 @@
 # plan-reviewer SKILL
 
-**独立スキル:** Handoff v1.1 のプラン品質ゲート（`review` スロット）。新規 `skills/<slug>/` は作成しない → [`agent-creater`](../agent-creater/SKILL.md)。
+**独立スキル:** Handoff v1.1 のプラン品質ゲート（`review` スロット・**ワークフロー必須段階**）。新規 `skills/<slug>/` は作成しない → [`agent-creater`](../agent-creater/SKILL.md)。
+
+**省略不可:** 標準 workflow（[`workflows/default.yaml`](../../workflows/default.yaml)）では、Asana 投入前に本スキルによる `PlanReviewResult` が必須。
 
 人間向け手順: [`README.md`](README.md)
 

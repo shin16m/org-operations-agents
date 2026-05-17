@@ -4,14 +4,15 @@
 
 人間向けのセットアップ・コマンド例は [`README.md`](README.md) を参照。
 
-## 推奨パイプライン（execute スロット）
+## 標準パイプライン（execute スロット・review 必須）
 
 ```
-issue-story-planner → plan-reviewer（または人間レビュー）→ workflow-orchestrator → asana-buddy（本スキル）
+issue-story-planner → plan-reviewer（必須）→ workflow-orchestrator → asana-buddy（本スキル）
 ```
 
-- 投入は **`AsanaBuddyHandoff` v1.1** を推奨（[`handoff_to_asana.py`](optional/handoff_to_asana.py)）。
-- レビュー未了の Handoff をそのまま投入しない（`plan-reviewer` 未導入時は人間確認で代替）。
+- 投入は **`AsanaBuddyHandoff` v1.1**（[`handoff_to_asana.py`](optional/handoff_to_asana.py)）。
+- **前提:** 同じ Handoff に対する **`plan-reviewer` の `PlanReviewResult`**（`status`: `passed` または `passed_with_notes`）と、`workflow-orchestrator` による execute 許可。未達なら投入しない。
+- 人間レビューのみで `plan-reviewer` を飛ばす運用は**不可**（[`workflows/default.yaml`](../../workflows/default.yaml)）。
 - エコシステム: [`docs/inventory/skills-inventory.md`](../../docs/inventory/skills-inventory.md) · E2E [`docs/e2e/default-workflow.md`](../../docs/e2e/default-workflow.md) · 基盤 Handoff 例 [`../issue-story-planner/examples/handoff.agent-workflow-orchestration.json`](../issue-story-planner/examples/handoff.agent-workflow-orchestration.json)
 
 ## レイアウト
