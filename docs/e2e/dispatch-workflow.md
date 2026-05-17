@@ -31,11 +31,14 @@
 
 ## 4. 子タスク完了（必須）
 
-**ローカル作業が終わったら、必ず Asana も完了にする。** `DeptWorkComplete` や利用者報告の前に実行する。
+**ローカル作業が終わったら、署名コメントを残してから Asana を完了にする。** `DeptWorkComplete` や利用者報告の前に実行する。
 
 ```powershell
+.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\comment_task.py --gid <CHILD_GID> --agent <slug> --skill skills/<slug>/SKILL.md --summary "..." --body "..." -y
 .\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
 ```
+
+詳細: [`docs/design/agent-asana-comment-signature.md`](../design/agent-asana-comment-signature.md)
 
 同一エピックで【1/N】…【N/N】まで連続完了した場合（Handoff の `【n/m】` タイトルが付いているとき）:
 

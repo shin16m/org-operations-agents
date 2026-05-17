@@ -68,10 +68,11 @@ workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必
 | スクリプト | 用途 |
 |------------|------|
 | [`optional/fetch_task.py`](optional/fetch_task.py) | `--gid` で name / notes / completed を表示。`--list-subtasks` で子一覧 |
-| [`optional/complete_task.py`](optional/complete_task.py) | `--gid -y` で完了マーク |
+| [`optional/comment_task.py`](optional/comment_task.py) | 署名付きコメント（`--agent` / `--skill` / `--body` または `--from-json`） |
+| [`optional/complete_task.py`](optional/complete_task.py) | `--gid -y` で完了マーク（**comment の後**） |
 | [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) | `--complete-through N --complete-only` で子【1/N】…【N/N】を一括完了 |
 
-**運用:** ローカルで `done_when` を満たしたら、**必ず**上記で Asana を同期する（product-manager / orchestrator）。詳細は [`docs/design/dept-work-io.md`](../../docs/design/dept-work-io.md)。
+**運用:** ローカルで `done_when` を満たしたら、**必ず** `comment_task.py` で署名コメント → `complete_task.py` で完了（product-manager / 各実行スキル）。詳細は [`docs/design/agent-asana-comment-signature.md`](../../docs/design/agent-asana-comment-signature.md) · [`docs/design/dept-work-io.md`](../../docs/design/dept-work-io.md)。
 
 実行本体は [`task-executor`](../task-executor/SKILL.md)。本スキルは Asana API の薄いラッパのみ。
 

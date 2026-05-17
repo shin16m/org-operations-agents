@@ -48,7 +48,10 @@ agents:
       schema_version: "1.1"
       script: skills/asana-buddy/optional/handoff_to_asana.py
       task_read_script: skills/asana-buddy/optional/fetch_task.py
+      task_comment_script: skills/asana-buddy/optional/comment_task.py
       task_complete_script: skills/asana-buddy/optional/complete_task.py
+      comment_schema: skills/asana-buddy/schemas/agent-work-comment.v1.schema.json
+      comment_doc: docs/design/agent-asana-comment-signature.md
 
   - slug: task-executor
     slot: work

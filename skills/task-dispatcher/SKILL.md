@@ -19,7 +19,7 @@
 - 解決した `workflow_id` と `entry_agent`
 - **entry_agent 用 prompt_snippet**（1 ブロック）
 
-`prompt_snippet` には、課内作業完了時に **`complete_task.py -y` を `DeptWorkComplete` の前に実行する**旨を 1 行含める（[`docs/design/dept-work-io.md`](../../docs/design/dept-work-io.md)）。
+`prompt_snippet` には、課内作業完了時に **`comment_task.py`（署名付き）→ `complete_task.py -y` → `DeptWorkComplete`** の順を含める（[`docs/design/dept-work-io.md`](../../docs/design/dept-work-io.md) · [`agent-asana-comment-signature.md`](../../docs/design/agent-asana-comment-signature.md)）。
 
 ## ルーティング
 

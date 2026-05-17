@@ -29,13 +29,26 @@
 
 スキーマ: [`skills/product-manager/schemas/dept-work-complete.v1.schema.json`](../../skills/product-manager/schemas/dept-work-complete.v1.schema.json)
 
+### Asana 署名付きコメント（必須）
+
+**どのエージェントが何をしたか**をタスクに残す。設計: [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md)
+
+| タイミング | 担当 | 操作 |
+|------------|------|------|
+| 委譲作業完了時 | doc-writer / developer / reviewer | `comment_task.py`（`agent` + `skill` + 実施内容） |
+| 子タスク完了直前 | **product-manager** | 同上ののち `complete_task.py` |
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\comment_task.py --gid <子GID> --agent developer --skill skills/developer/SKILL.md --summary "..." --body-file .\body.md -y
+```
+
 ### Asana 完了同期（必須）
 
 **ローカルで `done_when` を満たしても、Asana 上が未完了のままにしない。**
 
 | タイミング | 担当 | 操作 |
 |------------|------|------|
-| 子タスク 1 件の課内作業完了 | **product-manager** | `complete_task.py --gid <子GID> -y` を **`DeptWorkComplete` 出力の直前に実行** |
+| 子タスク 1 件の課内作業完了 | **product-manager** | **`comment_task.py` の後**に `complete_task.py --gid <子GID> -y` を **`DeptWorkComplete` 出力の直前に実行** |
 | 同一セッションで複数子を連続完了 | product-manager または orchestrator | `sync_handoff_epic.py --parent <親GID> --handoff <path> --complete-through N --complete-only` |
 | 全子完了後 | **workflow-orchestrator** | 親エピックを `complete_task.py --gid <親GID> -y` で完了（任意だが推奨）→ 利用者へエピック完了報告 |
 

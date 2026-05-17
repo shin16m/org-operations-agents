@@ -38,9 +38,13 @@
 - `passed` / `passed_with_notes` → 下流 [`workflow-orchestrator`（gate）](../workflow-orchestrator/SKILL.md) → [`asana-buddy`](../asana-buddy/SKILL.md) 可
 - `needs_revision` / `blocked` → `issue-story-planner` へ差し戻し。Asana 投入不可
 
+## Asana 記録（任意）
+
+レビュー対象タスクの GID が分かる場合、結果提出前に `comment_task.py --agent plan-reviewer` で要約を残してよい。
+
 ## 安全
 
-- 外部 API・コマンドは実行しない
+- 外部 API・コマンドは実行しない（利用者が CLI を実行する場合を除く）
 - 機密を要求しない
 
 ## 起動例

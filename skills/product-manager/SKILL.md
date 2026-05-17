@@ -16,13 +16,19 @@
 5. 子の `done_when` を満たしたら **必ず** `complete_task.py` を実行してから `DeptWorkComplete` を出力する（順序固定）
 6. **workflow-orchestrator** へ完了を報告
 
-## Asana 完了（必須・順序）
+## Asana 記録（必須・順序）
 
 ```powershell
+# 1. 署名付きコメント（誰が何をしたか）
+.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\comment_task.py --gid <子GID> --agent product-manager --skill skills/product-manager/SKILL.md --summary "子タスク完了" --body "実施内容..." -y
+
+# 2. 完了マーク
 .\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <子GID> -y
 ```
 
-- **`DeptWorkComplete` を出す前に**上記を実行すること。ローカル成果物だけ完成させて Asana を未完了のまま残すのは**禁止**。
+- 委譲先（doc-writer / developer / reviewer）も**各自の slug**で `comment_task.py` を実行してから PM に報告すること。
+- **`DeptWorkComplete` を出す前に** 1 → 2 の順で実行。ローカルのみ完了は**禁止**。
+- フォーマット: [`docs/design/agent-asana-comment-signature.md`](../../docs/design/agent-asana-comment-signature.md)
 - 同一エピックで連続して N 件まで完了した場合:  
   `sync_handoff_epic.py --parent <親GID> --handoff <handoff.json> --complete-through N --complete-only`
 - 詳細: [`docs/design/dept-work-io.md`](../../docs/design/dept-work-io.md)「Asana 完了同期」

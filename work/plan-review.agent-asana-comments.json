@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "status": "passed",
+  "summary": "課題と4段階サブタスクが一致。Asana Stories API による comment_task は既存 asana-buddy 方針と整合。スキル契約での必須化は実装タスク3で担保。",
+  "findings": [
+    {
+      "severity": "low",
+      "category": "risk",
+      "message": "LLM の遵守は100%保証できない。comment_task 未実行時は PM レビューで検知する旨を設計書に明記すること。",
+      "subtask_index": 0
+    }
+  ]
+}

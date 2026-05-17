@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/agent-work-comment.v1.schema.json",
+  "title": "AgentWorkComment",
+  "description": "Signed Asana story payload from an agent skill.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_gid", "agent", "skill_path", "summary"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "task_gid": {
+      "type": "string",
+      "minLength": 1
+    },
+    "agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "agent-registry slug"
+    },
+    "skill_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "phase": {
+      "type": "string",
+      "enum": ["start", "complete"],
+      "default": "complete"
+    },
+    "executed_at": {
+      "type": "string",
+      "description": "ISO 8601 timestamp; CLI fills if omitted"
+    },
+    "model": {
+      "type": "string",
+      "description": "Optional LLM identifier"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "body_markdown": {
+      "type": "string"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

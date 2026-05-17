@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import sys
+from datetime import datetime, timezone
 from typing import Any, Callable, Sequence
 
 
@@ -32,6 +33,92 @@ def fetch_task(task_gid: str, token: str) -> dict[str, Any]:
     )
     r.raise_for_status()
     return r.json()["data"]
+
+
+def format_signed_comment(
+    agent: str,
+    skill_path: str,
+    body: str,
+    *,
+    phase: str = "complete",
+    executed_at: str | None = None,
+    model: str | None = None,
+    summary: str | None = None,
+    artifacts: Sequence[str] | None = None,
+) -> str:
+    """Build plain-text Asana story with agent-work-record signature header."""
+    ts = executed_at or datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
+    lines = [
+        "---",
+        "🤖 agent-work-record",
+        f"agent: {agent.strip()}",
+        f"skill: {skill_path.strip()}",
+        f"phase: {phase.strip() or 'complete'}",
+        f"executed_at: {ts}",
+    ]
+    if model and model.strip():
+        lines.append(f"model: {model.strip()}")
+    lines.append("---")
+    lines.append("")
+
+    parts: list[str] = []
+    if summary and summary.strip():
+        parts.append(f"## 要約\n{summary.strip()}")
+    main = (body or "").strip()
+    if main:
+        parts.append(main)
+    if artifacts:
+        artifact_lines = "\n".join(f"- {a}" for a in artifacts if a and str(a).strip())
+        if artifact_lines:
+            parts.append(f"## 成果物\n{artifact_lines}")
+    if parts:
+        lines.append("\n\n".join(parts))
+    else:
+        lines.append("（作業記録）")
+
+    return "\n".join(lines).strip() + "\n"
+
+
+def create_task_story(task_gid: str, text: str, token: str) -> dict[str, Any]:
+    """Post a comment (story) on an Asana task."""
+    headers = {"Authorization": f"Bearer {token}"}
+    payload = {"data": {"text": text}}
+    r = requests.post(
+        f"{ASANA_BASE}/tasks/{task_gid}/stories",
+        json=payload,
+        headers=headers,
+    )
+    r.raise_for_status()
+    return r.json()["data"]
+
+
+def load_agent_work_comment(path: str) -> dict[str, Any]:
+    import json
+    from pathlib import Path
+
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    if data.get("schema_version") != "1.0":
+        raise ValueError('agent work comment schema_version must be "1.0"')
+    for key in ("task_gid", "agent", "skill_path", "summary"):
+        if not (data.get(key) or "").strip():
+            raise ValueError(f"agent work comment {key} is required")
+    return data
+
+
+def agent_work_comment_to_text(data: dict[str, Any]) -> str:
+    body = (data.get("body_markdown") or "").strip()
+    if not body:
+        body = data["summary"].strip()
+    return format_signed_comment(
+        data["agent"],
+        data["skill_path"],
+        body,
+        phase=data.get("phase") or "complete",
+        executed_at=data.get("executed_at"),
+        model=data.get("model"),
+        summary=data.get("summary"),
+        artifacts=data.get("artifacts"),
+    )
 
 
 def set_task_completed(task_gid: str, completed: bool, token: str) -> dict[str, Any]:

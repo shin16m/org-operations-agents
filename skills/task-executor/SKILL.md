@@ -10,7 +10,8 @@
 
 - タスクは [`asana-buddy`](../asana-buddy/SKILL.md) の execute 段階で**既に作成済み**
 - タスク内容の取得: `skills/asana-buddy/optional/fetch_task.py --gid <GID>`
-- 完了マーク: `skills/asana-buddy/optional/complete_task.py --gid <GID> -y`
+- 署名コメント: `skills/asana-buddy/optional/comment_task.py`（`--agent task-executor`）
+- 完了マーク: `skills/asana-buddy/optional/complete_task.py --gid <GID> -y`（**コメントの後**）
 
 ## 責務
 
@@ -41,6 +42,6 @@ fetch_task.py で内容を確認し、done_when を満たすまで作業し、Ta
 
 - `TaskWorkResult` JSON 1 ブロック（[`task-work-io.md`](../../docs/design/task-work-io.md)）
 - 変更ファイル一覧（`artifacts`）
-- 完了時: `complete_task.py -y` で Asana を完了マーク（`done_when` 未達のときは `blocked` / `needs_tool` のまま完了しない）
+- 完了時: `comment_task.py` → `complete_task.py -y`（`done_when` 未達のときは完了しない）
 
 スキーマ: [`schemas/task-work-result.v1.schema.json`](schemas/task-work-result.v1.schema.json)

@@ -22,6 +22,7 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 - 標準 workflow（v2）の入口は **`workflow-orchestrator`（intake）**。順序: intake → plan → review → gate → execute（[`workflows/default.yaml`](workflows/default.yaml)）。
 - **`plan-reviewer` による review は必須**。Handoff を Asana に載せる前に `PlanReviewResult`（`passed` / `passed_with_notes`）を得ること。
 - **Asana 投入（CI・本番）:** `handoff_to_asana.py` には `--require-review-result` を付与する（review JSON なしでは CLI が失敗する）。
+- **エージェント作業の可視化:** タスク完了前に [`comment_task.py`](skills/asana-buddy/optional/comment_task.py) で **agent slug + skill パス**の署名付きコメントを投稿する（[`docs/design/agent-asana-comment-signature.md`](docs/design/agent-asana-comment-signature.md)）。その後 `complete_task.py`。
 - **移行:** 以前 issue-story-planner 先頭で運用していた場合も、**新規依頼は orchestrator（intake）から**開始する。
 
 ## 検証

@@ -18,7 +18,10 @@
 
 ## 出力
 
-作業完了時: 成果物パス + 「reviewer へレビュー依頼」の短いメモ。
+作業完了時:
+
+1. **Asana 署名コメント** — `comment_task.py --agent doc-writer --skill skills/doc-writer/SKILL.md`（[`agent-asana-comment-signature.md`](../../docs/design/agent-asana-comment-signature.md)）
+2. 成果物パス + 「reviewer へレビュー依頼」の短いメモ
 
 ## 起動例
 
