@@ -2,7 +2,7 @@
 
 ## 概要
 
-このスキルは、**課題点の整理**、**解決ストーリー（なぜその順序で進めるか）**、**Asana 等に落とし込める粒度のタスク案**までを一気通貫でまとめる。外部 API は呼ばず、**構造化アウトプット**を返す。実際の Asana 作成は [`agents/asana-buddy/AGENT.md`](../agent-creater/agents/asana-buddy/AGENT.md) 束（スクリプト／対話）に委ねる。
+このスキルは、**課題点の整理**、**解決ストーリー（なぜその順序で進めるか）**、**Asana 等に落とし込める粒度のタスク案**までを一気通貫でまとめる。外部 API は呼ばず、**構造化アウトプット**を返す。実際の Asana 作成は [`asana-buddy`](../asana-buddy/SKILL.md) スキル（スクリプト／対話）に委ねる。
 
 ## いつ使うか
 
@@ -90,4 +90,4 @@
 2. ` ```json ` で囲んだ **単一** の `AsanaBuddyHandoff` オブジェクト
 3. （任意）ユーザーがコピーしやすい Asana 用の一行メモ
 
-このスキルは **設計・文書化** に特化する。Asana トークンやプロジェクト GID は [`agents/asana-buddy`](../agent-creater/agents/asana-buddy/AGENT.md) 側の運用に従う。
+このスキルは **設計・文書化** に特化する。Asana トークンやプロジェクト GID は [`asana-buddy`](../asana-buddy/SKILL.md) 側の運用に従う。

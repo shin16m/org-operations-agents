@@ -3,36 +3,68 @@
 ## 目的
 VS Code 上で Copilot Chat と連携して動く簡易エージェントの骨子を示す。実行ロジックは最小限に抑え、主にプロンプト駆動で振る舞う想定。
 
-## 最小ファイル構成（例）
-メタ（共通）とエージェント単位を分ける場合（このリポジトリの推奨）:
+## 最小ファイル構成（agent-creater の標準出力）
 
-- **メタ**（`skills/agent-creater/`）: `prompts.md`（共通問診）、`agent_template.md`、本 README 相当の説明
-- **各エージェント**（`skills/agent-creater/agents/<agent-slug>/`）:
-  - `AGENT.md` — そのエージェントの入口・運用
-  - `personas/*.json` / `personas/*.md` — ペルソナ
+**agent-creater が新規エージェントを設計したときの唯一の推奨レイアウト**（実装例: [`../asana-buddy/`](../asana-buddy/)）:
+
+- **メタ**（`skills/agent-creater/`）: `prompts.md`、`agent_template.md`、`README.md` のみ。ここに他エージェントの実装は置かない。
+- **各エージェント**（`skills/<agent-slug>/`）:
+  - `README.md` — 人間向け（概要・セットアップ・実行例）**必須**
+  - `SKILL.md` — スキル定義・I/O 契約 **必須**
+  - `personas/*.json` / `personas/*.md` — ペルソナ **必須**
   - `optional/` — 補助スクリプト・`requirements.txt` 等（必要時のみ）
-  - 任意: `prompts.md` または `prompts/`（エージェント専用プロンプト）
+  - 任意: `prompts.md` または `prompts/`
 
-従来型のフラット例（単一フォルダのみのとき）:
-- `README.md` : 使い方と注意点
-- `prompts.md` : 初期問診とコアプロンプト
-- `optional/agent_helper.py` : オプションの補助スクリプト（ファイル化やZIP化など最小機能）
+**禁止:** `skills/agent-creater/agents/<slug>/` への配置。
+
+## 雛形スニペット（出力にそのまま使える）
+
+### README.md（先頭）
+
+```markdown
+# <agent-slug>
+
+<1段落で役割。他スキルとの関係があればリンク>
+
+詳細は [`SKILL.md`](SKILL.md) を参照。
+
+## セットアップ
+（環境・依存・.env の置き場所）
+
+## 使い方
+（実行例・コマンド）
+```
+
+### SKILL.md（先頭）
+
+```markdown
+# <agent-slug> SKILL
+
+<独立スキルであること。agent-creater の子ではない>
+
+人間向けの手順は [`README.md`](README.md) を参照。
+
+## レイアウト
+（README / SKILL / personas / optional）
+
+## 入出力・安全制約
+```
 
 ## agent_template — コアプロンプト（例・候補）
 
 1) 対話重視（推奨）
 """
-あなたはAIエージェント設計のアシスタントです。まずユーザーに次の7つの質問をして要件をまとめ、回答を受けたら役割要約、主要ユースケース、必要ツール、3案のコアプロンプト、最小ファイル構成、検証手順をMarkdownで返してください。
+あなたはAIエージェント設計のアシスタントです。まずユーザーに次の7つの質問をして要件をまとめ、回答を受けたら役割要約、主要ユースケース、必要ツール、3案のコアプロンプト、skills/<agent-slug>/ 標準ツリー、README.md・SKILL.md・personas の雛形全文、保存パス一覧、検証手順を Markdown で返してください。agent-creater 配下に実装を置かないこと。
 """
 
 2) テンプレ生成
 """
-あなたはテンプレート生成者です。ユーザー要件に基づき、`agents/<agent-slug>/AGENT.md`、`personas/`、`optional/`（必要なら）の雛形、およびメタ側 `prompts.md` を参照する旨を含めて出力してください。コードは実行しないでください。
+あなたはテンプレート生成者です。ユーザー要件に基づき、`skills/<agent-slug>/` に README.md、SKILL.md、personas/（json+md）、optional/（必要なら）の雛形全文を出力してください。保存先は skills/<agent-slug>/ のみとし、agent-creater/agents/ は使わないこと。コードは実行しないでください。
 """
 
 3) 外部連携あり（Asana）
 """
-Asana連携が必要な場合、連携設計（必要なスコープ、エンドポイント、推奨フロー）を示し、トークンはユーザーが秘密に保持する旨を必ず明記してください。リポジトリ内の構成例は `agents/asana-buddy/`（`optional/` に補助スクリプト）を参照してよい。
+Asana連携が必要な場合、連携設計（必要なスコープ、エンドポイント、推奨フロー）を示し、トークンはユーザーが秘密に保持する旨を必ず明記してください。リポジトリ内の構成例は `skills/asana-buddy/`（`optional/` に補助スクリプト）を参照してよい。
 """
 
 ---
@@ -69,4 +101,4 @@ Asana連携が必要な場合、連携設計（必要なスコープ、エンド
 ```
 
 使用方法:
-- Copilot Chat で `prompts.md` のペルソナ問診を実行し、得られた出力をコピーして `agents/<agent-slug>/personas/` に `*.json` / `*.md` として保存してください。
+- Copilot Chat で `prompts.md` のペルソナ問診を実行し、得られた出力をコピーして `skills/<agent-slug>/personas/` に `*.json` / `*.md` として保存してください。
