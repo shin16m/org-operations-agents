@@ -1,0 +1,13 @@
+# Placeholder — analysis department (not implemented).
+id: analysis-delivery
+version: "1"
+description: 分析課ワークフロー（未実装プレースホルダ）
+
+policy:
+  scope: single_subtask
+  entry_agent: analysis-lead
+  enabled: false
+
+steps: []
+
+note: organizations.yaml で analysis.enabled=false。実装時は agent-creater で analysis-lead を追加。

@@ -13,6 +13,8 @@ agents:
       reads:
         - workflows/default.yaml
         - workflows/with-execution.yaml
+        - workflows/with-dispatch.yaml
+        - workflows/organizations.yaml
         - workflows/agent-registry.yaml
       session_doc: docs/design/workflow-session-io.md
 
@@ -52,6 +54,8 @@ agents:
     slot: work
     skill_path: skills/task-executor
     enabled: true
+    deprecated: true
+    note: 過渡期。新規は task-dispatcher + 課 workflow を使用
     workflow_steps: [work]
     io:
       input_kind: TaskWorkRequest
@@ -63,6 +67,54 @@ agents:
       boundary_doc: docs/design/task-execution-boundary.md
       reads:
         - workflows/with-execution.yaml
+
+  - slug: task-dispatcher
+    slot: dispatch
+    skill_path: skills/task-dispatcher
+    enabled: true
+    workflow_steps: [dispatch]
+    io:
+      input_kind: DispatchRequest
+      input_schema: skills/task-dispatcher/schemas/dispatch-request.v1.schema.json
+      schema_version: "1.0"
+      schema_doc: docs/design/dept-work-io.md
+      reads:
+        - workflows/with-dispatch.yaml
+        - workflows/organizations.yaml
+
+  - slug: product-manager
+    slot: dept_orchestrate
+    skill_path: skills/product-manager
+    enabled: true
+    workflow_steps: []
+    io:
+      input_kind: DispatchRequest
+      output_kind: DeptWorkComplete
+      output_schema: skills/product-manager/schemas/dept-work-complete.v1.schema.json
+      schema_doc: docs/design/dept-work-io.md
+      reads:
+        - workflows/development-delivery.yaml
+
+  - slug: doc-writer
+    slot: dept_work
+    skill_path: skills/doc-writer
+    enabled: true
+
+  - slug: developer
+    slot: dept_work
+    skill_path: skills/developer
+    enabled: true
+
+  - slug: reviewer
+    slot: dept_review
+    skill_path: skills/reviewer
+    enabled: true
+    io:
+      output_schemas:
+        - skills/reviewer/schemas/doc-review-result.v1.schema.json
+        - skills/reviewer/schemas/code-review-result.v1.schema.json
+        - skills/reviewer/schemas/verification-result.v1.schema.json
+        - skills/reviewer/schemas/mismatch-review-result.v1.schema.json
 
   - slug: agent-creater
     slot: meta

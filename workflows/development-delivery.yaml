@@ -1,0 +1,87 @@
+# Development department workflow — one instance per Asana subtask.
+# PM is the hub; invoked after task-dispatcher routes department=development.
+id: development-delivery
+version: "1"
+description: PM-led delivery for a single subtask (requirements → dev → detailed spec)
+
+policy:
+  scope: single_subtask
+  entry_agent: product-manager
+  parent_context: read_parent_epic_notes
+
+steps:
+  - id: pm_intake
+    agent: product-manager
+    role: 子タスクの background/summary/done_when を読み、要件定義フェーズへ
+
+  - id: requirements_doc
+    agent: doc-writer
+    role: 要件定義書作成
+    artifact: requirements-doc
+
+  - id: requirements_review
+    agent: reviewer
+    role: 要件定義書レビュー
+    review_kind: requirements
+    gate_after: requirements_review_passed
+
+  - id: pm_handoff_dev
+    agent: product-manager
+    role: 要件定義書を developer へ渡す
+
+  - id: development
+    agent: developer
+    role: 実装
+    artifact: code
+
+  - id: code_review
+    agent: reviewer
+    role: コードレビュー
+    review_kind: code
+    gate_after: code_review_passed
+
+  - id: verification
+    agent: reviewer
+    role: 動作検証
+    review_kind: verification
+    gate_after: verification_passed
+
+  - id: pm_request_spec
+    agent: product-manager
+    role: 詳細仕様書作成を doc-writer へ依頼
+
+  - id: detailed_spec
+    agent: doc-writer
+    role: 詳細仕様書作成
+    artifact: detailed-spec
+
+  - id: mismatch_review
+    agent: reviewer
+    role: 要件定義書と詳細仕様の整合レビュー
+    review_kind: mismatch
+    gate_after: mismatch_resolved
+
+  - id: pm_complete
+    agent: product-manager
+    role: DeptWorkComplete 出力・complete_task -y・オーケストレーターへ報告
+
+gates:
+  requirements_review_passed:
+    description: DocReviewResult status passed*
+  code_review_passed:
+    description: CodeReviewResult status passed*
+  verification_passed:
+    description: VerificationResult status passed
+  mismatch_resolved:
+    description: MismatchReviewResult fix_target 処理済み（document 修正完了 or code は PM→developer ループ後）
+
+branches:
+  mismatch_fix_document:
+    from: mismatch_review
+    when: fix_target == document
+    to: detailed_spec
+  mismatch_fix_code:
+    from: mismatch_review
+    when: fix_target == code
+    to: pm_handoff_dev
+    note: doc-writer 業務は一旦完了。PM が developer へ修正依頼。

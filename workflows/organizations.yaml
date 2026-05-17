@@ -1,0 +1,33 @@
+# Department → workflow routing (draft).
+# Consumed by task-dispatcher. New departments add a row here + workflow YAML.
+version: "1"
+
+departments:
+  - id: development
+    label: 開発課
+    workflow_id: development-delivery
+    entry_agent: product-manager
+    enabled: true
+
+  - id: analysis
+    label: 分析課
+    workflow_id: analysis-delivery
+    entry_agent: analysis-lead
+    enabled: false
+    note: プレースホルダ。workflow / entry_agent は将来 agent-creater で追加。
+
+  - id: planning
+    label: 企画課
+    workflow_id: default
+    entry_agent: issue-story-planner
+    enabled: true
+    note: L1 企画フェーズ用。L2 ディスパッチ対象には通常含めない。
+
+# pillar（Handoff v1.1）→ department のヒューリスティック（v1.2 未設定時）
+pillar_defaults:
+  - match: ["実装", "開発課", "検証・開発課", "整備・開発課"]
+    department: development
+  - match: ["分析"]
+    department: analysis
+  - match: ["設計", "方針", "整備", "検証", "企画"]
+    department: planning

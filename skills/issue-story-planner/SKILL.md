@@ -76,6 +76,9 @@ workflow-orchestrator（intake）→ issue-story-planner（本スキル）→ pl
 | `subtasks[].summary` | はい | **概要** — 何をするか（`minLength` 1）。 |
 | `subtasks[].done_when` | はい | **完了条件** — 完了の定義・受け入れ基準（`minLength` 1）。 |
 | `subtasks[].pillar` | いいえ | 列・スイムレーン名。スクリプトでは `柱: {pillar}` 行を先頭に付与してよい。 |
+| `subtasks[].department` | いいえ | **v1.2 のみ** — `development` \| `analysis` \| `planning`。task-dispatcher のルーティング用。未設定時は [`organizations.yaml`](../../workflows/organizations.yaml) の `pillar_defaults` で推定。 |
+
+**v1.2:** `schema_version` を `"1.2"` にし、実行系サブタスクには `department` を付与することを推奨。スキーマ: [`schemas/asana-buddy-handoff.v1.2.schema.json`](schemas/asana-buddy-handoff.v1.2.schema.json)。詳細: [`docs/design/handoff-v12-department.md`](../../docs/design/handoff-v12-department.md)。
 
 **モデル向け必須ルール:** `subtasks` の**各要素**について `title`・`background`・`summary`・`done_when` をすべて非空で埋める。省略・プレースホルダのみは不可。
 

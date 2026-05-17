@@ -61,12 +61,15 @@ def assemble_subtask_notes(
     summary: str,
     done_when: str,
     pillar: str | None = None,
+    department: str | None = None,
 ) -> str:
-    """Build Asana task notes per issue-story-planner v1.1 / asana-buddy SKILL."""
+    """Build Asana task notes per issue-story-planner v1.1+ / asana-buddy SKILL."""
     bg = background.strip()
     sm = summary.strip()
     dw = done_when.strip()
     parts: list[str] = []
+    if department and department.strip():
+        parts.append(f"課: {department.strip()}\n")
     if pillar and pillar.strip():
         parts.append(f"柱: {pillar.strip()}\n")
     parts.append(f"## 背景\n{bg}\n\n## 概要\n{sm}\n\n## 完了条件\n{dw}")
@@ -226,8 +229,9 @@ def load_handoff(path: str) -> dict[str, Any]:
     from pathlib import Path
 
     data = json.loads(Path(path).read_text(encoding="utf-8"))
-    if data.get("schema_version") != "1.1":
-        raise ValueError('handoff schema_version must be "1.1"')
+    ver = data.get("schema_version")
+    if ver not in ("1.1", "1.2"):
+        raise ValueError('handoff schema_version must be "1.1" or "1.2"')
     epic = data.get("epic") or {}
     if not epic.get("title") or not epic.get("notes_markdown"):
         raise ValueError("handoff epic.title and epic.notes_markdown are required")
@@ -247,4 +251,5 @@ def handoff_subtask_notes(st: dict[str, Any]) -> str:
         st["summary"],
         st["done_when"],
         st.get("pillar"),
+        st.get("department"),
     )

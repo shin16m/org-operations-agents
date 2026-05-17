@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/dispatch-request.v1.schema.json",
+  "title": "DispatchRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "task_gid", "department"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "task_gid": { "type": "string", "minLength": 1 },
+    "parent_gid": { "type": "string", "minLength": 1 },
+    "department": {
+      "type": "string",
+      "enum": ["development", "analysis", "planning"]
+    },
+    "workflow_id": { "type": "string", "minLength": 1 },
+    "locale": { "type": "string" }
+  }
+}

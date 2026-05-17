@@ -9,7 +9,9 @@
 | ファイル | 内容 |
 |----------|------|
 | [`workflows/default.yaml`](../../workflows/default.yaml) | タスク化まで（intake → … → execute） |
-| [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) | 上記 + **work**（サブタスク実行） |
+| [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) | 上記 + **work**（単一 task-executor・過渡期） |
+| [`workflows/with-dispatch.yaml`](../../workflows/with-dispatch.yaml) | 上記 + **dispatch**（子タスクごと課へ配賦） |
+| [`workflows/organizations.yaml`](../../workflows/organizations.yaml) | department → workflow / entry_agent |
 | [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml) | slug・I/O |
 | [`docs/design/workflow-io-contract.md`](../../docs/design/workflow-io-contract.md) | ゲート定義 |
 
@@ -80,17 +82,29 @@ handoff_to_asana.py で承認済み Handoff を投入してください。
 .\.venv\Scripts\python.exe .\skills\asana-buddy\optional\handoff_to_asana.py --handoff .\path\to\handoff.json --require-review-result .\path\to\review.json -y --if-not-exists
 ```
 
-## execute 後の work 委譲（タスク実行）
+## execute 後の dispatch 委譲（推奨）
 
-Asana 投入後、サブタスクの実行依頼を受けたら [`task-executor`](../task-executor/SKILL.md) へ。**workflow は [`with-execution.yaml`](../../workflows/with-execution.yaml) を参照**（`default.yaml` は execute 終端）。
+Asana 投入後、サブタスク実行依頼を受けたら **子タスク 1 件ごと**に [`task-dispatcher`](../task-dispatcher/SKILL.md) へ。**workflow は [`with-dispatch.yaml`](../../workflows/with-dispatch.yaml)**。
 
-利用者は「Asana のタスクを実行して」と**自然言語のみ**でよい（スキル名のコピペ不要）。
+1. `fetch_task.py --gid <parent> --list-subtasks` で未完了子を確認
+2. 対象子の `課:` 行または Handoff の `department` を解決
+3. dispatcher → 課 workflow（開発課は [`product-manager`](../product-manager/SKILL.md)）
 
-**work 用 prompt_snippet 例:**
+**dispatch 用 prompt_snippet 例:**
 
 ```
-指定の Asana サブタスク（GID または【n/m】）を task-executor として実行してください。
-fetch_task.py で notes を確認し、done_when を満たしたら complete_task.py -y で完了マークし、TaskWorkResult を返してください。
+DispatchRequest（task_gid=〈子GID〉, parent_gid=〈親GID〉, department=development）で
+task-dispatcher を起動し、product-manager 用 prompt_snippet を返してください。
+```
+
+全子が完了したら利用者へエピック完了を報告する。
+
+## execute 後の work 委譲（過渡期・単一ワーカー）
+
+[`task-executor`](../task-executor/SKILL.md) は **deprecated**。緊急時のみ [`with-execution.yaml`](../../workflows/with-execution.yaml) を使用。
+
+```
+指定の Asana サブタスクを task-executor として実行（過渡期）。
 ```
 
 ## 単一窓口について
