@@ -42,7 +42,7 @@ PR では [`.github/workflows/validate.yml`](.github/workflows/validate.yml) が
 
 ## ワークフロー運用
 
-- 標準 workflow（v3）の入口は **`workflow-orchestrator`（intake）**。順序: intake → bootstrap → dispatch → planning-delivery（Handoff → review → gate → Asana）→ execution 系 dispatch（[`workflows/default.yaml`](workflows/default.yaml)）。
+- 標準 workflow（v3）の入口は **`workflow-orchestrator`（intake）**。パイプライン全体: [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) · 手順: [`docs/e2e/default-workflow.md`](docs/e2e/default-workflow.md)
 - **`plan-reviewer` による review は必須**（planning-delivery 内）。Handoff を Asana に載せる前に `PlanReviewResult` を得ること。
 - **Asana 投入（CI・本番）:** `handoff_to_asana.py` には `--require-review-result` を付与する（review JSON なしでは CLI が失敗する）。
 - **エージェント作業の可視化:** タスク完了前に [`comment_task.py`](skills/platform/asana-buddy/optional/comment_task.py) で **agent slug + skill パス**の署名付きコメントを投稿する（[`docs/design/agent-asana-comment-signature.md`](docs/design/agent-asana-comment-signature.md)）。その後 `complete_task.py`。

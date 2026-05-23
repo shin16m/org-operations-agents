@@ -24,16 +24,9 @@ alwaysApply: true
 
 ## 必須の順序
 
-```
-workflow-orchestrator（intake → bootstrap → dispatch）
-  → planning-pm（L3 企画チーム）
-    → issue-story-planner（Handoff JSON）
-    → plan-reviewer（PlanReviewResult・省略不可）
-    → planning-pm（gate）※ 人間承認・Asana 投入前
-    → asana-buddy（handoff_to_asana.py --require-review-result）
-```
+パイプライン SSOT: [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) · YAML: [`workflows/default.yaml`](workflows/default.yaml) · [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
 
-- 参照: [`workflows/default.yaml`](workflows/default.yaml) · [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
+L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Handoff → review → gate → Asana） → execution 系 dispatch（4 チーム）
 
 ## 実装依頼時（L2/L3 実行系）
 

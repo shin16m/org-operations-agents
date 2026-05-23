@@ -17,10 +17,7 @@
 agent-creater（新規スキル生成のみ）
     ↓ 登録
 workflows/agent-registry.yaml + workflows/*.yaml
-    ↓ 段階実行
-workflow-orchestrator（intake → bootstrap → dispatch）
-  → planning-pm → issue-story-planner → plan-reviewer（必須）→ planning-pm（gate）→ asana-buddy
-  → task-dispatcher → product-manager / analytics-pm（execution 系子）
+    ↓ 段階実行（パイプライン SSOT: docs/design/workflow-io-contract.md）
 ```
 
 参照: [`docs/inventory/skills-inventory.md`](../../../docs/inventory/skills-inventory.md) · 設計 Handoff [`../../planning/issue-story-planner/examples/handoff.agent-workflow-orchestration.json`](../../planning/issue-story-planner/examples/handoff.agent-workflow-orchestration.json)

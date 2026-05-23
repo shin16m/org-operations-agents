@@ -38,18 +38,14 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 
 ## 標準 workflow（default v3）
 
-```
-intake → bootstrap → dispatch（企画チーム）
-  → planning-delivery: Handoff → review（必須）→ gate → Asana タスク化
-  → dispatch（開発チーム / 分析チームの execution 系子）
-```
+パイプライン図・段階定義の SSOT: [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md)
 
 - **入口:** `workflow-orchestrator`（intake）に生課題を渡す
 - **企画:** `planning-pm` ハブが Handoff → review → gate → Asana 投入を担当
 - **review:** `plan-reviewer` は省略不可（人間目視のみでは `review_passed` にならない）
 - **gate:** `planning-pm` が Handoff 要約提示後、人間承認を取得
 
-定義: [`workflows/default.yaml`](workflows/default.yaml) v3 · 企画チーム: [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
+手順: [`docs/e2e/default-workflow.md`](docs/e2e/default-workflow.md) · YAML: [`workflows/default.yaml`](workflows/default.yaml) v3 · 企画: [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
 
 ### 移行
 

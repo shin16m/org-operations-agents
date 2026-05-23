@@ -10,15 +10,7 @@
 
 ## 標準パイプライン（default v3）
 
-```
-workflow-orchestrator（intake → bootstrap → dispatch）
-  → planning-pm（企画チーム）
-    → issue-story-planner → plan-reviewer（必須）→ planning-pm（gate）→ asana-buddy
-  → task-dispatcher（execution 系子ごと）
-  → product-manager → …（開発 v3）
-  → ux-pm → ux-designer / ux-reviewer（UX チーム）
-  → analytics-pm → data-architect / … / analysis-reviewer（分析チーム）
-```
+パイプライン SSOT: [`docs/design/workflow-io-contract.md`](../design/workflow-io-contract.md)
 
 - 組織ルーティング: [`workflows/organizations.yaml`](../../workflows/organizations.yaml)
 

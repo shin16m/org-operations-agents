@@ -2,6 +2,25 @@
 
 registry / workflow 実体は [`workflows/`](../../workflows/)。セッション状態は [`workflow-session-io.md`](workflow-session-io.md)。
 
+**パイプライン図・段階一覧の SSOT は本ファイル。** README / CONTRIBUTING / SKILL / Cursor rule はここを参照し、同じ ASCII 図をコピーしない。
+
+## 標準パイプライン（default v3 · SSOT）
+
+```
+workflow-orchestrator（intake → bootstrap → dispatch）
+  → planning-pm（企画チーム / planning-delivery）
+    → issue-story-planner → plan-reviewer（必須）→ planning-pm（gate）→ asana-buddy
+  → task-dispatcher（execution 系子ごと）
+  → ux-pm → ux-designer / ux-reviewer
+  → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier
+  → analytics-pm → data-architect / … / analysis-reviewer
+```
+
+- L1 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v3
+- 企画 L3: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml)
+- 組織ルーティング: [`workflows/organizations.yaml`](../../workflows/organizations.yaml)
+- 手順（コマンド例）: [`docs/e2e/default-workflow.md`](../e2e/default-workflow.md)
+
 ## 段階とスロット（default v3）
 
 | 段階 ID | スロット | 担当スキル | 入力 | 出力 |

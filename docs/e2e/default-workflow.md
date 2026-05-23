@@ -2,11 +2,7 @@
 
 workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v3 · 企画チーム: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml)
 
-```
-intake → bootstrap → dispatch（企画チーム）
-  → planning-delivery: Handoff → review（必須）→ gate → Asana タスク化
-  → dispatch（execution 系子 → 開発チーム / 分析チーム）
-```
+パイプライン概要（SSOT）: [`docs/design/workflow-io-contract.md`](../design/workflow-io-contract.md)
 
 ## 前提
 

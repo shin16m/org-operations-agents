@@ -8,12 +8,12 @@
 
 | ファイル | 内容 |
 |----------|------|
-| [`workflows/default.yaml`](../../../workflows/default.yaml) | intake → bootstrap → dispatch |
+| [`docs/design/workflow-io-contract.md`](../../../docs/design/workflow-io-contract.md) | **パイプライン SSOT** · ゲート定義 |
+| [`workflows/default.yaml`](../../../workflows/default.yaml) | L1: intake / bootstrap / dispatch |
 | [`workflows/with-dispatch.yaml`](../../../workflows/with-dispatch.yaml) | 上記 + 実行系子の dispatch ループ |
-| [`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) | 企画チーム L3（Handoff → review → gate → Asana） |
+| [`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) | 企画チーム L3 |
 | [`workflows/organizations.yaml`](../../../workflows/organizations.yaml) | department → workflow / entry_agent |
 | [`workflows/agent-registry.yaml`](../../../workflows/agent-registry.yaml) | slug・I/O |
-| [`docs/design/workflow-io-contract.md`](../../../docs/design/workflow-io-contract.md) | ゲート定義 |
 
 ## 責務
 
