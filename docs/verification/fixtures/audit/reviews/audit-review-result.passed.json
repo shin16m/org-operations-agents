@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0",
+  "status": "passed",
+  "summary": "Fixture: org_governance review passed after consistency checks.",
+  "review_kind": "org_governance",
+  "findings": []
+}

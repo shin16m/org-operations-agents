@@ -11,7 +11,7 @@
     "parent_gid": { "type": "string", "minLength": 1 },
     "department": {
       "type": "string",
-      "enum": ["development", "analysis", "planning", "ux"]
+      "enum": ["development", "analysis", "planning", "ux", "audit"]
     },
     "workflow_id": { "type": "string", "minLength": 1 },
     "locale": { "type": "string" }

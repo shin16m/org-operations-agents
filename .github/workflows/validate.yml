@@ -33,3 +33,8 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: python tools/validate_fixture_schemas.py
+
+      - name: Run validate_ssot_contract.py
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python tools/validate_ssot_contract.py

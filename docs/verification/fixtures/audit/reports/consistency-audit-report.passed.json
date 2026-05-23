@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "status": "passed",
+  "summary": "Fixture: all three validate scripts exit 0.",
+  "task_gid": "1215085750182386",
+  "checks": [
+    {
+      "name": "organization registry",
+      "script": "tools/validate_org_registry.py",
+      "exit_code": 0,
+      "stdout_tail": "OK - organization registry is consistent."
+    },
+    {
+      "name": "fixture schemas",
+      "script": "tools/validate_fixture_schemas.py",
+      "exit_code": 0,
+      "stdout_tail": "OK - fixture(s) match JSON Schema."
+    },
+    {
+      "name": "SSOT cross-document contract",
+      "script": "tools/validate_ssot_contract.py",
+      "exit_code": 0,
+      "stdout_tail": "OK - SSOT cross-document contracts satisfied."
+    }
+  ],
+  "ssot_findings": []
+}

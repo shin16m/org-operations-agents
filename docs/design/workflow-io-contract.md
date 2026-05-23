@@ -14,6 +14,7 @@ workflow-orchestrator（intake → bootstrap → dispatch）
   → ux-pm → ux-designer / ux-reviewer
   → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier
   → analytics-pm → data-architect / … / analysis-reviewer
+  → audit-pm → consistency-auditor / audit-reviewer（組織変更エピックの **最後**）
 ```
 
 - L1 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v3
@@ -56,6 +57,8 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | gate 承認を「実装開始の合図」とみなす | 企画 PM は **comment → complete → DeptWorkComplete** まで。実行系は別 dispatch |
 
 org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../skills/development/examples/assign-plan.org-meta-doc-v1.json)）。本体を PM が先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../verification/asana-comment-detail-delivery.md)。
+
+**配賦順（execution 系）:** ux → development / analysis → **`audit`（組織変更時・親 complete 直前）**。監査は他 execution 子完了後に dispatch する（[`audit-delivery-io.md`](audit-delivery-io.md)）。
 
 ## エージェント進行（L1）
 

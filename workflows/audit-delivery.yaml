@@ -1,0 +1,42 @@
+# Audit department workflow — org governance consistency after rule/workflow changes.
+id: audit-delivery
+version: "1"
+description: PM-led audit (mechanical validation + SSOT contract + review report)
+
+policy:
+  scope: single_subtask
+  entry_agent: audit-pm
+  parent_context: read_parent_epic_notes
+  operational_rules_doc: docs/design/audit-delivery-io.md
+  assignment_doc: docs/design/audit-pm-assignment.md
+  dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#audit
+  review_rework_ssot: docs/design/pm-review-rework-ssot.md
+  pm_role: orchestrate_only
+
+steps:
+  - id: pm_intake
+    agent: audit-pm
+    role: 子 notes（監査対象・変更概要）を読み、assign plan でサブ 2 件を作成
+
+  - id: pm_assign
+    agent: audit-pm
+    role: pm_assign_subtasks — consistency-auditor / audit-reviewer
+
+  - id: consistency_audit
+    agent: consistency-auditor
+    role: validate_org_registry + validate_fixture_schemas + validate_ssot_contract → ConsistencyAuditReport
+    artifact: consistency-audit-report
+
+  - id: audit_review
+    agent: audit-reviewer
+    role: ConsistencyAuditReport をレビュー → AuditReviewResult
+    review_kind: org_governance
+    gate_after: audit_review_passed
+
+  - id: pm_complete
+    agent: audit-pm
+    role: DeptWorkComplete · comment_task → complete_task -y
+
+gates:
+  audit_review_passed:
+    description: AuditReviewResult status passed または passed_with_notes

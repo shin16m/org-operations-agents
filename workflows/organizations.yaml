@@ -39,6 +39,15 @@ departments:
     delivery_io_doc: docs/design/ux-delivery-io.md
     enabled: true
 
+  - id: audit
+    label: 監査チーム
+    workflow_id: audit-delivery
+    entry_agent: audit-pm
+    skill_root: skills/audit
+    output_root: output/audit
+    delivery_io_doc: docs/design/audit-delivery-io.md
+    enabled: true
+
 # 統括グループ（registry 参照用・dispatch 対象外）
 coordination_group:
   id: coordination
@@ -57,3 +66,5 @@ pillar_defaults:
     department: analysis
   - match: ["設計", "方針", "整備", "検証", "企画", "企画チーム"]
     department: planning
+  - match: ["監査", "監査チーム", "整合性", "統制", "governance", "SSOT"]
+    department: audit

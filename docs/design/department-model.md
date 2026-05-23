@@ -4,7 +4,7 @@
 
 | 種類 | 例 | 役割 |
 |------|-----|------|
-| **チーム** | 企画チーム / 開発チーム / 分析チーム | 自律した delivery。チーム内 workflow と I/O を自分で決める |
+| **チーム** | 企画チーム / 開発チーム / 分析チーム / UX チーム / **監査チーム** | 自律した delivery。チーム内 workflow と I/O を自分で決める |
 | **統括グループ** | workflow-orchestrator, task-dispatcher, asana-buddy, agent-creater | **配線・メタ**。チーム内業務は持たない。dispatch 対象外 |
 
 スキル配置: チーム → `skills/<department>/` · 統括グループ → `skills/platform/`（パス slug は `platform` のまま。表示名は **統括グループ**）
@@ -147,6 +147,7 @@ UX チーム完了
 | `development` | 開発チーム | `development-delivery` | product-manager | [`development-delivery-io.md`](development-delivery-io.md) |
 | `analysis` | 分析チーム | `analysis-delivery` | analytics-pm | [`analysis-delivery-io.md`](analysis-delivery-io.md) |
 | `ux` | UX チーム | `ux-delivery` | ux-pm | [`ux-delivery-io.md`](ux-delivery-io.md) |
+| `audit` | 監査チーム | `audit-delivery` | audit-pm | [`audit-delivery-io.md`](audit-delivery-io.md) |
 
 チーム間共通契約: [`dept-work-io.md`](dept-work-io.md)（`DispatchRequest` / `DeptWorkComplete`）
 
@@ -168,7 +169,7 @@ UX チーム完了
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
-│ L3 チーム内（企画 / UX / 開発 / 分析）                            │
+│ L3 チーム内（企画 / UX / 開発 / 分析 / 監査）                            │
 │   PM ハブ → チーム内 workflow → DeptWorkComplete                  │
 │   チーム間共有: Asana 子 + notes（Handoff JSON は使わない）        │
 └─────────────────────────────────────────────────────────────┘
@@ -186,7 +187,7 @@ UX チーム完了
 | ディスパッチ単位 | Asana **子タスク 1 件** |
 | チーム内 workflow | 子ごとに**独立インスタンス** |
 | チーム間入力 | **Asana notes** + `DispatchRequest` |
-| 配賦順序 | 企画子 → 企画完了後 **ux（Web・UI 先行）** → development / analysis 子 |
+| 配賦順序 | 企画子 → 企画完了後 **ux（Web・UI 先行）** → development / analysis 子 → **audit（組織変更時・最後）** |
 
 ### 責務表
 
@@ -199,5 +200,6 @@ UX チーム完了
 | **ux-pm** | UX チーム | タスク分解・アサイン・UX delivery | 実装 |
 | **product-manager** | 開発チーム | 開発 delivery | Handoff 作成 |
 | **analytics-pm** | 分析チーム | 分析 delivery | Handoff 作成 |
+| **audit-pm** | 監査チーム | 組織整合性監査 | 実装修正・Handoff 作成 |
 
 パイプライン SSOT: [`workflow-io-contract.md`](workflow-io-contract.md) · orchestrator 手順: [`skills/platform/workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md)

@@ -1,0 +1,24 @@
+{
+  "parent_title": "【監査】組織整合性監査",
+  "profile": "governance-audit",
+  "subtasks": [
+    {
+      "name": "【1/2・監査】機械検証 + ConsistencyAuditReport",
+      "assignee": "consistency-auditor",
+      "department": "audit",
+      "status": "assigned",
+      "background": "registry / fixture / SSOT 契約の 3 本 validate を実行。",
+      "summary": "validate_org_registry · validate_fixture_schemas · validate_ssot_contract を実行し ConsistencyAuditReport を output/audit/reports/ に保存。",
+      "done_when": "ConsistencyAuditReport が存在し checks に 3 スクリプト分の exit_code が記録されている。"
+    },
+    {
+      "name": "【2/2・監査】AuditReviewResult",
+      "assignee": "audit-reviewer",
+      "department": "audit",
+      "status": "assigned",
+      "background": "監査レポートのゲート。CI と同等基準の人間可読レビュー。",
+      "summary": "ConsistencyAuditReport を review_kind org_governance でレビュー。",
+      "done_when": "AuditReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

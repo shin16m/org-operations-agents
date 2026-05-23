@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Handoff / PlanReviewResult JSON fixtures against JSON Schema.
+"""Validate Handoff / PlanReviewResult / audit report JSON fixtures against JSON Schema.
 
 Run from repo root:
   pip install -r tools/requirements-validate.txt
@@ -22,12 +22,26 @@ HANDOFF_SCHEMAS: dict[str, Path] = {
 PLAN_REVIEW_SCHEMA = (
     ROOT / "skills/planning/plan-reviewer/schemas/plan-review-result.v1.schema.json"
 )
+CONSISTENCY_AUDIT_REPORT_SCHEMA = (
+    ROOT / "skills/audit/consistency-auditor/schemas/consistency-audit-report.v1.schema.json"
+)
+AUDIT_REVIEW_RESULT_SCHEMA = (
+    ROOT / "skills/audit/audit-reviewer/schemas/audit-review-result.v1.schema.json"
+)
 
 FIXTURE_GLOBS: list[str] = [
     "docs/verification/fixtures/**/handoff/*.json",
     "docs/verification/fixtures/**/plan-review/*.json",
+    "docs/verification/fixtures/**/audit/reports/*.json",
+    "docs/verification/fixtures/**/audit/reviews/*.json",
     "skills/planning/issue-story-planner/examples/handoff*.json",
 ]
+
+SCHEMA_BY_KIND: dict[str, Path] = {
+    "plan_review": PLAN_REVIEW_SCHEMA,
+    "consistency_audit_report": CONSISTENCY_AUDIT_REPORT_SCHEMA,
+    "audit_review_result": AUDIT_REVIEW_RESULT_SCHEMA,
+}
 
 
 def _load_schema(path: Path) -> dict:
@@ -49,6 +63,10 @@ def _kind_for_path(path: Path) -> str | None:
         return "handoff"
     if "/plan-review/" in rel or name.startswith("plan-review."):
         return "plan_review"
+    if "/audit/reports/" in rel or "consistency-audit" in name or name.endswith("-consistency.json"):
+        return "consistency_audit_report"
+    if "/audit/reviews/" in rel or "audit-review" in name:
+        return "audit_review_result"
     return None
 
 
@@ -67,8 +85,8 @@ def validate_instance(path: Path, data: dict, kind: str) -> list[str]:
 
     if kind == "handoff":
         schema_path = _schema_for_handoff(data)
-    elif kind == "plan_review":
-        schema_path = PLAN_REVIEW_SCHEMA
+    elif kind in SCHEMA_BY_KIND:
+        schema_path = SCHEMA_BY_KIND[kind]
     else:
         return [f"{path}: unknown fixture kind"]
 
@@ -113,7 +131,8 @@ def main() -> int:
         errors.extend(validate_instance(path, data, kind))
         checked += 1
 
-    for schema_path in set(HANDOFF_SCHEMAS.values()) | {PLAN_REVIEW_SCHEMA}:
+    meta_schemas = set(HANDOFF_SCHEMAS.values()) | set(SCHEMA_BY_KIND.values())
+    for schema_path in meta_schemas:
         if not schema_path.is_file():
             errors.append(f"missing schema file: {schema_path.relative_to(ROOT)}")
         else:

@@ -27,6 +27,7 @@ DEPT_PM = {
     "ux": "ux-pm",
     "development": "product-manager",
     "analysis": "analytics-pm",
+    "audit": "audit-pm",
 }
 
 

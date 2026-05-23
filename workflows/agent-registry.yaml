@@ -279,6 +279,47 @@ agents:
         - skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json
         - skills/development/qa-verifier/schemas/verification-result.v1.schema.json
 
+  - slug: audit-pm
+    slot: dept_orchestrate
+    skill_path: skills/audit/audit-pm
+    enabled: true
+    workflow_steps: []
+    io:
+      input_kind: DispatchRequest
+      output_kind: DeptWorkComplete
+      output_schema: skills/development/product-manager/schemas/dept-work-complete.v1.schema.json
+      schema_doc: docs/design/audit-delivery-io.md
+      reads:
+        - workflows/audit-delivery.yaml
+
+  - slug: consistency-auditor
+    slot: dept_work
+    skill_path: skills/audit/consistency-auditor
+    enabled: true
+    io:
+      input_kind: asana_subtask_notes
+      output_kind: ConsistencyAuditReport
+      output_schema: skills/audit/consistency-auditor/schemas/consistency-audit-report.v1.schema.json
+      schema_version: "1.0"
+      schema_doc: docs/design/audit-delivery-io.md
+      artifact_root: output/audit/reports/
+      reads:
+        - workflows/audit-delivery.yaml
+
+  - slug: audit-reviewer
+    slot: dept_review
+    skill_path: skills/audit/audit-reviewer
+    enabled: true
+    io:
+      input_kind: ConsistencyAuditReport
+      output_kind: AuditReviewResult
+      output_schema: skills/audit/audit-reviewer/schemas/audit-review-result.v1.schema.json
+      schema_version: "1.0"
+      schema_doc: docs/design/audit-delivery-io.md
+      artifact_root: output/audit/reviews/
+      reads:
+        - workflows/audit-delivery.yaml
+
   - slug: agent-creater
     slot: meta
     skill_path: skills/platform/agent-creater

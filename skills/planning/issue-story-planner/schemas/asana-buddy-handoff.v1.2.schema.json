@@ -43,7 +43,7 @@
           "pillar": { "type": "string" },
           "department": {
             "type": "string",
-            "enum": ["development", "analysis", "planning", "ux"],
+            "enum": ["development", "analysis", "planning", "ux", "audit"],
             "description": "L2 dispatch target. Omitted → pillar_defaults heuristic."
           }
         }

@@ -43,15 +43,23 @@
 企画チームから `DeptWorkComplete` を受け取ったら:
 
 1. `fetch_task.py --gid <parent> --list-subtasks` で未完了子を列挙
-2. `department=planning` 以外の子を **1 件ずつ** dispatch（**ux** → development / analysis。Web Epic は UX 先行）
+2. `department=planning` 以外の子を **1 件ずつ** dispatch（**ux** → development / analysis → **audit**（組織変更時）。Web Epic は UX 先行）
 3. 各子完了（`DeptWorkComplete`）のたびに 1 に戻る
 4. **すべての子**が `completed` になったら利用者へエピック完了報告
+
+**親 complete 前（監査ゲート）:** Handoff に `department: audit` がある、または Asana 上に `チーム: audit` 子がある場合:
+
+```powershell
+python tools/check_epic_audit_gate.py --parent <親GID> --handoff output/planning/handoff/<handoff>.json
+```
+
+exit 0 を確認してから `complete_task.py --gid <親GID> -y`。監査子未完了の親 complete は禁止。
 
 ### E. asana_execute 後（execution 系 — 必須分離）
 
 企画 gate で `handoff_to_asana.py` を実行した**後**:
 
-1. **同一セッションで development / ux / analysis の成果物を書かない**
+1. **同一セッションで development / ux / analysis / audit の成果物を書かない**
 2. 未完了 execution 系子ごとに [`task-dispatcher`](../task-dispatcher/SKILL.md) で PM へ dispatch
 3. 各 PM は `pm_assign_subtasks` → **L3b** でワーカーへ委譲（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md)）
 4. org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../development/examples/assign-plan.org-meta-doc-v1.json) 参照）

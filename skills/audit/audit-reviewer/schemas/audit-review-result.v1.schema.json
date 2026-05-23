@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/audit-review-result.v1.schema.json",
+  "title": "AuditReviewResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "summary", "review_kind", "findings"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "passed_with_notes", "failed"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "review_kind": { "type": "string", "const": "org_governance" },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "message"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["high", "medium", "low"] },
+          "message": { "type": "string", "minLength": 1 },
+          "category": {
+            "type": "string",
+            "enum": ["registry", "ssot", "fixture", "process", "risk"]
+          }
+        }
+      }
+    }
+  }
+}

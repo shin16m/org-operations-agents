@@ -41,6 +41,9 @@
 | `data-scientist` | 業務 | 分析チーム | 実装済 | モデル開発 |
 | `ml-engineer` | 業務 | 分析チーム | 実装済 | デプロイ・MLOps |
 | `analysis-reviewer` | 業務 | 分析チーム | 実装済 | 分析レビュー・本番ゲート |
+| `audit-pm` | 業務 | 監査チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
+| `consistency-auditor` | 業務 | 監査チーム | 実装済 | 機械検証 → `ConsistencyAuditReport` |
+| `audit-reviewer` | 業務 | 監査チーム | 実装済 | org_governance → `AuditReviewResult` |
 | `agent-creater` | メタ | — | 実装済 | 要件 → `skills/<organization>/<slug>/` 雛形 |
 
 ## 機械検証
@@ -55,6 +58,8 @@
 | チーム内レビュー（開発） | dev-reviewer/schemas/ · qa-verifier/schemas/ |
 | チーム内レビュー（UX） | ux-reviewer/schemas/ |
 | チーム内レビュー（分析） | analysis-reviewer/schemas/ |
+| 監査（機械） | consistency-auditor/schemas/ |
+| 監査（レビュー） | audit-reviewer/schemas/ |
 
 ## Handoff 例
 
@@ -64,6 +69,7 @@
 | `handoff.agent-workflow-orchestration.json` | 基盤エピック |
 | `handoff.analysis-delivery.json` | 分析チーム delivery |
 | `handoff.ux-web-app.json` | UX + full-ui 開発（Web Epic） |
+| `handoff.org-governance-audit-team.json` | 監査チーム追加・組織統制 Epic |
 
 ## レガシー
 

@@ -39,6 +39,7 @@
 | [`e2e-dryrun.md`](e2e-dryrun.md) | E2E 基盤（v3 スコープ） |
 | [`orchestrator-intake-dryrun.md`](orchestrator-intake-dryrun.md) | intake 入口化（v3） |
 | [`asana-comment-detail-delivery.md`](asana-comment-detail-delivery.md) | コメント詳細化 epic · PM 代行事後補完（方針 B） |
+| [`org-governance-audit-team-delivery.md`](org-governance-audit-team-delivery.md) | 監査チーム追加 epic · CI + L3 監査ゲート |
 
 ### archive（v2 以前の履歴）
 
@@ -58,6 +59,9 @@
 |--------|------|
 | [`../../tools/validate_org_registry.py`](../../tools/validate_org_registry.py) | registry ↔ workflow ↔ schema 整合 |
 | [`../../tools/validate_fixture_schemas.py`](../../tools/validate_fixture_schemas.py) | fixture Handoff / PlanReviewResult の JSON Schema 検証 |
+| [`../../tools/validate_ssot_contract.py`](../../tools/validate_ssot_contract.py) | SSOT 横断契約・禁止パターン検証 |
+| [`../../tools/verify_consistency_audit_report.py`](../../tools/verify_consistency_audit_report.py) | ConsistencyAuditReport の live 再検証 |
+| [`../../tools/check_epic_audit_gate.py`](../../tools/check_epic_audit_gate.py) | 監査子未完了の親 complete ブロック |
 | [`../../tools/run_all_teams_dryrun.py`](../../tools/run_all_teams_dryrun.py) | 全チーム E2E dryrun（`all-teams-dryrun.md` を上書き生成） |
 
 ## 追加ルール（新規 dryrun / smoke 作成時）

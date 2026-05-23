@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "監査チーム追加・組織統制",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【org-governance】監査チーム追加と組織変更時の統制",
+    "notes_markdown": "## 背景\n\nworkflow / registry / SSOT / cursor rule の変更が増え、**機械検証（CI）だけでは運用上の統制レポートが残らない**課題がある。\n\n## 方針（二重防御）\n\n| 層 | 手段 |\n|----|------|\n| CI | 毎 PR — validate_org_registry / validate_fixture_schemas / validate_ssot_contract |\n| L3 監査 | 組織変更エピックの execution 子 — audit-delivery（report + review + Asana 記録） |\n\n## 配賦順\n\nplanning → ux / development / analysis → **audit（最後）** → 親 complete\n\n## 参照\n\n- docs/design/audit-delivery-io.md\n- workflows/audit-delivery.yaml"
+  },
+  "subtasks": [
+    {
+      "title": "【1/3・設計】監査チーム delivery I/O・workflow 定義",
+      "pillar": "設計",
+      "department": "planning",
+      "background": "新 department audit の 4 点セット（organizations / workflow / delivery-io / PM ハブ）を企画で固定する。",
+      "summary": "audit-delivery.yaml、audit-delivery-io.md、audit-pm-assignment.md、dispatch-prompt-ssot #audit を定義。配賦順（他 execution 後・親 complete 直前）を department-model / workflow-io-contract に追記。",
+      "done_when": "設計 doc と audit-delivery.yaml がリポジトリにあり、二重防御（CI + L3）が表で説明されている。"
+    },
+    {
+      "title": "【2/3・実装】監査チーム skills / registry / validate 拡張",
+      "pillar": "実装・開発チーム",
+      "department": "development",
+      "background": "audit-pm / consistency-auditor / audit-reviewer と validate_ssot_contract.py を実装し registry に登録する。",
+      "summary": "skills/audit/*、agent-registry.yaml、department enum 更新、validate_org_registry / CI に validate_ssot_contract を追加。profile: doc-only または lite で doc 中心に進めてよい。",
+      "done_when": "3 validate スクリプトが CI で実行され、audit 3 slug が registry に enabled で存在する。"
+    },
+    {
+      "title": "【3/3・監査】組織整合性監査（L3）",
+      "pillar": "監査",
+      "department": "audit",
+      "background": "本エピックの registry / workflow / SSOT 変更について、監査チーム workflow で機械検証 + レビューレポートを残す。",
+      "summary": "audit-pm が assign-plan.org-governance-v1.json でサブ 2 件を作成。consistency-auditor が 3 validate 実行 → ConsistencyAuditReport。audit-reviewer が AuditReviewResult（org_governance）。",
+      "done_when": "AuditReviewResult が passed または passed_with_notes。Asana に署名付き comment が残っている。"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/consistency-audit-report.v1.schema.json",
+  "title": "ConsistencyAuditReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "summary", "checks"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "passed_with_notes", "failed"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "task_gid": { "type": "string", "minLength": 1 },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "script", "exit_code"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "script": { "type": "string", "minLength": 1 },
+          "exit_code": { "type": "integer" },
+          "stdout_tail": { "type": "string" },
+          "stderr_tail": { "type": "string" }
+        }
+      }
+    },
+    "ssot_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["severity", "message"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["high", "medium", "low"] },
+          "message": { "type": "string", "minLength": 1 },
+          "file": { "type": "string" }
+        }
+      }
+    }
+  }
+}

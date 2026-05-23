@@ -111,7 +111,7 @@ def main() -> int:
     }
     for name, enum in enums.items():
         missing = set(dept_ids) - enum
-        extra = enum - set(dept_ids) - {"planning", "development", "analysis", "ux"}
+        extra = enum - set(dept_ids)
         if missing:
             errors.append(f"{name} schema missing departments: {sorted(missing)}")
         if extra:
@@ -183,7 +183,7 @@ def main() -> int:
         for did in dept_ids:
             if f"## {did}" not in ssot_body:
                 errors.append(f"dispatch-prompt-ssot.md missing section ## {did}")
-            if did in ("ux", "development", "analysis"):
+            if did in ("ux", "development", "analysis", "audit"):
                 section = _dispatch_ssot_section(ssot_body, did)
                 if "pm_assign_subtasks" not in section:
                     errors.append(f"dispatch-prompt-ssot.md #{did} missing pm_assign_subtasks")
@@ -192,7 +192,7 @@ def main() -> int:
     if "dispatch-prompt-ssot.md" not in td_skill:
         errors.append("task-dispatcher SKILL must reference dispatch-prompt-ssot.md")
 
-    for wf_name in ("ux-delivery", "development-delivery", "analysis-delivery"):
+    for wf_name in ("ux-delivery", "development-delivery", "analysis-delivery", "audit-delivery"):
         wf_path = ROOT / f"workflows/{wf_name}.yaml"
         if wf_path.is_file():
             wf_text = wf_path.read_text(encoding="utf-8")
@@ -216,6 +216,7 @@ def main() -> int:
     for pm_path in (
         ROOT / "skills/ux/ux-pm/SKILL.md",
         ROOT / "skills/analysis/analytics-pm/SKILL.md",
+        ROOT / "skills/audit/audit-pm/SKILL.md",
     ):
         if pm_path.is_file():
             pm_text = pm_path.read_text(encoding="utf-8")
@@ -226,6 +227,7 @@ def main() -> int:
         "development-pm-assignment.md",
         "ux-pm-assignment.md",
         "analytics-pm-assignment.md",
+        "audit-pm-assignment.md",
     ):
         assign_path = ROOT / "docs/design" / assign_name
         if assign_path.is_file():
@@ -233,7 +235,7 @@ def main() -> int:
             if "pm-review-rework-ssot" not in assign_text:
                 errors.append(f"{assign_name} must reference pm-review-rework-ssot")
             if assign_name != "development-pm-assignment.md" and "pm-worker-dispatch-ssot" not in assign_text:
-                if assign_name in ("ux-pm-assignment.md", "analytics-pm-assignment.md"):
+                if assign_name in ("ux-pm-assignment.md", "analytics-pm-assignment.md", "audit-pm-assignment.md"):
                     errors.append(f"{assign_name} must reference pm-worker-dispatch-ssot")
             if "complete_task.py --undo" in assign_text and "使わない" not in assign_text:
                 errors.append(f"{assign_name} must not document --undo for PM rework")
@@ -250,6 +252,19 @@ def main() -> int:
     fix_tool = ROOT / "tools/pm_create_fix_subtask.py"
     if not fix_tool.is_file():
         errors.append("missing tools/pm_create_fix_subtask.py")
+    verify_audit = ROOT / "tools/verify_consistency_audit_report.py"
+    if not verify_audit.is_file():
+        errors.append("missing tools/verify_consistency_audit_report.py")
+    epic_audit_gate = ROOT / "tools/check_epic_audit_gate.py"
+    if not epic_audit_gate.is_file():
+        errors.append("missing tools/check_epic_audit_gate.py")
+    audit_io = ROOT / "docs/design/audit-delivery-io.md"
+    if audit_io.is_file():
+        audit_io_text = audit_io.read_text(encoding="utf-8")
+        if "verify_consistency_audit_report.py" not in audit_io_text:
+            errors.append("audit-delivery-io.md must document verify_consistency_audit_report.py")
+        if "check_epic_audit_gate.py" not in audit_io_text:
+            errors.append("audit-delivery-io.md must document check_epic_audit_gate.py")
     rework_ssot_text = rework_ssot.read_text(encoding="utf-8") if rework_ssot.is_file() else ""
     if "pm_create_fix_subtask.py" not in rework_ssot_text:
         errors.append("pm-review-rework-ssot.md must document pm_create_fix_subtask.py")
@@ -257,7 +272,7 @@ def main() -> int:
     enabled_paths = enabled_skill_paths()
     agents_meta = load_agents()
 
-    for wf_name in ("planning-delivery", "ux-delivery", "development-delivery", "analysis-delivery"):
+    for wf_name in ("planning-delivery", "ux-delivery", "development-delivery", "analysis-delivery", "audit-delivery"):
         wf_path = ROOT / f"workflows/{wf_name}.yaml"
         if not wf_path.is_file():
             continue
@@ -293,6 +308,7 @@ def main() -> int:
         (ROOT / "skills/development/examples", "assign-plan*.json"),
         (ROOT / "skills/ux/examples", "assign-plan*.json"),
         (ROOT / "skills/analysis/examples", "assign-plan*.json"),
+        (ROOT / "skills/audit/examples", "assign-plan*.json"),
         (ROOT / "work/assign-plans", "*.json"),
     ]
     for base, pattern in assign_globs:

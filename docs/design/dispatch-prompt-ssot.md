@@ -17,6 +17,7 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 | development | [`development-pm-assignment.md`](development-pm-assignment.md) |
 | analysis | [`analytics-pm-assignment.md`](analytics-pm-assignment.md) |
 | planning | [`planning-delivery-io.md`](planning-delivery-io.md) |
+| audit | [`audit-pm-assignment.md`](audit-pm-assignment.md) |
 
 **L3 共通（PM 運用）:**
 
@@ -170,6 +171,41 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 【review NG】analysis-reviewer / gate failed → `python tools/pm_create_fix_subtask.py --parent {task_gid} --review-json output/analysis/reviews/<file>.json -y`
 
 参照: docs/design/analytics-pm-assignment.md · docs/design/pm-worker-dispatch-ssot.md · skills/analysis/analytics-pm/SKILL.md
+```
+
+---
+
+## audit
+
+**entry:** `audit-pm` · **workflow:** `audit-delivery`
+
+```
+あなたは audit-pm スキルです。Asana 子タスク GID {task_gid} を進めてください。
+
+【intake — 最初の 1 手（必須）】
+1. fetch_task.py --gid {task_gid} --show-assignee
+2. 監査対象（registry / workflow / SSOT 変更概要）を notes から確認
+3. pm_assign_subtasks.py で **Asana サブタスク 2 件**を作成する
+   例: --plan skills/audit/examples/assign-plan.org-governance-v1.json --department audit --update-parent-assignee audit-pm -y
+4. 親 notes → 担当: audit-pm · 状態: in_progress
+
+【禁止 — PM がやってはいけないこと】
+- サブタスク未作成のまま親 担当: だけ consistency-auditor に書き換える
+- 自分で validate スクリプトを実行して ConsistencyAuditReport / AuditReviewResult を書く
+- output/audit/reports/ · output/audit/reviews/ へ PM 署名なしで直接保存
+- registry / workflow の修正実装（findings のみ。修正は development 子へ）
+
+【PM のみ】サブ完了のたびに当該サブを complete。全サブ完了後 comment_task → 親 complete → DeptWorkComplete（artifacts[] に report / review パス）。
+   ※ PM の comment --body: 実施内容・判断・成果物・次の状態（§4–5）
+
+【L3b — ワーカー dispatch（必須）】
+1. `python tools/pm_emit_worker_prompt.py --parent {task_gid} --department audit`
+2. WorkerDispatchSnippet を consistency-auditor → audit-reviewer の **別セッション**へ順次渡す
+3. PM セッションは一旦終了
+
+【review NG】audit-reviewer の failed → `python tools/pm_create_fix_subtask.py --parent {task_gid} --review-json output/audit/reviews/<file>.json -y`
+
+参照: docs/design/audit-pm-assignment.md · docs/design/pm-worker-dispatch-ssot.md · skills/audit/audit-pm/SKILL.md
 ```
 
 ---

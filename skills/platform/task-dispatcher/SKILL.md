@@ -9,7 +9,7 @@
 `DispatchRequest` v1.0（[`schemas/dispatch-request.v1.schema.json`](schemas/dispatch-request.v1.schema.json)）
 
 - `task_gid`（必須）
-- `department`（必須）: `development` | `analysis` | `planning` | `ux`
+- `department`（必須）: `development` | `analysis` | `planning` | `ux` | `audit`
 - `parent_gid`（任意）
 
 `department` 未指定時: `fetch_task.py` で notes を読み、`チーム:` 行または `pillar_defaults` で推定。
@@ -24,7 +24,7 @@
 1. [`docs/design/dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md) の **該当 department 節**を開く
 2. `{task_gid}` / `{parent_gid}` を置換
 3. **省略・要約・「workflow を全部実行」への書き換えをしない**
-4. ux / development / analysis では **intake 最初の 1 手 = pm_assign_subtasks** を必ず含める
+4. ux / development / analysis / audit では **intake 最初の 1 手 = pm_assign_subtasks** を必ず含める（audit は 2 サブ固定プラン可）
 
 `prompt_snippet` には、チーム PM 完了時に **`comment_task.py`（署名付き）→ `complete_task.py -y` → `DeptWorkComplete`** の順も含める（[`dept-work-io.md`](../../../docs/design/dept-work-io.md)）。
 
@@ -38,11 +38,12 @@
 | development | development-delivery | product-manager | [`development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md) |
 | analysis | analysis-delivery | analytics-pm | [`analytics-pm-assignment.md`](../../../docs/design/analytics-pm-assignment.md) |
 | ux | ux-delivery | ux-pm | [`ux-pm-assignment.md`](../../../docs/design/ux-pm-assignment.md) |
+| audit | audit-delivery | audit-pm | [`audit-pm-assignment.md`](../../../docs/design/audit-pm-assignment.md) |
 
 ## 配賦順序（推奨）
 
 1. **L1 初回:** intake 後の bootstrap 企画子 → `department=planning`
-2. **L2 続き:** 企画完了後 → **`ux`（Web Epic・UI 先行）** → `development` / `analysis` の execution 系子
+2. **L2 続き:** 企画完了後 → **`ux`（Web Epic・UI 先行）** → `development` / `analysis` → **`audit`（組織変更時・最後）**
 
 ## やらないこと
 

@@ -1,0 +1,35 @@
+# audit-pm 厳密運用 — 組織整合性監査
+
+| 版 | 1.0 |
+| 適用 | 監査チーム L3（`audit-delivery`） |
+
+## 原則
+
+1. **audit-pm は検証スクリプトを自分で実行して report を書かない**（→ consistency-auditor サブタスク）
+2. **必須:** `pm_assign_subtasks.py` でサブ 2 件（auditor → reviewer）
+3. ワーカー完了ごとに PM が当該サブを complete → 全サブ完了後に親 comment → complete → `DeptWorkComplete`
+
+## 必須フロー
+
+```
+1. fetch_task.py --gid <子GID> --show-assignee
+2. pm_assign_subtasks.py --plan skills/audit/examples/assign-plan.org-governance-v1.json --department audit --update-parent-assignee audit-pm -y
+3. L3b: consistency-auditor セッションへ WorkerDispatchSnippet
+4. auditor 完了後 audit-reviewer セッションへ
+5. 全サブ完了 → 親 comment_task → complete_task → DeptWorkComplete
+```
+
+## PM が書いてはいけない成果物
+
+| パス | 担当 |
+|------|------|
+| `output/audit/reports/` | consistency-auditor |
+| `output/audit/reviews/` | audit-reviewer |
+
+プラン例: [`assign-plan.org-governance-v1.json`](../../skills/audit/examples/assign-plan.org-governance-v1.json)
+
+## 参照
+
+- [`audit-delivery-io.md`](audit-delivery-io.md)
+- L3b: [`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md)
+- レビュー NG: [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)

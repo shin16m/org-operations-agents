@@ -14,16 +14,16 @@
 
 ---
 
-## 四チーム比較
+## 五チーム比較
 
-| 項目 | 企画チーム | UX チーム | 開発チーム | 分析チーム |
-|------|------------|-----------|------------|------------|
-| id | `planning` | `ux` | `development` | `analysis` |
-| PM ハブ | planning-pm | ux-pm | product-manager | analytics-pm |
-| ミッション | Handoff → review → gate → **Asana タスク化** | 体験設計 → Design System → **artifact 公開** | 要件 → 設計 → 実装 → レビュー/QA → **事後仕様** | 要求 → データ → モデル → **本番ゲート** |
-| workflow | [`planning-delivery`](../../workflows/planning-delivery.yaml) | [`ux-delivery`](../../workflows/ux-delivery.yaml) | [`development-delivery`](../../workflows/development-delivery.yaml) v3 | [`analysis-delivery`](../../workflows/analysis-delivery.yaml) |
-| 詳細 I/O | [`planning-delivery-io.md`](planning-delivery-io.md) | [`ux-delivery-io.md`](ux-delivery-io.md) | [`development-delivery-io.md`](development-delivery-io.md) | [`analysis-delivery-io.md`](analysis-delivery-io.md) |
-| 成果物ルート | `output/planning/` | `output/ux/` | `output/development/` | `output/analysis/` |
+| 項目 | 企画チーム | UX チーム | 開発チーム | 分析チーム | 監査チーム |
+|------|------------|-----------|------------|------------|------------|
+| id | `planning` | `ux` | `development` | `analysis` | `audit` |
+| PM ハブ | planning-pm | ux-pm | product-manager | analytics-pm | audit-pm |
+| ミッション | Handoff → review → gate → **Asana タスク化** | 体験設計 → Design System → **artifact 公開** | 要件 → 設計 → 実装 → レビュー/QA → **事後仕様** | 要求 → データ → モデル → **本番ゲート** | **組織整合性検証** → report + review |
+| workflow | [`planning-delivery`](../../workflows/planning-delivery.yaml) | [`ux-delivery`](../../workflows/ux-delivery.yaml) | [`development-delivery`](../../workflows/development-delivery.yaml) v3 | [`analysis-delivery`](../../workflows/analysis-delivery.yaml) | [`audit-delivery`](../../workflows/audit-delivery.yaml) |
+| 詳細 I/O | [`planning-delivery-io.md`](planning-delivery-io.md) | [`ux-delivery-io.md`](ux-delivery-io.md) | [`development-delivery-io.md`](development-delivery-io.md) | [`analysis-delivery-io.md`](analysis-delivery-io.md) | [`audit-delivery-io.md`](audit-delivery-io.md) |
+| 成果物ルート | `output/planning/` | `output/ux/` | `output/development/` | `output/analysis/` | `output/audit/` |
 
 ### チーム間 I/O（全チーム共通）
 
@@ -41,7 +41,7 @@
 ### Asana notes ヘッダ（推奨）
 
 ```markdown
-チーム: development   # planning | ux | development | analysis
+チーム: development   # planning | ux | development | analysis | audit
 profile: full-ui     # 開発のみ（full-ui / full / lite / doc-only）
 担当: developer
 状態: assigned        # assigned | in_progress | review | done
@@ -53,7 +53,24 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 
 分析モデル・UX 仕様等を下流が利用する場合: 上流 `DeptWorkComplete.artifacts[]` → notes の `## 依存（読み取り専用）` → 下流が consume。
 
-**Web アプリ Epic（推奨順）:** planning → **ux**（blocking）→ development（`full-ui`）／ analysis（任意）
+**Web アプリ Epic（推奨順）:** planning → **ux**（blocking）→ development（`full-ui`）／ analysis（任意）→ **audit**（組織変更時・最後）
+
+---
+
+## 監査チーム
+
+**単位:** 子タスク 1 件 = `audit-delivery` 1 インスタンス。**組織変更エピックでは他 execution 子の後・親 complete 直前。**
+
+| 区分 | 取り決め |
+|------|----------|
+| 入力 | 子 notes（監査対象・変更概要・done_when） |
+| PM 必須 | **auditor → reviewer** の 2 サブを `pm_assign_subtasks`（[`audit-pm-assignment.md`](audit-pm-assignment.md)） |
+| チーム内フロー | 機械検証 → audit-reviewer（org_governance） |
+| 必須ゲート | `audit_review_passed` |
+| 二重防御 | CI（毎 PR）+ L3 監査（本 workflow） |
+| やらないこと | registry 修正実装、Handoff 作成、dispatch |
+
+→ 詳細: [`audit-delivery-io.md`](audit-delivery-io.md) · PM 委譲: [`audit-pm-assignment.md`](audit-pm-assignment.md)
 
 ---
 

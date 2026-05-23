@@ -22,13 +22,13 @@ alwaysApply: true
 6. **pm_gate** — planning-pm が Handoff 要約を提示し、**Asana タスク作成の承認**を待つ
 7. **asana_execute** — 承認後のみ `asana-buddy`（`handoff_to_asana.py --require-review-result`）
 
-**gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → L3b worker dispatch）。PM がワーカー役を代行しない。
+**gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → L3b worker dispatch）。PM がワーカー役を代行しない。
 
 ## 必須の順序
 
 パイプライン SSOT: [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) · YAML: [`workflows/default.yaml`](workflows/default.yaml) · [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
 
-L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Handoff → review → gate → Asana） → execution 系 dispatch（4 チーム）
+L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Handoff → review → gate → Asana） → execution 系 dispatch（5 チーム。audit は組織変更時・最後）
 
 ## 実装依頼時（L2/L3 実行系）
 
@@ -40,12 +40,15 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 | 開発 | product-manager | `output/development/` | [`development-delivery`](workflows/development-delivery.yaml) |
 | 分析 | analytics-pm | `output/analysis/` | [`analysis-delivery`](workflows/analysis-delivery.yaml) |
 | UX | ux-pm | `output/ux/` | [`ux-delivery`](workflows/ux-delivery.yaml) |
+| 監査 | audit-pm | `output/audit/` | [`audit-delivery`](workflows/audit-delivery.yaml) |
 
 **開発チーム** — 要件 → 設計 → 実装 → dev-reviewer / qa-verifier。
 
 **分析チーム** — [`analysis-delivery`](workflows/analysis-delivery.yaml)（SLA・本番ゲート必須）→ `output/analysis/reviews/`。
 
 **UX チーム** — [`ux-delivery`](workflows/ux-delivery.yaml)（ux-pm がサブタスク分解 → ux-designer / ux-reviewer）。`full-ui` 開発時は ux-reviewer が実装一致レビューにも参加。
+
+**監査チーム** — [`audit-delivery`](workflows/audit-delivery.yaml)（CI + L3 二重防御。consistency-auditor → audit-reviewer）。組織変更エピックでは **他 execution 子の後・親 complete 直前**。
 
 共通: 子タスク完了は `comment_task.py`（署名付き）→ `complete_task.py -y`。
 
