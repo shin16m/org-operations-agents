@@ -1,4 +1,6 @@
-# Workflow Orchestrator
+# Workflow Orchestrator（和久桶さん）
+
+**Nickname:** **和久桶さん**（略: 和久桶）— `workflow-orchestrator` の利用者向け呼称。会話・依頼文でこの名前が出たら本エージェント（L1 intake / bootstrap / dispatch）を指す。
 
 **Role:** `workflows/default.yaml` v3 に従い **intake**（課題受付）・**bootstrap**・**dispatch 委譲**を案内
 

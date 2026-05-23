@@ -1,5 +1,7 @@
 # workflow-orchestrator SKILL
 
+**呼称:** **和久桶さん**（略: 和久桶）— 利用者がこの名前で依頼した場合も本スキル（`workflow-orchestrator`）として扱う。
+
 **独立スキル:** 宣言的 workflow + agent-registry に基づく段階案内。**利用者の唯一の入口（intake）** と **dispatch 委譲**。ビジネスロジックは各スキル・チーム workflow に委譲。
 
 人間向け: [`README.md`](README.md) · セッション I/O: [`docs/design/workflow-session-io.md`](../../../docs/design/workflow-session-io.md)

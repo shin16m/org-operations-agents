@@ -1,6 +1,8 @@
-# workflow-orchestrator
+# workflow-orchestrator（和久桶さん）
 
 **課題の入口。** 生課題を受け取り（intake）、bootstrap で最小 Asana を作成し、企画チームへ dispatch する。
+
+利用者向けニックネーム: **和久桶さん**（略: 和久桶）
 
 詳細: [`SKILL.md`](SKILL.md)
 

@@ -3,6 +3,7 @@ version: "2"
 
 agents:
   - slug: workflow-orchestrator
+    aliases: [和久桶, 和久桶さん]
     slot: orchestrate
     skill_path: skills/platform/workflow-orchestrator
     enabled: true
