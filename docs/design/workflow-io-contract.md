@@ -35,7 +35,7 @@ registry / workflow 実体は [`workflows/`](../../workflows/)。セッション
 
 | 変更するもの | 誰が | 内容 |
 |--------------|------|------|
-| `skills/<slug>/` 実体 | **agent-creater のみ** | README, SKILL, personas, optional |
+| `skills/<organization>/<slug>/` 実体 | **agent-creater のみ** | README, SKILL, personas, optional |
 | `workflows/agent-registry.yaml` | 人間（PR） | slug, slot, I/O 参照, enabled |
 | `workflows/*.yaml` | 人間（PR） | 段階・agent 参照・ゲート |
 | 個別 SKILL.md | agent-creater 生成後に調整 | スロット固有ロジック |

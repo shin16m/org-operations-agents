@@ -13,7 +13,7 @@
 | `workflow_id` | string | いいえ | 省略時は organizations.yaml から解決 |
 | `locale` | string | いいえ | 例 `ja-JP` |
 
-スキーマ: [`skills/task-dispatcher/schemas/dispatch-request.v1.schema.json`](../../skills/task-dispatcher/schemas/dispatch-request.v1.schema.json)
+スキーマ: [`skills/platform/task-dispatcher/schemas/dispatch-request.v1.schema.json`](../../skills/platform/task-dispatcher/schemas/dispatch-request.v1.schema.json)
 
 ## DeptWorkComplete（product-manager → orchestrator）
 
@@ -27,7 +27,7 @@
 | `summary` | string | はい | 1–2 文 |
 | `artifacts` | string[] | いいえ | 成果物パス |
 
-スキーマ: [`skills/product-manager/schemas/dept-work-complete.v1.schema.json`](../../skills/product-manager/schemas/dept-work-complete.v1.schema.json)
+スキーマ: [`skills/development/product-manager/schemas/dept-work-complete.v1.schema.json`](../../skills/development/product-manager/schemas/dept-work-complete.v1.schema.json)
 
 ### Asana 署名付きコメント（必須）
 
@@ -39,7 +39,7 @@
 | 子タスク完了直前 | **product-manager** | 同上ののち `complete_task.py` |
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\comment_task.py --gid <子GID> --agent developer --skill skills/developer/SKILL.md --summary "..." --body-file .\body.md -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent developer --skill skills/development/developer/SKILL.md --summary "..." --body-file .\body.md -y
 ```
 
 ### Asana 完了同期（必須）
@@ -58,12 +58,12 @@
 
 | 種別 | 用途 | `review_kind` | スキーマ |
 |------|------|---------------|----------|
-| DocReviewResult | 要件定義 / 詳細仕様 | `requirements` \| `detailed_spec` | `skills/reviewer/schemas/doc-review-result.v1.schema.json` |
-| CodeReviewResult | コードレビュー | `code` | `skills/reviewer/schemas/code-review-result.v1.schema.json` |
-| VerificationResult | 動作検証 | `verification` | `skills/reviewer/schemas/verification-result.v1.schema.json` |
-| MismatchReviewResult | 要件 vs 仕様整合 | `mismatch` | `skills/reviewer/schemas/mismatch-review-result.v1.schema.json` |
-| AnalysisDocReviewResult | 分析課ドキュメント | 各種 | `skills/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
-| DeployGateResult | 本番デプロイ前ゲート | `production_deploy_gate` | `skills/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
+| DocReviewResult | 要件定義 / 詳細仕様 | `requirements` \| `detailed_spec` | `skills/development/reviewer/schemas/doc-review-result.v1.schema.json` |
+| CodeReviewResult | コードレビュー | `code` | `skills/development/reviewer/schemas/code-review-result.v1.schema.json` |
+| VerificationResult | 動作検証 | `verification` | `skills/development/reviewer/schemas/verification-result.v1.schema.json` |
+| MismatchReviewResult | 要件 vs 仕様整合 | `mismatch` | `skills/development/reviewer/schemas/mismatch-review-result.v1.schema.json` |
+| AnalysisDocReviewResult | 分析課ドキュメント | 各種 | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
+| DeployGateResult | 本番デプロイ前ゲート | `production_deploy_gate` | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
 
 分析課の詳細: [`analysis-delivery-io.md`](analysis-delivery-io.md)
 

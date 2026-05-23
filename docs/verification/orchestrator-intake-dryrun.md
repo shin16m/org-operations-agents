@@ -47,4 +47,4 @@ issue-story-planner への prompt_snippet を返してください。
 - 2026-05-17: リポジトリ上の SKILL / workflow / E2E を intake 起点に更新済み。上記 5 段階が文書間で一致。
 - Asana エピック `1214873888809993`（オーケストレーター入口化）を本変更と同期しサブタスク 1–5 を完了マーク。
 
-参照 Handoff: [`skills/issue-story-planner/examples/handoff.orchestrator-intake-entry.json`](../../skills/issue-story-planner/examples/handoff.orchestrator-intake-entry.json)
+参照 Handoff: [`skills/planning/issue-story-planner/examples/handoff.orchestrator-intake-entry.json`](../../skills/planning/issue-story-planner/examples/handoff.orchestrator-intake-entry.json)

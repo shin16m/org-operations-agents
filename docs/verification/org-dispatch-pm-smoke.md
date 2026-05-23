@@ -1,6 +1,6 @@
 # 組織配賦・開発課 PM — スモーク記録
 
-エピック Handoff: [`handoff.org-dispatch-pm-workflow.json`](../../skills/issue-story-planner/examples/handoff.org-dispatch-pm-workflow.json)
+エピック Handoff: [`handoff.org-dispatch-pm-workflow.json`](../../skills/planning/issue-story-planner/examples/handoff.org-dispatch-pm-workflow.json)
 
 ## Asana
 
@@ -22,7 +22,7 @@
 
 ```powershell
 # 1. 子タスク内容
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\fetch_task.py --gid 1214877045257081
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\fetch_task.py --gid 1214877045257081
 
 # 2. dispatch（エージェント）— DispatchRequest department=development
 #    → product-manager prompt_snippet
@@ -30,7 +30,7 @@
 # 3. PM workflow（エージェント）— 本スモークでは設計 doc 作成で done_when 相当を満たす
 
 # 4. 完了マーク（実施済みエピック作業後）
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
 ```
 
 ## ルーティング確認
@@ -50,6 +50,6 @@
 
 - `docs/design/org-dispatch-model.md`
 - `workflows/organizations.yaml`, `development-delivery.yaml`, `with-dispatch.yaml`
-- `skills/task-dispatcher/`, `product-manager/`, `doc-writer/`, `developer/`, `reviewer/`
-- 分析課（後追い）: `workflows/analysis-delivery.yaml`, `skills/analytics-pm/`, `skills/data-*/`, `skills/ml-engineer/`, `skills/analysis-reviewer/`
+- `skills/platform/task-dispatcher/`, `product-manager/`, `doc-writer/`, `developer/`, `reviewer/`
+- 分析課（後追い）: `workflows/analysis-delivery.yaml`, `skills/analysis/analytics-pm/`, `skills/data-*/`, `skills/analysis/ml-engineer/`, `skills/analysis/analysis-reviewer/`
 - Handoff v1.2 スキーマ・`asana_program_common` の `課:` 行

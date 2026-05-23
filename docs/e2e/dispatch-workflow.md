@@ -10,7 +10,7 @@
 ## 1. 未完了子の確認
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\fetch_task.py --gid <PARENT_GID> --list-subtasks
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\fetch_task.py --gid <PARENT_GID> --list-subtasks
 ```
 
 ## 2. dispatch — task-dispatcher
@@ -21,7 +21,7 @@
 子タスク GID <CHILD_GID> を development に配賦し、開発課 workflow を起動してください。
 ```
 
-エージェントは `DispatchRequest` を組み立て、[`task-dispatcher`](../../skills/task-dispatcher/SKILL.md) で `product-manager` 用 prompt_snippet を得る。
+エージェントは `DispatchRequest` を組み立て、[`task-dispatcher`](../../skills/platform/task-dispatcher/SKILL.md) で `product-manager` 用 prompt_snippet を得る。
 
 ## 3. 開発課 — product-manager
 
@@ -34,8 +34,8 @@
 **ローカル作業が終わったら、署名コメントを残してから Asana を完了にする。** `DeptWorkComplete` や利用者報告の前に実行する。
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\comment_task.py --gid <CHILD_GID> --agent <slug> --skill skills/<slug>/SKILL.md --summary "..." --body "..." -y
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <CHILD_GID> --agent <slug> --skill skills/<organization>/<slug>/SKILL.md --summary "..." --body "..." -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
 ```
 
 詳細: [`docs/design/agent-asana-comment-signature.md`](../design/agent-asana-comment-signature.md)
@@ -43,7 +43,7 @@
 同一エピックで【1/N】…【N/N】まで連続完了した場合（Handoff の `【n/m】` タイトルが付いているとき）:
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\sync_handoff_epic.py `
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\sync_handoff_epic.py `
   --handoff .\work\handoff.<theme>.json `
   --parent <PARENT_GID> `
   --complete-through N `
@@ -72,7 +72,7 @@
 
 運用ルール（SLA・承認ゲート・RBAC）: [`docs/design/analysis-delivery-io.md`](../design/analysis-delivery-io.md)
 
-Handoff 例: [`handoff.analysis-delivery.json`](../../skills/issue-story-planner/examples/handoff.analysis-delivery.json)
+Handoff 例: [`handoff.analysis-delivery.json`](../../skills/planning/issue-story-planner/examples/handoff.analysis-delivery.json)
 
 ## 過渡期
 

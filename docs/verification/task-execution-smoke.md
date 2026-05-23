@@ -12,7 +12,7 @@
 |------|------|
 | `docs/design/task-execution-boundary.md` | 作成済み |
 | `docs/design/task-work-io.md` | 作成済み |
-| `skills/task-executor/` | README / SKILL / personas |
+| `skills/platform/task-executor/` | README / SKILL / personas |
 | `fetch_task.py` / `complete_task.py` | 追加済み |
 | `workflows/with-execution.yaml` | 新設 |
 | `agent-registry.yaml` | task-executor 登録 |
@@ -20,9 +20,9 @@
 ## 手順（再現）
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\fetch_task.py --gid 1214879353098996 --list-subtasks
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\fetch_task.py --gid <CHILD_GID>
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\fetch_task.py --gid 1214879353098996 --list-subtasks
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\fetch_task.py --gid <CHILD_GID>
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
 ```
 
 ## Asana

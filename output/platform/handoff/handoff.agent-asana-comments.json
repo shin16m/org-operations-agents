@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "エージェント作業の Asana 署名付きコメント",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【基盤】AIエージェント作業の Asana 署名付きコメント",
+    "notes_markdown": "## 課題点の整理\n\n- タスク実行を AI エージェントに任せているが、**どのエージェント（スキル）が遂行したか** Asana 上で追えない。\n- 完了マークだけでは処理内容・成果物が残らず、監査・引き継ぎが困難。\n\n## 解決ストーリー\n\n1. **署名フォーマット**を設計（agent slug + skill パス + 実施内容）\n2. **`comment_task.py`** で Asana ストーリー（コメント）を API 投稿\n3. **実行系スキル**（developer / doc-writer / reviewer / PM / dispatcher 委譲先）に「作業完了前に署名コメント必須」を明記\n4. **完了同期**と併用: `comment_task.py` → `complete_task.py` の順\n\n## 適用可否\n\n**可能。** Cursor 等の LLM エージェントは SKILL 契約に従えばよく、機械的には CLI でコメントを投稿する。強制は review / PM チェックリストと registry 参照で担保する。"
+  },
+  "subtasks": [
+    {
+      "title": "【1/4・設計】署名付きコメント契約・フォーマット定義",
+      "pillar": "設計",
+      "department": "development",
+      "background": "エージェント識別子とコメント本文の構造が未定義だと、スキルごとにバラバラな記録になる。",
+      "summary": "`docs/design/agent-asana-comment-signature.md` に署名ブロック・投稿タイミング・AgentWorkComment JSON を定義する。",
+      "done_when": "設計書が存在し、全実行系スキルが参照できる粒度でフォーマットと手順が書かれている。"
+    },
+    {
+      "title": "【2/4・実装】comment_task.py と asana 共通ヘルパ",
+      "pillar": "実装",
+      "department": "development",
+      "background": "手動コピペではエージェント運用が続かない。API 経由の一貫した投稿手段が必要。",
+      "summary": "`asana_program_common.py` にストーリー投稿・署名整形を追加し、`optional/comment_task.py` を実装する。JSON 入力スキーマを `skills/platform/asana-buddy/schemas/` に置く。",
+      "done_when": "`comment_task.py --gid <GID> --agent <slug> --skill <path> --body \"...\" -y` で Asana に署名付きコメントが投稿できる。"
+    },
+    {
+      "title": "【3/4・整備】実行系スキル・dept-work-io・CONTRIBUTING 更新",
+      "pillar": "整備",
+      "department": "development",
+      "background": "ツールだけではエージェントがコメントを省略しうる。スキル契約で必須化する。",
+      "summary": "product-manager / developer / doc-writer / reviewer / task-dispatcher / workflow-orchestrator / task-executor / asana-buddy の SKILL を更新。`dept-work-io.md` に AgentWorkComment と comment→complete 順序を追記。",
+      "done_when": "各 SKILL に署名コメント必須と `comment_task.py` 利用例が記載され、完了前コメントが運用ルールとして明文化されている。"
+    },
+    {
+      "title": "【4/4・検証】スモーク手順・registry 反映",
+      "pillar": "検証",
+      "department": "development",
+      "background": "利用者が再現手順なしでは導入できない。",
+      "summary": "`docs/verification/agent-comment-smoke.md` を追加。`agent-registry.yaml` の asana-buddy に `comment_task_script` を登録。asana-buddy README にコマンド例を追記。",
+      "done_when": "検証手順が存在し、registry が comment スクリプトを参照している。"
+    }
+  ]
+}

@@ -25,7 +25,7 @@ AI エージェントが Asana タスクを処理した際、**誰（どの agen
 ---
 🤖 agent-work-record
 agent: developer
-skill: skills/developer/SKILL.md
+skill: skills/development/developer/SKILL.md
 phase: complete
 executed_at: 2026-05-18T14:30:00+09:00
 ---
@@ -43,24 +43,24 @@ executed_at: 2026-05-18T14:30:00+09:00
 | フィールド | 必須 | 説明 |
 |------------|------|------|
 | `agent` | はい | [`agent-registry.yaml`](../../workflows/agent-registry.yaml) の `slug` |
-| `skill` | はい | スキルパス（例 `skills/developer/SKILL.md`） |
+| `skill` | はい | スキルパス（例 `skills/development/developer/SKILL.md`） |
 | `phase` | いいえ | `start` \| `complete`（省略時 `complete`） |
 | `executed_at` | いいえ | ISO 8601（省略時は CLI が付与） |
 
 ## 4. AgentWorkComment JSON（機械可読）
 
-スキーマ: [`skills/asana-buddy/schemas/agent-work-comment.v1.schema.json`](../../skills/asana-buddy/schemas/agent-work-comment.v1.schema.json)
+スキーマ: [`skills/platform/asana-buddy/schemas/agent-work-comment.v1.schema.json`](../../skills/platform/asana-buddy/schemas/agent-work-comment.v1.schema.json)
 
 ```json
 {
   "schema_version": "1.0",
   "task_gid": "1214877045257081",
   "agent": "developer",
-  "skill_path": "skills/developer/SKILL.md",
+  "skill_path": "skills/development/developer/SKILL.md",
   "phase": "complete",
   "summary": "要件に沿い API ヘルパを実装",
   "body_markdown": "## 実施内容\n...",
-  "artifacts": ["skills/asana-buddy/optional/comment_task.py"]
+  "artifacts": ["skills/platform/asana-buddy/optional/comment_task.py"]
 }
 ```
 
@@ -85,10 +85,10 @@ comment_task.py  →  complete_task.py -y  →  DeptWorkComplete（課内）
 ## 7. CLI
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\comment_task.py `
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py `
   --gid <TASK_GID> `
   --agent developer `
-  --skill skills/developer/SKILL.md `
+  --skill skills/development/developer/SKILL.md `
   --summary "実装完了" `
   --body-file .\work-comment-body.md `
   -y
@@ -97,7 +97,7 @@ comment_task.py  →  complete_task.py -y  →  DeptWorkComplete（課内）
 JSON から:
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\comment_task.py --from-json .\work\comment.json -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --from-json .\output\platform\comment.example.json -y
 ```
 
 ## 8. 制限

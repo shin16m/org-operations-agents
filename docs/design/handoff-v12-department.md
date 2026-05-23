@@ -27,4 +27,4 @@
 
 ## planner 追記
 
-本格追記は [`issue-story-planner/SKILL.md`](../../skills/issue-story-planner/SKILL.md) タスク 11。チェックリストは [`planner-orchestrator-dispatch-notes.md`](planner-orchestrator-dispatch-notes.md)。
+本格追記は [`issue-story-planner/SKILL.md`](../../skills/planning/issue-story-planner/SKILL.md) タスク 11。チェックリストは [`planner-orchestrator-dispatch-notes.md`](planner-orchestrator-dispatch-notes.md)。

@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "Asana タスク実行エージェントの追加",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】タスク実行フェーズ・Asana 着手エージェント",
+    "notes_markdown": "## 課題点の整理\n\n- **できていること:** 課題相談 → プラン → review → Asana タスク化（workflow v2 の execute まで）。\n- **足りないこと:** Asana に載った**サブタスクを実際に実行する**エージェント。完了に専用ツールや別スキルが要る場合の拡張方針も未定義。\n- **制約:** 新規 `skills/<organization>/<slug>/` は **agent-creater のみ**。review 必須の方針は維持。既存 asana-buddy は「作成・更新」、実行エージェントは「着手・成果・完了報告」に分離。\n\n## 解決ストーリー\n\n1. ギャップと I/O を設計（Asana タスク GID / 子タスク、完了条件、成果物パス）\n2. workflow を **execute の次** に `work` 段階を追加する案を文書化（v3 または別 workflow）\n3. **agent-creater** で `task-executor` スキル雛形を生成\n4. asana-buddy に読取・完了マーク用の最小 API ラッパを追加（実行本体は task-executor）\n5. registry / orchestrator を更新し、タスク化後に「実行依頼」へ進める導線を整備\n6. E2E 手順と検証記録\n\n## 目指す利用像（図の延長）\n\n```\n人 → orchestrator（intake）→ planner → reviewer → gate → asana-buddy（タスク作成）\n  → orchestrator または task-executor（実行依頼）→ サブタスク着手・完了\n```\n\n## 進め方\n\nサブタスク 1→7 を順に。タスク 3（agent-creater）はタスク 2 の I/O 確定後。"
+  },
+  "subtasks": [
+    {
+      "title": "【1/7・設計】実行フェーズのギャップと責務境界",
+      "pillar": "設計",
+      "background": "現状は execute で Asana 作成まで。利用者は「タスクができたが誰がやるか」が空いている。",
+      "summary": "docs/design に「計画→Asana 化」と「サブタスク実行」の境界を書く。asana-buddy（作成・sync）と task-executor（着手・成果・完了判定）の分担表を作る。",
+      "done_when": "境界表があり、実行エージェントが Handoff を再生成しない（読む／更新する）ことが明記されている。"
+    },
+    {
+      "title": "【2/7・設計】task-executor の I/O と WorkflowSession 拡張案",
+      "pillar": "設計",
+      "background": "実行入力は Asana 子タスク GID、親エピック、notes の done_when が自然。workflow の step id を増やすなら orchestrator と語彙を揃える。",
+      "summary": "TaskWorkRequest / TaskWorkResult の草案（例: task_gid, subtask_index, artifacts[], status）。workflow に `work` 段階を足す場合の YAML 案をコメント付きで docs/design に記載。",
+      "done_when": "I/O 表と workflow 拡張案（v3 ドラフト）が docs/design に存在する。"
+    },
+    {
+      "title": "【3/7・実装】agent-creater で task-executor スキル生成",
+      "pillar": "実装",
+      "background": "新規スキル実体は agent-creater 経由のみ。タスク 2 の I/O に合わせた SKILL / README / personas が必要。",
+      "summary": "agent-creater で `skills/platform/task-executor/` を生成。責務: 指定サブタスクの background/summary/done_when を読み、リポジトリ内作業またはツール作成方針を提案し、完了条件を満たしたら報告。新規ツール要否はタスク内で agent-creater 再委譲と明記。",
+      "done_when": "`skills/platform/task-executor/` に README.md, SKILL.md, personas/ が存在し、やらないこと（Asana 親作成、Handoff 新規作成）が書かれている。"
+    },
+    {
+      "title": "【4/7・実装】asana-buddy：タスク読取・完了マークの最小スクリプト",
+      "pillar": "実装",
+      "background": "task-executor が Asana API を直叩くと重複。読取・completed 更新は asana-buddy に集約する方針が既存 SKILL と整合。",
+      "summary": "optional に `fetch_task.py`（GID→name/notes/completed）と `complete_task.py`（--gid）を追加。SKILL.md に task-executor からの利用を追記。",
+      "done_when": "スクリプトが動作し、SKILL に実行エージェント連携節がある。"
+    },
+    {
+      "title": "【5/7・設計】workflow v3 ドラフトと registry 登録",
+      "pillar": "設計",
+      "background": "default v2 は execute 終端。work 段階と task-executor を registry に載せないと orchestrator が案内できない。",
+      "summary": "`workflows/default.yaml` を v3 案として `work` 段階（agent: task-executor）を追記する PR 用ドラフト、または `workflows/with-execution.yaml` を新設。`agent-registry.yaml` に task-executor を enabled で追加。",
+      "done_when": "YAML ドラフトと registry エントリが PR 可能な状態でコミットされている。"
+    },
+    {
+      "title": "【6/7・整備】orchestrator・README・E2E の実行フェーズ追記",
+      "pillar": "整備",
+      "background": "利用者は自然言語のみで依頼したい。図の「完了報告」まで含めた導線を文書化する。",
+      "summary": "workflow-orchestrator SKILL に execute 後の work 委譲例を追加。ルート README に「タスク化の次は実行依頼」を追記。docs/e2e に optional 章を追加。",
+      "done_when": "README と orchestrator が v3（または with-execution）を参照し、プロンプトコピーなし運用の注記がある。"
+    },
+    {
+      "title": "【7/7・検証】タスク化→実行依頼のスモーク（本エピック完了後）",
+      "pillar": "検証",
+      "background": "タスク 3–5 完了後でないと実行エージェントは空振りする。",
+      "summary": "架空サブタスク 1 件で task-executor 起動→asana-buddy で complete の dry-run または記録のみ。docs/verification に手順を残す。",
+      "done_when": "検証記録に Asana GID・実行エージェント・完了マークの流れが書かれている。"
+    }
+  ]
+}

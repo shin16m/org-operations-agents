@@ -4,8 +4,8 @@ workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v2（`
 
 ## 前提
 
-- リポジトリルートで `.venv` 構築済み（[`skills/asana-buddy/optional/setup_venv.ps1`](../../skills/asana-buddy/optional/setup_venv.ps1)）
-- `skills/asana-buddy/optional/.env` に `ASANA_TOKEN`（任意 `ASANA_PROJECT_ID`）
+- リポジトリルートで `.venv` 構築済み（[`skills/platform/asana-buddy/optional/setup_venv.ps1`](../../skills/platform/asana-buddy/optional/setup_venv.ps1)）
+- `skills/platform/asana-buddy/optional/.env` に `ASANA_TOKEN`（任意 `ASANA_PROJECT_ID`）
 
 ## 0. intake — workflow-orchestrator（ここから開始）
 
@@ -62,7 +62,7 @@ review_passed を確認し、execute（asana-buddy）に進めるか判断して
 **入力:** 承認済み Handoff JSON
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\handoff_to_asana.py `
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\handoff_to_asana.py `
   --handoff .\handoff.revised.json `
   --require-review-result .\review.result.json `
   -y --if-not-exists
@@ -81,7 +81,7 @@ workflow: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml)
 1. execute で作成した子タスク GID を確認:
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\fetch_task.py --gid <PARENT_GID> --list-subtasks
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\fetch_task.py --gid <PARENT_GID> --list-subtasks
 ```
 
 2. **task-executor** — 「GID ○○ を実行して」と自然言語で依頼（スキル名のコピペ不要）
@@ -89,7 +89,7 @@ workflow: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml)
 3. 完了マーク（**作業完了とセットで必須**。ローカルのみ完了にしない）:
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
 ```
 
 配賦 workflow（`with-dispatch`）では [`dispatch-workflow.md`](dispatch-workflow.md) の「子タスク完了」「エピック完了」を参照。

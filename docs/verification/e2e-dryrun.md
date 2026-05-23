@@ -25,7 +25,7 @@
 | registry | `workflows/agent-registry.yaml` |
 | workflow | `workflows/default.yaml` v2 |
 | review 契約 | `docs/design/plan-reviewer-contract.md` |
-| review スキーマ | `skills/plan-reviewer/schemas/plan-review-result.v1.schema.json` |
+| review スキーマ | `skills/planning/plan-reviewer/schemas/plan-review-result.v1.schema.json` |
 | E2E 手順 | `docs/e2e/default-workflow.md` |
 | 入口化 dryrun | `docs/verification/orchestrator-intake-dryrun.md` |
 
@@ -36,10 +36,10 @@
 
 ## 拡張スモーク（registry）
 
-- 未登録 slug 参照時、orchestrator SKILL は registry 更新手順を返す（[`workflow-orchestrator/SKILL.md`](../../skills/workflow-orchestrator/SKILL.md)）
+- 未登録 slug 参照時、orchestrator SKILL は registry 更新手順を返す（[`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md)）
 
 ## 結果
 
 - ルート README → intake 起点の v2 手順で再現可能
 - `handoff_to_asana.py --require-review-result` で review ゲートを CLI 強制可能
-- レガシー `skills/agent-creater/agents/asana-buddy/` 削除済み
+- レガシー `skills/platform/agent-creater/agents/asana-buddy/` 削除済み

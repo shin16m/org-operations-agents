@@ -16,14 +16,14 @@ L2 task-dispatcher（department=analysis）
 
 | フェーズ | 担当 | 成果物 | 推奨パス例 |
 |----------|------|--------|------------|
-| 要求定義 | analytics-pm | 要件書・受け入れ基準 | `docs/analytics/requirements/<task_gid>.md` |
-| データ設計 | data-architect | データモデル・アクセスポリシー | `docs/analytics/data-model/<task_gid>.md` |
+| 要求定義 | analytics-pm | 要件書・受け入れ基準 | `output/analysis/requirements/<task_gid>.md` |
+| データ設計 | data-architect | データモデル・アクセスポリシー | `output/analysis/data-model/<task_gid>.md` |
 | 取り込み | data-engineer | パイプラインコード・CI テスト | `pipelines/<task_gid>/` |
-| 品質 | data-steward | 品質レポート・データカタログ | `docs/analytics/catalog/<task_gid>.md` |
-| 探索 | data-analyst | 分析ノート・BI ダッシュボード | `docs/analytics/insights/<task_gid>.md` |
-| モデル | data-scientist | モデル評価・モデルカード | `docs/analytics/models/<task_gid>/` |
+| 品質 | data-steward | 品質レポート・データカタログ | `output/analysis/catalog/<task_gid>.md` |
+| 探索 | data-analyst | 分析ノート・BI ダッシュボード | `output/analysis/insights/<task_gid>.md` |
+| モデル | data-scientist | モデル評価・モデルカード | `output/analysis/models/<task_gid>/` |
 | デプロイ | ml-engineer | デプロイ済モデル・監視 | `deploy/<task_gid>/` |
-| 価値検証 | analytics-pm | リリースノート・KPI レポート | `docs/analytics/releases/<task_gid>.md` |
+| 価値検証 | analytics-pm | リリースノート・KPI レポート | `output/analysis/releases/<task_gid>.md` |
 
 > 製品コード・パイプライン実体は **別リポジトリ** に置く。本リポジトリは workflow・スキル定義のみ。
 
@@ -64,9 +64,9 @@ L2 task-dispatcher（department=analysis）
 
 | 種別 | review_kind | スキーマ |
 |------|-------------|----------|
-| 分析課ドキュメント・成果物 | `analytics_requirements` \| `data_model` \| `pipeline` \| `data_quality` \| `analysis_insights` \| `model_eval` | `skills/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
-| 本番デプロイゲート | `production_deploy_gate` | `skills/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
-| デプロイ検証 | `deploy_verification` | `skills/reviewer/schemas/verification-result.v1.schema.json` |
+| 分析課ドキュメント・成果物 | `analytics_requirements` \| `data_model` \| `pipeline` \| `data_quality` \| `analysis_insights` \| `model_eval` | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
+| 本番デプロイゲート | `production_deploy_gate` | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
+| デプロイ検証 | `deploy_verification` | `skills/development/reviewer/schemas/verification-result.v1.schema.json` |
 
 共通: `status` は `passed` \| `passed_with_notes` \| `failed`。
 
@@ -74,7 +74,7 @@ L2 task-dispatcher（department=analysis）
 
 analytics-pm 完了時は product-manager と同一スキーマ（`department: analysis`）:
 
-[`skills/product-manager/schemas/dept-work-complete.v1.schema.json`](../../skills/product-manager/schemas/dept-work-complete.v1.schema.json)
+[`skills/development/product-manager/schemas/dept-work-complete.v1.schema.json`](../../skills/development/product-manager/schemas/dept-work-complete.v1.schema.json)
 
 ## Asana 記録
 

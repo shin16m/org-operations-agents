@@ -2,7 +2,7 @@
 
 タスク 2 成果物。境界は [`task-execution-boundary.md`](task-execution-boundary.md)。
 
-スキーマ: [`skills/task-executor/schemas/task-work-request.v1.schema.json`](../../skills/task-executor/schemas/task-work-request.v1.schema.json) · [`task-work-result.v1.schema.json`](../../skills/task-executor/schemas/task-work-result.v1.schema.json)
+スキーマ: [`skills/platform/task-executor/schemas/task-work-request.v1.schema.json`](../../skills/platform/task-executor/schemas/task-work-request.v1.schema.json) · [`task-work-result.v1.schema.json`](../../skills/platform/task-executor/schemas/task-work-result.v1.schema.json)
 
 ## TaskWorkRequest（実行依頼）
 

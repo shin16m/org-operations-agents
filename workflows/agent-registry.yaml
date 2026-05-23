@@ -4,7 +4,7 @@ version: "2"
 agents:
   - slug: workflow-orchestrator
     slot: orchestrate
-    skill_path: skills/workflow-orchestrator
+    skill_path: skills/platform/workflow-orchestrator
     enabled: true
     workflow_steps: [intake, gate]
     io:
@@ -20,42 +20,42 @@ agents:
 
   - slug: issue-story-planner
     slot: plan
-    skill_path: skills/issue-story-planner
+    skill_path: skills/planning/issue-story-planner
     enabled: true
     note: 通常は orchestrator（intake）から委譲されて起動する
     io:
-      output_schema: skills/issue-story-planner/schemas/asana-buddy-handoff.v1.schema.json
+      output_schema: skills/planning/issue-story-planner/schemas/asana-buddy-handoff.v1.schema.json
       output_kind: AsanaBuddyHandoff
       schema_version: "1.1"
 
   - slug: plan-reviewer
     slot: review
-    skill_path: skills/plan-reviewer
+    skill_path: skills/planning/plan-reviewer
     enabled: true
     io:
       input_kind: AsanaBuddyHandoff
       output_kind: PlanReviewResult
-      output_schema: skills/plan-reviewer/schemas/plan-review-result.v1.schema.json
+      output_schema: skills/planning/plan-reviewer/schemas/plan-review-result.v1.schema.json
       schema_version: "1.0"
       schema_doc: docs/design/plan-reviewer-contract.md
 
   - slug: asana-buddy
     slot: execute
-    skill_path: skills/asana-buddy
+    skill_path: skills/platform/asana-buddy
     enabled: true
     io:
       input_kind: AsanaBuddyHandoff
       schema_version: "1.1"
-      script: skills/asana-buddy/optional/handoff_to_asana.py
-      task_read_script: skills/asana-buddy/optional/fetch_task.py
-      task_comment_script: skills/asana-buddy/optional/comment_task.py
-      task_complete_script: skills/asana-buddy/optional/complete_task.py
-      comment_schema: skills/asana-buddy/schemas/agent-work-comment.v1.schema.json
+      script: skills/platform/asana-buddy/optional/handoff_to_asana.py
+      task_read_script: skills/platform/asana-buddy/optional/fetch_task.py
+      task_comment_script: skills/platform/asana-buddy/optional/comment_task.py
+      task_complete_script: skills/platform/asana-buddy/optional/complete_task.py
+      comment_schema: skills/platform/asana-buddy/schemas/agent-work-comment.v1.schema.json
       comment_doc: docs/design/agent-asana-comment-signature.md
 
   - slug: task-executor
     slot: work
-    skill_path: skills/task-executor
+    skill_path: skills/platform/task-executor
     enabled: true
     deprecated: true
     note: 過渡期。新規は task-dispatcher + 課 workflow を使用
@@ -63,8 +63,8 @@ agents:
     io:
       input_kind: TaskWorkRequest
       output_kind: TaskWorkResult
-      input_schema: skills/task-executor/schemas/task-work-request.v1.schema.json
-      output_schema: skills/task-executor/schemas/task-work-result.v1.schema.json
+      input_schema: skills/platform/task-executor/schemas/task-work-request.v1.schema.json
+      output_schema: skills/platform/task-executor/schemas/task-work-result.v1.schema.json
       schema_version: "1.0"
       schema_doc: docs/design/task-work-io.md
       boundary_doc: docs/design/task-execution-boundary.md
@@ -73,12 +73,12 @@ agents:
 
   - slug: task-dispatcher
     slot: dispatch
-    skill_path: skills/task-dispatcher
+    skill_path: skills/platform/task-dispatcher
     enabled: true
     workflow_steps: [dispatch]
     io:
       input_kind: DispatchRequest
-      input_schema: skills/task-dispatcher/schemas/dispatch-request.v1.schema.json
+      input_schema: skills/platform/task-dispatcher/schemas/dispatch-request.v1.schema.json
       schema_version: "1.0"
       schema_doc: docs/design/dept-work-io.md
       reads:
@@ -87,93 +87,93 @@ agents:
 
   - slug: product-manager
     slot: dept_orchestrate
-    skill_path: skills/product-manager
+    skill_path: skills/development/product-manager
     enabled: true
     workflow_steps: []
     io:
       input_kind: DispatchRequest
       output_kind: DeptWorkComplete
-      output_schema: skills/product-manager/schemas/dept-work-complete.v1.schema.json
+      output_schema: skills/development/product-manager/schemas/dept-work-complete.v1.schema.json
       schema_doc: docs/design/dept-work-io.md
       reads:
         - workflows/development-delivery.yaml
 
   - slug: doc-writer
     slot: dept_work
-    skill_path: skills/doc-writer
+    skill_path: skills/development/doc-writer
     enabled: true
 
   - slug: developer
     slot: dept_work
-    skill_path: skills/developer
+    skill_path: skills/development/developer
     enabled: true
 
   - slug: reviewer
     slot: dept_review
-    skill_path: skills/reviewer
+    skill_path: skills/development/reviewer
     enabled: true
     io:
       output_schemas:
-        - skills/reviewer/schemas/doc-review-result.v1.schema.json
-        - skills/reviewer/schemas/code-review-result.v1.schema.json
-        - skills/reviewer/schemas/verification-result.v1.schema.json
-        - skills/reviewer/schemas/mismatch-review-result.v1.schema.json
+        - skills/development/reviewer/schemas/doc-review-result.v1.schema.json
+        - skills/development/reviewer/schemas/code-review-result.v1.schema.json
+        - skills/development/reviewer/schemas/verification-result.v1.schema.json
+        - skills/development/reviewer/schemas/mismatch-review-result.v1.schema.json
 
   - slug: analytics-pm
     slot: dept_orchestrate
-    skill_path: skills/analytics-pm
+    skill_path: skills/analysis/analytics-pm
     enabled: true
     workflow_steps: []
     io:
       input_kind: DispatchRequest
       output_kind: DeptWorkComplete
-      output_schema: skills/product-manager/schemas/dept-work-complete.v1.schema.json
+      output_schema: skills/development/product-manager/schemas/dept-work-complete.v1.schema.json
       schema_doc: docs/design/analysis-delivery-io.md
       reads:
         - workflows/analysis-delivery.yaml
 
   - slug: data-architect
     slot: dept_work
-    skill_path: skills/data-architect
+    skill_path: skills/analysis/data-architect
     enabled: true
 
   - slug: data-engineer
     slot: dept_work
-    skill_path: skills/data-engineer
+    skill_path: skills/analysis/data-engineer
     enabled: true
 
   - slug: data-steward
     slot: dept_work
-    skill_path: skills/data-steward
+    skill_path: skills/analysis/data-steward
     enabled: true
 
   - slug: data-analyst
     slot: dept_work
-    skill_path: skills/data-analyst
+    skill_path: skills/analysis/data-analyst
     enabled: true
 
   - slug: data-scientist
     slot: dept_work
-    skill_path: skills/data-scientist
+    skill_path: skills/analysis/data-scientist
     enabled: true
 
   - slug: ml-engineer
     slot: dept_work
-    skill_path: skills/ml-engineer
+    skill_path: skills/analysis/ml-engineer
     enabled: true
 
   - slug: analysis-reviewer
     slot: dept_review
-    skill_path: skills/analysis-reviewer
+    skill_path: skills/analysis/analysis-reviewer
     enabled: true
     io:
       output_schemas:
-        - skills/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json
-        - skills/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json
-        - skills/reviewer/schemas/verification-result.v1.schema.json
+        - skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json
+        - skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json
+        - skills/development/reviewer/schemas/verification-result.v1.schema.json
 
   - slug: agent-creater
     slot: meta
-    skill_path: skills/agent-creater
+    skill_path: skills/platform/agent-creater
     enabled: true
-    note: 新規 skills/<slug>/ の唯一の生成入口。workflow の段階には載せない。
+    note: 新規 skills/<organization>/<slug>/ の唯一の生成入口。workflow の段階には載せない。

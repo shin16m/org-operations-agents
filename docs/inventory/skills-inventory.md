@@ -6,7 +6,7 @@
 
 ## 新規エージェント作成の入口
 
-**`agent-creater` のみ**が `skills/<slug>/` の設計・雛形を生成する。他スキル・オーケストレーターは新規フォルダを作らない。
+**`agent-creater` のみ**が `skills/<organization>/<slug>/` の設計・雛形を生成する。他スキル・オーケストレーターは新規フォルダを作らない。
 
 ## 標準パイプライン（v2 + dispatch）
 
@@ -43,7 +43,7 @@ workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必
 | `ml-engineer` | 業務 | 分析課 | 実装済 | デプロイ・MLOps |
 | `analysis-reviewer` | 業務 | 分析課 | 実装済 | 分析レビュー・本番ゲート |
 | `task-executor` | 業務 | `work` | **deprecated** | 単一ワーカー（過渡期） |
-| `agent-creater` | メタ | — | 実装済 | 要件 → `skills/<slug>/` 雛形 |
+| `agent-creater` | メタ | — | 実装済 | 要件 → `skills/<organization>/<slug>/` 雛形 |
 
 ## 機械検証
 
@@ -66,4 +66,4 @@ workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必
 
 ## レガシー
 
-`skills/agent-creater/agents/` 配下への配置は**廃止済み**。
+`skills/platform/agent-creater/agents/` 配下への配置は**廃止済み**。

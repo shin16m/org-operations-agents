@@ -8,7 +8,7 @@
 
 ## 出力: `PlanReviewResult`
 
-機械可読は JSON 1 ブロック。スキーマ: [`skills/plan-reviewer/schemas/plan-review-result.v1.schema.json`](../../skills/plan-reviewer/schemas/plan-review-result.v1.schema.json)
+機械可読は JSON 1 ブロック。スキーマ: [`skills/planning/plan-reviewer/schemas/plan-review-result.v1.schema.json`](../../skills/planning/plan-reviewer/schemas/plan-review-result.v1.schema.json)
 
 ```json
 {
