@@ -62,6 +62,10 @@
 | CodeReviewResult | コードレビュー | `code` | `skills/reviewer/schemas/code-review-result.v1.schema.json` |
 | VerificationResult | 動作検証 | `verification` | `skills/reviewer/schemas/verification-result.v1.schema.json` |
 | MismatchReviewResult | 要件 vs 仕様整合 | `mismatch` | `skills/reviewer/schemas/mismatch-review-result.v1.schema.json` |
+| AnalysisDocReviewResult | 分析課ドキュメント | 各種 | `skills/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
+| DeployGateResult | 本番デプロイ前ゲート | `production_deploy_gate` | `skills/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
+
+分析課の詳細: [`analysis-delivery-io.md`](analysis-delivery-io.md)
 
 共通: `status` は `passed` \| `passed_with_notes` \| `failed`。`failed` 時は差し戻し先を `message` に明記。
 

@@ -17,6 +17,8 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**集。宣
 | [`task-dispatcher`](skills/task-dispatcher/SKILL.md) | 子タスクを課へ配賦（dispatch） |
 | [`product-manager`](skills/product-manager/SKILL.md) | 開発課 PM（子 1 件のハブ） |
 | [`doc-writer`](skills/doc-writer/SKILL.md) / [`developer`](skills/developer/SKILL.md) / [`reviewer`](skills/reviewer/SKILL.md) | 開発課の委譲ロール |
+| [`analytics-pm`](skills/analytics-pm/SKILL.md) | 分析課 PM（子 1 件のハブ） |
+| [`data-architect`](skills/data-architect/SKILL.md) / [`data-engineer`](skills/data-engineer/SKILL.md) / [`data-steward`](skills/data-steward/SKILL.md) / [`data-analyst`](skills/data-analyst/SKILL.md) / [`data-scientist`](skills/data-scientist/SKILL.md) / [`ml-engineer`](skills/ml-engineer/SKILL.md) / [`analysis-reviewer`](skills/analysis-reviewer/SKILL.md) | 分析課の委譲ロール |
 
 ## 標準 workflow（review 必須）
 
@@ -72,7 +74,11 @@ ASANA_PROJECT_ID=...
 
 ```
 execute → dispatch（task-dispatcher）→ product-manager → doc-writer / developer / reviewer
+execute → dispatch（task-dispatcher）→ analytics-pm → data-architect / … / analysis-reviewer
 ```
+
+- 開発課: [`workflows/development-delivery.yaml`](workflows/development-delivery.yaml)
+- 分析課: [`workflows/analysis-delivery.yaml`](workflows/analysis-delivery.yaml) · [`docs/design/analysis-delivery-io.md`](docs/design/analysis-delivery-io.md)
 
 - 推奨: [`workflows/with-dispatch.yaml`](workflows/with-dispatch.yaml) · [`docs/e2e/dispatch-workflow.md`](docs/e2e/dispatch-workflow.md)
 - 過渡期（単一ワーカー）: [`workflows/with-execution.yaml`](workflows/with-execution.yaml) + `task-executor`
@@ -84,6 +90,7 @@ execute → dispatch（task-dispatcher）→ product-manager → doc-writer / de
 - スキルレビュー是正: [`handoff.skill-review-remediation.json`](skills/issue-story-planner/examples/handoff.skill-review-remediation.json)
 - タスク実行エージェント: [`handoff.task-executor-agent.json`](skills/issue-story-planner/examples/handoff.task-executor-agent.json)
 - 組織配賦・PM ワークフロー: [`handoff.org-dispatch-pm-workflow.json`](skills/issue-story-planner/examples/handoff.org-dispatch-pm-workflow.json)
+- 分析課 delivery: [`handoff.analysis-delivery.json`](skills/issue-story-planner/examples/handoff.analysis-delivery.json)
 
 棚卸し: [`docs/inventory/skills-inventory.md`](docs/inventory/skills-inventory.md)
 

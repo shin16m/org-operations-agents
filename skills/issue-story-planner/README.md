@@ -27,6 +27,7 @@ AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須
 | [`examples/handoff.agent-workflow-orchestration.json`](examples/handoff.agent-workflow-orchestration.json) | 基盤エピック |
 | [`examples/handoff.orchestrator-intake-entry.json`](examples/handoff.orchestrator-intake-entry.json) | 入口化エピック |
 | [`examples/handoff.skill-review-remediation.json`](examples/handoff.skill-review-remediation.json) | レビュー指摘是正 |
+| [`examples/handoff.analysis-delivery.json`](examples/handoff.analysis-delivery.json) | 分析課 delivery |
 
 スキーマ: [`schemas/asana-buddy-handoff.v1.schema.json`](schemas/asana-buddy-handoff.v1.schema.json)
 

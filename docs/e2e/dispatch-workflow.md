@@ -60,7 +60,19 @@
 
 ## 分析課
 
-`department=analysis` は [`organizations.yaml`](../../workflows/organizations.yaml) で `enabled: false`（プレースホルダ）。
+`department=analysis` の子は [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) へルーティング（entry: **analytics-pm**）。
+
+自然言語例:
+
+```
+子タスク GID <CHILD_GID> を analysis に配賦し、分析課 workflow を起動してください。
+```
+
+フェーズ概要: 要求定義 → データ設計 → ETL → 品質 → 探索 → モデル → **本番ゲート** → デプロイ → 価値検証。
+
+運用ルール（SLA・承認ゲート・RBAC）: [`docs/design/analysis-delivery-io.md`](../design/analysis-delivery-io.md)
+
+Handoff 例: [`handoff.analysis-delivery.json`](../../skills/issue-story-planner/examples/handoff.analysis-delivery.json)
 
 ## 過渡期
 

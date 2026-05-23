@@ -1,13 +1,157 @@
-# Placeholder — analysis department (not implemented).
+# Analysis department workflow — one instance per Asana subtask.
+# analytics-pm is the hub; invoked after task-dispatcher routes department=analysis.
 id: analysis-delivery
 version: "1"
-description: 分析課ワークフロー（未実装プレースホルダ）
+description: PM-led analytics delivery (requirements → data → pipeline → quality → insights → model → deploy → value)
 
 policy:
   scope: single_subtask
-  entry_agent: analysis-lead
-  enabled: false
+  entry_agent: analytics-pm
+  parent_context: read_parent_epic_notes
+  operational_rules_doc: docs/design/analysis-delivery-io.md
 
-steps: []
+steps:
+  - id: pm_intake
+    agent: analytics-pm
+    role: 子タスクの background/summary/done_when を読み、要求定義フェーズへ
 
-note: organizations.yaml で analysis.enabled=false。実装時は agent-creater で analysis-lead を追加。
+  - id: requirements
+    agent: analytics-pm
+    role: ビジネスゴール・KPI・成功基準・受け入れ基準を定義
+    artifact: analytics-requirements-doc
+
+  - id: requirements_review
+    agent: analysis-reviewer
+    role: 要件書レビュー
+    review_kind: analytics_requirements
+    gate_after: requirements_review_passed
+
+  - id: pm_handoff_architect
+    agent: analytics-pm
+    role: データ設計フェーズへ委譲
+
+  - id: data_design
+    agent: data-architect
+    role: 必要データ・スキーマ・SLA（更新頻度・遅延許容）を設計
+    artifact: data-model-doc
+
+  - id: data_design_review
+    agent: analysis-reviewer
+    role: データモデル・SLA レビュー
+    review_kind: data_model
+    gate_after: data_model_review_passed
+
+  - id: pm_handoff_engineer
+    agent: analytics-pm
+    role: ETL/ELT フェーズへ委譲
+
+  - id: etl_pipeline
+    agent: data-engineer
+    role: パイプライン構築・テスト・自動化
+    artifact: pipeline-code
+
+  - id: pipeline_review
+    agent: analysis-reviewer
+    role: パイプライン・CI テストレビュー
+    review_kind: pipeline
+    gate_after: pipeline_review_passed
+
+  - id: pm_handoff_steward
+    agent: analytics-pm
+    role: 品質・ガバナンスフェーズへ委譲
+
+  - id: quality_governance
+    agent: data-steward
+    role: データ品質ルール・メタデータ・コンプライアンス
+    artifact: data-catalog-quality-report
+
+  - id: quality_review
+    agent: analysis-reviewer
+    role: 品質レポート・カタログレビュー
+    review_kind: data_quality
+    gate_after: quality_review_passed
+
+  - id: pm_handoff_analyst
+    agent: analytics-pm
+    role: 探索・分析フェーズへ委譲
+
+  - id: exploration
+    agent: data-analyst
+    role: 仮説検証・ダッシュボード・インサイト
+    artifact: analysis-notes-dashboard
+
+  - id: exploration_review
+    agent: analysis-reviewer
+    role: 分析成果レビュー
+    review_kind: analysis_insights
+    gate_after: exploration_review_passed
+
+  - id: pm_handoff_scientist
+    agent: analytics-pm
+    role: モデル開発フェーズへ委譲
+
+  - id: model_development
+    agent: data-scientist
+    role: 特徴量設計・モデル試作・評価
+    artifact: model-eval-report
+
+  - id: model_review
+    agent: analysis-reviewer
+    role: モデル評価・モデルカードレビュー
+    review_kind: model_eval
+    gate_after: model_review_passed
+
+  - id: production_gate
+    agent: analysis-reviewer
+    role: 本番デプロイ前の品質・セキュリティ承認（必須ゲート）
+    review_kind: production_deploy_gate
+    gate_after: production_gate_passed
+
+  - id: pm_handoff_ml_engineer
+    agent: analytics-pm
+    role: デプロイ・運用フェーズへ委譲（production_gate 通過後のみ）
+
+  - id: deploy_ops
+    agent: ml-engineer
+    role: コンテナ化・CI/CD・モニタリング・再学習パイプライン
+    artifact: deployed-model-monitoring
+
+  - id: deploy_verification
+    agent: analysis-reviewer
+    role: デプロイ・監視ダッシュボード検証
+    review_kind: deploy_verification
+    gate_after: deploy_verification_passed
+
+  - id: pm_value_validation
+    agent: analytics-pm
+    role: リリース判定・ROI 評価・次フェーズ計画
+    artifact: release-notes-kpi-report
+
+  - id: pm_complete
+    agent: analytics-pm
+    role: DeptWorkComplete 出力・comment_task → complete_task -y・オーケストレーターへ報告
+
+gates:
+  requirements_review_passed:
+    description: AnalysisDocReviewResult status passed*（analytics_requirements）
+  data_model_review_passed:
+    description: AnalysisDocReviewResult status passed*（data_model）。SLA 明文化必須
+  pipeline_review_passed:
+    description: AnalysisDocReviewResult status passed*（pipeline）
+  quality_review_passed:
+    description: AnalysisDocReviewResult status passed*（data_quality）
+  exploration_review_passed:
+    description: AnalysisDocReviewResult status passed*（analysis_insights）
+  model_review_passed:
+    description: AnalysisDocReviewResult status passed*（model_eval）
+  production_gate_passed:
+    description: DeployGateResult。quality_approved かつ security_approved 必須
+  deploy_verification_passed:
+    description: VerificationResult status passed（deploy_verification）
+
+branches:
+  production_gate_blocked:
+    from: production_gate
+    when: status == failed
+    to: pm_handoff_scientist
+    note: モデルまたはデータ品質の差し戻し。PM が data-scientist / data-steward へ再委譲を判断

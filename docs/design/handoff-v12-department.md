@@ -14,7 +14,7 @@
 | 値 | 課 | L2 先 workflow |
 |----|-----|----------------|
 | `development` | 開発課 | `development-delivery` |
-| `analysis` | 分析課 | `analysis-delivery`（プレースホルダ） |
+| `analysis` | 分析課 | `analysis-delivery` |
 | `planning` | 企画課 | L1 のみ（通常は dispatch しない） |
 
 ## pillar → department（v1.2 未設定時）

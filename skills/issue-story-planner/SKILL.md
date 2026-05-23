@@ -115,6 +115,7 @@ workflow-orchestrator（intake）→ issue-story-planner（本スキル）→ pl
 | [`examples/handoff.agent-workflow-orchestration.json`](examples/handoff.agent-workflow-orchestration.json) | 基盤エピック・メタ設計の参照 Handoff |
 | [`examples/handoff.orchestrator-intake-entry.json`](examples/handoff.orchestrator-intake-entry.json) | オーケストレーター入口化 |
 | [`examples/handoff.skill-review-remediation.json`](examples/handoff.skill-review-remediation.json) | スキルレビュー指摘の是正 |
+| [`examples/handoff.analysis-delivery.json`](examples/handoff.analysis-delivery.json) | 分析課 delivery |
 | [`docs/design/workflow-io-contract.md`](../../docs/design/workflow-io-contract.md) | パイプライン I/O |
 | [`workflows/default.yaml`](../../workflows/default.yaml) | 宣言的 workflow |
 

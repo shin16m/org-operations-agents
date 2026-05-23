@@ -28,7 +28,7 @@
 | department | workflow | entry |
 |------------|----------|-------|
 | development | development-delivery | product-manager |
-| analysis | analysis-delivery | analysis-lead（未実装時は blocked） |
+| analysis | analysis-delivery | analytics-pm |
 | planning | — | dispatch 対象外（L1 で完結） |
 
 ## やらないこと

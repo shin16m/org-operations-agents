@@ -38,7 +38,9 @@
 | department | workflow_id | entry_agent | 状態 |
 |------------|-------------|-------------|------|
 | development | development-delivery | product-manager | 実装済み |
-| analysis | analysis-delivery | analysis-lead | プレースホルダ（enabled: false） |
+| analysis | analysis-delivery | analytics-pm | 実装済み（2026-05 追加） |
+
+> 本スモーク（2026-05-17）は開発課のみ実施。分析課ルーティングは [`docs/e2e/dispatch-workflow.md`](../e2e/dispatch-workflow.md) を参照。
 
 ## 完了報告先
 
@@ -49,4 +51,5 @@
 - `docs/design/org-dispatch-model.md`
 - `workflows/organizations.yaml`, `development-delivery.yaml`, `with-dispatch.yaml`
 - `skills/task-dispatcher/`, `product-manager/`, `doc-writer/`, `developer/`, `reviewer/`
+- 分析課（後追い）: `workflows/analysis-delivery.yaml`, `skills/analytics-pm/`, `skills/data-*/`, `skills/ml-engineer/`, `skills/analysis-reviewer/`
 - Handoff v1.2 スキーマ・`asana_program_common` の `課:` 行

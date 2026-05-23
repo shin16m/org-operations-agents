@@ -22,7 +22,7 @@
 ┌─────────────────────────────────────────────────────────────┐
 │ L3 課内レイヤー（子タスク 1 件 = workflow インスタンス 1 本）  │
 │   開発課: product-manager ハブ → doc-writer / developer / …   │
-│   分析課: analysis-delivery（プレースホルダ）                 │
+│   分析課: analytics-pm ハブ → data-architect / data-engineer / … │
 │   完了: DeptWorkComplete → オーケストレーター                │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -46,7 +46,9 @@
 | **asana-buddy** | 横断 | 親+子**作成**、**読取**、**完了マーク** | 作業本体 |
 | **task-dispatcher** | L2 | `department` → 課 workflow へルーティング | 課内作業 |
 | **product-manager** | L3（開発課） | 子 1 件の状態機械・依頼・分岐・完了報告 | Handoff 新規作成 |
-| **doc-writer / developer / reviewer** | L3 | PM からの委譲作業 | ディスパッチ |
+| **analytics-pm** | L3（分析課） | 子 1 件の分析 delivery・本番ゲート前後の委譲・完了報告 | Handoff 新規作成 |
+| **doc-writer / developer / reviewer** | L3（開発課） | PM からの委譲作業 | ディスパッチ |
+| **data-architect / data-engineer / data-steward / data-analyst / data-scientist / ml-engineer / analysis-reviewer** | L3（分析課） | analytics-pm からの委譲 | ディスパッチ |
 
 ## 子完了 → 親エピック完了
 
@@ -63,5 +65,6 @@
 
 - ルーティング: [`workflows/organizations.yaml`](../../workflows/organizations.yaml)
 - 開発課 workflow: [`workflows/development-delivery.yaml`](../../workflows/development-delivery.yaml)
+- 分析課 workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) · I/O: [`analysis-delivery-io.md`](analysis-delivery-io.md)
 - I/O: [`dept-work-io.md`](dept-work-io.md)
 - 旧単一ワーカー: [`task-execution-boundary.md`](task-execution-boundary.md)

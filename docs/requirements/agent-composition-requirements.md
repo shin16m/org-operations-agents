@@ -5,9 +5,9 @@
 | 文書種別 | 要件定義書（requirements-doc） |
 | 作成者ロール | product-manager |
 | 対象 | agent-create-supporter リポジトリ全体のマルチエージェント構成 |
-| 参照 workflow | `default` v2 · `with-dispatch` · `development-delivery` |
-| 版 | 1.0 |
-| 日付 | 2026-05-18 |
+| 参照 workflow | `default` v2 · `with-dispatch` · `development-delivery` · `analysis-delivery` |
+| 版 | 1.1 |
+| 日付 | 2026-05-23 |
 
 ---
 
@@ -36,7 +36,7 @@
 |------|----------|
 | 全業務スキル・メタスキルの役割と連携 | Asana ワークスペースの人事・アサイン実務 |
 | L1 企画 / L2 配賦 / L3 課内の責務 | workflow YAML の実行エンジン実装 |
-| Handoff・レビュー・配賦・完了報告の I/O | 分析課の本実装（プレースホルダのみ） |
+| Handoff・レビュー・配賦・完了報告の I/O | 分析パイプライン・モデルの**製品コード**（別リポジトリ） |
 | 過渡期の `task-executor` | 外部 SaaS（Notion 等）連携 |
 
 ---
@@ -86,7 +86,7 @@
 | FR-L2-03 | dispatcher は `department` に基づき課 workflow の **entry_agent** へルーティングする | 必須 |
 | FR-L2-04 | ルーティング表は `workflows/organizations.yaml` に宣言的に定義する | 必須 |
 | FR-L2-05 | `department=development` のとき **product-manager** を起動する | 必須 |
-| FR-L2-06 | `department=analysis` は将来対応（現状プレースホルダ） | 将来 |
+| FR-L2-06 | `department=analysis` のとき **analytics-pm** を起動する | 必須 |
 | FR-L2-07 | `department` 未設定時は Handoff の `pillar` または Asana notes の `課:` 行から推定する | 推奨 |
 
 ### 3.3 L3 — 開発課フェーズ（workflow: `development-delivery`）
@@ -102,7 +102,22 @@
 | FR-L3-07 | 不整合が文書側なら doc-writer が修正、コード側なら PM → developer 修正ループ | 必須 |
 | FR-L3-08 | 完了時 PM は `DeptWorkComplete` を orchestrator へ報告し、子タスクを完了マークできる | 必須 |
 
-### 3.4 横断要件
+### 3.4 L3 — 分析課フェーズ（workflow: `analysis-delivery`）
+
+| ID | 要件 | 優先度 |
+|----|------|--------|
+| FR-L3-A01 | analytics-pm は子タスクの background / summary / done_when を読み、分析 delivery を進行管理する | 必須 |
+| FR-L3-A02 | analytics-pm はビジネスゴール・KPI・受け入れ基準を定義する | 必須 |
+| FR-L3-A03 | data-architect はデータモデルと**契約的 SLA**（更新頻度・遅延許容）を設計する | 必須 |
+| FR-L3-A04 | data-engineer / data-steward / data-analyst / data-scientist / ml-engineer は PM から委譲され、各フェーズ完了後 **analysis-reviewer** がレビューする | 必須 |
+| FR-L3-A05 | **production_deploy_gate**（品質・セキュリティ・SLA 承認）通過前に ml-engineer は本番デプロイしない | 必須 |
+| FR-L3-A06 | データアクセスは RBAC・監査ログの方針に従う（data-architect / data-steward が設計・確認） | 必須 |
+| FR-L3-A07 | analytics-pm はリリース判定・ROI 評価・次フェーズ計画を行う | 推奨 |
+| FR-L3-A08 | 完了時 analytics-pm は `DeptWorkComplete`（`department: analysis`）を orchestrator へ報告する | 必須 |
+
+詳細: [`docs/design/analysis-delivery-io.md`](../design/analysis-delivery-io.md)
+
+### 3.5 横断要件
 
 | ID | 要件 | 優先度 |
 |----|------|--------|
@@ -136,9 +151,12 @@
 | asana-buddy | 横断 | Asana 作成・読取・完了 |
 | task-dispatcher | L2 | 課ルーティング |
 | product-manager | L3 | 開発課ハブ |
+| analytics-pm | L3 | 分析課ハブ |
 | doc-writer | L3 | 要件定義書・詳細仕様書 |
 | developer | L3 | 実装・修正 |
-| reviewer | L3 | 課内レビュー・検証 |
+| reviewer | L3 | 開発課レビュー・検証 |
+| data-architect / data-engineer / data-steward / data-analyst / data-scientist / ml-engineer | L3 | 分析課委譲ロール |
+| analysis-reviewer | L3 | 分析課レビュー・本番デプロイゲート |
 | task-executor | L3（レガシー） | 単一ワーカー実行 |
 | agent-creater | メタ | スキル雛形生成 |
 
@@ -149,9 +167,9 @@
 本要件定義書が満たすこと：
 
 1. L1 / L2 / L3 の段階と担当エージェントが一覧できる
-2. 子タスク単位配賦と PM ハブの開発フローが追える
-3. ゲート（企画 review・課内 review）の位置が明確
-4. スコープ外（分析課本実装・実行エンジン）が明示されている
+2. 子タスク単位配賦と PM ハブの開発・分析フローが追える
+3. ゲート（企画 review・課内 review・本番デプロイゲート）の位置が明確
+4. スコープ外（分析パイプライン実体・実行エンジン）が明示されている
 
 ---
 
@@ -162,7 +180,7 @@
 | Handoff | planner から asana-buddy への企画 JSON（親 + 子タスク定義） |
 | 子タスク | Asana 上のサブタスク 1 件。配賦・課内 workflow の単位 |
 | department | `development` / `analysis` / `planning` — 配賦先の課 ID |
-| DeptWorkComplete | 開発課 PM から orchestrator への子タスク完了報告 |
+| DeptWorkComplete | 課 PM（product-manager / analytics-pm）から orchestrator への子タスク完了報告 |
 | prompt_snippet | 次スキル起動用のプロンプト文（orchestrator / dispatcher が生成） |
 
 ---
@@ -172,3 +190,4 @@
 - 詳細仕様: [`docs/specs/agent-composition-spec.md`](../specs/agent-composition-spec.md)
 - 組織モデル: [`docs/design/org-dispatch-model.md`](../design/org-dispatch-model.md)
 - 課内 I/O: [`docs/design/dept-work-io.md`](../design/dept-work-io.md)
+- 分析課 I/O: [`docs/design/analysis-delivery-io.md`](../design/analysis-delivery-io.md)

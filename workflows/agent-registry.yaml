@@ -119,6 +119,59 @@ agents:
         - skills/reviewer/schemas/verification-result.v1.schema.json
         - skills/reviewer/schemas/mismatch-review-result.v1.schema.json
 
+  - slug: analytics-pm
+    slot: dept_orchestrate
+    skill_path: skills/analytics-pm
+    enabled: true
+    workflow_steps: []
+    io:
+      input_kind: DispatchRequest
+      output_kind: DeptWorkComplete
+      output_schema: skills/product-manager/schemas/dept-work-complete.v1.schema.json
+      schema_doc: docs/design/analysis-delivery-io.md
+      reads:
+        - workflows/analysis-delivery.yaml
+
+  - slug: data-architect
+    slot: dept_work
+    skill_path: skills/data-architect
+    enabled: true
+
+  - slug: data-engineer
+    slot: dept_work
+    skill_path: skills/data-engineer
+    enabled: true
+
+  - slug: data-steward
+    slot: dept_work
+    skill_path: skills/data-steward
+    enabled: true
+
+  - slug: data-analyst
+    slot: dept_work
+    skill_path: skills/data-analyst
+    enabled: true
+
+  - slug: data-scientist
+    slot: dept_work
+    skill_path: skills/data-scientist
+    enabled: true
+
+  - slug: ml-engineer
+    slot: dept_work
+    skill_path: skills/ml-engineer
+    enabled: true
+
+  - slug: analysis-reviewer
+    slot: dept_review
+    skill_path: skills/analysis-reviewer
+    enabled: true
+    io:
+      output_schemas:
+        - skills/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json
+        - skills/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json
+        - skills/reviewer/schemas/verification-result.v1.schema.json
+
   - slug: agent-creater
     slot: meta
     skill_path: skills/agent-creater

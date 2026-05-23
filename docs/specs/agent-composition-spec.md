@@ -5,8 +5,8 @@
 | 文書種別 | 詳細仕様書（detailed-spec） |
 | 作成者ロール | product-manager |
 | 対応要件定義 | [`docs/requirements/agent-composition-requirements.md`](../requirements/agent-composition-requirements.md) |
-| 版 | 1.0 |
-| 日付 | 2026-05-18 |
+| 版 | 1.1 |
+| 日付 | 2026-05-23 |
 
 ---
 
@@ -39,6 +39,10 @@
 │     (scope: single_subtask)                      │
 │     agents: product-manager (hub)                │
 │             doc-writer, developer, reviewer      │
+│  — または —                                      │
+│ L3  workflows/analysis-delivery.yaml             │
+│     agents: analytics-pm (hub)                   │
+│             data-* / ml-engineer / analysis-reviewer │
 └──────────────────────────────────────────────────┘
     │ DeptWorkComplete
     ▼
@@ -53,7 +57,7 @@
 | `workflows/with-dispatch.yaml` | with-dispatch | dispatch | 企画 + 子タスク配賦 |
 | `workflows/with-execution.yaml` | with-execution | work | **過渡期** — 単一 task-executor |
 | `workflows/development-delivery.yaml` | development-delivery | pm_complete | 開発課・子 1 件 |
-| `workflows/analysis-delivery.yaml` | analysis-delivery | — | プレースホルダ（未実装） |
+| `workflows/analysis-delivery.yaml` | analysis-delivery | pm_complete | 分析課・子 1 件 |
 | `workflows/organizations.yaml` | — | — | department → workflow ルーティング |
 | `workflows/agent-registry.yaml` | — | — | slug・slot・I/O 登録 |
 
@@ -137,7 +141,14 @@ entry_agent: product-manager
 enabled: true
 ```
 
-**analysis（無効）:** `entry_agent: analysis-lead`（registry 未登録）。
+**organizations.yaml — analysis（有効）**
+
+```yaml
+id: analysis
+workflow_id: analysis-delivery
+entry_agent: analytics-pm
+enabled: true
+```
 
 ### 2.3 L3 — 開発課
 
@@ -158,7 +169,33 @@ enabled: true
 | developer | code（リポジトリ変更） | code → verification |
 | reviewer | 各 ReviewResult JSON | requirements, code, verification, mismatch |
 
-### 2.4 メタ・レガシー
+### 2.4 L3 — 分析課
+
+#### analytics-pm
+
+| 項目 | 値 |
+|------|-----|
+| entry | analysis-delivery の `policy.entry_agent` |
+| 入力 | 子 task_gid、親文脈（任意）、DispatchRequest 経由 |
+| 出力 | DeptWorkComplete v1.0（`department: analysis`） |
+| 完了操作 | `comment_task.py` → `complete_task.py --gid <child> -y` |
+
+#### 委譲ロール
+
+| slug | 主フェーズ | analysis-reviewer review_kind |
+|------|------------|-------------------------------|
+| analytics-pm | 要求定義・価値検証 | analytics_requirements（要件レビュー時） |
+| data-architect | データ設計・SLA | data_model |
+| data-engineer | ETL/ELT | pipeline |
+| data-steward | 品質・ガバナンス | data_quality |
+| data-analyst | 探索・ダッシュボード | analysis_insights |
+| data-scientist | モデル開発 | model_eval |
+| ml-engineer | デプロイ・運用（**production_gate 通過後**） | deploy_verification |
+| analysis-reviewer | 各ゲート | production_deploy_gate（DeployGateResult） |
+
+詳細: [`docs/design/analysis-delivery-io.md`](../design/analysis-delivery-io.md)
+
+### 2.5 メタ・レガシー
 
 | slug | 備考 |
 |------|------|
@@ -167,9 +204,9 @@ enabled: true
 
 ---
 
-## 3. 開発課ワークフロー（development-delivery）詳細
+## 3. 課内ワークフロー詳細
 
-### 3.1 ステップ一覧
+### 3.1 開発課（development-delivery）
 
 | order | step id | agent | gate_after | artifact |
 |-------|---------|-------|------------|----------|
@@ -185,7 +222,7 @@ enabled: true
 | 10 | mismatch_review | reviewer | mismatch_resolved | MismatchReviewResult |
 | 11 | pm_complete | product-manager | — | DeptWorkComplete |
 
-### 3.2 分岐（mismatch）
+### 3.2 開発課 — 分岐（mismatch）
 
 ```mermaid
 flowchart TD
@@ -196,13 +233,31 @@ flowchart TD
   MR -->|status passed*| DONE[pm_complete]
 ```
 
-### 3.3 成果物パス規約（推奨）
+### 3.3 開発課 — 成果物パス規約（推奨）
 
 | artifact | パス例 |
 |----------|--------|
 | requirements-doc | `docs/requirements/<scope>-requirements.md` |
 | detailed-spec | `docs/specs/<scope>-spec.md` |
 | 本ドキュメント | `agent-composition-*`（リポジトリ全体の構成説明） |
+
+### 3.4 分析課（analysis-delivery）
+
+[`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) — entry: **analytics-pm**。要求定義 → データ設計 → ETL → 品質 → 探索 → モデル → **本番ゲート** → デプロイ → 価値検証。
+
+| order | step id | agent | gate_after |
+|-------|---------|-------|------------|
+| 1 | pm_intake | analytics-pm | — |
+| 2 | requirements | analytics-pm | — |
+| 3 | requirements_review | analysis-reviewer | requirements_review_passed |
+| … | data_design … model_review | 各ロール | 各ゲート |
+| — | production_gate | analysis-reviewer | production_gate_passed |
+| — | deploy_ops | ml-engineer | — |
+| — | pm_complete | analytics-pm | DeptWorkComplete |
+
+必須運用（SLA 明文化・本番デプロイ前承認・RBAC）: [`analysis-delivery-io.md`](../design/analysis-delivery-io.md)
+
+Handoff 例: [`handoff.analysis-delivery.json`](../../skills/issue-story-planner/examples/handoff.analysis-delivery.json)
 
 ---
 
@@ -225,6 +280,8 @@ flowchart TD
 | CodeReviewResult | `skills/reviewer/schemas/code-review-result.v1.schema.json` |
 | VerificationResult | `skills/reviewer/schemas/verification-result.v1.schema.json` |
 | MismatchReviewResult | `skills/reviewer/schemas/mismatch-review-result.v1.schema.json` |
+| AnalysisDocReviewResult | `skills/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
+| DeployGateResult | `skills/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
 
 ### 4.3 Asana notes 形式（子タスク）
 
@@ -351,9 +408,8 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 | G5 | `asana-buddy` SKILL が v1.1 表記のまま | `課:` 行の公式説明が SKILL に未統合 |
 | G6 | registry の planner / asana-buddy が schema **1.1 固定表記** | v1.2 は実際には load_handoff 受理 |
 | G7 | `task-executor` が deprecated かつ **enabled: true** | 誤ルートの余地 |
-| G8 | `analysis-lead` が organizations のみ存在 | registry 未登録 |
-| G9 | 組織配賦スキル 5 件は **手動雛形** | CONTRIBUTING の agent-creater 唯一入口と注記ずれ |
-| G10 | 課内 ReviewResult の **CLI 検証なし** | JSON Schema は参照用 |
+| G8 | 組織配賦・分析課スキルは **手動雛形** | CONTRIBUTING の agent-creater 唯一入口と注記ずれ |
+| G9 | 課内 ReviewResult の **CLI 検証なし** | JSON Schema は参照用 |
 
 ---
 
@@ -363,8 +419,9 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 |---------|--------------|------|
 | FR-L1-01〜09 | §2.1, §5.1, §4.1 | v1.2 は load_handoff 対応 |
 | FR-L2-01〜07 | §2.2, §4.4, §5.2 | G2, G3 が推奨要件の弱点 |
-| FR-L3-01〜08 | §3, §5.2 | プロンプト順守前提 |
-| FR-X-01〜05 | §2.4, §7, §8 G9 | |
+| FR-L3-01〜08 | §3.1, §5.2 | 開発課・プロンプト順守前提 |
+| FR-L3-A01〜A08 | §2.4, §3.4 | 分析課（analysis-delivery） |
+| FR-X-01〜05 | §2.5, §7, §8 G8 | |
 | NFR-01〜05 | §1.2, §8 G1 | |
 
 ---
@@ -374,3 +431,4 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 | 版 | 日付 | 変更 |
 |----|------|------|
 | 1.0 | 2026-05-18 | 初版（現状構成の PM 起票） |
+| 1.1 | 2026-05-23 | 分析課 delivery 実装（analytics-pm ハブ + 7 ロール）を反映 |

@@ -12,9 +12,8 @@ departments:
   - id: analysis
     label: 分析課
     workflow_id: analysis-delivery
-    entry_agent: analysis-lead
-    enabled: false
-    note: プレースホルダ。workflow / entry_agent は将来 agent-creater で追加。
+    entry_agent: analytics-pm
+    enabled: true
 
   - id: planning
     label: 企画課
@@ -27,7 +26,7 @@ departments:
 pillar_defaults:
   - match: ["実装", "開発課", "検証・開発課", "整備・開発課"]
     department: development
-  - match: ["分析"]
+  - match: ["分析", "データ", "ETL", "モデル", "ML", "ダッシュボード", "KPI"]
     department: analysis
   - match: ["設計", "方針", "整備", "検証", "企画"]
     department: planning
