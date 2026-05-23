@@ -109,3 +109,22 @@
 ```
 統括グループ → DispatchRequest → task-dispatcher → チーム PM → … → DeptWorkComplete → 統括グループ
 ```
+
+## 計画と実行の責務境界
+
+| フェーズ | 担当 |
+|----------|------|
+| 受付 | intake → bootstrap → dispatch（企画） |
+| 企画 | planning-delivery（Handoff → review → gate → Asana） |
+| 実行 | task-dispatcher → チーム PM → ワーカー（L3b） |
+
+| 責務 | `asana-buddy` | チーム PM + ワーカー |
+|------|---------------|----------------------|
+| Handoff から親＋子タスク**作成** | はい | いいえ |
+| Handoff **新規作成** | いいえ | いいえ（→ issue-story-planner） |
+| 既存タスクの **読取** | はい（`fetch_task.py`） | ワーカーが利用 |
+| サブタスクの **完了マーク** | はい（`complete_task.py`） | PM / ワーカー完了後 |
+| notes の `done_when` に沿った**作業本体** | いいえ | はい（各 worker SKILL） |
+| 専用ツール・新規スキルが要る場合 | いいえ | **agent-creater へ委譲** |
+
+- **default v3** の L1 終端は dispatch（企画チームへ初回配賦）。実行は dispatch 後の各 `*-delivery.yaml`。

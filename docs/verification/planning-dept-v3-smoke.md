@@ -37,4 +37,4 @@
 ## 関連
 
 - E2E: [`default-workflow.md`](../e2e/default-workflow.md)
-- 組織モデル: [`org-dispatch-model.md`](../design/org-dispatch-model.md)
+- 組織モデル: [`department-model.md`](../design/department-model.md)

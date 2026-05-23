@@ -162,6 +162,6 @@ dispatch 対象外。チーム内 delivery は持たない。
 
 ## 関連
 
-- 配賦モデル: [`org-dispatch-model.md`](org-dispatch-model.md)
+- 配賦モデル: [`department-model.md`](department-model.md)
 - E2E: [`default-workflow.md`](../e2e/default-workflow.md) · [`dispatch-workflow.md`](../e2e/dispatch-workflow.md)
 - 検証: [`planning-dept-v3-dryrun.md`](../verification/planning-dept-v3-dryrun.md) · [`ux-delivery-v1-dryrun.md`](../verification/ux-delivery-v1-dryrun.md)

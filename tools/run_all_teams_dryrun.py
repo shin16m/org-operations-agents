@@ -237,7 +237,7 @@ def add_dev_ux_dependency(dev_gid: str, ux_gid: str) -> None:
     log(f"  dev notes updated with UX ## 依存 ({dev_gid})")
 
 
-def bootstrap_epic() -> str:
+def bootstrap_epic() -> tuple[str, str]:
     r = _run(
         [
             str(PY),
@@ -248,10 +248,10 @@ def bootstrap_epic() -> str:
         ]
     )
     log(r.stdout)
-    m = re.search(r"created_parent\s+(\d+)", r.stdout)
+    m = re.search(r"created_parent\s+(\d+)(?:\s+(https://\S+))?", r.stdout)
     if not m:
         raise RuntimeError("bootstrap did not return created_parent GID")
-    return m.group(1)
+    return m.group(1), (m.group(2) or "")
 
 
 def sync_handoff(parent_gid: str) -> None:
@@ -333,6 +333,7 @@ def write_report(
     results: dict,
     *,
     epic_url: str = "",
+    command: str = "python tools/run_all_teams_dryrun.py",
 ) -> None:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     lines = [
@@ -340,10 +341,30 @@ def write_report(
         "",
         f"実施: {now}",
         "",
+        "## 目的",
+        "",
+        "4 L3 チーム（planning / ux / analysis / development）+ プラットフォーム配賦で、"
+        "各 enabled slug が `comment_task` → `complete_task` まで到達することを Asana 上で確認する。",
+        "",
+        "## 実行",
+        "",
+        "```powershell",
+        "$env:PYTHONIOENCODING='utf-8'",
+        command,
+        "```",
+        "",
+        "## fixture",
+        "",
+        "| 種別 | パス |",
+        "|------|------|",
+        "| bootstrap Handoff | `docs/verification/fixtures/planning/handoff/bootstrap.all-teams-dryrun.json` |",
+        "| 本番 Handoff | `docs/verification/fixtures/planning/handoff/handoff.all-teams-dryrun.json` |",
+        "| PlanReview | `docs/verification/fixtures/planning/plan-review/plan-review.all-teams-dryrun.json` |",
+        "",
         "## Asana",
         "",
-        f"| 項目 | 値 |",
-        f"|------|-----|",
+        "| 項目 | 値 |",
+        "|------|-----|",
         f"| 親エピック GID | `{epic_gid}` |",
     ]
     if epic_url:
@@ -353,18 +374,22 @@ def write_report(
         lines.append(f"### {dept}")
         lines.append("")
         lines.append(f"- child GID: `{info['child_gid']}`")
-        lines.append(f"- workers: {', '.join(info.get('workers', []))}")
+        workers = info.get("workers", [])
+        if workers:
+            lines.append(f"- workers: {', '.join(workers)}")
         lines.append("")
+    all_workers = sorted(set(a for i in results.values() for a in i.get("workers", [])))
     lines.extend(
         [
             "## 参加 slug 一覧",
             "",
-            ", ".join(sorted(set(a for i in results.values() for a in i.get("workers", [])))),
+            ", ".join(all_workers) if all_workers else "（なし）",
             "",
             "## 関連",
             "",
             "- [`run_all_teams_dryrun.py`](../../tools/run_all_teams_dryrun.py)",
             "- [`handoff.all-teams-dryrun.json`](../../docs/verification/fixtures/planning/handoff/handoff.all-teams-dryrun.json)",
+            "- 索引: [`docs/verification/README.md`](README.md)",
             "",
         ]
     )
@@ -386,13 +411,16 @@ def main() -> int:
 
     if args.parent:
         epic_gid = args.parent
+        epic_url = ""
     elif args.skip_bootstrap:
         p.error("--skip-bootstrap requires --parent")
     else:
         log("=== bootstrap ===")
-        epic_gid = bootstrap_epic()
+        epic_gid, epic_url = bootstrap_epic()
 
     log(f"Epic GID: {epic_gid}")
+    if epic_url:
+        log(f"Epic URL: {epic_url}")
 
     dept_order = ("planning", "ux", "analysis", "development")
     start_idx = dept_order.index(args.from_dept) if args.from_dept else 0
@@ -441,7 +469,7 @@ def main() -> int:
         "planning / ux / analysis / development 全サブ完了。",
     )
 
-    write_report(epic_gid, results)
+    write_report(epic_gid, results, epic_url=epic_url, command=" ".join(sys.argv))
     log("\nDONE.")
     return 0
 

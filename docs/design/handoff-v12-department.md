@@ -34,5 +34,4 @@
 
 企画 Handoff の execution 系子には `department` を付与する。bootstrap 企画子は `planning` 固定。
 
-- チェックリスト: [`planner-orchestrator-dispatch-notes.md`](planner-orchestrator-dispatch-notes.md)
-- SKILL: [`issue-story-planner/SKILL.md`](../../skills/planning/issue-story-planner/SKILL.md)
+- チェックリスト: [`issue-story-planner/SKILL.md`](../../skills/planning/issue-story-planner/SKILL.md) · [`handoff-v12-department.md`](handoff-v12-department.md)

@@ -42,16 +42,15 @@ python tools/validate_org_registry.py
 | C1 | [`dept-work-io.md`](dept-work-io.md) | `DispatchRequest.department` · PM 完了担当 · レビュー Result 型 · 署名ロール |
 | C2 | [`handoff-v12-department.md`](handoff-v12-department.md) | department 値表に 1 行 |
 | C3 | [`team-conventions.md`](team-conventions.md) | 比較表に列追加 · チーム節 |
-| C4 | [`org-dispatch-model.md`](org-dispatch-model.md) | 責務表 · I/O 一覧 · 配賦順序 |
+| C4 | [`department-model.md`](department-model.md) | 責務表 · I/O 一覧 · 配賦順序（§三層レイヤーと配賦） |
 | C5 | [`task-dispatcher/SKILL.md`](../../skills/platform/task-dispatcher/SKILL.md) | ルーティング表 · department enum |
 | C6 | [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) | dispatch 順序（必要なら） |
-| C7 | [`planner-orchestrator-dispatch-notes.md`](planner-orchestrator-dispatch-notes.md) | Handoff department チェックリスト |
-| C8 | [`issue-story-planner/SKILL.md`](../../skills/planning/issue-story-planner/SKILL.md) | `subtasks[].department` 説明 |
-| C9 | [`dispatch-workflow.md`](../e2e/dispatch-workflow.md) | E2E 手順 |
-| C10 | [`skills-inventory.md`](../inventory/skills-inventory.md) | スキル一覧 |
-| C11 | [`skills/README.md`](../../skills/README.md) | 組織フォルダ表 |
-| C12 | ルート [`README.md`](../../README.md) | スキル一覧 · dispatch 図 |
-| C13 | [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md) | department 節 + pm_assign 必須 |
+| C7 | [`issue-story-planner/SKILL.md`](../../skills/planning/issue-story-planner/SKILL.md) | `subtasks[].department` · Handoff チェックリスト |
+| C8 | [`dispatch-workflow.md`](../e2e/dispatch-workflow.md) | E2E 手順 |
+| C9 | [`skills-inventory.md`](../inventory/skills-inventory.md) | スキル一覧 |
+| C10 | [`skills/README.md`](../../skills/README.md) | 組織フォルダ表 |
+| C11 | ルート [`README.md`](../../README.md) | スキル一覧 · dispatch 図 |
+| C12 | [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md) | department 節 + pm_assign 必須 |
 
 ---
 
