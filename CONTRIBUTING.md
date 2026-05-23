@@ -17,7 +17,7 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 3. `docs/design/<id>-delivery-io.md` — チーム内 I/O + チーム間 I/O
 4. PM ハブ — `skills/<dept>/<dept>-pm/`（`agent-creater` で生成可）
 
-**チーム間 I/O:** Asana 子タスク + notes + `DispatchRequest` / `DeptWorkComplete`。Handoff JSON はチーム間に使わない。
+**チーム取り決め一覧:** [`team-conventions.md`](docs/design/team-conventions.md) · 組織: [`department-model.md`](docs/design/department-model.md)
 
 ## スキル変更
 

@@ -35,9 +35,11 @@ workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery
 
 ---
 
-## チーム内 I/O
+分析チーム PM 委譲（担当・サブタスク）: [`analytics-pm-assignment.md`](analytics-pm-assignment.md)
 
-### workflow 概要
+---
+
+## チーム内 workflow 概要
 
 ```
 L2 task-dispatcher（department=analysis）

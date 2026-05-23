@@ -1,6 +1,6 @@
 # チーム間共通 I/O（DispatchRequest・DeptWorkComplete）
 
-**チーム間の公式契約**は本書と各チームの `*-delivery-io.md` を参照。全体像: [`department-model.md`](department-model.md)
+**チーム間の公式契約**は本書と各チームの `*-delivery-io.md` を参照。**一覧:** [`team-conventions.md`](team-conventions.md) · 全体像: [`department-model.md`](department-model.md)
 
 **Handoff JSON はチーム間 I/O に含めない**（企画チームのチーム内成果物）。
 

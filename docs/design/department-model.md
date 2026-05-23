@@ -71,6 +71,8 @@
 
 チーム間共通契約: [`dept-work-io.md`](dept-work-io.md)（`DispatchRequest` / `DeptWorkComplete`）
 
+**チーム取り決め一覧:** [`team-conventions.md`](team-conventions.md)
+
 ---
 
 ## 三層レイヤー（参照）

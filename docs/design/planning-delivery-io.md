@@ -39,6 +39,21 @@ workflow: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery
 
 ---
 
+## チーム内 workflow 概要
+
+[`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml)
+
+```
+planning-pm（intake）
+  → issue-story-planner（Handoff JSON）
+  → plan-reviewer（PlanReviewResult・必須）
+  → planning-pm（gate・人間承認）
+  → asana-buddy（sync）
+  → planning-pm（complete）
+```
+
+---
+
 ## チーム内 I/O
 
 | 成果物 | パス | 担当 |

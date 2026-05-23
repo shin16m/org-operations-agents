@@ -35,6 +35,41 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 
 ---
 
+## チーム内 workflow 概要
+
+[`workflows/development-delivery.yaml`](../../workflows/development-delivery.yaml)
+
+```
+product-manager（intake）
+  → doc-writer（要件定義書）
+  → reviewer（requirements）
+  → developer（実装）
+  → reviewer（code / verification）
+  → doc-writer（詳細仕様）
+  → reviewer（mismatch）
+  → product-manager（complete）
+```
+
+## 必須ゲート
+
+| ゲート | 条件 | 差し戻し |
+|--------|------|----------|
+| `requirements_review_passed` | DocReviewResult `passed*` | doc-writer |
+| `code_review_passed` | CodeReviewResult `passed*` | developer |
+| `verification_passed` | VerificationResult `passed` | developer |
+| `mismatch_resolved` | MismatchReviewResult 処理済 | `fix_target: document` → doc-writer / `code` → PM → developer |
+
+## 必須運用
+
+| ルール | 内容 |
+|--------|------|
+| 入力源 | 子タスク **notes のみ**（`fetch_task.py`） |
+| 成果物命名 | `<task_gid>` をファイル名に含める（推奨パス参照） |
+| Asana 記録 | 委譲ロール完了時 `comment_task` → PM が `complete_task` |
+| 製品コード | 別リポジトリが基本。本リポジトリは workflow 定義が主目的 |
+
+---
+
 ## チーム内 I/O
 
 | フェーズ | 担当 | 成果物 | 推奨パス |

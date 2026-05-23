@@ -8,6 +8,7 @@ policy:
   scope: single_subtask
   entry_agent: product-manager
   parent_context: read_parent_epic_notes
+  operational_rules_doc: docs/design/development-delivery-io.md
 
 steps:
   - id: pm_intake
