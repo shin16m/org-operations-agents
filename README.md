@@ -61,11 +61,10 @@ intake → bootstrap → dispatch（企画チーム）
 .\skills\platform\asana-buddy\optional\setup_venv.ps1
 ```
 
-`skills/platform/asana-buddy/optional/.env`:
+`skills/platform/asana-buddy/optional/.env.example` を `optional/.env` にコピーして値を設定（`.env` は gitignore）:
 
-```env
-ASANA_TOKEN=...
-ASANA_PROJECT_ID=...
+```powershell
+Copy-Item .\skills\platform\asana-buddy\optional\.env.example .\skills\platform\asana-buddy\optional\.env
 ```
 
 ## クイックスタート（Asana 投入）
