@@ -2,7 +2,7 @@
 
 **独立スキル:** UX チームにおける **子タスク 1 件**の進行管理（L3 ハブ）。
 
-人間向け: [`README.md`](README.md) · workflow: [`workflows/ux-delivery.yaml`](../../../workflows/ux-delivery.yaml) · **厳密アサイン:** [`docs/design/ux-pm-assignment.md`](../../../docs/design/ux-pm-assignment.md)
+人間向け: [`README.md`](README.md) · workflow: [`workflows/ux-delivery.yaml`](../../../workflows/ux-delivery.yaml) · **厳密アサイン:** [`docs/design/ux-pm-assignment.md`](../../../docs/design/ux-pm-assignment.md) · **dispatch 起動:** [`docs/design/dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md#ux)
 
 ## 厳密運用（必須）
 

@@ -2,7 +2,7 @@
 
 **独立スキル:** 開発チームにおける **子タスク 1 件**の進行管理（L3 ハブ）。
 
-人間向け: [`README.md`](README.md) · workflow: [`workflows/development-delivery.yaml`](../../../workflows/development-delivery.yaml) v3 · I/O: [`docs/design/development-delivery-io.md`](../../../docs/design/development-delivery-io.md) · **厳密アサイン:** [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
+人間向け: [`README.md`](README.md) · workflow: [`workflows/development-delivery.yaml`](../../../workflows/development-delivery.yaml) v3 · I/O: [`docs/design/development-delivery-io.md`](../../../docs/design/development-delivery-io.md) · **厳密アサイン:** [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md) · **dispatch 起動:** [`docs/design/dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md#development)
 
 ## 厳密運用（必須）
 
@@ -60,6 +60,18 @@
 - Handoff JSON をチーム間入力として読む
 - ディスパッチ（→ task-dispatcher）
 - 新規 `skills/<organization>/<slug>/`（→ agent-creater）
+- **ワーカー役の成果物作成** — 要件・設計・コード・レビュー JSON（[`development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)「PM が書いてはいけない成果物」）
+- **`output/development/app/` への直接実装**（Streamlit 等 — → developer サブタスク）
+- **サブタスク未作成のまま** workflow フェーズを自分で実行すること
+- `development-delivery.yaml` の worker step（requirements-writer / developer 等）を PM セッションで代行すること
+
+intake 完了前チェック:
+
+- [ ] `pm_assign_subtasks.py` 実行済み（または同等の nested サブ作成）
+- [ ] 親 notes `担当: product-manager`
+- [ ] 各サブ notes に `担当: <worker slug>`
+
+未達なら **成果物を書かず** サブタスク分解から開始する。
 
 ## 成果物パス
 

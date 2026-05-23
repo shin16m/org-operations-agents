@@ -9,6 +9,8 @@ policy:
   parent_context: read_parent_epic_notes
   operational_rules_doc: docs/design/development-delivery-io.md
   assignment_doc: docs/design/development-pm-assignment.md
+  dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#development
+  pm_role: orchestrate_only
   delivery_profiles:
     full:
       description: 要件 → 技術設計 → 実装 → レビュー/QA → 事後仕様（API / 非 UI）
@@ -25,7 +27,7 @@ policy:
 steps:
   - id: pm_intake
     agent: product-manager
-    role: notes（profile 含む）を読み、delivery profile を決め、フェーズをサブタスク分解して委譲開始。full-ui は ## 依存（UX）を確認
+    role: notes（profile 含む）を読み、delivery profile を決め、pm_assign_subtasks でフェーズ分解。**PM は worker step を実行しない**
 
   - id: requirements_doc
     agent: requirements-writer

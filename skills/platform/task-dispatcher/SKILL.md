@@ -2,7 +2,7 @@
 
 **独立スキル:** 子タスク 1 件を **チーム** に振り分ける（L2 配賦）。チーム内作業はしない。
 
-人間向け: [`README.md`](README.md) · I/O: [`docs/design/dept-work-io.md`](../../../docs/design/dept-work-io.md)
+人間向け: [`README.md`](README.md) · I/O: [`docs/design/dept-work-io.md`](../../../docs/design/dept-work-io.md) · **prompt SSOT:** [`docs/design/dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md)
 
 ## 入力
 
@@ -19,18 +19,25 @@
 - 解決した `workflow_id` と `entry_agent`
 - **entry_agent 用 prompt_snippet**（1 ブロック）
 
-`prompt_snippet` には、チーム内作業完了時に **`comment_task.py`（署名付き）→ `complete_task.py -y` → `DeptWorkComplete`** の順を含める（[`docs/design/dept-work-io.md`](../../../docs/design/dept-work-io.md) · [`agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md)）。
+### prompt_snippet 生成（必須）
+
+1. [`docs/design/dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md) の **該当 department 節**を開く
+2. `{task_gid}` / `{parent_gid}` を置換
+3. **省略・要約・「workflow を全部実行」への書き換えをしない**
+4. ux / development / analysis では **intake 最初の 1 手 = pm_assign_subtasks** を必ず含める
+
+`prompt_snippet` には、チーム PM 完了時に **`comment_task.py`（署名付き）→ `complete_task.py -y` → `DeptWorkComplete`** の順も含める（[`dept-work-io.md`](../../../docs/design/dept-work-io.md)）。
 
 ## ルーティング
 
 [`workflows/organizations.yaml`](../../../workflows/organizations.yaml) を読む。
 
-| department | workflow | entry |
-|------------|----------|-------|
-| planning | planning-delivery | planning-pm |
-| development | development-delivery | product-manager |
-| analysis | analysis-delivery | analytics-pm |
-| ux | ux-delivery | ux-pm |
+| department | workflow | entry | assignment SSOT |
+|------------|----------|-------|-----------------|
+| planning | planning-delivery | planning-pm | [`planning-delivery-io.md`](../../../docs/design/planning-delivery-io.md) |
+| development | development-delivery | product-manager | [`development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md) |
+| analysis | analysis-delivery | analytics-pm | [`analytics-pm-assignment.md`](../../../docs/design/analytics-pm-assignment.md) |
+| ux | ux-delivery | ux-pm | [`ux-pm-assignment.md`](../../../docs/design/ux-pm-assignment.md) |
 
 ## 配賦順序（推奨）
 
@@ -41,12 +48,12 @@
 
 - Handoff 新規作成（→ issue-story-planner / planning-pm）
 - 要件定義・コーディング・レビュー本体
-- 企画 gate（→ planning-pm）
-- 新規 `skills/<organization>/<slug>/`（→ agent-creater）
+- PM の代わりに worker 成果物を書く指示
+- dispatch-prompt-ssot を飛ばした独自 prompt（SSOT 逸脱）
 
 ## 起動例
 
 ```
-DispatchRequest: task_gid=1214877045257081, department=planning, parent_gid=1214879360917675
-organizations.yaml に従い planning-pm 用 prompt_snippet を返してください。
+DispatchRequest: task_gid=1214877045257081, department=development, parent_gid=1214879360917675
+organizations.yaml に従い、dispatch-prompt-ssot.md の development 節から product-manager 用 prompt_snippet を返してください。
 ```

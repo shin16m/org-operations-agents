@@ -34,7 +34,7 @@
 ### C. dispatch 委譲（L1 初回 = 企画チーム）
 
 1. `DispatchRequest`（`department=planning`, `task_gid=<企画子>`）で [`task-dispatcher`](../task-dispatcher/SKILL.md) を起動
-2. planning-pm 用 `prompt_snippet` を返す
+2. planning-pm 用 `prompt_snippet` を返す（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md#planning)）
 
 ### D. 企画完了後（L2 実行系子 dispatch）
 
@@ -91,7 +91,7 @@ task-dispatcher を起動し、planning-pm 用 prompt_snippet を返してくだ
 ```
 企画子タスクが DeptWorkComplete になりました。
 fetch_task.py --list-subtasks で未完了の execution 系子を列挙し、
-先頭 1 件を task-dispatcher（department=development 等）へ委譲してください。
+先頭 1 件を task-dispatcher へ委譲してください。prompt_snippet は docs/design/dispatch-prompt-ssot.md の該当 department 節を使用すること。
 ```
 
 ## Asana 完了同期（必須）

@@ -9,11 +9,14 @@ policy:
   entry_agent: analytics-pm
   parent_context: read_parent_epic_notes
   operational_rules_doc: docs/design/analysis-delivery-io.md
+  assignment_doc: docs/design/analytics-pm-assignment.md
+  dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#analysis
+  pm_role: orchestrate_only
 
 steps:
   - id: pm_intake
     agent: analytics-pm
-    role: 子タスクの background/summary/done_when を読み、要求定義フェーズへ
+    role: 子 notes を読み、pm_assign_subtasks でサブタスク分解。**PM は data-* 実装を実行しない**
 
   - id: requirements
     agent: analytics-pm

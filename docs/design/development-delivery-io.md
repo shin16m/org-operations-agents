@@ -11,6 +11,7 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 | PM ハブ | product-manager |
 | スコープ | Asana 子タスク 1 件 = workflow インスタンス 1 本 |
 | PM 委譲 | [`development-pm-assignment.md`](development-pm-assignment.md) |
+| dispatch 起動 | [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md#development) |
 
 ### メンバー（v3）
 

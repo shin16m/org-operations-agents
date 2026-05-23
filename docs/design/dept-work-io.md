@@ -4,6 +4,8 @@
 
 **Handoff JSON はチーム間 I/O に含めない**（企画チームのチーム内成果物）。
 
+**dispatch prompt SSOT:** [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md) — task-dispatcher が返す起動文の正。
+
 **新 department 追加時:** [`new-department-checklist.md`](new-department-checklist.md) · 検証: `python tools/validate_org_registry.py`
 
 ## DispatchRequest（task-dispatcher 入力）

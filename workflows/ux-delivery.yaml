@@ -10,6 +10,8 @@ policy:
   parent_context: read_parent_epic_notes
   operational_rules_doc: docs/design/ux-delivery-io.md
   assignment_doc: docs/design/ux-pm-assignment.md
+  dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#ux
+  pm_role: orchestrate_only
 
 steps:
   - id: pm_intake

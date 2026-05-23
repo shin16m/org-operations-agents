@@ -2,15 +2,14 @@
 
 **独立スキル:** 分析チームにおける **子タスク 1 件**の進行管理（L3 ハブ）。
 
-人間向け: [`README.md`](README.md) · workflow: [`workflows/analysis-delivery.yaml`](../../../workflows/analysis-delivery.yaml) · **厳密アサイン:** [`docs/design/analytics-pm-assignment.md`](../../../docs/design/analytics-pm-assignment.md)
+人間向け: [`README.md`](README.md) · workflow: [`workflows/analysis-delivery.yaml`](../../../workflows/analysis-delivery.yaml) · **厳密アサイン:** [`docs/design/analytics-pm-assignment.md`](../../../docs/design/analytics-pm-assignment.md) · **dispatch 起動:** [`docs/design/dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md#analysis)
 
 ## 厳密運用（必須）
 
 1. **自分で実装しない**（要求定義・進行・親タスク完了集約を除く）。
-2. 子タスクを分析し、**担当エージェント**を決める → **notes に `担当: <slug>`** を書く（`update_task_notes.py` または `pm_assign_subtasks.py`）。
-3. 作業単位が大きいときは **子のさらにサブタスク** を作成し、各 notes に担当を書く。
-4. 担当エージェントが `fetch_task.py --show-assignee` で自分の slug と一致することを確認してから実行。
-5. 委譲先が **comment_task** → PM が子サブタスクを **complete** → 全サブ完了後に親を **comment → complete**。
+2. 子タスクを分析し、**担当エージェント**を決める → **Asana サブタスク**を作成し各 notes に `担当: <slug>` を書く（`pm_assign_subtasks.py` 必須。親 `担当:` 書き換えのみ禁止）。
+3. 担当エージェントが `fetch_task.py --show-assignee` で自分の slug と一致することを確認してから実行。
+4. 委譲先が **comment_task** → PM が子サブタスクを **complete** → 全サブ完了後に親を **comment → complete**。
 
 ```powershell
 # チーム内サブタスク作成（プラン JSON）

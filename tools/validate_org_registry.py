@@ -75,6 +75,16 @@ def _check_file_exists(rel: str, dept_id: str) -> str | None:
     return None
 
 
+def _dispatch_ssot_section(body: str, dept_id: str) -> str:
+    m = re.search(rf"^## {re.escape(dept_id)}\s*$", body, re.MULTILINE)
+    if not m:
+        return ""
+    start = m.end()
+    m2 = re.search(r"^## [a-z]", body[start:], re.MULTILINE)
+    end = start + m2.start() if m2 else len(body)
+    return body[start:end]
+
+
 def main() -> int:
     errors: list[str] = []
     orgs = _load_orgs()
@@ -151,6 +161,38 @@ def main() -> int:
                 f"No handoff example JSON references department '{did}' "
                 f"(add skills/planning/issue-story-planner/examples/handoff.*.json)"
             )
+
+    dispatch_ssot = ROOT / "docs/design/dispatch-prompt-ssot.md"
+    if not dispatch_ssot.is_file():
+        errors.append("missing docs/design/dispatch-prompt-ssot.md")
+    else:
+        ssot_body = dispatch_ssot.read_text(encoding="utf-8")
+        for did in dept_ids:
+            if f"## {did}" not in ssot_body:
+                errors.append(f"dispatch-prompt-ssot.md missing section ## {did}")
+            if did in ("ux", "development", "analysis"):
+                section = _dispatch_ssot_section(ssot_body, did)
+                if "pm_assign_subtasks" not in section:
+                    errors.append(f"dispatch-prompt-ssot.md #{did} missing pm_assign_subtasks")
+
+    td_skill = (ROOT / "skills/platform/task-dispatcher/SKILL.md").read_text(encoding="utf-8")
+    if "dispatch-prompt-ssot.md" not in td_skill:
+        errors.append("task-dispatcher SKILL must reference dispatch-prompt-ssot.md")
+
+    for wf_name in ("ux-delivery", "development-delivery", "analysis-delivery"):
+        wf_path = ROOT / f"workflows/{wf_name}.yaml"
+        if wf_path.is_file():
+            wf_text = wf_path.read_text(encoding="utf-8")
+            if "assignment_doc:" not in wf_text:
+                errors.append(f"{wf_name}.yaml missing policy.assignment_doc")
+            if "dispatch_prompt_ssot:" not in wf_text:
+                errors.append(f"{wf_name}.yaml missing policy.dispatch_prompt_ssot")
+
+    pm_skill = ROOT / "skills/development/product-manager/SKILL.md"
+    if pm_skill.is_file():
+        pm_text = pm_skill.read_text(encoding="utf-8")
+        if "pm_assign_subtasks" not in pm_text or "output/development/app/" not in pm_text:
+            errors.append("product-manager SKILL must forbid direct app/ writes and require pm_assign_subtasks")
 
     if errors:
         print("\nVALIDATION FAILED:", file=sys.stderr)

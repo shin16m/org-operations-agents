@@ -104,9 +104,9 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 | profile | `full` / **`full-ui`** / `lite`（非 UI のみ）/ `doc-only` |
 | 必須ゲート | 要件 / 設計 / code / **ux_implementation（full-ui）** / verification / mismatch |
 | PM 委譲 | notes に `担当:`。nested サブタスク + `pm_assign_subtasks.py`（`--department development`） |
-| やらないこと | 体験設計の主作成、Handoff 作成、dispatch |
+| やらないこと | 体験設計の主作成、Handoff 作成、dispatch、**ワーカー成果物の PM 代行** |
 
-→ 詳細: [`development-delivery-io.md`](development-delivery-io.md)
+→ 詳細: [`development-delivery-io.md`](development-delivery-io.md) · dispatch: [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md#development)
 
 ---
 
@@ -120,7 +120,8 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 | チーム内フロー | 要求 → データ設計（**SLA 必須**）→ ETL → 品質 → 探索 → モデル → **production_gate** → デプロイ → 価値検証 |
 | 必須ゲート | 各フェーズ review + **`production_deploy_gate`**（ml-engineer 前） |
 | SLA | 更新頻度・遅延許容・可用性・鮮度 — data_model review で未記載は failed |
-| PM 委譲 | notes に `担当:` を書く。必要なら nested サブタスク（[`analytics-pm-assignment.md`](analytics-pm-assignment.md)） |
+| PM 必須 | **workflow フェーズをサブタスク化**（[`analytics-pm-assignment.md`](analytics-pm-assignment.md)） |
+| PM 委譲 | nested サブタスク + `pm_assign_subtasks.py`（`--department analysis`） |
 | 成果物 | `output/analysis/` 配下（パイプライン・モデル実体は別リポジトリ） |
 | RBAC / 監査 | data-architect 設計、data-steward 確認、本番データ直接アクセス禁止 |
 | やらないこと | Handoff 作成、dispatch、他チーム成果物編集 |

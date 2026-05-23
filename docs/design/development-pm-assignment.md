@@ -1,6 +1,6 @@
 # product-manager 厳密運用 — チーム内アサインと delivery profile
 
-| 版 | 1.3 |
+| 版 | 1.4 |
 | 日付 | 2026-05-23 |
 | 適用 | 開発チーム L3（`development-delivery` v3） |
 
@@ -26,6 +26,23 @@
 ```
 
 **禁止:** サブタスクを作らず、親タスク notes の `担当:` だけ requirements-writer / developer 等に書き換えて委譲すること。
+
+**dispatch 起動文 SSOT:** task-dispatcher は [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md#development) の snippet を **そのまま**返す。
+
+## PM が書いてはいけない成果物（ワーカー専用）
+
+| 種別 | パス | 担当 slug |
+|------|------|-----------|
+| 要件定義 | `output/development/requirements/<sub_gid>-requirements.md` | requirements-writer |
+| 技術設計 | `output/development/design/<sub_gid>-design.md` | tech-designer |
+| 実装 | `output/development/app/` ・別リポジトリ | developer |
+| 事後仕様 | `output/development/specs/<sub_gid>-spec.md` | requirements-writer |
+| レビュー | `output/development/reviews/` | dev-reviewer / qa-verifier |
+| UX 実装一致 | `output/ux/reviews/`（ux_implementation） | ux-reviewer |
+
+PM が上記パスに直接書いた場合は **運用違反**。サブタスクを切り直し、該当ワーカーに差し戻す。
+
+**PM が書いてよいもの:** 親子 notes · assign plan JSON · `comment_task` · DeptWorkComplete メタ。
 
 **順序:** サブタスクは workflow 順（要件 → 設計 → 実装 → review → QA → 事後仕様）。前フェーズのゲート未通過のサブにはワーカーが着手しない。
 
@@ -166,6 +183,7 @@ fetch_task.py --show-assignee で担当が developer であることを確認し
 
 ## 参照
 
+- **dispatch prompt:** [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md#development)
 - [`development-delivery-io.md`](development-delivery-io.md)
 - [`ux-delivery-io.md`](ux-delivery-io.md)
 - [`development-delivery.yaml`](../../workflows/development-delivery.yaml)

@@ -51,6 +51,7 @@ python tools/validate_org_registry.py
 | C10 | [`skills-inventory.md`](../inventory/skills-inventory.md) | スキル一覧 |
 | C11 | [`skills/README.md`](../../skills/README.md) | 組織フォルダ表 |
 | C12 | ルート [`README.md`](../../README.md) | スキル一覧 · dispatch 図 |
+| C13 | [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md) | department 節 + pm_assign 必須 |
 
 ---
 
@@ -59,6 +60,7 @@ python tools/validate_org_registry.py
 | # | 成果物 |
 |---|--------|
 | D1 | `docs/design/<id>-pm-assignment.md` — サブタスク分解必須 · CLI · `--show-assignee` · 再実施 |
+| D1b | [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md) — 該当 department 節を追加 |
 | D2 | PM SKILL — 「厳密運用（必須）」節 |
 | D3 | ワーカー SKILL — 着手前 `fetch_task --show-assignee` |
 | D4 | `skills/<dept>/examples/assign-plan.*.json` — サブタスクプラン例 |
