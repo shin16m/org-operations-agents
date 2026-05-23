@@ -21,7 +21,15 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install validation dependencies
+        run: pip install -r tools/requirements-validate.txt
+
       - name: Run validate_org_registry.py
         env:
           PYTHONIOENCODING: utf-8
         run: python tools/validate_org_registry.py
+
+      - name: Run validate_fixture_schemas.py
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python tools/validate_fixture_schemas.py

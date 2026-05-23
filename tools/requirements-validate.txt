@@ -1,0 +1,2 @@
+# Dev/CI validation dependencies (repo root: pip install -r tools/requirements-validate.txt)
+jsonschema>=4.22

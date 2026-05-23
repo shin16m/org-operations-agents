@@ -5,9 +5,8 @@
   "findings": [
     {
       "severity": "low",
-      "category": "scope",
-      "message": "dryrun 用 stub 成果物。本番実装は別リポジトリ。",
-      "subtask_index": null
+      "category": "risk",
+      "message": "dryrun 用 stub 成果物。本番実装は別リポジトリ。"
     }
   ]
 }
