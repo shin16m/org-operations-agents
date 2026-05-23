@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "Web アプリ — UX 先行 + full-ui 開発",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【Web】釣り場ダッシュボード MVP",
+    "notes_markdown": "## 課題\n\n- ユーザー向け Web UI を作る前に Design System と画面仕様が必要。\n\n## 解決\n\n1. **UX チーム** — 体験設計・Design System（blocking）\n2. **開発チーム** — `profile: full-ui` でフロント実装\n\n## 配賦順序\n\nplanning → **ux** → development（full-ui）\n\n## 参照\n\n- [`ux-delivery-io.md`](../../../../docs/design/ux-delivery-io.md)\n- [`development-delivery-io.md`](../../../../docs/design/development-delivery-io.md)"
+  },
+  "subtasks": [
+    {
+      "title": "【1/3・UX】Web アプリ体験設計・Design System",
+      "pillar": "UX",
+      "department": "ux",
+      "background": "開発 full-ui の前提となる UX SSOT。ux-pm がサブタスクに分解してアサインする。",
+      "summary": "ux-delivery に従い体験設計書・Design System を作成し ux_review_passed 後 DeptWorkComplete（artifacts 公開）。",
+      "done_when": "UxReviewResult（ux_spec）が passed*、DeptWorkComplete.artifacts[] に output/ux/ 配下パスが含まれる。"
+    },
+    {
+      "title": "【2/3・開発】ダッシュボード UI 実装（full-ui）",
+      "pillar": "実装・開発チーム",
+      "department": "development",
+      "background": "【1/3・UX】完了後。notes ## 依存 に UX artifact を転記してから着手。",
+      "summary": "development-delivery v3・profile=full-ui。要件→設計→実装→ux_implementation review→QA→事後仕様。",
+      "done_when": "ux_implementation_review_passed・verification_passed・mismatch_resolved。product-manager が DeptWorkComplete。"
+    },
+    {
+      "title": "【3/3・開発】認証 API（非 UI）",
+      "pillar": "実装・開発チーム",
+      "department": "development",
+      "background": "UI なし API 層。UX 子に依存しない。",
+      "summary": "development-delivery v3・profile=full。",
+      "done_when": "code_review_passed・verification_passed。DeptWorkComplete。"
+    }
+  ]
+}

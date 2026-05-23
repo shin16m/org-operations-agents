@@ -8,7 +8,7 @@
 
 PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) のゲート・境界に抵触しないか確認する。
 
-## 新チーム追加（必須 4 点セット）
+## 新チーム追加（必須 4 点セット + チェックリスト）
 
 [`docs/design/department-model.md`](docs/design/department-model.md) に従う:
 
@@ -16,6 +16,14 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 2. `workflows/<id>-delivery.yaml` — チーム内 workflow
 3. `docs/design/<id>-delivery-io.md` — チーム内 I/O + チーム間 I/O
 4. PM ハブ — `skills/<dept>/<dept>-pm/`（`agent-creater` で生成可）
+
+**漏れ防止:** [`docs/design/new-department-checklist.md`](docs/design/new-department-checklist.md) の A〜H を確認。
+
+**機械検証（PR 前）:**
+
+```powershell
+python tools/validate_org_registry.py
+```
 
 **チーム取り決め一覧:** [`team-conventions.md`](docs/design/team-conventions.md) · 組織: [`department-model.md`](docs/design/department-model.md)
 
@@ -39,5 +47,6 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 ## 検証
 
 - E2E: [`docs/e2e/default-workflow.md`](docs/e2e/default-workflow.md)
+- 組織 registry 整合: `python tools/validate_org_registry.py`
 - 企画チーム v3 スモーク: [`docs/verification/planning-dept-v3-smoke.md`](docs/verification/planning-dept-v3-smoke.md)
 - 記録例: [`docs/verification/e2e-dryrun.md`](docs/verification/e2e-dryrun.md)

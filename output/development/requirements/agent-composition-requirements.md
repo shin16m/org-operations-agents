@@ -5,8 +5,8 @@
 | 文書種別 | 要件定義書（requirements-doc） |
 | 作成者ロール | product-manager |
 | 対象 | agent-create-supporter リポジトリ全体のマルチエージェント構成 |
-| 参照 workflow | `default` v3 · `planning-delivery` · `with-dispatch` · `development-delivery` · `analysis-delivery` |
-| 版 | 1.3 |
+| 参照 workflow | `default` v3 · `planning-delivery` · `with-dispatch` · `ux-delivery` · `development-delivery` · `analysis-delivery` |
+| 版 | 1.4 |
 | 日付 | 2026-05-23 |
 
 ---
@@ -94,13 +94,14 @@
 | FR-L2-05 | `department=planning` のとき **planning-pm** を起動する | 必須 |
 | FR-L2-06 | `department=development` のとき **product-manager** を起動する | 必須 |
 | FR-L2-07 | `department=analysis` のとき **analytics-pm** を起動する | 必須 |
+| FR-L2-09 | `department=ux` のとき **ux-pm** を起動する | 必須 |
 | FR-L2-08 | `department` 未設定時は Handoff の `pillar` または Asana notes の `チーム:` 行から推定する | 推奨 |
 
-### 3.3 L3 — 開発チームフェーズ（workflow: `development-delivery` v2）
+### 3.3 L3 — 開発チームフェーズ（workflow: `development-delivery` v3）
 
 | ID | 要件 | 優先度 |
 |----|------|--------|
-| FR-L3-01 | PM は子タスク notes（背景・概要・完了条件・**profile**）を読み、**delivery profile**（`full` / `lite` / `doc-only`）を決定する | 必須 |
+| FR-L3-01 | PM は子タスク notes（背景・概要・完了条件・**profile**）を読み、**delivery profile**（`full` / **`full-ui`** / `lite` / `doc-only`）を決定する | 必須 |
 | FR-L3-02 | **requirements-writer** が要件定義書を作成し、**dev-reviewer** がレビューする | 必須 |
 | FR-L3-03 | profile=`full` 時、**tech-designer** が技術設計書を作成し、**dev-reviewer** がレビューする（`lite` / `doc-only` は skip） | 必須 |
 | FR-L3-04 | 要件・設計 OK 後、PM は **developer** に実装を依頼する（`doc-only` は skip） | 必須 |
@@ -111,10 +112,23 @@
 | FR-L3-09 | 不整合が文書側なら requirements-writer が修正、コード側なら PM → developer 修正ループ | 必須 |
 | FR-L3-10 | PM は委譲前に notes ヘッダに `担当:` を書く | 推奨 |
 | FR-L3-11 | 完了時 PM は `DeptWorkComplete` を orchestrator へ報告し、子タスクを完了マークできる | 必須 |
+| FR-L3-12 | `profile=full-ui` 時、PM は UX artifact を notes `## 依存` に転記し、**ux-reviewer**（`ux_implementation`）サブタスクで実装一致 review を経る | 必須 |
 
 委譲詳細: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
 
-### 3.4 L3 — 分析チームフェーズ（workflow: `analysis-delivery`）
+### 3.4 L3 — UX チームフェーズ（workflow: `ux-delivery`）
+
+| ID | 要件 | 優先度 |
+|----|------|--------|
+| FR-L3-U01 | ux-pm は子タスクを読み、**必要タスクをサブタスク化**しメンバーへ `担当:` アサインする（単一 notes 委譲禁止） | 必須 |
+| FR-L3-U02 | ux-designer が体験設計書・Design System を作成する | 必須 |
+| FR-L3-U03 | ux-reviewer が `ux_spec` レビューを行い `ux_review_passed` を満たす | 必須 |
+| FR-L3-U04 | 完了時 ux-pm は `DeptWorkComplete`（`department: ux`）と **artifacts[]** を下流 PM が転記できる形で公開する | 必須 |
+| FR-L3-U05 | Web Epic では UX 子を UI 系 development 子より**先**に完了する | 必須 |
+
+詳細: [`docs/design/ux-delivery-io.md`](../../../docs/design/ux-delivery-io.md) · [`docs/design/ux-pm-assignment.md`](../../../docs/design/ux-pm-assignment.md)
+
+### 3.5 L3 — 分析チームフェーズ（workflow: `analysis-delivery`）
 
 | ID | 要件 | 優先度 |
 |----|------|--------|
@@ -129,7 +143,7 @@
 
 詳細: [`docs/design/analysis-delivery-io.md`](../../../docs/design/analysis-delivery-io.md)
 
-### 3.5 統括グループ要件
+### 3.6 統括グループ要件
 
 | ID | 要件 | 優先度 |
 |----|------|--------|
@@ -164,6 +178,8 @@
 | asana-buddy | 統括グループ | Asana 作成・読取・完了 |
 | task-dispatcher | L2 | チームルーティング |
 | product-manager | L3 | 開発チームハブ（profile・委譲・完了） |
+| ux-pm | L3 | UX チームハブ（タスク分解・アサイン・artifact 公開） |
+| ux-designer / ux-reviewer | L3 | UX チーム委譲 |
 | requirements-writer | L3 | 要件定義書・事後詳細仕様 |
 | tech-designer | L3 | 技術設計（実装前） |
 | developer | L3 | 実装・修正 |

@@ -5,7 +5,7 @@
 | 文書種別 | 詳細仕様書（detailed-spec） |
 | 作成者ロール | product-manager |
 | 対応要件定義 | [`output/development/requirements/agent-composition-requirements.md`](../requirements/agent-composition-requirements.md) |
-| 版 | 1.3 |
+| 版 | 1.4 |
 | 日付 | 2026-05-23 |
 
 ---
@@ -42,10 +42,14 @@
     │ DispatchRequest
     ▼
 ┌──────────────────────────────────────────────────┐
-│ L3  workflows/development-delivery.yaml (v2)    │
+│ L3  workflows/ux-delivery.yaml                     │
+│     agents: ux-pm (hub) → ux-designer, ux-reviewer │
+│  — または —                                      │
+│ L3  workflows/development-delivery.yaml (v3)      │
 │     agents: product-manager (hub)                │
 │             requirements-writer, tech-designer,  │
 │             developer, dev-reviewer, qa-verifier │
+│             (+ ux-reviewer on full-ui)           │
 │  — または —                                      │
 │ L3  workflows/analysis-delivery.yaml             │
 │     agents: analytics-pm (hub)                   │
@@ -64,7 +68,8 @@
 | `workflows/planning-delivery.yaml` | planning-delivery | pm_complete | 企画チーム・子 1 件 |
 | `workflows/with-dispatch.yaml` | with-dispatch | dispatch | 受付 + execution 系 dispatch |
 | `workflows/with-execution.yaml` | with-execution | work | **過渡期** — 単一 task-executor |
-| `workflows/development-delivery.yaml` | development-delivery | pm_complete | 開発チーム・子 1 件（v2） |
+| `workflows/development-delivery.yaml` | development-delivery | pm_complete | 開発チーム・子 1 件（v3） |
+| `workflows/ux-delivery.yaml` | ux-delivery | pm_complete | UX チーム・子 1 件 |
 | `workflows/analysis-delivery.yaml` | analysis-delivery | pm_complete | 分析チーム・子 1 件 |
 | `workflows/organizations.yaml` | — | — | department → workflow ルーティング |
 | `workflows/agent-registry.yaml` | — | — | slug・slot・I/O 登録 |
@@ -116,7 +121,7 @@
 | 出力 | `workflow_id`, `entry_agent`, entry 用 `prompt_snippet` |
 | ルーティング | organizations.yaml `departments[]` |
 
-**配賦順序:** 初回 `department=planning` → 企画完了後 `development` / `analysis`
+**配賦順序:** 初回 `department=planning` → 企画完了後 **`ux`（Web UI 先行）** → `development` / `analysis`
 
 #### asana-buddy
 
@@ -150,6 +155,24 @@
 | qa-verifier | dept_review | verification |
 
 **Deprecated:** `doc-writer` / `reviewer`（registry `enabled: false`）
+
+### 2.4b L3 — UX チーム
+
+#### ux-pm
+
+| 項目 | 値 |
+|------|-----|
+| entry | ux-delivery の `policy.entry_agent` |
+| 入力 | 子 task_gid、DispatchRequest 経由 |
+| 必須運用 | サブタスク分解 + `pm_assign_subtasks`（[`ux-pm-assignment.md`](../../docs/design/ux-pm-assignment.md)） |
+| 出力 | DeptWorkComplete（`department: ux`、**artifacts[]**） |
+
+#### 委譲ロール
+
+| slug | slot | 役割 |
+|------|------|------|
+| ux-designer | dept_work | 体験設計書・Design System |
+| ux-reviewer | dept_review | ux_spec / ux_implementation（後者は development PM からも） |
 
 ### 2.5 L3 — 分析チーム
 
@@ -268,6 +291,7 @@ Handoff 例: [`handoff.analysis-delivery.json`](../../skills/planning/issue-stor
 | CodeReviewResult | `skills/development/dev-reviewer/schemas/code-review-result.v1.schema.json` |
 | VerificationResult | `skills/development/qa-verifier/schemas/verification-result.v1.schema.json` |
 | MismatchReviewResult | `skills/development/dev-reviewer/schemas/mismatch-review-result.v1.schema.json` |
+| UxReviewResult | `skills/ux/ux-reviewer/schemas/ux-review-result.v1.schema.json` |
 | AnalysisDocReviewResult | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
 | DeployGateResult | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
 
@@ -425,7 +449,9 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 |---------|--------------|------|
 | FR-L1-01〜09 | §2.1, §5.1, §4.1 | v1.2 は load_handoff 対応 |
 | FR-L2-01〜07 | §2.2, §4.4, §5.2 | G2, G3 が推奨要件の弱点 |
-| FR-L3-01〜11 | §2.4, §3.1, §5.2 | development-delivery v2・delivery profile |
+| FR-L2-01〜09 | §2.3, §4.4, §5.2 | ux dispatch 含む |
+| FR-L3-01〜12 | §2.4, §3.1, §5.2 | development v3・full-ui |
+| FR-L3-U01〜05 | §2.4b | UX チーム |
 | FR-L3-A01〜A08 | §2.4, §3.4 | 分析チーム（analysis-delivery） |
 | FR-X-01〜05 | §2.5, §7, §8 G8 | |
 | NFR-01〜05 | §1.2, §8 G1 | |
@@ -439,3 +465,4 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 | 1.0 | 2026-05-18 | 初版（現状構成の PM 起票） |
 | 1.1 | 2026-05-23 | 分析チーム delivery 実装（analytics-pm ハブ + 7 ロール）を反映 |
 | 1.3 | 2026-05-23 | 開発チーム v2（6 ロール・設計フェーズ・qa-verifier 分離）を反映 |
+| 1.4 | 2026-05-23 | UX チーム（ux-delivery）・development v3 full-ui を反映 |

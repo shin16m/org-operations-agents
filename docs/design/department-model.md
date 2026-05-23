@@ -118,7 +118,7 @@ UX チーム完了
 
 ---
 
-## チームの追加ルール（必須 4 点セット）
+## チームの追加ルール（必須 4 点セット + 整合チェック）
 
 新規チーム（例: 運用チーム）を足すとき:
 
@@ -128,6 +128,10 @@ UX チーム完了
 | 2 | `workflows/<id>-delivery.yaml` | チーム内 workflow |
 | 3 | `docs/design/<id>-delivery-io.md` | チーム内 I/O + チーム間 I/O + やらないこと |
 | 4 | PM ハブスキル | `skills/<dept>/<dept>-pm/`（`dept_orchestrate`） |
+
+**拡張チェックリスト（漏れ防止）:** [`new-department-checklist.md`](new-department-checklist.md)
+
+**機械検証:** `python tools/validate_org_registry.py`（スキーマ enum · SSOT 文書 · Handoff 例）
 
 追加: チーム内ワーカー・reviewer を `agent-registry.yaml` に登録。統括グループの変更は通常不要。
 

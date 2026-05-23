@@ -1,6 +1,6 @@
 # product-manager 厳密運用 — チーム内アサインと delivery profile
 
-| 版 | 1.1 |
+| 版 | 1.2 |
 | 日付 | 2026-05-23 |
 | 適用 | 開発チーム L3（`development-delivery` v3） |
 
@@ -46,6 +46,32 @@ profile: full-ui
 - [ ] `profile: full-ui` をヘッダに明記
 
 未充足 → UX チームまたは企画 PM へ差し戻し。**developer へ委譲しない。**
+
+### full-ui — UX 依存の転記（product-manager 必須）
+
+UX 子完了後、**development 子の notes** に `## 依存（読み取り専用）` を追記してから intake を進める。
+
+1. `fetch_task.py --gid <DEVELOPMENT_CHILD_GID>` で現 notes を確認
+2. 転記元: UX 子の `DeptWorkComplete.artifacts[]` または ux-pm 完了コメント
+3. notes 全文（ヘッダ + 既存 body + `## 依存` 表）を組み立て、`update_task_notes.py --notes @file.md -y` または `--preserve-body` 前に body に追記
+
+依存表テンプレ: [`ux-delivery-io.md`](ux-delivery-io.md#下流開発チーム向け公開)
+
+### full-ui — ux_implementation 委譲（必須・サブタスク）
+
+`code_review_passed` 後、**qa-verifier の前**に実施。
+
+1. development 子の下に **サブタスク**を 1 件作成（または `pm_assign_subtasks.py`）
+2. サブ notes: `チーム: development` · `担当: ux-reviewer` · `profile: full-ui`（親から継承可）
+3. ux-reviewer が `fetch_task --show-assignee` → `ux_implementation` review → `comment_task`
+4. product-manager が当該サブを complete → `UxReviewResult` passed* 確認後 qa-verifier へ
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\update_task_notes.py `
+  --gid <UX_REVIEW_SUB_GID> --department development --assignee ux-reviewer --status assigned -y
+```
+
+**禁止:** 親タスクの `担当:` だけ ux-reviewer に書き換えて UX チーム内フローをスキップすること（ux-pm 厳密運用と同型で **サブタスク単位**）。
 
 ## 委譲先一覧（v3）
 

@@ -76,6 +76,7 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | `handoff.task-executor-agent.json` | タスク実行フェーズ（レガシー） |
 | `handoff.agent-workflow-orchestration.json` | 基盤エピック |
 | `handoff.analysis-delivery.json` | 分析チーム delivery |
+| `handoff.ux-web-app.json` | UX + full-ui 開発（Web Epic） |
 
 ## レガシー
 

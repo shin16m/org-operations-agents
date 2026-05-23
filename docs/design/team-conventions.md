@@ -143,12 +143,14 @@ dispatch 対象外。チーム内 delivery は持たない。
 
 ## 新チームを足すとき
 
-[`department-model.md`](department-model.md) の **4 点セット**:
+[`department-model.md`](department-model.md) の **4 点セット** + **[`new-department-checklist.md`](new-department-checklist.md)**（A〜H）。
+
+検証: `python tools/validate_org_registry.py`
 
 1. `organizations.yaml` に 1 行
 2. `workflows/<id>-delivery.yaml`
 3. `docs/design/<id>-delivery-io.md`（本索引の比較表に追記）
-4. `skills/<dept>/<dept>-pm/`
+4. `skills/<dept>/<pm-slug>/`
 
 本書（`team-conventions.md`）の比較表と、[`CONTRIBUTING.md`](../../CONTRIBUTING.md) を更新する。
 

@@ -4,6 +4,8 @@
 
 **Handoff JSON はチーム間 I/O に含めない**（企画チームのチーム内成果物）。
 
+**新 department 追加時:** [`new-department-checklist.md`](new-department-checklist.md) · 検証: `python tools/validate_org_registry.py`
+
 ## DispatchRequest（task-dispatcher 入力）
 
 | フィールド | 型 | 必須 | 説明 |
@@ -11,7 +13,7 @@
 | `schema_version` | string | はい | `"1.0"` |
 | `task_gid` | string | はい | 子タスク GID |
 | `parent_gid` | string | いいえ | 親エピック GID |
-| `department` | string | はい | `development` \| `analysis` \| `planning` |
+| `department` | string | はい | `planning` \| `ux` \| `development` \| `analysis` |
 | `workflow_id` | string | いいえ | 省略時は organizations.yaml から解決 |
 | `locale` | string | いいえ | 例 `ja-JP` |
 
@@ -24,7 +26,7 @@
 | `schema_version` | string | はい | `"1.0"` |
 | `task_gid` | string | はい | 完了した子タスク |
 | `parent_gid` | string | いいえ | 親エピック |
-| `department` | string | はい | 例 `development` |
+| `department` | string | はい | `planning` \| `ux` \| `development` \| `analysis` |
 | `status` | enum | はい | `completed` \| `blocked` \| `needs_rework` |
 | `summary` | string | はい | 1–2 文 |
 | `artifacts` | string[] | いいえ | 成果物パス（下流 PM が notes `## 依存` に転記可能 — [`department-model.md`](department-model.md#成果物共有読み取り専用)） |
@@ -37,11 +39,11 @@
 
 | タイミング | 担当 | 操作 |
 |------------|------|------|
-| 委譲作業完了時 | requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier 等 | `comment_task.py`（`agent` + `skill` + 実施内容） |
-| 子タスク完了直前 | **planning-pm / product-manager / analytics-pm** | 同上ののち `complete_task.py` |
+| 委譲作業完了時 | 各チームワーカー（例: requirements-writer / ux-designer / data-engineer 等） | `comment_task.py`（`agent` + `skill` + 実施内容） |
+| 子タスク完了直前 | **planning-pm / ux-pm / product-manager / analytics-pm** | 同上ののち `complete_task.py` |
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent developer --skill skills/development/developer/SKILL.md --summary "..." --body-file .\body.md -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent ux-designer --skill skills/ux/ux-designer/SKILL.md --summary "..." --body-file .\body.md -y
 ```
 
 ### Asana 完了同期（必須）
@@ -50,7 +52,7 @@
 
 | タイミング | 担当 | 操作 |
 |------------|------|------|
-| 子タスク 1 件のチーム内作業完了 | **planning-pm / product-manager / analytics-pm** | **`comment_task.py` の後**に `complete_task.py --gid <子GID> -y` を **`DeptWorkComplete` 出力の直前に実行** |
+| 子タスク 1 件のチーム内作業完了 | **planning-pm / ux-pm / product-manager / analytics-pm** | **`comment_task.py` の後**に `complete_task.py --gid <子GID> -y` を **`DeptWorkComplete` 出力の直前に実行** |
 | 同一セッションで複数子を連続完了 | product-manager または orchestrator | `sync_handoff_epic.py --parent <親GID> --handoff <path> --complete-through N --complete-only` |
 | 全子完了後 | **workflow-orchestrator** | 親エピックを `complete_task.py --gid <親GID> -y` で完了（任意だが推奨）→ 利用者へエピック完了報告 |
 
@@ -64,10 +66,11 @@
 | CodeReviewResult | コードレビュー | `code` | `skills/development/dev-reviewer/schemas/code-review-result.v1.schema.json` |
 | VerificationResult | 動作検証 | `verification` | `skills/development/qa-verifier/schemas/verification-result.v1.schema.json` |
 | MismatchReviewResult | 要件 vs 仕様整合 | `mismatch` | `skills/development/dev-reviewer/schemas/mismatch-review-result.v1.schema.json` |
+| UxReviewResult | UX 仕様 / 実装一致 | `ux_spec` \| `ux_implementation` | `skills/ux/ux-reviewer/schemas/ux-review-result.v1.schema.json` |
 | AnalysisDocReviewResult | 分析チームドキュメント | 各種 | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
 | DeployGateResult | 本番デプロイ前ゲート | `production_deploy_gate` | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
 
-分析チーム: [`analysis-delivery-io.md`](analysis-delivery-io.md) · 企画チーム: [`planning-delivery-io.md`](planning-delivery-io.md) · 開発チーム: [`development-delivery-io.md`](development-delivery-io.md)
+企画: [`planning-delivery-io.md`](planning-delivery-io.md) · UX: [`ux-delivery-io.md`](ux-delivery-io.md) · 開発: [`development-delivery-io.md`](development-delivery-io.md) · 分析: [`analysis-delivery-io.md`](analysis-delivery-io.md)
 
 共通: `status` は `passed` \| `passed_with_notes` \| `failed`。`failed` 時は差し戻し先を `message` に明記。
 

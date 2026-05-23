@@ -9,8 +9,8 @@
 1. `fetch_task.py --gid <task_gid>` で子 notes（背景・概要・完了条件・**profile**）を読む
 2. 親エピック notes を文脈として参照（任意）
 3. **delivery profile** を決定（省略時 `full`）:
-   - `full` — 要件 → 設計 → 実装 → レビュー/QA → 事後仕様（非 UI）
-   - **`full-ui`** — full + **UX 依存必須** + ux-reviewer 実装一致 review
+   - `full` — 非 UI
+   - **`full-ui`** — UX `## 依存` 必須 + ux_implementation サブタスク
    - `lite` — 設計 skip（**非 UI のみ**）
    - `doc-only` — 実装 skip
 4. [`development-delivery.yaml`](../../../workflows/development-delivery.yaml) に沿い委譲:

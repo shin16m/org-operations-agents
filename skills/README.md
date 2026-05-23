@@ -16,4 +16,4 @@
 
 新規スキル: [`platform/agent-creater/`](platform/agent-creater/) のみが `skills/<organization>/<slug>/` を生成する。
 
-新規**チーム**の追加: [`department-model.md`](../docs/design/department-model.md) の 4 点セット。
+新規**チーム**の追加: [`department-model.md`](../docs/design/department-model.md) · チェックリスト: [`new-department-checklist.md`](../docs/design/new-department-checklist.md) · 検証: `python tools/validate_org_registry.py`

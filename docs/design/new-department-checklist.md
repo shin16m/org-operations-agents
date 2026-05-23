@@ -1,0 +1,120 @@
+# 新チーム（department）追加チェックリスト
+
+新規 **L3 チーム** または **dispatch 対象 department** を足すとき、[`department-model.md`](department-model.md) の 4 点セットに加え、本チェックリストを **すべて** 確認する。漏れ防止用。
+
+**機械チェック（PR 前）:**
+
+```powershell
+python tools/validate_org_registry.py
+```
+
+---
+
+## A. コア（必須 4 点 + registry）
+
+| # | 成果物 | 確認 |
+|---|--------|------|
+| A1 | [`workflows/organizations.yaml`](../../workflows/organizations.yaml) | `departments[]` 1 行 · `pillar_defaults`（任意） |
+| A2 | `workflows/<id>-delivery.yaml` | `entry_agent` · `assignment_doc`（PM 厳密運用がある場合） |
+| A3 | `docs/design/<id>-delivery-io.md` | チーム内 I/O · チーム間 I/O · ゲート · やらないこと |
+| A4 | `skills/<dept>/<pm-slug>/` | PM ハブ SKILL · README |
+| A5 | [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml) | PM + ワーカー + reviewer · `enabled: true` |
+| A6 | ワーカー SKILL | `skills/<dept>/<slug>/` 各ロール |
+
+---
+
+## B. スキーマ（department enum 同期）
+
+| # | ファイル |
+|---|----------|
+| B1 | [`dispatch-request.v1.schema.json`](../../skills/platform/task-dispatcher/schemas/dispatch-request.v1.schema.json) |
+| B2 | [`dept-work-complete.v1.schema.json`](../../skills/development/product-manager/schemas/dept-work-complete.v1.schema.json) |
+| B3 | [`asana-buddy-handoff.v1.2.schema.json`](../../skills/planning/issue-story-planner/schemas/asana-buddy-handoff.v1.2.schema.json) |
+
+→ **`python tools/validate_org_registry.py`** で三つと organizations.yaml が一致すること。
+
+---
+
+## C. チーム間 SSOT（ドキュメント）
+
+| # | ファイル | 追記内容 |
+|---|----------|----------|
+| C1 | [`dept-work-io.md`](dept-work-io.md) | `DispatchRequest.department` · PM 完了担当 · レビュー Result 型 · 署名ロール |
+| C2 | [`handoff-v12-department.md`](handoff-v12-department.md) | department 値表に 1 行 |
+| C3 | [`team-conventions.md`](team-conventions.md) | 比較表に列追加 · チーム節 |
+| C4 | [`org-dispatch-model.md`](org-dispatch-model.md) | 責務表 · I/O 一覧 · 配賦順序 |
+| C5 | [`task-dispatcher/SKILL.md`](../../skills/platform/task-dispatcher/SKILL.md) | ルーティング表 · department enum |
+| C6 | [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) | dispatch 順序（必要なら） |
+| C7 | [`planner-orchestrator-dispatch-notes.md`](planner-orchestrator-dispatch-notes.md) | Handoff department チェックリスト |
+| C8 | [`issue-story-planner/SKILL.md`](../../skills/planning/issue-story-planner/SKILL.md) | `subtasks[].department` 説明 |
+| C9 | [`dispatch-workflow.md`](../e2e/dispatch-workflow.md) | E2E 手順 |
+| C10 | [`skills-inventory.md`](../inventory/skills-inventory.md) | スキル一覧 |
+| C11 | [`skills/README.md`](../../skills/README.md) | 組織フォルダ表 |
+| C12 | ルート [`README.md`](../../README.md) | スキル一覧 · dispatch 図 |
+
+---
+
+## D. PM 厳密運用（分析チーム同等が必要な場合）
+
+| # | 成果物 |
+|---|--------|
+| D1 | `docs/design/<id>-pm-assignment.md` — サブタスク分解必須 · CLI · `--show-assignee` · 再実施 |
+| D2 | PM SKILL — 「厳密運用（必須）」節 |
+| D3 | ワーカー SKILL — 着手前 `fetch_task --show-assignee` |
+| D4 | `skills/<dept>/examples/assign-plan.*.json` — サブタスクプラン例 |
+| D5 | [`pm_assign_subtasks.py`](../../skills/platform/asana-buddy/optional/pm_assign_subtasks.py) — `--department` 対応確認 |
+| D6 | `docs/verification/<id>-delivery-dryrun.md` |
+
+---
+
+## E. 企画・Handoff
+
+| # | 成果物 |
+|---|--------|
+| E1 | `skills/planning/issue-story-planner/examples/handoff.<theme>.json` — 新 department の subtask 例 |
+| E2 | plan-reviewer / gate 用 Handoff が v1.2 + department 付き |
+
+---
+
+## F. 全体仕様（エージェント構成）
+
+| # | ファイル |
+|---|----------|
+| F1 | [`output/development/requirements/agent-composition-requirements.md`](../../output/development/requirements/agent-composition-requirements.md) |
+| F2 | [`output/development/specs/agent-composition-spec.md`](../../output/development/specs/agent-composition-spec.md) |
+
+---
+
+## G. 下流連携（他チームが consume する場合）
+
+| # | 内容 |
+|---|------|
+| G1 | [`department-model.md`](department-model.md) — 成果物共有フロー例 |
+| G2 | 下流チーム `*-delivery-io.md` — `## 依存（読み取り専用）` 必須条件 |
+| G3 | 下流 PM assignment — 横断 reviewer 委譲手順（サブタスク化） |
+
+---
+
+## H. 横断 reviewer（他チーム PM から委譲されるロール）
+
+| # | 内容 |
+|---|------|
+| H1 | reviewer SKILL — 委譲元 PM 両方を明記 |
+| H2 | 開発 / 他 PM assignment — サブタスク + `担当: <reviewer>` |
+| H3 | [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md) — 署名対象ロール |
+
+---
+
+## 完了条件
+
+- [ ] `python tools/validate_org_registry.py` が exit 0
+- [ ] 本チェックリスト A〜H の該当行にチェック
+- [ ] dry-run 文書またはスモーク 1 本
+
+---
+
+## 参照
+
+- 4 点セット: [`department-model.md`](department-model.md)
+- 分析 PM 厳密運用の参照実装: [`analytics-pm-assignment.md`](analytics-pm-assignment.md)
+- UX PM 厳密運用: [`ux-pm-assignment.md`](ux-pm-assignment.md)
