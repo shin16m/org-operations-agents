@@ -41,12 +41,12 @@
 
 ### Asana 署名付きコメント（必須）
 
-**どのエージェントが何をしたか**をタスクに残す。設計: [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md)
+**どのエージェントが何をしたか**をタスクに残す。設計: [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md)（**§4 依頼者向け本文 · §5 ロール別テンプレ**）
 
 | タイミング | 担当 | 操作 |
 |------------|------|------|
-| 委譲作業完了時 | 各チームワーカー（例: requirements-writer / ux-designer / data-engineer 等） | `comment_task.py`（`agent` + `skill` + 実施内容） |
-| 子タスク完了直前 | **planning-pm / ux-pm / product-manager / analytics-pm** | 同上ののち `complete_task.py` |
+| 委譲作業完了時 | 各チームワーカー（例: requirements-writer / ux-designer / data-engineer 等） | `comment_task.py`（`agent` + `skill` + **実施内容・成果物・次の状態**） |
+| 子タスク完了直前 | **planning-pm / ux-pm / product-manager / analytics-pm** | 同上（**判断・理由**含む）ののち `complete_task.py` |
 
 ```powershell
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent ux-designer --skill skills/ux/ux-designer/SKILL.md --summary "..." --body-file .\body.md -y

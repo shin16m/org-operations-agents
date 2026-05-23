@@ -94,6 +94,24 @@ def log(msg: str) -> None:
     print(msg, flush=True)
 
 
+def agent_comment_body(
+    *,
+    actions: list[str],
+    reason: str | None = None,
+    artifacts: list[str] | None = None,
+    next_state: str | None = None,
+) -> str:
+    """Build --body text per agent-asana-comment-signature §4–5."""
+    parts: list[str] = ["## 実施内容", "\n".join(f"- {a}" for a in actions)]
+    if reason:
+        parts.extend(["## 判断・理由", reason])
+    if artifacts:
+        parts.extend(["## 成果物", "\n".join(f"- {a}" for a in artifacts)])
+    if next_state:
+        parts.extend(["## 次の状態", next_state])
+    return "\n\n".join(parts)
+
+
 def comment_and_complete(gid: str, agent: str, summary: str, body: str) -> None:
     skill = AGENT_SKILLS.get(agent)
     if not skill:
@@ -190,7 +208,14 @@ def run_worker_subtasks(parent_gid: str, pm_slug: str) -> list[str]:
             gid,
             assignee,
             f"dryrun complete — {assignee}",
-            f"全チーム dryrun。サブタスク `{name}` を {assignee} が完了。",
+            agent_comment_body(
+                actions=[
+                    f"サブタスク `{name}` の done_when を dryrun で充足",
+                    f"{assignee} が署名付き comment_task を投稿",
+                ],
+                artifacts=[f"Asana subtask GID {gid}"],
+                next_state=f"{pm_slug} が当該サブを complete し次サブへ",
+            ),
         )
         worked.append(assignee)
     return worked
@@ -285,7 +310,13 @@ def run_dept_epic_child(epic_gid: str, dept: str, ux_gid: str | None = None) -> 
         child_gid,
         "task-dispatcher",
         f"dispatch → {pm}",
-        f"DispatchRequest department={dept} · entry {pm}",
+        agent_comment_body(
+            actions=[
+                f"DispatchRequest を解決（department={dept}）",
+                f"entry_agent {pm} 向け prompt_snippet を返却",
+            ],
+            next_state=f"{pm} が intake（fetch_task / pm_assign_subtasks）を開始",
+        ),
     )
     # undo complete so PM can run workflow on child
     _run(_py("complete_task.py", "--gid", child_gid, "--undo", "-y"))
@@ -300,7 +331,14 @@ def run_dept_epic_child(epic_gid: str, dept: str, ux_gid: str | None = None) -> 
             child_gid,
             pm,
             f"{pm} — DeptWorkComplete",
-            f"全サブ完了。department={dept} dryrun。",
+            agent_comment_body(
+                actions=[
+                    f"department={dept} の全ワーカーサブを完了集約",
+                    f"DeptWorkComplete を出力予定",
+                ],
+                artifacts=[f"workers: {', '.join(worked)}"],
+                next_state="統括グループへ DeptWorkComplete 提出 / 次チーム dispatch",
+            ),
         )
         return {"child_gid": child_gid, "workers": worked}
 
@@ -309,21 +347,43 @@ def run_dept_epic_child(epic_gid: str, dept: str, ux_gid: str | None = None) -> 
         child_gid,
         "issue-story-planner",
         "Handoff 作成",
-        "handoff.all-teams-dryrun.json を出力。",
+        agent_comment_body(
+            actions=[
+                "全チーム dryrun 用 Handoff JSON を作成",
+                "epic + execution 系 4 子を定義",
+            ],
+            artifacts=["docs/verification/fixtures/planning/handoff/handoff.all-teams-dryrun.json"],
+            next_state="plan-reviewer の PlanReviewResult 待ち",
+        ),
     )
     _run(_py("complete_task.py", "--gid", child_gid, "--undo", "-y"))
     comment_and_complete(
         child_gid,
         "plan-reviewer",
         "PlanReview passed_with_notes",
-        "plan-review.all-teams-dryrun.json",
+        agent_comment_body(
+            actions=[
+                "Handoff JSON を plan-reviewer 観点でレビュー",
+                "判定: passed_with_notes",
+            ],
+            reason="dryrun 用途のため Asana 未設定時のスキップを finding に記載",
+            artifacts=["docs/verification/fixtures/planning/plan-review/plan-review.all-teams-dryrun.json"],
+            next_state="planning-pm gate → handoff_to_asana sync",
+        ),
     )
     _run(_py("complete_task.py", "--gid", child_gid, "--undo", "-y"))
     comment_and_complete(
         child_gid,
         pm,
         "planning-pm — sync 完了",
-        "handoff sync 済み。execution 系子作成。",
+        agent_comment_body(
+            actions=[
+                "gate 承認後 handoff_to_asana で execution 系子を投入",
+                "企画子タスクを complete",
+            ],
+            artifacts=["docs/verification/fixtures/planning/handoff/handoff.all-teams-dryrun.json"],
+            next_state="task-dispatcher が ux / analysis / development へ順次配賦",
+        ),
     )
     return {"child_gid": child_gid, "workers": ["issue-story-planner", "plan-reviewer", pm]}
 
@@ -430,7 +490,13 @@ def main() -> int:
             epic_gid,
             "workflow-orchestrator",
             "intake — 全チーム dryrun 開始",
-            "bootstrap / planning / ux / analysis / development を順次実行。",
+            agent_comment_body(
+                actions=[
+                    "bootstrap Handoff で親エピック + 企画子を作成",
+                    "planning → ux → analysis → development の順で dryrun 実行",
+                ],
+                next_state="asana-buddy が本番 Handoff を sync",
+            ),
         )
         _run(_py("complete_task.py", "--gid", epic_gid, "--undo", "-y"))
 
@@ -440,7 +506,14 @@ def main() -> int:
             epic_gid,
             "asana-buddy",
             "handoff sync 完了",
-            "handoff.all-teams-dryrun.json を親に sync。",
+            agent_comment_body(
+                actions=[
+                    "handoff.all-teams-dryrun.json を既存親に sync",
+                    "execution 系 4 子タスクを作成/更新",
+                ],
+                artifacts=["docs/verification/fixtures/planning/handoff/handoff.all-teams-dryrun.json"],
+                next_state="planning-pm が企画子を完了後、各チーム PM へ dispatch",
+            ),
         )
         _run(_py("complete_task.py", "--gid", epic_gid, "--undo", "-y"))
 
@@ -466,7 +539,13 @@ def main() -> int:
         epic_gid,
         "workflow-orchestrator",
         "全チーム dryrun 完了",
-        "planning / ux / analysis / development 全サブ完了。",
+        agent_comment_body(
+            actions=[
+                "planning / ux / analysis / development 全チームの comment → complete を確認",
+                "docs/verification/all-teams-dryrun.md に記録",
+            ],
+            next_state="依頼者へエピック完了報告",
+        ),
     )
 
     write_report(epic_gid, results, epic_url=epic_url, command=" ".join(sys.argv))
