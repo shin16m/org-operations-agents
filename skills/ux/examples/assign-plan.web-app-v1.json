@@ -1,0 +1,32 @@
+{
+  "parent_title": "【2/4・UX】Web アプリ体験設計",
+  "subtasks": [
+    {
+      "name": "【2/4-1・UX】体験設計書（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "Epic 全体のユーザーフロー・IA・画面仕様の SSOT。",
+      "summary": "主要フロー・画面一覧・状態・エラー・a11y 方針を `output/ux/specs/<parent_gid>-ux-spec.md` に記載。",
+      "done_when": "体験設計書が保存され、完了条件の画面がすべて列挙されている。"
+    },
+    {
+      "name": "【2/4-2・UX】Design System（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "開発 full-ui が consume するコンポーネント・トークン定義。",
+      "summary": "Typography・Spacing・Color・コンポーネント仕様を `output/ux/design-system/<parent_gid>-design-system.md` に記載。",
+      "done_when": "Design System が保存され、主要 UI コンポーネントが定義されている。"
+    },
+    {
+      "name": "【2/4-3・UX】仕様 review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "ux_spec ゲート。",
+      "summary": "review_kind: ux_spec。体験設計書と Design System を検証し `output/ux/reviews/<parent_gid>-ux-spec-review.json` を出力。",
+      "done_when": "UxReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

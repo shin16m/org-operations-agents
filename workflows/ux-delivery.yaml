@@ -14,16 +14,20 @@ policy:
 steps:
   - id: pm_intake
     agent: ux-pm
-    role: 子 notes を読み、スコープ（Epic 全体 UX / 画面群）を確定して委譲開始
+    role: 子 notes を読み、必要タスクを洗い出し、サブタスク作成と担当アサイン（必須）
+
+  - id: pm_assign
+    agent: ux-pm
+    role: pm_assign_subtasks / update_task_notes で各サブに 担当: を設定
 
   - id: ux_design
     agent: ux-designer
-    role: 体験設計書・Design System・画面仕様を作成
+    role: 委譲サブタスク上で体験設計書または Design System を作成
     artifact: ux-spec
 
   - id: ux_spec_review
     agent: ux-reviewer
-    role: 体験設計・a11y・要件充足レビュー
+    role: 委譲サブタスク上で体験設計・a11y・要件充足レビュー
     review_kind: ux_spec
     gate_after: ux_review_passed
 

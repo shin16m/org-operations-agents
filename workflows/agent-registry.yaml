@@ -152,6 +152,7 @@ agents:
     slot: dept_orchestrate
     skill_path: skills/ux/ux-pm
     enabled: true
+    note: ux-delivery — 必須サブタスク分解・アサイン（analytics-pm 同等）
     workflow_steps: []
     io:
       input_kind: DispatchRequest

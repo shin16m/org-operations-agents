@@ -48,7 +48,8 @@
 
 # チーム内サブタスク一括作成（JSON プラン）
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\pm_assign_subtasks.py `
-  --parent <親GID> --plan .\work\assign-plan.task-1.json -y
+  --parent <親GID> --plan .\work\assign-plans\<plan>.json `
+  --department analysis --update-parent-assignee analytics-pm -y
 
 # 担当確認
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\fetch_task.py --gid <GID> --show-assignee

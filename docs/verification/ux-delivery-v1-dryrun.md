@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 |------|------|
-| 目的 | UX 第4チーム dispatch と development `profile: full-ui` の通し確認 |
+| 目的 | UX 第4チーム dispatch・**PM サブタスクアサイン**・development `full-ui` の通し確認 |
 | workflow | `ux-delivery` v1 · `development-delivery` v3 |
 | 前提 | default v3 企画完了済み Epic |
 
@@ -20,15 +20,6 @@ execution 系 subtask 例:
 }
 ```
 
-```json
-{
-  "title": "【3/4・開発】ダッシュボード UI 実装",
-  "department": "development",
-  "summary": "UX 仕様に基づきフロント実装",
-  "done_when": "ux_implementation + verification passed"
-}
-```
-
 参照: [`handoff-v12-department.md`](../design/handoff-v12-department.md)
 
 ## 2. UX 子 — dispatch
@@ -39,7 +30,23 @@ execution 系 subtask 例:
 
 期待: entry `ux-pm` · workflow `ux-delivery`
 
-## 3. UX 完了 — artifact
+## 3. ux-pm — サブタスク分解（必須）
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\pm_assign_subtasks.py `
+  --parent <UX_CHILD_GID> `
+  --plan .\skills\ux\examples\assign-plan.web-app-v1.json `
+  --department ux --update-parent-assignee ux-pm -y
+```
+
+期待:
+
+- 親 notes → `担当: ux-pm` · `状態: in_progress`
+- 子サブ 3 件（ux-designer ×2 · ux-reviewer ×1）各 `チーム: ux` + `担当:`
+
+各ワーカーは `fetch_task.py --gid <サブGID> --show-assignee` で担当確認後に着手。
+
+## 4. UX 完了 — artifact
 
 | 成果物 | パス例 |
 |--------|--------|
@@ -47,9 +54,9 @@ execution 系 subtask 例:
 | Design System | `output/ux/design-system/<gid>-design-system.md` |
 | レビュー | `output/ux/reviews/<gid>-ux-spec-review.json` |
 
-`DeptWorkComplete.artifacts[]` に上記パスを含める。
+全サブ完了後、ux-pm が `DeptWorkComplete.artifacts[]` に安定パスを含めて親を complete。
 
-## 4. development 子 — 依存転記
+## 5. development 子 — 依存転記
 
 product-manager が notes に追記:
 
@@ -64,26 +71,20 @@ profile: full-ui
 | Design System | output/ux/design-system/<ux_gid>-design-system.md | v1.0 | ux |
 ```
 
-## 5. development full-ui — 追加ゲート
+## 6. development full-ui — 追加ゲート
 
-code review 後:
+code review 後、product-manager が ux-reviewer へ `ux_implementation` 委譲。
 
-```
-ux-reviewer: 実装 UI を ux_implementation でレビューしてください。
-```
+## 7. チェックリスト
 
-`UxReviewResult` → `ux_implementation_review_passed` → qa-verifier
-
-## 6. チェックリスト
-
-- [ ] `organizations.yaml` に `ux` 行がある
-- [ ] `DispatchRequest.department=ux` が受理される
-- [ ] UX 子完了前に development full-ui が着手していない
-- [ ] `## 依存` なし full-ui で PM が差し戻す
-- [ ] ux-reviewer が development から委譲可能
+- [ ] ux-pm が **サブタスク未作成のまま** ux-designer へ親丸ごと委譲していない
+- [ ] 各サブ notes に `担当:` がある
+- [ ] ワーカーが `--show-assignee` で担当確認している
+- [ ] UX 親完了前に development full-ui が着手していない
+- [ ] `## 依存` なし full-ui で development PM が差し戻す
 
 ## 関連
 
+- [`ux-pm-assignment.md`](../design/ux-pm-assignment.md)
+- [`analytics-pm-assignment.md`](../design/analytics-pm-assignment.md)（同等運用）
 - [`ux-delivery-io.md`](../design/ux-delivery-io.md)
-- [`development-delivery-io.md`](../design/development-delivery-io.md)
-- [`team-conventions.md`](../design/team-conventions.md)

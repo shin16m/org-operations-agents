@@ -23,12 +23,12 @@ from asana_program_common import (  # noqa: E402
 )
 
 
-def _notes_for_item(item: dict[str, Any]) -> str:
+def _notes_for_item(item: dict[str, Any], default_department: str) -> str:
     return assemble_subtask_notes(
         background=item.get("background", ""),
         summary=item.get("summary", ""),
         done_when=item.get("done_when", ""),
-        department=item.get("department", "analysis"),
+        department=item.get("department", default_department),
         assignee=item.get("assignee"),
         status=item.get("status", "assigned"),
         pillar=item.get("pillar"),
@@ -40,9 +40,14 @@ def main() -> None:
     p.add_argument("--parent", required=True, help="Parent task GID (e.g. 【1/7】)")
     p.add_argument("--plan", required=True, type=Path, help="JSON plan file")
     p.add_argument(
+        "--department",
+        default="analysis",
+        help="Default チーム: header for subtasks and parent (analysis|ux|development|planning)",
+    )
+    p.add_argument(
         "--update-parent-assignee",
         default="analytics-pm",
-        help="Set parent 担当 after creating children",
+        help="Set parent 担当 after creating children (e.g. ux-pm, analytics-pm)",
     )
     p.add_argument("-y", action="store_true")
     args = p.parse_args()
@@ -67,7 +72,7 @@ def main() -> None:
     created: list[dict[str, Any]] = []
     for item in reversed(items):
         name = item["name"]
-        notes = _notes_for_item(item)
+        notes = _notes_for_item(item, args.department)
         sub = create_subtask(args.parent, name, notes, token)
         created.append(sub)
         print(console_safe(f"  + {sub['gid']}  {name}  → 担当: {item.get('assignee')}"))
@@ -75,7 +80,7 @@ def main() -> None:
     if args.update_parent_assignee:
         notes = merge_notes_with_assignment(
             parent.get("notes") or "",
-            department="analysis",
+            department=args.department,
             assignee=args.update_parent_assignee,
             status="in_progress",
         )

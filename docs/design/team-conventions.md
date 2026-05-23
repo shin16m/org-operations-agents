@@ -80,8 +80,10 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 | 区分 | 取り決め |
 |------|----------|
 | 入力 | 子 notes、任意の `## 依存`（分析データ契約等） |
+| PM 必須 | **必要タスクをサブタスク化**しメンバーへ `担当:` アサイン（[`ux-pm-assignment.md`](ux-pm-assignment.md)） |
 | チーム内フロー | 体験設計 → ux-reviewer（ux_spec）→ artifact 公開 |
 | 必須ゲート | `ux_review_passed` |
+| PM 委譲 | notes に `担当:`。必要なら nested サブタスク + `pm_assign_subtasks.py` |
 | 下流 | development `profile: full-ui` が `## 依存` で consume |
 | 横断 review | ux-reviewer（`ux_implementation`）— development PM から委譲 |
 | やらないこと | 実装、Handoff 作成、dispatch |
