@@ -28,3 +28,9 @@ Thumbs.db
 # PM assign plans (epic-specific; folder kept via .gitkeep)
 work/assign-plans/*
 !work/assign-plans/.gitkeep
+
+# Runtime artifacts (template: README + .gitkeep only)
+output/**/*
+!output/README.md
+!output/**/README.md
+!output/**/.gitkeep

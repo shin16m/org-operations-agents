@@ -10,9 +10,9 @@ default v3 + `チーム:` notes で **新規 Asana エピック**を作成し、
 
 | 段階 | ファイル |
 |------|----------|
-| bootstrap | `output/planning/handoff/bootstrap.team-label-e2e.json` |
-| Handoff | `output/planning/handoff/handoff.team-label-e2e.json` |
-| PlanReview | `output/planning/plan-review/plan-review.team-label-e2e.json` |
+| bootstrap | `docs/verification/fixtures/planning/handoff/bootstrap.team-label-e2e.json` |
+| Handoff | `docs/verification/fixtures/planning/handoff/handoff.team-label-e2e.json` |
+| PlanReview | `docs/verification/fixtures/planning/plan-review/plan-review.team-label-e2e.json` |
 | 本記録 | `docs/verification/team-label-e2e-dryrun.md` |
 
 ## Asana

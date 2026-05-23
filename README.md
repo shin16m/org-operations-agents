@@ -1,15 +1,18 @@
-# agent-create-supporter
+# org-operations-agents
 
-Git で共有する **Cursor / Copilot 用エージェントスキル**集。宣言的 workflow・エージェント挙動・Asana 連携を定義する。課題をプラン化し、レビュー・オーケストレーションを経て Asana にタスク化する。
+**組織運用エージェントテンプレート** — `agent-creater`（エージェント生成）と 4 チーム構成の org runtime（intake → plan → Asana → dispatch）を同梱。fork して拡張する。
 
-> **スコープ:** 製品アプリ（MVP）のソースは本リポジトリには置かない。実装成果物は別リポジトリまたは Asana 投入後のチーム内フロー（`development-delivery`）で扱う。
+Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言的 workflow・Asana 連携の SSOT。
+
+> **スコープ:** エピック成果物（要件・コード・モデル等）は **`output/` に書くが git 管理しない**（[`docs/design/artifact-policy.md`](docs/design/artifact-policy.md)）。製品ソースは別リポジトリ。
 
 ## レイアウト
 
 | パス | 内容 |
 |------|------|
 | [`skills/`](skills/) | エージェント定義（統括グループ / 企画チーム / 開発チーム / 分析チーム）+ 各 `personas/` |
-| [`output/`](output/) | 組織別成果物（Handoff、要件、レビュー JSON 等） |
+| [`output/`](output/) | 実行時ワークスペース（**git 管理外**・フォルダテンプレのみ） |
+| [`work/`](work/) | PM assign plan 等の実行時作業領域 |
 | [`workflows/`](workflows/) | 宣言的 workflow |
 | [`docs/`](docs/) | 設計・E2E・検証（契約文書） |
 

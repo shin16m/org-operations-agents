@@ -82,8 +82,9 @@ python tools/validate_org_registry.py
 
 | # | ファイル |
 |---|----------|
-| F1 | [`output/development/requirements/agent-composition-requirements.md`](../../output/development/requirements/agent-composition-requirements.md) |
-| F2 | [`output/development/specs/agent-composition-spec.md`](../../output/development/specs/agent-composition-spec.md) |
+| F1 | [`team-conventions.md`](team-conventions.md) — 四チーム比較・I/O 索引 |
+| F2 | [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml) — 全 slug 登録 |
+| F3 | [`docs/inventory/skills-inventory.md`](../inventory/skills-inventory.md) — スキル棚卸し |
 
 ---
 

@@ -7,6 +7,7 @@
 | 組織全体 | [`department-model.md`](department-model.md) | チーム vs 統括グループ、チーム間 I/O 原則 |
 | チーム間共通 | [`dept-work-io.md`](dept-work-io.md) | `DispatchRequest` / `DeptWorkComplete` / Asana 署名 / レビュー Result |
 | レビュー NG | [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md) | PM へ提出 · OK 進行 · NG は修正サブ追加（`--undo` 禁止） |
+| 成果物ポリシー | [`artifact-policy.md`](artifact-policy.md) | テンプレ vs `output/` 実行時 |
 | チーム別 | `*-delivery-io.md` | チーム内 workflow・成果物・ゲート・禁止事項 |
 | workflow 定義 | `workflows/*-delivery.yaml` | 段階・agent・gate（機械可読） |
 | 登録 | [`workflows/organizations.yaml`](../../workflows/organizations.yaml) | id → workflow / PM / 成果物ルート |

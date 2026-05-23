@@ -94,9 +94,9 @@ python tools/run_all_teams_dryrun.py --parent 1215081453840132 --skip-bootstrap 
 
 | 種別 | パス |
 |------|------|
-| bootstrap Handoff | `output/planning/handoff/bootstrap.all-teams-dryrun.json` |
-| 本番 Handoff | `output/planning/handoff/handoff.all-teams-dryrun.json` |
-| PlanReview | `output/planning/plan-review/plan-review.all-teams-dryrun.json` |
+| bootstrap Handoff | `docs/verification/fixtures/planning/handoff/bootstrap.all-teams-dryrun.json` |
+| 本番 Handoff | `docs/verification/fixtures/planning/handoff/handoff.all-teams-dryrun.json` |
+| PlanReview | `docs/verification/fixtures/planning/plan-review/plan-review.all-teams-dryrun.json` |
 | UX stub | `output/dryrun/ux/` |
 | 実行スクリプト | `tools/run_all_teams_dryrun.py` |
 | assign plan（分析） | `skills/analysis/examples/assign-plan.dryrun-v1.json` |

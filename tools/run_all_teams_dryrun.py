@@ -243,7 +243,7 @@ def bootstrap_epic() -> str:
             str(PY),
             str(ASANA / "handoff_to_asana.py"),
             "--handoff",
-            "output/planning/handoff/bootstrap.all-teams-dryrun.json",
+            "docs/verification/fixtures/planning/handoff/bootstrap.all-teams-dryrun.json",
             "-y",
         ]
     )
@@ -260,9 +260,9 @@ def sync_handoff(parent_gid: str) -> None:
             str(PY),
             str(ASANA / "handoff_to_asana.py"),
             "--handoff",
-            "output/planning/handoff/handoff.all-teams-dryrun.json",
+            "docs/verification/fixtures/planning/handoff/handoff.all-teams-dryrun.json",
             "--require-review-result",
-            "output/planning/plan-review/plan-review.all-teams-dryrun.json",
+            "docs/verification/fixtures/planning/plan-review/plan-review.all-teams-dryrun.json",
             "--parent",
             parent_gid,
             "-y",
@@ -364,7 +364,7 @@ def write_report(
             "## 関連",
             "",
             "- [`run_all_teams_dryrun.py`](../../tools/run_all_teams_dryrun.py)",
-            "- [`handoff.all-teams-dryrun.json`](../../output/planning/handoff/handoff.all-teams-dryrun.json)",
+            "- [`handoff.all-teams-dryrun.json`](../../docs/verification/fixtures/planning/handoff/handoff.all-teams-dryrun.json)",
             "",
         ]
     )

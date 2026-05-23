@@ -14,7 +14,7 @@
       "department": "planning",
       "background": "bootstrap 企画子に対応。企画チームミッションは Handoff を Asana タスク群に落とし込むこと。",
       "summary": "issue-story-planner が本 Handoff を出力し、plan-reviewer が PlanReviewResult を返す。planning-pm gate 承認後に handoff_to_asana を実行する。",
-      "done_when": "`output/planning/handoff/handoff.planning-dept-v3-dryrun.json` と `plan-review.planning-dept-v3-dryrun.json` が存在し、Asana 可なら execution 系子が親下に作成されている。"
+      "done_when": "`docs/verification/fixtures/planning/handoff/handoff.planning-dept-v3-dryrun.json` と `plan-review.planning-dept-v3-dryrun.json` が存在し、Asana 可なら execution 系子が親下に作成されている。"
     },
     {
       "title": "【2/2・検証】v3 ドライラン記録の作成",

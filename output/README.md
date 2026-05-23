@@ -1,20 +1,20 @@
-# output — 組織別成果物
+# output — 実行時ワークスペース（git 管理外）
 
-エージェントの**出力**（Handoff、plan-review、要件書、レビュー JSON 等）を組織ごとに置く。スキル定義は [`skills/`](../skills/)、設計契約は [`docs/design/`](../docs/design/) に残す。
+各チーム PM / ワーカーの**成果物**を実行時に書き出すローカル領域。本リポジトリは **組織テンプレート** のため、中身は原則 **コミットしない**（`.gitignore`）。
 
 | フォルダ | 用途 |
 |----------|------|
-| [`planning/`](planning/) | 企画チーム Handoff（`handoff/`）、PlanReviewResult（`plan-review/`） |
-| [`development/`](development/) | 要件（`requirements/`）、仕様（`specs/`）、チーム内レビュー（`reviews/`） |
-| [`analysis/`](analysis/) | 分析要件・データモデル・カタログ・インサイト・モデル・リリース・レビュー |
-| [`platform/`](platform/) | 統括グループ（基盤整備など）の Handoff / plan-review |
+| [`planning/`](planning/) | Handoff（`handoff/`）、PlanReviewResult（`plan-review/`） |
+| [`development/`](development/) | 要件・設計・仕様・アプリ・レビュー JSON |
+| [`analysis/`](analysis/) | データ・モデル・カタログ・レビュー |
+| [`ux/`](ux/) | UX 仕様・Design System・レビュー |
+| [`platform/`](platform/) | 統括グループの Handoff / plan-review |
+| [`dryrun/`](dryrun/) | dryrun 用スタブ（`run_all_teams_dryrun.py` 等） |
 
-## パス例（スキルから参照）
+**パス convention** は [`workflows/organizations.yaml`](../workflows/organizations.yaml) の `output_root` と各 `*-delivery-io.md` を参照。
 
-| 組織 | 例 |
-|------|-----|
-| 開発チーム | `output/development/requirements/<task_gid>.md` |
-| 分析チーム | `output/analysis/data-model/<task_gid>.md` |
-| 企画 | `output/planning/handoff.<theme>.json` |
+**git 管理する fixture:** [`docs/verification/fixtures/`](../docs/verification/fixtures/)（dryrun 用 Handoff JSON）
 
-旧 `work/` は本レイアウトに統合した。セッション用の glob は各組織の `handoff/` / `plan-review/` を指す。
+**PM assign plan:** [`work/assign-plans/`](../work/assign-plans/)（フォルダのみテンプレ）
+
+参照: [`docs/design/artifact-policy.md`](../docs/design/artifact-policy.md)

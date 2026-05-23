@@ -1,4 +1,4 @@
-# スキル棚卸し（agent-create-supporter）
+# スキル棚卸し（org-operations-agents）
 
 更新: 企画チーム L3 化（planning-pm ハブ + planning-delivery）後。
 
