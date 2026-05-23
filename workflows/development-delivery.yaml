@@ -25,7 +25,7 @@ policy:
 steps:
   - id: pm_intake
     agent: product-manager
-    role: notes（profile 含む）を読み、delivery profile を決めて委譲開始。full-ui は ## 依存（UX）を確認
+    role: notes（profile 含む）を読み、delivery profile を決め、フェーズをサブタスク分解して委譲開始。full-ui は ## 依存（UX）を確認
 
   - id: requirements_doc
     agent: requirements-writer

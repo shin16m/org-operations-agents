@@ -1,8 +1,15 @@
 # qa-verifier SKILL
 
-**独立スキル:** PM / developer から委譲された **動作検証**（QA）。
+**独立スキル:** product-manager から **サブタスク**として委譲された **動作検証**（QA）。
+
+PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
 
 コードレビューは **dev-reviewer** が担当。本スキルは実行・受け入れテストに専念する。
+
+## 着手前（必須）
+
+1. `fetch_task.py --gid <task_gid> --show-assignee` で **担当が qa-verifier** であることを確認する。
+2. 一致しない場合は作業せず product-manager へエスカレーション。
 
 ## 責務
 

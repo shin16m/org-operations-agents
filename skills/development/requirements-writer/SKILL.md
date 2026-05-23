@@ -1,6 +1,13 @@
 # requirements-writer SKILL
 
-**独立スキル:** PM から委譲された **文書作成**（要件定義・事後詳細仕様）。
+**独立スキル:** product-manager から **サブタスク**として委譲された **文書作成**（要件定義・事後詳細仕様）。
+
+PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
+
+## 着手前（必須）
+
+1. `fetch_task.py --gid <task_gid> --show-assignee` で **担当が requirements-writer** であることを確認する。
+2. 一致しない場合は作業せず product-manager へエスカレーション。
 
 ## モード
 

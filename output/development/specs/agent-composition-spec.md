@@ -140,11 +140,12 @@
 | entry | development-delivery の `policy.entry_agent` |
 | 入力 | 子 task_gid、親文脈（任意）、DispatchRequest 経由、notes の **profile** |
 | 出力 | DeptWorkComplete v1.0 |
-| 完了操作 | `comment_task.py` → `complete_task.py --gid <child> -y` |
+| アサイン | workflow フェーズを **Asana サブタスク**に分解。`pm_assign_subtasks.py --department development` |
+| 完了操作 | 全サブ完了後 `comment_task.py` → `complete_task.py --gid <child> -y` |
 
 委譲: [`docs/design/development-pm-assignment.md`](../../docs/design/development-pm-assignment.md)
 
-#### 委譲ロール（v2）
+#### 委譲ロール（v3）
 
 | slug | slot | 主成果物 / review_kind |
 |------|------|------------------------|

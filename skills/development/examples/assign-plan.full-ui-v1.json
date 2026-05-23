@@ -1,0 +1,96 @@
+{
+  "parent_title": "【3/4・開発】Web アプリ API + 画面",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【3/4-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "full-ui Epic。UX 子完了済み。notes ## 依存 の UX 仕様を読み取り専用で参照。",
+      "summary": "mode=requirements。`output/development/requirements/<parent_gid>-requirements.md` に要件定義書を作成。",
+      "done_when": "要件定義書が保存され、full-ui 画面要件が UX 仕様と整合している。"
+    },
+    {
+      "name": "【3/4-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を `output/development/reviews/<parent_gid>-requirements-review.json` に出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4-3・開発】技術設計（tech-designer）",
+      "assignee": "tech-designer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件 + UX ## 依存 を引用。",
+      "summary": "`output/development/design/<parent_gid>-design.md` に API・FE 構成・UX 画面対応表を記載。",
+      "done_when": "設計書が保存され、主要画面が UX 仕様 ID と対応付けされている。"
+    },
+    {
+      "name": "【3/4-4・開発】設計 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "design ゲート。",
+      "summary": "review_kind: design。DocReviewResult（design）を reviews 配下に出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4-5・開発】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件・設計に従う。",
+      "summary": "設計書に沿って実装。完了後 dev-reviewer へ code review 依頼。",
+      "done_when": "実装が完了し、code review 依頼可能な状態である。"
+    },
+    {
+      "name": "【3/4-6・開発】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "code ゲート。",
+      "summary": "review_kind: code。CodeReviewResult を reviews 配下に出力。",
+      "done_when": "CodeReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4-7・開発】UX 実装一致 review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "full-ui 専用。UX ## 依存 の仕様と実装 UI の一致確認。",
+      "summary": "review_kind: ux_implementation。UxReviewResult を `output/ux/reviews/` または development reviews に出力。",
+      "done_when": "UxReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4-8・開発】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "実装者と独立した QA。",
+      "summary": "review_kind: verification。VerificationResult を reviews 配下に出力。",
+      "done_when": "VerificationResult status が passed。"
+    },
+    {
+      "name": "【3/4-9・開発】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "実装・検証後の as-built 文書化。",
+      "summary": "mode=as-built-spec。`output/development/specs/<parent_gid>-spec.md` を作成。",
+      "done_when": "事後詳細仕様書が保存されている。"
+    },
+    {
+      "name": "【3/4-10・開発】mismatch review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "要件 vs 事後仕様の整合ゲート。",
+      "summary": "review_kind: mismatch。MismatchReviewResult を reviews 配下に出力。",
+      "done_when": "MismatchReviewResult が passed または fix_target 処理済。"
+    }
+  ]
+}

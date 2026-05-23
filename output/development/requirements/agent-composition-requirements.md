@@ -110,9 +110,10 @@
 | FR-L3-07 | PM は **requirements-writer**（mode=as-built-spec）に事後詳細仕様書作成を依頼する | 必須 |
 | FR-L3-08 | **dev-reviewer** は要件定義書と事後詳細仕様の**整合レビュー**を行う | 必須 |
 | FR-L3-09 | 不整合が文書側なら requirements-writer が修正、コード側なら PM → developer 修正ループ | 必須 |
-| FR-L3-10 | PM は委譲前に notes ヘッダに `担当:` を書く | 推奨 |
+| FR-L3-10 | product-manager は workflow フェーズを **サブタスク化**し各 notes に `担当:` アサインする（親 notes への単一委譲禁止）。`pm_assign_subtasks.py --department development` 可 | 必須 |
 | FR-L3-11 | 完了時 PM は `DeptWorkComplete` を orchestrator へ報告し、子タスクを完了マークできる | 必須 |
 | FR-L3-12 | `profile=full-ui` 時、PM は UX artifact を notes `## 依存` に転記し、**ux-reviewer**（`ux_implementation`）サブタスクで実装一致 review を経る | 必須 |
+| FR-L3-13 | 委譲先ワーカーは着手前に `fetch_task --show-assignee` で `担当:` と自分の slug が一致することを確認する | 必須 |
 
 委譲詳細: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
 

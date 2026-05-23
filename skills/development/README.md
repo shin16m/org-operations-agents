@@ -4,7 +4,7 @@
 
 | slug | 役割 |
 |------|------|
-| product-manager | 進行・profile・委譲・完了 |
+| product-manager | 進行・profile・**サブタスク分解**・委譲・完了 |
 | requirements-writer | 要件定義・事後詳細仕様 |
 | tech-designer | 技術設計（実装前） |
 | developer | 実装 |

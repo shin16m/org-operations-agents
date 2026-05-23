@@ -1,0 +1,69 @@
+{
+  "parent_title": "【3/4・開発】API バグ修正（lite）",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【3/4-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "非 UI 小変更。設計フェーズ skip。",
+      "summary": "mode=requirements。`output/development/requirements/<parent_gid>-requirements.md` に変更範囲を記載。",
+      "done_when": "要件定義書が保存され、変更スコープが明確である。"
+    },
+    {
+      "name": "【3/4-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4-3・開発】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件に従う。",
+      "summary": "バグ修正を実装。",
+      "done_when": "実装が完了し、code review 依頼可能な状態である。"
+    },
+    {
+      "name": "【3/4-4・開発】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "code ゲート。",
+      "summary": "review_kind: code。CodeReviewResult を出力。",
+      "done_when": "CodeReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4-5・開発】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "実装者と独立した QA。",
+      "summary": "review_kind: verification。VerificationResult を出力。",
+      "done_when": "VerificationResult status が passed。"
+    },
+    {
+      "name": "【3/4-6・開発】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "as-built 文書化。",
+      "summary": "mode=as-built-spec。`output/development/specs/<parent_gid>-spec.md` を作成。",
+      "done_when": "事後詳細仕様書が保存されている。"
+    },
+    {
+      "name": "【3/4-7・開発】mismatch review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "要件 vs 事後仕様の整合ゲート。",
+      "summary": "review_kind: mismatch。MismatchReviewResult を出力。",
+      "done_when": "MismatchReviewResult が passed または fix_target 処理済。"
+    }
+  ]
+}

@@ -1,12 +1,17 @@
 # developer SKILL
 
-**独立スキル:** PM から委譲された **実装・修正**。
+**独立スキル:** product-manager から **サブタスク**として委譲された **実装・修正**。
 
-workflow: [`development-delivery.yaml`](../../../workflows/development-delivery.yaml) v2
+workflow: [`development-delivery.yaml`](../../../workflows/development-delivery.yaml) v3 · PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
+
+## 着手前（必須）
+
+1. `fetch_task.py --gid <task_gid> --show-assignee` で **担当が developer** であることを確認する。
+2. 一致しない場合は作業せず product-manager へエスカレーション。
 
 ## 責務
 
-1. 要件定義書・技術設計書（あれば）を読み実装する
+1. サブタスク notes と承認済み要件定義書・技術設計書（あれば）を読み実装する
 2. 完了後 **dev-reviewer**（`review_kind: code`）へレビュー依頼
 3. code review OK → **qa-verifier** へ動作検証依頼（developer は verification を自分で行わない）
 4. 検証 OK → **product-manager** へ開発完了報告

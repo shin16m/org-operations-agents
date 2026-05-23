@@ -1,8 +1,15 @@
 # dev-reviewer SKILL
 
-**独立スキル:** PM / requirements-writer / tech-designer / developer から委譲された **静的レビュー**（文書・コード・整合）。
+**独立スキル:** product-manager から **サブタスク**として委譲された **静的レビュー**（文書・コード・整合）。
+
+PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
 
 **動作検証は qa-verifier が担当**（本スキルでは行わない）。
+
+## 着手前（必須）
+
+1. `fetch_task.py --gid <task_gid> --show-assignee` で **担当が dev-reviewer** であることを確認する。
+2. 一致しない場合は作業せず product-manager へエスカレーション。
 
 ## review_kind
 

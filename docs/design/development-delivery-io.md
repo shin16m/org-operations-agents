@@ -56,8 +56,8 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 ## チーム内 workflow（v3）
 
 ```
-product-manager（intake・profile）
-  → requirements-writer（要件）
+product-manager（intake・profile・サブタスク分解）
+  → requirements-writer（要件）              ← 各フェーズは Asana サブタスク
   → dev-reviewer（requirements）
   → tech-designer（設計）          ← lite/doc-only で skip
   → dev-reviewer（design）
@@ -105,8 +105,9 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 | ルール | 内容 |
 |--------|------|
 | 入力源 | 子 notes のみ |
+| PM アサイン | **フェーズをサブタスク分解**し各 notes に `担当:`（[`development-pm-assignment.md`](development-pm-assignment.md)） |
 | 成果物命名 | `<task_gid>` をファイル名に含める |
-| Asana | 委譲ロール `comment_task` → PM `complete_task` |
+| Asana | 委譲ロール `comment_task` → PM がサブ `complete_task` → 全サブ完了後に親 complete |
 | 検証独立性 | 動作検証は **qa-verifier のみ** |
 | UX consume | full-ui は UX artifact を read-only。変更は UX チーム子タスクで |
 | tech-designer | full-ui 時は UX 仕様を設計書に引用 |

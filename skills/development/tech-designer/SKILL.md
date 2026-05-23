@@ -1,6 +1,13 @@
 # tech-designer SKILL
 
-**独立スキル:** PM から委譲された **技術設計**（実装前）。
+**独立スキル:** product-manager から **サブタスク**として委譲された **技術設計**（実装前）。
+
+PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
+
+## 着手前（必須）
+
+1. `fetch_task.py --gid <task_gid> --show-assignee` で **担当が tech-designer** であることを確認する。
+2. 一致しない場合は作業せず product-manager へエスカレーション。
 
 ## 責務
 

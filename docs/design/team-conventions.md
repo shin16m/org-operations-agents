@@ -99,10 +99,11 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 | 区分 | 取り決め |
 |------|----------|
 | 入力 | 子 notes（`profile:` / `担当:` / `## 依存`） |
+| PM 必須 | **workflow フェーズをサブタスク化**しメンバーへ `担当:` アサイン（[`development-pm-assignment.md`](development-pm-assignment.md)） |
 | チーム内フロー | 要件 → 設計 → 実装 → dev-reviewer → **ux-reviewer（full-ui）** → qa-verifier → 事後仕様 |
 | profile | `full` / **`full-ui`** / `lite`（非 UI のみ）/ `doc-only` |
 | 必須ゲート | 要件 / 設計 / code / **ux_implementation（full-ui）** / verification / mismatch |
-| PM 委譲 | [`development-pm-assignment.md`](development-pm-assignment.md) |
+| PM 委譲 | notes に `担当:`。nested サブタスク + `pm_assign_subtasks.py`（`--department development`） |
 | やらないこと | 体験設計の主作成、Handoff 作成、dispatch |
 
 → 詳細: [`development-delivery-io.md`](development-delivery-io.md)
