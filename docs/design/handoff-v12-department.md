@@ -16,6 +16,7 @@
 | `planning` | 企画チーム | `planning-delivery`（bootstrap 企画子・企画専用子） |
 | `development` | 開発チーム | `development-delivery` |
 | `analysis` | 分析チーム | `analysis-delivery` |
+| `ux` | UX チーム | `ux-delivery` |
 
 ## pillar → department（v1.2 未設定時）
 

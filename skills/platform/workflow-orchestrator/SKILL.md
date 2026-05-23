@@ -41,7 +41,7 @@
 企画チームから `DeptWorkComplete` を受け取ったら:
 
 1. `fetch_task.py --gid <parent> --list-subtasks` で未完了子を列挙
-2. `department=planning` 以外の子を **1 件ずつ** dispatch（development / analysis）
+2. `department=planning` 以外の子を **1 件ずつ** dispatch（**ux** → development / analysis。Web Epic は UX 先行）
 3. 各子完了（`DeptWorkComplete`）のたびに 1 に戻る
 4. **すべての子**が `completed` になったら利用者へエピック完了報告
 

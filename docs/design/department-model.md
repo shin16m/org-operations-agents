@@ -70,6 +70,17 @@
 | 他チーム成果物の **編集・上書き** | | × |
 | 他チーム workflow 内コード（パイプライン等）の **直接変更** | | ×（変更は該当チームの子タスクで） |
 
+### 典型フロー（UX → 開発）
+
+```
+UX チーム完了
+  → DeptWorkComplete（artifacts[] に UX 仕様・Design System）
+  → product-manager が development 子 notes に ## 依存 を追記
+  → development dispatch（profile: full-ui）
+  → tech-designer / developer が UX artifact を read-only consume
+  → ux-reviewer（ux_implementation）→ qa-verifier
+```
+
 ### 典型フロー（分析 → 開発）
 
 ```
@@ -129,6 +140,7 @@
 | `planning` | 企画チーム | `planning-delivery` | planning-pm | [`planning-delivery-io.md`](planning-delivery-io.md) |
 | `development` | 開発チーム | `development-delivery` | product-manager | [`development-delivery-io.md`](development-delivery-io.md) |
 | `analysis` | 分析チーム | `analysis-delivery` | analytics-pm | [`analysis-delivery-io.md`](analysis-delivery-io.md) |
+| `ux` | UX チーム | `ux-delivery` | ux-pm | [`ux-delivery-io.md`](ux-delivery-io.md) |
 
 チーム間共通契約: [`dept-work-io.md`](dept-work-io.md)（`DispatchRequest` / `DeptWorkComplete`）
 

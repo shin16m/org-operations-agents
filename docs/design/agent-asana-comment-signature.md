@@ -68,7 +68,8 @@ executed_at: 2026-05-18T14:30:00+09:00
 
 | ロール | タイミング | phase |
 |--------|------------|-------|
-| doc-writer / developer / reviewer | 委譲作業完了・PM/reviewer へ提出前 | `complete` |
+| ux-designer / ux-reviewer | 委譲作業完了・PM へ提出前 | `complete` |
+| requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier | 委譲作業完了・PM へ提出前 | `complete` |
 | product-manager | 子タスクを Asana 完了にする直前 | `complete` |
 | plan-reviewer | Handoff レビュー結果を返す前（対象タスクがある場合） | `complete` |
 | workflow-orchestrator | gate 判定・エピック完了報告前（親/子に記録する場合） | `complete` |

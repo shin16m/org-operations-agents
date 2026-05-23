@@ -1,8 +1,7 @@
-# Development department workflow v2 — one instance per Asana subtask.
-# PM hub; optional design phase; dev-reviewer vs qa-verifier split.
+# Development department workflow v3 — full-ui profile + UX implementation gate.
 id: development-delivery
-version: "2"
-description: PM-led delivery (requirements → design → dev → review/QA → as-built spec)
+version: "3"
+description: PM-led delivery (requirements → design → dev → review/UX/QA → as-built spec)
 
 policy:
   scope: single_subtask
@@ -12,18 +11,21 @@ policy:
   assignment_doc: docs/design/development-pm-assignment.md
   delivery_profiles:
     full:
-      description: 要件 → 設計 → 実装 → レビュー/QA → 事後仕様
+      description: 要件 → 技術設計 → 実装 → レビュー/QA → 事後仕様（API / 非 UI）
+    full-ui:
+      description: full + UX 依存必須 + ux_implementation review（Web 画面）
+      requires_dependency: ux
     lite:
-      description: 設計 skip（小変更・バグ修正）
+      description: 設計 skip（非 UI の小変更・バグ修正のみ）
       skip_steps: [design_doc, design_review]
     doc-only:
       description: 文書のみ（実装 skip）
-      skip_steps: [design_doc, design_review, development, code_review, verification]
+      skip_steps: [design_doc, design_review, development, code_review, ux_implementation_review, verification]
 
 steps:
   - id: pm_intake
     agent: product-manager
-    role: notes（profile 含む）を読み、delivery profile を決めて委譲開始
+    role: notes（profile 含む）を読み、delivery profile を決めて委譲開始。full-ui は ## 依存（UX）を確認
 
   - id: requirements_doc
     agent: requirements-writer
@@ -38,7 +40,7 @@ steps:
 
   - id: design_doc
     agent: tech-designer
-    role: 技術設計書作成（実装前）
+    role: 技術設計書作成（full-ui は UX 仕様を引用）
     artifact: design-doc
     skip_when_profile: [lite, doc-only]
 
@@ -66,6 +68,13 @@ steps:
     review_kind: code
     gate_after: code_review_passed
     skip_when_profile: [doc-only]
+
+  - id: ux_implementation_review
+    agent: ux-reviewer
+    role: 実装 UI が UX 仕様と一致するかレビュー
+    review_kind: ux_implementation
+    gate_after: ux_implementation_review_passed
+    only_when_profile: [full-ui]
 
   - id: verification
     agent: qa-verifier
@@ -100,6 +109,8 @@ gates:
     description: DocReviewResult status passed*（design）。lite/doc-only は skip
   code_review_passed:
     description: CodeReviewResult status passed*
+  ux_implementation_review_passed:
+    description: UxReviewResult status passed*（ux_implementation）。full-ui のみ
   verification_passed:
     description: VerificationResult status passed
   mismatch_resolved:
@@ -115,3 +126,8 @@ branches:
     when: fix_target == code
     to: pm_handoff_dev
     note: PM が developer へ修正依頼
+  ux_fix_implementation:
+    from: ux_implementation_review
+    when: fix_target == implementation
+    to: development
+    note: PM が developer へ UX 一致修正依頼

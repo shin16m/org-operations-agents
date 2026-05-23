@@ -5,9 +5,10 @@
 企画 Handoff の各 `subtasks[]` について:
 
 1. **実行系**（実装・検証・整備でリポジトリ変更する子）には `department` を付与する。
-2. 推奨値: `development`（開発チーム）| `analysis`（分析・調査）| `planning`（追加の企画・設計子）。
+2. 推奨値: `development` | `analysis` | **`ux`（Web 画面・Design System）** | `planning`（追加企画子）。
 3. bootstrap 企画子（intake 時の最初の 1 件）は orchestrator が `department: planning` で作成済み。
-4. 同一エピック内で planning / development / analysis が混在してよい。
+4. 同一エピック内で planning / ux / development / analysis が混在してよい。
+5. **Web アプリ Epic:** UI 系 `development` 子より **`department: ux` 子を先**に Handoff へ並べる。
 
 ## workflow-orchestrator — フロー
 

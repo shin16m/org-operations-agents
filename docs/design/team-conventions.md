@@ -12,16 +12,16 @@
 
 ---
 
-## 三チーム比較
+## 四チーム比較
 
-| 項目 | 企画チーム | 開発チーム | 分析チーム |
-|------|------------|------------|------------|
-| id | `planning` | `development` | `analysis` |
-| PM ハブ | planning-pm | product-manager | analytics-pm |
-| ミッション | Handoff → review → gate → **Asana タスク化**（他チームの入力源） | 要件 → 設計 → 実装 → レビュー/QA → **事後仕様** | 要求 → データ → パイプライン → モデル → **本番ゲート** → 価値検証 |
-| workflow | [`planning-delivery`](../../workflows/planning-delivery.yaml) | [`development-delivery`](../../workflows/development-delivery.yaml) | [`analysis-delivery`](../../workflows/analysis-delivery.yaml) |
-| 詳細 I/O | [`planning-delivery-io.md`](planning-delivery-io.md) | [`development-delivery-io.md`](development-delivery-io.md) | [`analysis-delivery-io.md`](analysis-delivery-io.md) |
-| 成果物ルート | `output/planning/` | `output/development/` | `output/analysis/`（実体は別リポジトリ想定） |
+| 項目 | 企画チーム | UX チーム | 開発チーム | 分析チーム |
+|------|------------|-----------|------------|------------|
+| id | `planning` | `ux` | `development` | `analysis` |
+| PM ハブ | planning-pm | ux-pm | product-manager | analytics-pm |
+| ミッション | Handoff → review → gate → **Asana タスク化** | 体験設計 → Design System → **artifact 公開** | 要件 → 設計 → 実装 → レビュー/QA → **事後仕様** | 要求 → データ → モデル → **本番ゲート** |
+| workflow | [`planning-delivery`](../../workflows/planning-delivery.yaml) | [`ux-delivery`](../../workflows/ux-delivery.yaml) | [`development-delivery`](../../workflows/development-delivery.yaml) v3 | [`analysis-delivery`](../../workflows/analysis-delivery.yaml) |
+| 詳細 I/O | [`planning-delivery-io.md`](planning-delivery-io.md) | [`ux-delivery-io.md`](ux-delivery-io.md) | [`development-delivery-io.md`](development-delivery-io.md) | [`analysis-delivery-io.md`](analysis-delivery-io.md) |
+| 成果物ルート | `output/planning/` | `output/ux/` | `output/development/` | `output/analysis/` |
 
 ### チーム間 I/O（全チーム共通）
 
@@ -39,8 +39,9 @@
 ### Asana notes ヘッダ（推奨）
 
 ```markdown
-チーム: development   # planning | development | analysis
-担当: developer       # 任意（分析チーム PM 委譲時は必須 — 下記）
+チーム: development   # planning | ux | development | analysis
+profile: full-ui     # 開発のみ（full-ui / full / lite / doc-only）
+担当: developer
 状態: assigned        # assigned | in_progress | review | done
 ```
 
@@ -48,13 +49,15 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 
 ### 成果物共有（チーム横断・読み取り専用）
 
-分析モデル・データ等を開発が利用する場合: 上流 `DeptWorkComplete.artifacts[]` → notes の `## 依存（読み取り専用）` → 下流が consume。詳細: [`department-model.md`](department-model.md#成果物共有読み取り専用)。
+分析モデル・UX 仕様等を下流が利用する場合: 上流 `DeptWorkComplete.artifacts[]` → notes の `## 依存（読み取り専用）` → 下流が consume。
+
+**Web アプリ Epic（推奨順）:** planning → **ux**（blocking）→ development（`full-ui`）／ analysis（任意）
 
 ---
 
 ## 企画チーム
 
-**他チームへの公式出力:** Asana 親エピック + execution 系子タスク（各 notes に `チーム: development|analysis`）。
+**他チームへの公式出力:** Asana 親エピック + execution 系子タスク（各 notes に `チーム: ux|development|analysis`）。
 
 | 区分 | 取り決め |
 |------|----------|
@@ -70,18 +73,35 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 
 ---
 
-## 開発チーム
+## UX チーム
 
-**単位:** 子タスク 1 件 = `development-delivery` 1 インスタンス。
+**単位:** 子タスク 1 件 = `ux-delivery` 1 インスタンス。**Web アプリ Epic では UI 系 development 子より先に完了。**
 
 | 区分 | 取り決め |
 |------|----------|
-| 入力 | 子 notes（`profile:` / `担当:` 可） |
-| チーム内フロー | 要件 → 設計（skip可）→ 実装 → dev-reviewer → qa-verifier → 事後仕様 → mismatch |
-| profile | `full` / `lite` / `doc-only` |
-| 必須ゲート | 要件 / 設計 / code / verification / mismatch |
+| 入力 | 子 notes、任意の `## 依存`（分析データ契約等） |
+| チーム内フロー | 体験設計 → ux-reviewer（ux_spec）→ artifact 公開 |
+| 必須ゲート | `ux_review_passed` |
+| 下流 | development `profile: full-ui` が `## 依存` で consume |
+| 横断 review | ux-reviewer（`ux_implementation`）— development PM から委譲 |
+| やらないこと | 実装、Handoff 作成、dispatch |
+
+→ 詳細: [`ux-delivery-io.md`](ux-delivery-io.md) · PM 委譲: [`ux-pm-assignment.md`](ux-pm-assignment.md)
+
+---
+
+## 開発チーム
+
+**単位:** 子タスク 1 件 = `development-delivery` v3 1 インスタンス。
+
+| 区分 | 取り決め |
+|------|----------|
+| 入力 | 子 notes（`profile:` / `担当:` / `## 依存`） |
+| チーム内フロー | 要件 → 設計 → 実装 → dev-reviewer → **ux-reviewer（full-ui）** → qa-verifier → 事後仕様 |
+| profile | `full` / **`full-ui`** / `lite`（非 UI のみ）/ `doc-only` |
+| 必須ゲート | 要件 / 設計 / code / **ux_implementation（full-ui）** / verification / mismatch |
 | PM 委譲 | [`development-pm-assignment.md`](development-pm-assignment.md) |
-| やらないこと | Handoff 作成、dispatch |
+| やらないこと | 体験設計の主作成、Handoff 作成、dispatch |
 
 → 詳細: [`development-delivery-io.md`](development-delivery-io.md)
 
@@ -136,4 +156,4 @@ dispatch 対象外。チーム内 delivery は持たない。
 
 - 配賦モデル: [`org-dispatch-model.md`](org-dispatch-model.md)
 - E2E: [`default-workflow.md`](../e2e/default-workflow.md) · [`dispatch-workflow.md`](../e2e/dispatch-workflow.md)
-- 検証: [`planning-dept-v3-dryrun.md`](../verification/planning-dept-v3-dryrun.md)
+- 検証: [`planning-dept-v3-dryrun.md`](../verification/planning-dept-v3-dryrun.md) · [`ux-delivery-v1-dryrun.md`](../verification/ux-delivery-v1-dryrun.md)

@@ -28,7 +28,9 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**集。宣
 | [`task-executor`](skills/platform/task-executor/SKILL.md) | Asana サブタスク実行（work・**過渡期**） |
 | [`task-dispatcher`](skills/platform/task-dispatcher/SKILL.md) | 子タスクをチームへ配賦（dispatch） |
 | [`product-manager`](skills/development/product-manager/SKILL.md) | 開発チーム PM（子 1 件のハブ） |
-| [`doc-writer`](skills/development/doc-writer/SKILL.md) / [`developer`](skills/development/developer/SKILL.md) / [`reviewer`](skills/development/reviewer/SKILL.md) | 開発チームの委譲ロール |
+| [`ux-pm`](skills/ux/ux-pm/SKILL.md) | UX チーム PM |
+| [`ux-designer`](skills/ux/ux-designer/SKILL.md) / [`ux-reviewer`](skills/ux/ux-reviewer/SKILL.md) | UX チーム委譲ロール |
+| [`requirements-writer`](skills/development/requirements-writer/SKILL.md) / [`tech-designer`](skills/development/tech-designer/SKILL.md) / [`developer`](skills/development/developer/SKILL.md) / [`dev-reviewer`](skills/development/dev-reviewer/SKILL.md) / [`qa-verifier`](skills/development/qa-verifier/SKILL.md) | 開発チーム委譲ロール（v2） |
 | [`analytics-pm`](skills/analysis/analytics-pm/SKILL.md) | 分析チーム PM（子 1 件のハブ） |
 | [`data-architect`](skills/analysis/data-architect/SKILL.md) / [`data-engineer`](skills/analysis/data-engineer/SKILL.md) / [`data-steward`](skills/analysis/data-steward/SKILL.md) / [`data-analyst`](skills/analysis/data-analyst/SKILL.md) / [`data-scientist`](skills/analysis/data-scientist/SKILL.md) / [`ml-engineer`](skills/analysis/ml-engineer/SKILL.md) / [`analysis-reviewer`](skills/analysis/analysis-reviewer/SKILL.md) | 分析チームの委譲ロール |
 
@@ -89,12 +91,14 @@ ASANA_PROJECT_ID=...
 
 ```
 dispatch → planning-pm → issue-story-planner / plan-reviewer → asana-buddy（Handoff タスク化）
-dispatch → product-manager → doc-writer / developer / reviewer
+dispatch → ux-pm → ux-designer / ux-reviewer
+dispatch → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier（full-ui 時 ux-reviewer も）
 dispatch → analytics-pm → data-architect / … / analysis-reviewer
 ```
 
 - 企画チーム: [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
-- 開発チーム: [`workflows/development-delivery.yaml`](workflows/development-delivery.yaml)
+- 開発チーム: [`workflows/development-delivery.yaml`](workflows/development-delivery.yaml) v3
+- UX チーム: [`workflows/ux-delivery.yaml`](workflows/ux-delivery.yaml)
 - 分析チーム: [`workflows/analysis-delivery.yaml`](workflows/analysis-delivery.yaml)
 
 - 推奨: [`workflows/with-dispatch.yaml`](workflows/with-dispatch.yaml) · [`docs/e2e/dispatch-workflow.md`](docs/e2e/dispatch-workflow.md)

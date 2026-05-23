@@ -1,0 +1,40 @@
+# UX department workflow v1 — one instance per Asana subtask.
+# ux-pm hub; experience design before downstream development full-ui consume.
+id: ux-delivery
+version: "1"
+description: PM-led UX delivery (experience spec → design system → review → publish artifacts)
+
+policy:
+  scope: single_subtask
+  entry_agent: ux-pm
+  parent_context: read_parent_epic_notes
+  operational_rules_doc: docs/design/ux-delivery-io.md
+  assignment_doc: docs/design/ux-pm-assignment.md
+
+steps:
+  - id: pm_intake
+    agent: ux-pm
+    role: 子 notes を読み、スコープ（Epic 全体 UX / 画面群）を確定して委譲開始
+
+  - id: ux_design
+    agent: ux-designer
+    role: 体験設計書・Design System・画面仕様を作成
+    artifact: ux-spec
+
+  - id: ux_spec_review
+    agent: ux-reviewer
+    role: 体験設計・a11y・要件充足レビュー
+    review_kind: ux_spec
+    gate_after: ux_review_passed
+
+  - id: pm_publish
+    agent: ux-pm
+    role: DeptWorkComplete（artifacts[]）・notes 用参照を確定
+
+  - id: pm_complete
+    agent: ux-pm
+    role: comment_task → complete_task -y
+
+gates:
+  ux_review_passed:
+    description: UxReviewResult status passed*（review_kind ux_spec）

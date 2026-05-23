@@ -123,7 +123,7 @@ L2 task-dispatcher（department=analysis）
 |------|-------------|----------|
 | 分析チームドキュメント・成果物 | `analytics_requirements` \| `data_model` \| `pipeline` \| `data_quality` \| `analysis_insights` \| `model_eval` | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
 | 本番デプロイゲート | `production_deploy_gate` | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
-| デプロイ検証 | `deploy_verification` | `skills/development/reviewer/schemas/verification-result.v1.schema.json` |
+| デプロイ検証 | `deploy_verification` | `skills/development/qa-verifier/schemas/verification-result.v1.schema.json` |
 
 共通: `status` は `passed` \| `passed_with_notes` \| `failed`。
 

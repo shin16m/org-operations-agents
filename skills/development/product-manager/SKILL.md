@@ -2,21 +2,23 @@
 
 **独立スキル:** 開発チームにおける **子タスク 1 件**の進行管理（L3 ハブ）。
 
-人間向け: [`README.md`](README.md) · workflow: [`workflows/development-delivery.yaml`](../../../workflows/development-delivery.yaml) v2 · I/O: [`docs/design/development-delivery-io.md`](../../../docs/design/development-delivery-io.md) · 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
+人間向け: [`README.md`](README.md) · workflow: [`workflows/development-delivery.yaml`](../../../workflows/development-delivery.yaml) v3 · I/O: [`docs/design/development-delivery-io.md`](../../../docs/design/development-delivery-io.md) · 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
 
 ## 責務
 
 1. `fetch_task.py --gid <task_gid>` で子 notes（背景・概要・完了条件・**profile**）を読む
 2. 親エピック notes を文脈として参照（任意）
 3. **delivery profile** を決定（省略時 `full`）:
-   - `full` — 要件 → 設計 → 実装 → レビュー/QA → 事後仕様
-   - `lite` — 設計 skip
+   - `full` — 要件 → 設計 → 実装 → レビュー/QA → 事後仕様（非 UI）
+   - **`full-ui`** — full + **UX 依存必須** + ux-reviewer 実装一致 review
+   - `lite` — 設計 skip（**非 UI のみ**）
    - `doc-only` — 実装 skip
 4. [`development-delivery.yaml`](../../../workflows/development-delivery.yaml) に沿い委譲:
    - **requirements-writer** — 要件 / 事後仕様（mode 指定）
-   - **tech-designer** — 技術設計（full のみ）
+   - **tech-designer** — 技術設計（full-ui は UX 仕様を引用）
    - **developer** — 実装・修正
    - **dev-reviewer** — 要件・設計・コード・mismatch レビュー
+   - **ux-reviewer** — 実装 UI 一致（`full-ui` のみ）
    - **qa-verifier** — 動作検証
 5. notes に `担当:` を追記してから委譲（[`development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)）
 6. `MismatchReviewResult.fix_target == code` 時: developer へ修正依頼
@@ -50,5 +52,5 @@
 ## 起動例
 
 ```
-product-manager: 子タスク GID ○○ を profile=lite で development-delivery v2 に従い進めてください。
+product-manager: 子タスク GID ○○ を profile=full-ui で development-delivery v3 に従い進めてください。UX 依存は notes ## 依存 を確認してください。
 ```

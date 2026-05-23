@@ -148,6 +148,34 @@ agents:
       output_schemas:
         - skills/development/qa-verifier/schemas/verification-result.v1.schema.json
 
+  - slug: ux-pm
+    slot: dept_orchestrate
+    skill_path: skills/ux/ux-pm
+    enabled: true
+    workflow_steps: []
+    io:
+      input_kind: DispatchRequest
+      output_kind: DeptWorkComplete
+      output_schema: skills/development/product-manager/schemas/dept-work-complete.v1.schema.json
+      schema_doc: docs/design/ux-delivery-io.md
+      reads:
+        - workflows/ux-delivery.yaml
+
+  - slug: ux-designer
+    slot: dept_work
+    skill_path: skills/ux/ux-designer
+    enabled: true
+    note: ux-delivery v1 — 体験設計・Design System
+
+  - slug: ux-reviewer
+    slot: dept_review
+    skill_path: skills/ux/ux-reviewer
+    enabled: true
+    note: ux_spec + development full-ui ux_implementation
+    io:
+      output_schemas:
+        - skills/ux/ux-reviewer/schemas/ux-review-result.v1.schema.json
+
   - slug: doc-writer
     slot: dept_work
     skill_path: skills/development/doc-writer
@@ -211,7 +239,7 @@ agents:
       output_schemas:
         - skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json
         - skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json
-        - skills/development/reviewer/schemas/verification-result.v1.schema.json
+        - skills/development/qa-verifier/schemas/verification-result.v1.schema.json
 
   - slug: agent-creater
     slot: meta

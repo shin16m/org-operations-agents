@@ -5,7 +5,7 @@
 | 文書種別 | 詳細仕様書（detailed-spec） |
 | 作成者ロール | product-manager |
 | 対応要件定義 | [`output/development/requirements/agent-composition-requirements.md`](../requirements/agent-composition-requirements.md) |
-| 版 | 1.2 |
+| 版 | 1.3 |
 | 日付 | 2026-05-23 |
 
 ---
@@ -42,9 +42,10 @@
     │ DispatchRequest
     ▼
 ┌──────────────────────────────────────────────────┐
-│ L3  workflows/development-delivery.yaml         │
+│ L3  workflows/development-delivery.yaml (v2)    │
 │     agents: product-manager (hub)                │
-│             doc-writer, developer, reviewer      │
+│             requirements-writer, tech-designer,  │
+│             developer, dev-reviewer, qa-verifier │
 │  — または —                                      │
 │ L3  workflows/analysis-delivery.yaml             │
 │     agents: analytics-pm (hub)                   │
@@ -63,7 +64,7 @@
 | `workflows/planning-delivery.yaml` | planning-delivery | pm_complete | 企画チーム・子 1 件 |
 | `workflows/with-dispatch.yaml` | with-dispatch | dispatch | 受付 + execution 系 dispatch |
 | `workflows/with-execution.yaml` | with-execution | work | **過渡期** — 単一 task-executor |
-| `workflows/development-delivery.yaml` | development-delivery | pm_complete | 開発チーム・子 1 件 |
+| `workflows/development-delivery.yaml` | development-delivery | pm_complete | 開発チーム・子 1 件（v2） |
 | `workflows/analysis-delivery.yaml` | analysis-delivery | pm_complete | 分析チーム・子 1 件 |
 | `workflows/organizations.yaml` | — | — | department → workflow ルーティング |
 | `workflows/agent-registry.yaml` | — | — | slug・slot・I/O 登録 |
@@ -132,17 +133,23 @@
 | 項目 | 値 |
 |------|-----|
 | entry | development-delivery の `policy.entry_agent` |
-| 入力 | 子 task_gid、親文脈（任意）、DispatchRequest 経由 |
+| 入力 | 子 task_gid、親文脈（任意）、DispatchRequest 経由、notes の **profile** |
 | 出力 | DeptWorkComplete v1.0 |
-| 完了操作 | `complete_task.py --gid <child> -y`（done_when 達成時） |
+| 完了操作 | `comment_task.py` → `complete_task.py --gid <child> -y` |
 
-#### doc-writer / developer / reviewer
+委譲: [`docs/design/development-pm-assignment.md`](../../docs/design/development-pm-assignment.md)
 
-| slug | 主成果物 | reviewer review_kind |
-|------|----------|----------------------|
-| doc-writer | requirements-doc, detailed-spec | requirements, detailed_spec, mismatch（間接） |
-| developer | code（リポジトリ変更） | code → verification |
-| reviewer | 各 ReviewResult JSON | requirements, code, verification, mismatch |
+#### 委譲ロール（v2）
+
+| slug | slot | 主成果物 / review_kind |
+|------|------|------------------------|
+| requirements-writer | dept_work | requirements-doc, detailed-spec（mode 指定） |
+| tech-designer | dept_work | design-doc |
+| developer | dept_work | code |
+| dev-reviewer | dept_review | requirements, design, code, mismatch |
+| qa-verifier | dept_review | verification |
+
+**Deprecated:** `doc-writer` / `reviewer`（registry `enabled: false`）
 
 ### 2.5 L3 — 分析チーム
 
@@ -181,28 +188,32 @@
 
 ## 3. チーム内ワークフロー詳細
 
-### 3.1 開発チーム（development-delivery）
+### 3.1 開発チーム（development-delivery v2）
 
 | order | step id | agent | gate_after | artifact |
 |-------|---------|-------|------------|----------|
 | 1 | pm_intake | product-manager | — | — |
-| 2 | requirements_doc | doc-writer | — | requirements-doc |
-| 3 | requirements_review | reviewer | requirements_review_passed | DocReviewResult |
-| 4 | pm_handoff_dev | product-manager | — | — |
-| 5 | development | developer | — | code |
-| 6 | code_review | reviewer | code_review_passed | CodeReviewResult |
-| 7 | verification | reviewer | verification_passed | VerificationResult |
-| 8 | pm_request_spec | product-manager | — | — |
-| 9 | detailed_spec | doc-writer | — | detailed-spec |
-| 10 | mismatch_review | reviewer | mismatch_resolved | MismatchReviewResult |
-| 11 | pm_complete | product-manager | — | DeptWorkComplete |
+| 2 | requirements_doc | requirements-writer | — | requirements-doc |
+| 3 | requirements_review | dev-reviewer | requirements_review_passed | DocReviewResult |
+| 4 | design_doc | tech-designer | — | design-doc |
+| 5 | design_review | dev-reviewer | design_review_passed | DocReviewResult |
+| 6 | pm_handoff_dev | product-manager | — | — |
+| 7 | development | developer | — | code |
+| 8 | code_review | dev-reviewer | code_review_passed | CodeReviewResult |
+| 9 | verification | qa-verifier | verification_passed | VerificationResult |
+| 10 | pm_request_spec | product-manager | — | — |
+| 11 | as_built_spec | requirements-writer | — | detailed-spec |
+| 12 | mismatch_review | dev-reviewer | mismatch_resolved | MismatchReviewResult |
+| 13 | pm_complete | product-manager | — | DeptWorkComplete |
+
+**delivery profile:** `lite` は design_doc / design_review を skip。`doc-only` は設計・実装・code review・verification を skip。詳細: [`development-delivery-io.md`](../../docs/design/development-delivery-io.md)
 
 ### 3.2 開発チーム — 分岐（mismatch）
 
 ```mermaid
 flowchart TD
   MR[mismatch_review]
-  MR -->|fix_target=document| DS[detailed_spec へ差し戻し]
+  MR -->|fix_target=document| AS[as_built_spec へ差し戻し]
   MR -->|fix_target=code| PM[pm_handoff_dev へ]
   PM --> DEV[developer 修正]
   MR -->|status passed*| DONE[pm_complete]
@@ -213,7 +224,9 @@ flowchart TD
 | artifact | パス例 |
 |----------|--------|
 | requirements-doc | `output/development/requirements/<scope>-requirements.md` |
+| design-doc | `output/development/design/<scope>-design.md` |
 | detailed-spec | `output/development/specs/<scope>-spec.md` |
+| レビュー JSON | `output/development/reviews/` |
 | 本ドキュメント | `agent-composition-*`（リポジトリ全体の構成説明） |
 
 ### 3.4 分析チーム（analysis-delivery）
@@ -251,10 +264,10 @@ Handoff 例: [`handoff.analysis-delivery.json`](../../skills/planning/issue-stor
 |----|----------|
 | DispatchRequest | `skills/platform/task-dispatcher/schemas/dispatch-request.v1.schema.json` |
 | DeptWorkComplete | `skills/development/product-manager/schemas/dept-work-complete.v1.schema.json` |
-| DocReviewResult | `skills/development/reviewer/schemas/doc-review-result.v1.schema.json` |
-| CodeReviewResult | `skills/development/reviewer/schemas/code-review-result.v1.schema.json` |
-| VerificationResult | `skills/development/reviewer/schemas/verification-result.v1.schema.json` |
-| MismatchReviewResult | `skills/development/reviewer/schemas/mismatch-review-result.v1.schema.json` |
+| DocReviewResult | `skills/development/dev-reviewer/schemas/doc-review-result.v1.schema.json` |
+| CodeReviewResult | `skills/development/dev-reviewer/schemas/code-review-result.v1.schema.json` |
+| VerificationResult | `skills/development/qa-verifier/schemas/verification-result.v1.schema.json` |
+| MismatchReviewResult | `skills/development/dev-reviewer/schemas/mismatch-review-result.v1.schema.json` |
 | AnalysisDocReviewResult | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
 | DeployGateResult | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
 
@@ -262,6 +275,10 @@ Handoff 例: [`handoff.analysis-delivery.json`](../../skills/planning/issue-stor
 
 ```markdown
 チーム: development
+
+profile: full
+担当: requirements-writer
+状態: assigned
 
 柱: 実装・開発チーム
 
@@ -325,24 +342,31 @@ sequenceDiagram
   participant O as workflow-orchestrator
   participant D as task-dispatcher
   participant PM as product-manager
-  participant DW as doc-writer
+  participant RW as requirements-writer
+  participant TD as tech-designer
   participant DV as developer
-  participant RV as reviewer
+  participant DR as dev-reviewer
+  participant QA as qa-verifier
 
   U->>O: 子タスク実行依頼
   O-->>U: dispatch prompt_snippet
   U->>D: DispatchRequest
   D-->>U: PM prompt_snippet
-  U->>PM: 開発チーム起動
-  PM->>DW: 要件定義書
-  DW->>RV: requirements review
-  RV-->>PM: DocReviewResult OK
+  U->>PM: 開発チーム起動（profile 決定）
+  PM->>RW: 要件定義書
+  RW->>DR: requirements review
+  DR-->>PM: DocReviewResult OK
+  PM->>TD: 技術設計（full のみ）
+  TD->>DR: design review
+  DR-->>PM: DocReviewResult OK
   PM->>DV: 開発依頼
-  DV->>RV: code review / verification
-  RV-->>PM: 開発完了
-  PM->>DW: 詳細仕様
-  DW->>RV: mismatch review
-  RV-->>PM: OK or fix_target
+  DV->>DR: code review
+  DR-->>PM: CodeReviewResult OK
+  DV->>QA: 動作検証
+  QA-->>PM: VerificationResult OK
+  PM->>RW: 事後詳細仕様
+  RW->>DR: mismatch review
+  DR-->>PM: OK or fix_target
   PM-->>O: DeptWorkComplete
   PM->>PM: complete_task.py -y
 ```
@@ -401,7 +425,7 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 |---------|--------------|------|
 | FR-L1-01〜09 | §2.1, §5.1, §4.1 | v1.2 は load_handoff 対応 |
 | FR-L2-01〜07 | §2.2, §4.4, §5.2 | G2, G3 が推奨要件の弱点 |
-| FR-L3-01〜08 | §3.1, §5.2 | 開発チーム・プロンプト順守前提 |
+| FR-L3-01〜11 | §2.4, §3.1, §5.2 | development-delivery v2・delivery profile |
 | FR-L3-A01〜A08 | §2.4, §3.4 | 分析チーム（analysis-delivery） |
 | FR-X-01〜05 | §2.5, §7, §8 G8 | |
 | NFR-01〜05 | §1.2, §8 G1 | |
@@ -414,3 +438,4 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 |----|------|------|
 | 1.0 | 2026-05-18 | 初版（現状構成の PM 起票） |
 | 1.1 | 2026-05-23 | 分析チーム delivery 実装（analytics-pm ハブ + 7 ロール）を反映 |
+| 1.3 | 2026-05-23 | 開発チーム v2（6 ロール・設計フェーズ・qa-verifier 分離）を反映 |

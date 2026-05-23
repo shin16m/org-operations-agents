@@ -6,7 +6,7 @@
 | 作成者ロール | product-manager |
 | 対象 | agent-create-supporter リポジトリ全体のマルチエージェント構成 |
 | 参照 workflow | `default` v3 · `planning-delivery` · `with-dispatch` · `development-delivery` · `analysis-delivery` |
-| 版 | 1.2 |
+| 版 | 1.3 |
 | 日付 | 2026-05-23 |
 
 ---
@@ -50,7 +50,7 @@
 | **企画チーム（planning-pm / planner / reviewer）** | Handoff・品質レビュー・gate・Asana タスク化 |
 | **タスクディスパッチャー** | 子タスクをチームへルーティング |
 | **開発チーム PM** | 子 1 件のライフサイクル管理 |
-| **開発チームメンバー** | 文書・実装・レビュー・検証 |
+| **開発チームメンバー** | 要件・設計・実装・レビュー・検証（v2 6 ロール） |
 | **asana 管理者** | タスク CRUD・読取・完了マーク（統括グループ） |
 | **agent-creater** | 新規スキル雛形の唯一の生成入口 |
 
@@ -96,18 +96,23 @@
 | FR-L2-07 | `department=analysis` のとき **analytics-pm** を起動する | 必須 |
 | FR-L2-08 | `department` 未設定時は Handoff の `pillar` または Asana notes の `チーム:` 行から推定する | 推奨 |
 
-### 3.3 L3 — 開発チームフェーズ（workflow: `development-delivery`）
+### 3.3 L3 — 開発チームフェーズ（workflow: `development-delivery` v2）
 
 | ID | 要件 | 優先度 |
 |----|------|--------|
-| FR-L3-01 | PM は子タスクの background / summary / done_when を読み、進行を管理する | 必須 |
-| FR-L3-02 | **doc-writer** が要件定義書を作成し、**reviewer** がレビューする | 必須 |
-| FR-L3-03 | 要件定義 OK 後、PM は **developer** に開発を依頼する | 必須 |
-| FR-L3-04 | developer はコードレビュー・動作検証を経て PM に開発完了を報告する | 必須 |
-| FR-L3-05 | PM は **doc-writer** に詳細仕様書作成を依頼する | 必須 |
-| FR-L3-06 | reviewer は要件定義書と詳細仕様の**整合レビュー**を行う | 必須 |
-| FR-L3-07 | 不整合が文書側なら doc-writer が修正、コード側なら PM → developer 修正ループ | 必須 |
-| FR-L3-08 | 完了時 PM は `DeptWorkComplete` を orchestrator へ報告し、子タスクを完了マークできる | 必須 |
+| FR-L3-01 | PM は子タスク notes（背景・概要・完了条件・**profile**）を読み、**delivery profile**（`full` / `lite` / `doc-only`）を決定する | 必須 |
+| FR-L3-02 | **requirements-writer** が要件定義書を作成し、**dev-reviewer** がレビューする | 必須 |
+| FR-L3-03 | profile=`full` 時、**tech-designer** が技術設計書を作成し、**dev-reviewer** がレビューする（`lite` / `doc-only` は skip） | 必須 |
+| FR-L3-04 | 要件・設計 OK 後、PM は **developer** に実装を依頼する（`doc-only` は skip） | 必須 |
+| FR-L3-05 | **dev-reviewer** がコードレビューを行う | 必須 |
+| FR-L3-06 | **qa-verifier** が動作検証を行う（developer / dev-reviewer と独立） | 必須 |
+| FR-L3-07 | PM は **requirements-writer**（mode=as-built-spec）に事後詳細仕様書作成を依頼する | 必須 |
+| FR-L3-08 | **dev-reviewer** は要件定義書と事後詳細仕様の**整合レビュー**を行う | 必須 |
+| FR-L3-09 | 不整合が文書側なら requirements-writer が修正、コード側なら PM → developer 修正ループ | 必須 |
+| FR-L3-10 | PM は委譲前に notes ヘッダに `担当:` を書く | 推奨 |
+| FR-L3-11 | 完了時 PM は `DeptWorkComplete` を orchestrator へ報告し、子タスクを完了マークできる | 必須 |
+
+委譲詳細: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
 
 ### 3.4 L3 — 分析チームフェーズ（workflow: `analysis-delivery`）
 
@@ -158,11 +163,14 @@
 | plan-reviewer | L3 | 企画レビュー |
 | asana-buddy | 統括グループ | Asana 作成・読取・完了 |
 | task-dispatcher | L2 | チームルーティング |
-| product-manager | L3 | 開発チームハブ |
-| analytics-pm | L3 | 分析チームハブ |
-| doc-writer | L3 | 要件定義書・詳細仕様書 |
+| product-manager | L3 | 開発チームハブ（profile・委譲・完了） |
+| requirements-writer | L3 | 要件定義書・事後詳細仕様 |
+| tech-designer | L3 | 技術設計（実装前） |
 | developer | L3 | 実装・修正 |
-| reviewer | L3 | 開発チームレビュー・検証 |
+| dev-reviewer | L3 | 要件・設計・コード・mismatch レビュー |
+| qa-verifier | L3 | 動作検証 |
+| doc-writer / reviewer | L3 | **deprecated**（v1 → requirements-writer / dev-reviewer / qa-verifier） |
+| analytics-pm | L3 | 分析チームハブ |
 | data-architect / data-engineer / data-steward / data-analyst / data-scientist / ml-engineer | L3 | 分析チーム委譲ロール |
 | analysis-reviewer | L3 | 分析チームレビュー・本番デプロイゲート |
 | task-executor | L3（レガシー） | 単一ワーカー実行 |

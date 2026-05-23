@@ -30,6 +30,15 @@ departments:
     delivery_io_doc: docs/design/analysis-delivery-io.md
     enabled: true
 
+  - id: ux
+    label: UX チーム
+    workflow_id: ux-delivery
+    entry_agent: ux-pm
+    skill_root: skills/ux
+    output_root: output/ux
+    delivery_io_doc: docs/design/ux-delivery-io.md
+    enabled: true
+
 # 統括グループ（registry 参照用・dispatch 対象外）
 coordination_group:
   id: coordination
@@ -42,6 +51,8 @@ coordination_group:
 pillar_defaults:
   - match: ["実装", "開発チーム", "開発チーム", "検証・開発チーム", "検証・開発チーム", "整備・開発チーム", "整備・開発チーム"]
     department: development
+  - match: ["UX", "UI", "画面", "体験", "Design System", "ワイヤー", "Figma"]
+    department: ux
   - match: ["分析", "分析チーム", "データ", "ETL", "モデル", "ML", "ダッシュボード", "KPI"]
     department: analysis
   - match: ["設計", "方針", "整備", "検証", "企画", "企画チーム"]

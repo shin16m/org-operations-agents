@@ -15,7 +15,8 @@ workflow-orchestrator（intake → bootstrap → dispatch）
   → planning-pm（企画チーム）
     → issue-story-planner → plan-reviewer（必須）→ planning-pm（gate）→ asana-buddy
   → task-dispatcher（execution 系子ごと）
-  → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier（開発チーム v2）
+  → product-manager → …（開発 v3）
+  → ux-pm → ux-designer / ux-reviewer（UX チーム）
   → analytics-pm → data-architect / … / analysis-reviewer（分析チーム）
 ```
 
@@ -38,6 +39,9 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | `developer` | 業務 | 開発チーム | 実装済 | 実装・修正 |
 | `dev-reviewer` | 業務 | 開発チーム | 実装済 | 文書・コード・整合レビュー |
 | `qa-verifier` | 業務 | 開発チーム | 実装済 | 動作検証 |
+| `ux-pm` | 業務 | UX チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
+| `ux-designer` | 業務 | UX チーム | 実装済 | 体験設計・Design System |
+| `ux-reviewer` | 業務 | UX チーム | 実装済 | ux_spec / ux_implementation |
 | `doc-writer` | 業務 | 開発チーム | deprecated | → requirements-writer |
 | `reviewer` | 業務 | 開発チーム | deprecated | → dev-reviewer + qa-verifier |
 | `analytics-pm` | 業務 | 分析チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
@@ -58,8 +62,10 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | `AsanaBuddyHandoff` v1.1 / v1.2 | `asana-buddy-handoff.v1*.schema.json` |
 | `PlanReviewResult` | plan-reviewer schemas |
 | `DispatchRequest` / `DeptWorkComplete` | task-dispatcher / product-manager schemas |
+| `UxReviewResult` | ux-reviewer schemas |
 | チーム内レビュー（企画） | plan-reviewer schemas |
 | チーム内レビュー（開発） | dev-reviewer/schemas/ · qa-verifier/schemas/ |
+| チーム内レビュー（UX） | ux-reviewer/schemas/ |
 | チーム内レビュー（分析） | analysis-reviewer/schemas/ |
 
 ## Handoff 例

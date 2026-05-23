@@ -1,6 +1,6 @@
 # 開発チーム delivery I/O
 
-workflow: [`workflows/development-delivery.yaml`](../../workflows/development-delivery.yaml) v2 · 組織: [`department-model.md`](department-model.md)
+workflow: [`workflows/development-delivery.yaml`](../../workflows/development-delivery.yaml) v3 · 組織: [`department-model.md`](department-model.md)
 
 ## 組織
 
@@ -12,7 +12,7 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 | スコープ | Asana 子タスク 1 件 = workflow インスタンス 1 本 |
 | PM 委譲 | [`development-pm-assignment.md`](development-pm-assignment.md) |
 
-### メンバー（v2）
+### メンバー（v3）
 
 | slug | slot | 役割 |
 |------|------|------|
@@ -22,6 +22,7 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 | developer | dept_work | 実装 |
 | dev-reviewer | dept_review | 要件・設計・コード・mismatch レビュー |
 | qa-verifier | dept_review | 動作検証 |
+| ux-reviewer | dept_review | **full-ui** 時の実装一致 review（UX チーム所属・開発 PM から委譲） |
 
 **Deprecated:** `doc-writer` / `reviewer`（v1）— registry `enabled: false`
 
@@ -36,10 +37,11 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 | task-dispatcher | `DispatchRequest` | `task_gid`, `department: development` |
 | Asana | 子タスク **notes** | 背景・概要・完了条件（`## 背景` 等） |
 | Asana（任意） | 親エピック notes | エピック全体の文脈 |
+| UX チーム（full-ui） | notes **`## 依存（読み取り専用）`** | UX 仕様・Design System への参照 |
 
 **読まないもの:** Handoff JSON、PlanReviewResult、企画チーム `output/planning/`（workflow 入力として）
 
-**他チーム artifact の利用:** [`department-model.md`](department-model.md#成果物共有読み取り専用) — notes の `## 依存（読み取り専用）` に従う **読み取り専用 consume** は可。`output/analysis/` 等の直接探索・編集は不可。
+**他チーム artifact:** [`department-model.md`](department-model.md#成果物共有読み取り専用) — UX・分析 artifact は notes 経由で read-only consume。
 
 ### 出力
 
@@ -51,7 +53,7 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 
 ---
 
-## チーム内 workflow（v2）
+## チーム内 workflow（v3）
 
 ```
 product-manager（intake・profile）
@@ -61,6 +63,7 @@ product-manager（intake・profile）
   → dev-reviewer（design）
   → developer（実装）              ← doc-only で skip
   → dev-reviewer（code）
+  → ux-reviewer（ux_implementation）← full-ui のみ
   → qa-verifier（verification）
   → requirements-writer（事後仕様）
   → dev-reviewer（mismatch）
@@ -71,11 +74,20 @@ product-manager（intake・profile）
 
 | profile | 用途 |
 |---------|------|
-| `full` | 新機能・API・複数モジュール |
-| `lite` | 小変更・バグ修正（設計 skip） |
+| `full` | API / BFF / 非 UI |
+| **`full-ui`** | Web 画面 — **UX 子完了 + `## 依存` 必須** |
+| `lite` | **非 UI** の小変更・バグ修正（設計 skip）。**画面タッチの子では使用禁止** |
 | `doc-only` | 仕様整備のみ |
 
-notes 先頭 `profile: lite` 等。詳細: [`development-pm-assignment.md`](development-pm-assignment.md)
+notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](development-pm-assignment.md)
+
+### full-ui 前提（Epic 内）
+
+1. 同一 Epic の **UX 子タスクが完了**していること
+2. notes に `## 依存（読み取り専用）` で UX artifact が記載されていること
+3. 未充足時 PM は着手せず、ux-pm または企画経由で差し戻し
+
+---
 
 ## 必須ゲート
 
@@ -84,6 +96,7 @@ notes 先頭 `profile: lite` 等。詳細: [`development-pm-assignment.md`](deve
 | `requirements_review_passed` | dev-reviewer | requirements-writer |
 | `design_review_passed` | dev-reviewer | tech-designer |
 | `code_review_passed` | dev-reviewer | developer |
+| `ux_implementation_review_passed` | ux-reviewer | developer（full-ui のみ） |
 | `verification_passed` | qa-verifier | developer |
 | `mismatch_resolved` | dev-reviewer | spec → requirements-writer / code → developer |
 
@@ -94,8 +107,9 @@ notes 先頭 `profile: lite` 等。詳細: [`development-pm-assignment.md`](deve
 | 入力源 | 子 notes のみ |
 | 成果物命名 | `<task_gid>` をファイル名に含める |
 | Asana | 委譲ロール `comment_task` → PM `complete_task` |
-| 検証独立性 | 動作検証は **qa-verifier のみ**（developer / dev-reviewer は不可） |
-| 上流 artifact | `## 依存（読み取り専用）` の表どおり利用。不足時は PM が上流へ差し戻し（直接編集しない） |
+| 検証独立性 | 動作検証は **qa-verifier のみ** |
+| UX consume | full-ui は UX artifact を read-only。変更は UX チーム子タスクで |
+| tech-designer | full-ui 時は UX 仕様を設計書に引用 |
 
 ---
 
@@ -107,7 +121,7 @@ notes 先頭 `profile: lite` 等。詳細: [`development-pm-assignment.md`](deve
 | 技術設計 | tech-designer | 設計書 | `output/development/design/<task_gid>-design.md` |
 | 実装 | developer | コード | 別リポジトリまたは本リポジトリ |
 | 事後仕様 | requirements-writer | 詳細仕様書 | `output/development/specs/<task_gid>-spec.md` |
-| レビュー | dev-reviewer / qa-verifier | 各 Result JSON | `output/development/reviews/` |
+| レビュー | dev-reviewer / qa-verifier / ux-reviewer | 各 Result JSON | `output/development/reviews/` · `output/ux/reviews/` |
 
 チーム内レビュー契約: [`dept-work-io.md`](dept-work-io.md)
 
@@ -116,6 +130,7 @@ notes 先頭 `profile: lite` 等。詳細: [`development-pm-assignment.md`](deve
 ## やらないこと
 
 - Handoff 新規作成（→ 企画チーム）
+- 体験設計の主作成（→ UX チーム）
 - ディスパッチ（→ 統括グループ）
 - 他チーム成果物の直接編集
 - 新規 skill フォルダ（→ agent-creater）
@@ -125,4 +140,5 @@ notes 先頭 `profile: lite` 等。詳細: [`development-pm-assignment.md`](deve
 ## 関連
 
 - PM: [`skills/development/product-manager/SKILL.md`](../../skills/development/product-manager/SKILL.md)
+- UX 提供側: [`ux-delivery-io.md`](ux-delivery-io.md)
 - チーム間: [`dept-work-io.md`](dept-work-io.md)

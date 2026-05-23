@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/ux-review-result.v1.schema.json",
+  "title": "UxReviewResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "summary", "review_kind"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "passed_with_notes", "failed"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "review_kind": {
+      "type": "string",
+      "enum": ["ux_spec", "ux_implementation"]
+    },
+    "fix_target": {
+      "type": "string",
+      "enum": ["ux_spec", "implementation"],
+      "description": "failed 時の差し戻し先（ux_implementation のみ必須推奨）"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "message"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+          "message": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

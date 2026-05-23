@@ -9,7 +9,7 @@
 `DispatchRequest` v1.0（[`schemas/dispatch-request.v1.schema.json`](schemas/dispatch-request.v1.schema.json)）
 
 - `task_gid`（必須）
-- `department`（必須）: `development` | `analysis` | `planning`
+- `department`（必須）: `development` | `analysis` | `planning` | `ux`
 - `parent_gid`（任意）
 
 `department` 未指定時: `fetch_task.py` で notes を読み、`チーム:` 行または `pillar_defaults` で推定。
@@ -30,11 +30,12 @@
 | planning | planning-delivery | planning-pm |
 | development | development-delivery | product-manager |
 | analysis | analysis-delivery | analytics-pm |
+| ux | ux-delivery | ux-pm |
 
 ## 配賦順序（推奨）
 
 1. **L1 初回:** intake 後の bootstrap 企画子 → `department=planning`
-2. **L2 続き:** 企画完了（Handoff Asana 投入）後 → `development` / `analysis` の execution 系子
+2. **L2 続き:** 企画完了後 → **`ux`（Web Epic・UI 先行）** → `development` / `analysis` の execution 系子
 
 ## やらないこと
 
