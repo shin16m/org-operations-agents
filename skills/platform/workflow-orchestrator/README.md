@@ -1,47 +1,41 @@
 # workflow-orchestrator
 
-**課題の入口。** 生課題を受け取り（intake）、plan → review の後に execute 可否を判定（gate）する。
+**課題の入口。** 生課題を受け取り（intake）、bootstrap で最小 Asana を作成し、企画チームへ dispatch する。
 
 詳細: [`SKILL.md`](SKILL.md)
 
-## 使い方（2 系統）
+## 使い方
 
 ### 1. intake — 課題を渡す（ここから開始）
 
 ```
 あなたは workflow-orchestrator スキルです（intake モード）。
 課題: 〈依頼内容を自然言語で〉
-issue-story-planner への prompt_snippet を返してください。
+bootstrap 用最小 Handoff を生成し、bootstrap → dispatch（企画チーム）まで進めてください。
 ```
 
-返却されたプロンプトで **issue-story-planner** を起動 → Handoff JSON を保存。
+### 2. 企画完了後 — execution 系 dispatch
 
-### 2. gate — review 後
-
-Handoff と `PlanReviewResult`（`status` が `passed` または `passed_with_notes`）を渡す:
-
-```
-あなたは workflow-orchestrator スキルです（gate モード）。
-execute に進めるか、差し戻し先を示してください。
-```
-
-通過後 **asana-buddy** で Asana 投入。
+企画チームから `DeptWorkComplete` を受け取ったら、未完了の development / analysis 子を task-dispatcher で順次配賦する。
 
 ### 3. 作業完了後 — Asana 同期
 
-課内作業で `done_when` を満たしたら、**必ず** Asana 子タスクを `complete_task.py -y` で完了にする（詳細: [`SKILL.md`](SKILL.md)「Asana 完了同期」）。全子完了後に親エピックも完了にしてから利用者へ報告する。
+各チーム PM が `comment_task.py` → `complete_task.py -y` を実行。全子完了後に親エピックも完了にしてから利用者へ報告する。
 
-## 移行
+## 企画 gate について
 
-以前 planner 先頭で運用していた場合も、**新規依頼は orchestrator（intake）から**始めてください（[`README.md`](../../README.md)）。
+Asana 本番投入前の人間承認（`handoff_approved`）は **planning-pm** が担当。orchestrator の gate モード（v2）は v3 では使用しない。
 
 ## workflow の選び方
 
 | 目的 | ファイル |
 |------|----------|
-| タスク化まで | [`workflows/default.yaml`](../../../workflows/default.yaml) |
-| タスク化 + サブタスク実行 | [`workflows/with-execution.yaml`](../../../workflows/with-execution.yaml) |
+| 標準（企画 dispatch まで） | [`workflows/default.yaml`](../../../workflows/default.yaml) v3 |
+| + execution 系 dispatch ループ | [`workflows/with-dispatch.yaml`](../../../workflows/with-dispatch.yaml) |
+| + task-executor（deprecated） | [`workflows/with-execution.yaml`](../../../workflows/with-execution.yaml) |
+| 企画チーム L3 | [`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) |
 
 ## 参照
 
+- E2E: [`docs/e2e/default-workflow.md`](../../../docs/e2e/default-workflow.md)
 - I/O: [`docs/design/workflow-session-io.md`](../../../docs/design/workflow-session-io.md)

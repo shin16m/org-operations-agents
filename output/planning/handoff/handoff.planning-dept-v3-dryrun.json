@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "default v3 ドライラン — 本番 Handoff",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】企画チーム L3 化・default v3 ドライラン",
+    "notes_markdown": "## 課題点の整理\n\n- **変更内容:** planner / reviewer を L3 企画チーム（planning-pm ハブ）へ移管。L1 は intake → bootstrap → dispatch。\n- **検証目的:** 新フローが E2E 手順・registry・SKILL と一致し、成果物パスが従来どおり `output/planning/` であること。\n- **制約:** Asana `.env` 未設定時は CLI 投入をスキップし、JSON までをドライラン成果とする。\n\n## 解決ストーリー\n\n1. intake — orchestrator が bootstrap Handoff を生成\n2. bootstrap — 親 + 企画子（Asana 可なら投入）\n3. dispatch — planning-pm へ委譲\n4. 企画チーム — Handoff 本番 → plan-reviewer → gate → asana_execute\n5. 記録 — docs/verification にドライラン結果を残す\n\n## 目指す利用像\n\n```\n利用者 → orchestrator（intake）\n       → bootstrap → dispatch（planning）\n       → planning-pm → planner → reviewer → gate → asana-buddy\n       → dispatch（dev/analysis 子）\n```"
+  },
+  "subtasks": [
+    {
+      "title": "【1/2・企画】Handoff 作成・レビュー・Asana タスク化",
+      "department": "planning",
+      "background": "bootstrap 企画子に対応。企画チームミッションは Handoff を Asana タスク群に落とし込むこと。",
+      "summary": "issue-story-planner が本 Handoff を出力し、plan-reviewer が PlanReviewResult を返す。planning-pm gate 承認後に handoff_to_asana を実行する。",
+      "done_when": "`output/planning/handoff/handoff.planning-dept-v3-dryrun.json` と `plan-review.planning-dept-v3-dryrun.json` が存在し、Asana 可なら execution 系子が親下に作成されている。"
+    },
+    {
+      "title": "【2/2・検証】v3 ドライラン記録の作成",
+      "department": "development",
+      "pillar": "検証",
+      "background": "組織変更後の初回ドライラン。再現手順とスキップ理由（Asana 未設定等）を残す必要がある。",
+      "summary": "`docs/verification/planning-dept-v3-dryrun.md` に段階ごとの結果を記録し、smoke チェックリストを更新する。",
+      "done_when": "ドライラン記録に intake〜planning-pm gate までの手順と成果物パスが書かれ、planning-dept-v3-smoke の該当項目がチェック済み。"
+    }
+  ]
+}

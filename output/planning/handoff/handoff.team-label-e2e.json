@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "チーム表記 E2E — 本番 Handoff",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】チーム表記・default v3 E2E（2026-05-23-b）",
+    "notes_markdown": "## 課題点の整理\n\n- **目的:** `チーム:` notes 表記で default v3 を Asana 上に新規作成し、企画チーム → 開発チーム dispatch まで実行。\n- **検証:** bootstrap 作成、sync（fuzzy マッチ）、dispatch 用 notes、comment + complete。\n\n## 解決ストーリー\n\n1. bootstrap — 親 + 企画子\n2. planning-delivery — Handoff sync → 企画子 complete\n3. dispatch — 開発子を product-manager 相当で完了\n\n## 目指す利用像\n\n```\nintake → bootstrap → planning-pm → asana sync\n  → dispatch(development) → product-manager → complete\n```"
+  },
+  "subtasks": [
+    {
+      "title": "【1/2・企画】Handoff 作成・レビュー・Asana タスク化",
+      "department": "planning",
+      "background": "bootstrap 企画子に対応。企画チームは Handoff を Asana タスク群に落とし込む。",
+      "summary": "本 Handoff と PlanReviewResult を planning-pm 経由で Asana に sync し、企画子を完了する。",
+      "done_when": "`handoff.team-label-e2e.json` / `plan-review.team-label-e2e.json` が存在し、execution 系子が Asana に作成されている。"
+    },
+    {
+      "title": "【2/2・検証】E2E 実行記録の作成",
+      "department": "development",
+      "pillar": "検証",
+      "background": "新規エピックでの v3 + チーム表記 E2E。Asana GID と段階結果を残す。",
+      "summary": "`docs/verification/team-label-e2e-dryrun.md` に bootstrap〜開発 complete まで記録する。",
+      "done_when": "検証記録に親・子 GID、各段階の CLI 結果、`チーム:` notes 確認が書かれている。"
+    }
+  ]
+}

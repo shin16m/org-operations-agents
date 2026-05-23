@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "チーム表記 E2E — bootstrap",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】チーム表記・default v3 E2E（2026-05-23-b）",
+    "notes_markdown": "## 生課題（intake）\n\ndefault v3 + `チーム:` notes 表記で、Asana に新規エピックを作成し intake → bootstrap → planning-delivery → 開発チーム dispatch まで E2E 実行する。\n\n## 制約\n\n- bootstrap は review なし\n- 本番投入は plan-reviewer 必須 + planning-pm gate 相当（本 E2E では review JSON 済みで実行）\n- チーム間 I/O は Asana notes のみ"
+  },
+  "subtasks": [
+    {
+      "title": "企画・Handoff 作成",
+      "department": "planning",
+      "background": "統括グループ bootstrap 後、企画チーム planning-pm へ dispatch するための企画子 1 件。",
+      "summary": "本番 Handoff を issue-story-planner 相当で作成し、plan-reviewer 後に execution 系子を Asana へ sync する。",
+      "done_when": "Handoff + PlanReviewResult が output/planning/ にあり、handoff_to_asana sync で execution 系子が親下に存在する。"
+    }
+  ]
+}

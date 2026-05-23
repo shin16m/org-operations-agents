@@ -1,4 +1,4 @@
-# analysis — 分析課
+# analysis — 分析チーム
 
 子タスク 1 件あたり `analysis-delivery` workflow。analytics-pm がハブ。
 

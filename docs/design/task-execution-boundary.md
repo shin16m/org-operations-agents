@@ -6,9 +6,9 @@
 
 | フェーズ | 現状 | 不足 |
 |----------|------|------|
-| 計画 | intake → plan → review → gate | — |
-| Asana 化 | execute（`asana-buddy`） | — |
-| **実行** | なし | サブタスクの着手・成果物・完了報告 |
+| 受付 | intake → bootstrap → dispatch（企画） | — |
+| 企画 | planning-delivery（Handoff → review → gate → Asana） | — |
+| 実行 | task-dispatcher → チーム workflow | 過渡期 task-executor |
 
 ## 分担表
 
@@ -24,4 +24,4 @@
 ## 原則
 
 - **task-executor** は `AsanaBuddyHandoff` を再生成しない。Asana 上のタスク GID と notes を読み、リポジトリ内変更または実行手順を行う。
-- **workflow v2** の終端は execute のまま維持。実行フェーズは [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) で拡張する（v2 破壊を避ける）。
+- **default v3** の L1 終端は dispatch（企画チームへ初回配賦）。実行フェーズは dispatch 後のチーム workflow または [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml)（deprecated task-executor）。

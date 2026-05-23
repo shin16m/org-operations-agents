@@ -4,15 +4,15 @@
 
 このスキルは、**課題点の整理**、**解決ストーリー（なぜその順序で進めるか）**、**Asana 等に落とし込める粒度のタスク案**までを一気通貫でまとめる。外部 API は呼ばず、**構造化アウトプット**を返す。実際の Asana 作成は [`asana-buddy`](../../platform/asana-buddy/SKILL.md) スキル（スクリプト／対話）に委ねる。
 
-## 標準パイプライン（plan スロット・review 必須）
+## 標準パイプライン（企画チーム L3・planning-pm から委譲）
 
 ```
-workflow-orchestrator（intake）→ issue-story-planner（本スキル）→ plan-reviewer（必須）→ workflow-orchestrator（gate）→ asana-buddy
+task-dispatcher（department=planning）→ planning-pm → issue-story-planner（本スキル）→ plan-reviewer（必須）→ planning-pm（gate）→ asana-buddy
 ```
 
-- **新規エージェント**をタスク案に含める場合、実装は [`agent-creater`](../agent-creater/SKILL.md) に委任と明記する（本スキルは `skills/<organization>/<slug>/` を生成しない）。
-- **Handoff 出力後は必ず [`plan-reviewer`](../../planning/plan-reviewer/SKILL.md) を通す。** 人間の目視のみでは review 段階を満たさない（[`workflows/default.yaml`](../../../workflows/default.yaml) の `review_required`）。
-- registry / workflow: [`docs/design/workflow-io-contract.md`](../../../docs/design/workflow-io-contract.md)
+- **新規エージェント**をタスク案に含める場合、実装は [`agent-creater`](../../platform/agent-creater/SKILL.md) に委任と明記する。
+- **Handoff 出力後は必ず [`plan-reviewer`](../../plan-reviewer/SKILL.md) を通す。** 人間の目視のみでは review 段階を満たさない（[`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml)）。
+- ミッション: 企画成果を Asana タスク群に落とし込む（最終 Asana 投入は planning-pm 経由の asana-buddy）。
 
 ## いつ使うか
 
@@ -115,7 +115,7 @@ workflow-orchestrator（intake）→ issue-story-planner（本スキル）→ pl
 | [`examples/handoff.agent-workflow-orchestration.json`](examples/handoff.agent-workflow-orchestration.json) | 基盤エピック・メタ設計の参照 Handoff |
 | [`examples/handoff.orchestrator-intake-entry.json`](examples/handoff.orchestrator-intake-entry.json) | オーケストレーター入口化 |
 | [`examples/handoff.skill-review-remediation.json`](examples/handoff.skill-review-remediation.json) | スキルレビュー指摘の是正 |
-| [`examples/handoff.analysis-delivery.json`](examples/handoff.analysis-delivery.json) | 分析課 delivery |
+| [`examples/handoff.analysis-delivery.json`](examples/handoff.analysis-delivery.json) | 分析チーム delivery |
 | [`docs/design/workflow-io-contract.md`](../../../docs/design/workflow-io-contract.md) | パイプライン I/O |
 | [`workflows/default.yaml`](../../../workflows/default.yaml) | 宣言的 workflow |
 

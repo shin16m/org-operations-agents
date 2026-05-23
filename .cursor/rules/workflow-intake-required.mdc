@@ -1,68 +1,73 @@
 ---
-description: 製品実装依頼でも intake から開始。エージェントが L1 まで進行し、Asana 投入前に人間承認（gate）を挟む
+description: 製品実装依頼でも intake から開始。企画は planning-delivery（L3）で Handoff → review → gate → Asana 投入
 alwaysApply: true
 ---
 
 # 標準 workflow 厳守（このリポジトリ）
 
-このリポジトリは **宣言的 workflow とエージェント挙動の定義** が主目的である。利用者が「作って」「実装して」と言っただけでは、**Handoff・レビュー・gate を経ずに製品コードの実装をこのリポジトリへ書き始めない**（成果物は別リポジトリまたは Asana 投入後の課内フローで扱う）。
+このリポジトリは **宣言的 workflow とエージェント挙動の定義** が主目的である。利用者が「作って」「実装して」と言っただけでは、**Handoff・レビュー・gate を経ずに製品コードの実装をこのリポジトリへ書き始めない**（成果物は別リポジトリまたは Asana 投入後のチーム内フローで扱う）。
 
 ## エージェントの進行責務（L1）
 
 **利用者に「次は issue-story-planner を起動してください」と丸投げしない。** 同一セッション内でエージェントが次を実行する:
 
-1. **intake** — 課題受付・方針提示
-2. **plan** — Handoff JSON を `output/planning/handoff/*.json` に保存
-3. **review** — `PlanReviewResult` を `output/planning/plan-review/*.json` に保存（省略不可）
-4. **gate** — 人間へ Handoff 要約を提示し、**Asana タスク作成の承認**を待つ
-5. **execute** — 承認後のみ `asana-buddy`（`handoff_to_asana.py --require-review-result`）
+1. **intake** — 課題受付・bootstrap 用最小 Handoff 生成
+2. **bootstrap** — Asana に親 + 企画子 1 件を作成
+3. **dispatch** — 企画子を `planning-delivery`（planning-pm）へ配賦
 
-## 必須の順序（L1）
+## 企画チーム（L3）— 同一セッションまたは planning-pm セッションで
+
+4. **handoff_plan** — Handoff JSON を `output/planning/handoff/*.json` に保存
+5. **plan_review** — `PlanReviewResult` を `output/planning/plan-review/*.json` に保存（省略不可）
+6. **pm_gate** — planning-pm が Handoff 要約を提示し、**Asana タスク作成の承認**を待つ
+7. **asana_execute** — 承認後のみ `asana-buddy`（`handoff_to_asana.py --require-review-result`）
+
+## 必須の順序
 
 ```
-workflow-orchestrator（intake）
-  → issue-story-planner（Handoff JSON）
-  → plan-reviewer（PlanReviewResult・省略不可）
-  → workflow-orchestrator（gate）※ 人間承認・Asana 投入前
-  → asana-buddy（handoff_to_asana.py --require-review-result）
+workflow-orchestrator（intake → bootstrap → dispatch）
+  → planning-pm（L3 企画チーム）
+    → issue-story-planner（Handoff JSON）
+    → plan-reviewer（PlanReviewResult・省略不可）
+    → planning-pm（gate）※ 人間承認・Asana 投入前
+    → asana-buddy（handoff_to_asana.py --require-review-result）
 ```
 
-- 参照: [`workflows/default.yaml`](workflows/default.yaml) · [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- 参照: [`workflows/default.yaml`](workflows/default.yaml) · [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
 
-## 実装依頼時（L2/L3）
+## 実装依頼時（L2/L3 実行系）
 
-Asana 投入後は **task-dispatcher** で子タスクごとに課 workflow へ配賦する。
+企画完了（Asana に execution 系子が存在）後は **task-dispatcher** で子タスクごとにチーム workflow へ配賦する。
 
-| 課 | ハブ | 成果物ルート |
+| チーム | ハブ | 成果物ルート |
 |----|------|----------------|
+| 企画 | planning-pm | `output/planning/` |
 | 開発 | product-manager | `output/development/` |
 | 分析 | analytics-pm | `output/analysis/` |
 
-**開発課** — 要件 / 仕様 → doc-writer + reviewer（`output/development/reviews/`）→ 実装 → 検証。
+**開発チーム** — 要件 / 仕様 → doc-writer + reviewer → 実装 → 検証。
 
-**分析課** — [`analysis-delivery`](workflows/analysis-delivery.yaml)（SLA・本番ゲート必須）→ `output/analysis/reviews/`。
+**分析チーム** — [`analysis-delivery`](workflows/analysis-delivery.yaml)（SLA・本番ゲート必須）→ `output/analysis/reviews/`。
 
 共通: 子タスク完了は `comment_task.py`（署名付き）→ `complete_task.py -y`。
 
-- 参照: [`workflows/development-delivery.yaml`](workflows/development-delivery.yaml) · [`workflows/analysis-delivery.yaml`](workflows/analysis-delivery.yaml) · [`docs/design/dept-work-io.md`](docs/design/dept-work-io.md)
-
 ## 禁止（明示指示がない限り）
 
-- Handoff なしで製品実装（別リポジトリ想定のコード）をこのリポジトリに直接書き始める
+- Handoff なしで製品実装をこのリポジトリに直接書き始める
 - `plan-reviewer` を飛ばして Asana 投入する
 - ローカルだけ完了し、Asana を未完了のままにする
 - `complete_task.py` だけ実行し、署名コメントを省略する
 
 ## 例外
 
-利用者が **「workflow を省略」「ドキュメントだけ」「Asana 不要」** と明示したときのみ短絡可。それ以外は intake から報告する。
+利用者が **「workflow を省略」「ドキュメントだけ」「Asana 不要」** と明示したときのみ短絡可。
 
 ## gate（人間承認）
 
-- `review_passed` 後、**Asana に親・子タスクを作る前に** orchestrator がエピック要約・サブタスク一覧・レビュー結果を提示する。
+- `review_passed` 後、**Asana に親・子タスクを反映する前に** planning-pm がエピック要約・サブタスク一覧・レビュー結果を提示する。
 - 利用者が **「承認」「Asana に投入して」** 等と明示するまで `handoff_to_asana.py` を実行しない。
-- 差し戻しは「修正して再 gate」— planner / reviewer をエージェントが再実行する。
+- 差し戻しは planner / reviewer を planning-pm が再実行する。
 
 ## 開始時の一言（エージェント）
 
-実装・機能追加の依頼を受けたら、最初に **intake として Handoff 方針を示し**、**同一セッションで plan → review まで進め、gate で承認を仰ぐ**旨を短く伝える。
+実装・機能追加の依頼を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、企画 gate で承認を仰ぐ**旨を短く伝える。

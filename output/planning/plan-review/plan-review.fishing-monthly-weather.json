@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "status": "passed_with_notes",
+  "summary": "波・潮汐を必須にした改訂版は課題と7段階タスクが整合。潮汐は天文潮計算、波は統計アウトルックと役割分担が明確。サブタスク1の港マッピングとサブタスク4の API 統合がクリティカルパス。",
+  "findings": [
+    {
+      "severity": "medium",
+      "category": "risk",
+      "message": "波の1か月先は気象庁無料観測だけでは系列が短い・欠損しやすい可能性。サブタスク1で近傍港・うねり観測の代替表を必須化し、サブタスク4で「統計目安」ラベルを API レスポンスに含めること。",
+      "subtask_index": 0
+    },
+    {
+      "severity": "medium",
+      "category": "goal_alignment",
+      "message": "潮汐の30日先は天文潮ベースが主。UI では実潮位（気圧・うねり影響）との差をサブタスク5・7で必ず説明すること（依頼者の「潮汐情報」期待値調整）。",
+      "subtask_index": 4
+    },
+    {
+      "severity": "low",
+      "category": "risk",
+      "message": "気象・波の「予測」表記は引き続き「気候アウトルック/参考値」に統一。エピックタイトルの「予測」は製品内文言では使わない方針を要件に明記推奨。",
+      "subtask_index": 4
+    },
+    {
+      "severity": "low",
+      "category": "task_granularity",
+      "message": "サブタスク2と3は並行可能だが、3は1の潮汐・波マッピング完了後に着手。Asana 依存はコメントで示すとよい。",
+      "subtask_index": 2
+    }
+  ],
+  "revised_handoff": null
+}

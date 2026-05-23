@@ -1,48 +1,30 @@
-# Extended workflow: default v2 + dispatch (per-subtask department routing)
-# default.yaml は変更しない。execute 後に子タスクごと dispatch → 課 workflow。
+# Extended workflow: default v3 + post-planning child dispatch loop
+# 企画完了後、オーケストレーターが execution 系子を dev/analysis へ順次 dispatch
 id: with-dispatch
-version: "1"
-description: intake → plan → review → gate → execute → dispatch
+version: "2"
+description: intake → bootstrap → dispatch（企画）→ … 実行系子 dispatch
 
 policy:
-  review_required: true
+  review_required: false
   entry_step: intake
   entry_agent: workflow-orchestrator
   dispatch_unit: single_subtask
-  note: dispatch 後は development-delivery 等の課 workflow（別 YAML）
+  note: L1 企画は planning-delivery。execute 系子は企画完了後に L2 dispatch ループ
 
 steps:
   - id: intake
     agent: workflow-orchestrator
     gate_after: null
 
-  - id: plan
-    agent: issue-story-planner
-    gate_after: null
-
-  - id: review
-    agent: plan-reviewer
-    required: true
-    gate_after: review_passed
-
-  - id: gate
-    agent: workflow-orchestrator
-    gate_after: handoff_approved
-
-  - id: execute
+  - id: bootstrap
     agent: asana-buddy
     gate_after: null
 
   - id: dispatch
     agent: task-dispatcher
-    role: 子タスク 1 件を department に応じて課 workflow へルーティング
+    role: 最初は department=planning。企画完了後は orchestrator が dev/analysis 子を順次 dispatch
     gate_after: null
     reads:
       - workflows/organizations.yaml
 
-gates:
-  review_passed:
-    description: plan-reviewer の PlanReviewResult が passed または passed_with_notes
-    blocks: [gate, execute, dispatch]
-  handoff_approved:
-    description: gate で execute へ進行確認
+gates: {}

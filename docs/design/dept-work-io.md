@@ -1,6 +1,8 @@
-# 課内 I/O（DispatchRequest・レビュー結果・完了報告）
+# チーム間共通 I/O（DispatchRequest・DeptWorkComplete）
 
-エピック: 組織配賦（タスク 4）。企画用 `PlanReviewResult` とは別系統。
+**チーム間の公式契約**は本書と各チームの `*-delivery-io.md` を参照。全体像: [`department-model.md`](department-model.md)
+
+**Handoff JSON はチーム間 I/O に含めない**（企画チームのチーム内成果物）。
 
 ## DispatchRequest（task-dispatcher 入力）
 
@@ -15,7 +17,7 @@
 
 スキーマ: [`skills/platform/task-dispatcher/schemas/dispatch-request.v1.schema.json`](../../skills/platform/task-dispatcher/schemas/dispatch-request.v1.schema.json)
 
-## DeptWorkComplete（product-manager → orchestrator）
+## DeptWorkComplete（チーム PM → 統括グループ）
 
 | フィールド | 型 | 必須 | 説明 |
 |------------|-----|------|------|
@@ -35,8 +37,8 @@
 
 | タイミング | 担当 | 操作 |
 |------------|------|------|
-| 委譲作業完了時 | doc-writer / developer / reviewer | `comment_task.py`（`agent` + `skill` + 実施内容） |
-| 子タスク完了直前 | **product-manager** | 同上ののち `complete_task.py` |
+| 委譲作業完了時 | doc-writer / developer / reviewer 等 | `comment_task.py`（`agent` + `skill` + 実施内容） |
+| 子タスク完了直前 | **planning-pm / product-manager / analytics-pm** | 同上ののち `complete_task.py` |
 
 ```powershell
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent developer --skill skills/development/developer/SKILL.md --summary "..." --body-file .\body.md -y
@@ -48,13 +50,13 @@
 
 | タイミング | 担当 | 操作 |
 |------------|------|------|
-| 子タスク 1 件の課内作業完了 | **product-manager** | **`comment_task.py` の後**に `complete_task.py --gid <子GID> -y` を **`DeptWorkComplete` 出力の直前に実行** |
+| 子タスク 1 件のチーム内作業完了 | **planning-pm / product-manager / analytics-pm** | **`comment_task.py` の後**に `complete_task.py --gid <子GID> -y` を **`DeptWorkComplete` 出力の直前に実行** |
 | 同一セッションで複数子を連続完了 | product-manager または orchestrator | `sync_handoff_epic.py --parent <親GID> --handoff <path> --complete-through N --complete-only` |
 | 全子完了後 | **workflow-orchestrator** | 親エピックを `complete_task.py --gid <親GID> -y` で完了（任意だが推奨）→ 利用者へエピック完了報告 |
 
 `DeptWorkComplete.status: completed` と Asana の `completed: true` は**セット**で維持する。片方だけ完了は運用エラーとみなす。
 
-## 課内レビュー結果
+## チーム内レビュー結果
 
 | 種別 | 用途 | `review_kind` | スキーマ |
 |------|------|---------------|----------|
@@ -62,10 +64,10 @@
 | CodeReviewResult | コードレビュー | `code` | `skills/development/reviewer/schemas/code-review-result.v1.schema.json` |
 | VerificationResult | 動作検証 | `verification` | `skills/development/reviewer/schemas/verification-result.v1.schema.json` |
 | MismatchReviewResult | 要件 vs 仕様整合 | `mismatch` | `skills/development/reviewer/schemas/mismatch-review-result.v1.schema.json` |
-| AnalysisDocReviewResult | 分析課ドキュメント | 各種 | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
+| AnalysisDocReviewResult | 分析チームドキュメント | 各種 | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
 | DeployGateResult | 本番デプロイ前ゲート | `production_deploy_gate` | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
 
-分析課の詳細: [`analysis-delivery-io.md`](analysis-delivery-io.md)
+分析チーム: [`analysis-delivery-io.md`](analysis-delivery-io.md) · 企画チーム: [`planning-delivery-io.md`](planning-delivery-io.md) · 開発チーム: [`development-delivery-io.md`](development-delivery-io.md)
 
 共通: `status` は `passed` \| `passed_with_notes` \| `failed`。`failed` 時は差し戻し先を `message` に明記。
 
@@ -84,17 +86,17 @@
 | 項目 | TaskWorkRequest / task-executor | 新モデル |
 |------|--------------------------------|----------|
 | 単位 | 子 1 件 | 同じ |
-| 実行 | 単一エージェントが全部 | dispatcher → 課 workflow → 複数ロール |
+| 実行 | 単一エージェントが全部 | dispatcher → チーム workflow → 複数ロール |
 | 完了 | TaskWorkResult | DeptWorkComplete |
 
 **移行方針:**
 
 - `task-executor` は **deprecated**（[`with-execution.yaml`](../../workflows/with-execution.yaml) 互換のため registry には残す）。
-- 新規依頼は [`with-dispatch.yaml`](../../workflows/with-dispatch.yaml) の `dispatch` + 課 workflow を使う。
+- 新規依頼は [`with-dispatch.yaml`](../../workflows/with-dispatch.yaml) の `dispatch` + チーム workflow を使う。
 - 緊急時のみ「子 GID だけ渡して全部やって」→ task-executor（過渡期）。
 
 ## 利用像
 
 ```
-orchestrator → DispatchRequest → task-dispatcher → product-manager → … → DeptWorkComplete → orchestrator
+統括グループ → DispatchRequest → task-dispatcher → チーム PM → … → DeptWorkComplete → 統括グループ
 ```

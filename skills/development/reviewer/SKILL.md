@@ -1,6 +1,6 @@
 # reviewer SKILL
 
-**独立スキル:** PM / doc-writer / developer から委譲された **課内レビュー・動作検証**。
+**独立スキル:** PM / doc-writer / developer から委譲された **チーム内レビュー・動作検証**。
 
 ## review_kind
 

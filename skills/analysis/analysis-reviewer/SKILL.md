@@ -1,6 +1,6 @@
 # analysis-reviewer SKILL
 
-**独立スキル:** analytics-pm から委譲された **分析課レビュー・本番デプロイゲート**。
+**独立スキル:** analytics-pm から委譲された **分析チームレビュー・本番デプロイゲート**。
 
 人間向け: [`README.md`](README.md) · 運用: [`docs/design/analysis-delivery-io.md`](../../../docs/design/analysis-delivery-io.md)
 

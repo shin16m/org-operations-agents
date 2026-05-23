@@ -1,6 +1,12 @@
-# デフォルト E2E 手順（intake → plan → review（必須）→ gate → execute）
+# デフォルト E2E 手順（default v3）
 
-workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v2（`policy.review_required: true`, `entry_step: intake`）
+workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v3 · 企画チーム: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml)
+
+```
+intake → bootstrap → dispatch（企画チーム）
+  → planning-delivery: Handoff → review（必須）→ gate → Asana タスク化
+  → dispatch（execution 系子 → 開発チーム / 分析チーム）
+```
 
 ## 前提
 
@@ -16,14 +22,48 @@ workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v2（`
 ```
 あなたは workflow-orchestrator スキルです（intake モード）。
 課題: 〈依頼内容〉
-issue-story-planner への prompt_snippet を返してください。
+bootstrap 用最小 Handoff（親 + department=planning の企画子 1 件）を生成し、
+bootstrap → dispatch（企画チーム）まで進めてください。
 ```
 
-返却されたプロンプトで次の plan を実行する。
+**bootstrap Handoff 要件:**
 
-## 1. plan — issue-story-planner
+- 親 `epic.notes_markdown` に生課題全文
+- 子 1 件: `title`「企画・Handoff 作成」、`department: planning`
+- 各 subtask に `background` / `summary` / `done_when` 必須
 
-**入力:** 課題テーマ（intake から委譲されたプロンプトでも可）
+**保存例:** `output/planning/handoff/bootstrap.<theme>.json`
+
+## 1. bootstrap — asana-buddy
+
+**入力:** bootstrap Handoff JSON
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\handoff_to_asana.py `
+  --handoff .\output\planning\handoff\bootstrap.<theme>.json `
+  -y --if-not-exists
+```
+
+bootstrap は review 前の最小作成のため **`--require-review-result` は付けない**。
+
+**出力:** 親 GID・企画子 GID をメモする。
+
+## 2. dispatch — task-dispatcher（企画チーム）
+
+**入力:** `DispatchRequest`（`department=planning`）
+
+**プロンプト例:**
+
+```
+DispatchRequest: task_gid=<企画子GID>, parent_gid=<親GID>, department=planning
+organizations.yaml に従い planning-pm 用 prompt_snippet を返してください。
+```
+
+## 3. 企画チーム — planning-pm（planning-delivery）
+
+[`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml) に従い、同一セッションまたは planning-pm セッションで以下を実行する。
+
+### 3a. handoff_plan — issue-story-planner
 
 **プロンプト例:**
 
@@ -32,11 +72,9 @@ issue-story-planner への prompt_snippet を返してください。
 AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須）の JSON を1つだけ出力してください。
 ```
 
-**出力:** `handoff.draft.json`
+**保存例:** `output/planning/handoff/<theme>.json`
 
-## 2. review — plan-reviewer（必須・省略不可）
-
-**入力:** `handoff.draft.json`
+### 3b. plan_review — plan-reviewer（必須・省略不可）
 
 **プロンプト例:**
 
@@ -44,57 +82,73 @@ AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須
 あなたは plan-reviewer スキルです。次の Handoff を PlanReviewResult v1.0 でレビューしてください。
 ```
 
-**出力:** `review.result.json`、必要なら `handoff.revised.json`
+**保存例:** `output/planning/plan-review/<theme>.json`
 
-## 3. gate — workflow-orchestrator
+### 3c. pm_gate — planning-pm
 
-**入力:** 改訂 Handoff + PlanReviewResult
+**入力:** Handoff + PlanReviewResult
 
 **プロンプト例:**
 
 ```
-あなたは workflow-orchestrator スキルです（gate モード）。
-review_passed を確認し、execute（asana-buddy）に進めるか判断してください。
+planning-pm（gate モード）として、review_passed を確認し、
+Handoff 要約を提示したうえで Asana 投入の承認を待ってください。
 ```
 
-## 4. execute — asana-buddy
+利用者が **「承認」「Asana に投入して」** と明示するまで `handoff_to_asana.py` を実行しない。
 
-**入力:** 承認済み Handoff JSON
+### 3d. asana_execute — asana-buddy
+
+**入力:** 承認済み Handoff JSON + PlanReviewResult
 
 ```powershell
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\handoff_to_asana.py `
-  --handoff .\handoff.revised.json `
-  --require-review-result .\review.result.json `
+  --handoff .\output\planning\handoff\<theme>.json `
+  --require-review-result .\output\planning\plan-review\<theme>.json `
   -y --if-not-exists
 ```
 
-`--require-review-result` は運用上 review 必須を CLI で強制する（省略時は SKILL 上の前提のみ）。
+bootstrap で同一 `epic.title` が既にある場合は **新規作成せず sync**（親 notes 更新・execution 系子追加・bootstrap 企画子は fuzzy マッチ）。
 
-## 移行
+`--parent <親GID>` で明示 sync も可。
 
-以前 planner 先頭で運用していた場合、**新規依頼は step 0（intake）から**。
+### 3e. pm_complete — planning-pm
 
-## オプション: work — サブタスク実行
+```powershell
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py `
+  --gid <企画子GID> --agent planning-pm --skill skills/planning/planning-pm/SKILL.md `
+  --summary "企画完了・Handoff Asana 投入済" --body "..." -y
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <企画子GID> -y
+```
 
-workflow: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml)
+`DeptWorkComplete` を orchestrator へ報告する。
 
-1. execute で作成した子タスク GID を確認:
+## 4. dispatch — execution 系子（開発チーム / 分析チーム）
+
+企画完了後、orchestrator が未完了の execution 系子を 1 件ずつ dispatch する。
 
 ```powershell
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\fetch_task.py --gid <PARENT_GID> --list-subtasks
 ```
 
-2. **task-executor** — 「GID ○○ を実行して」と自然言語で依頼（スキル名のコピペ不要）
+詳細: [`dispatch-workflow.md`](dispatch-workflow.md)
 
-3. 完了マーク（**作業完了とセットで必須**。ローカルのみ完了にしない）:
+## 移行（v2 → v3）
 
-```powershell
-.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <CHILD_GID> -y
-```
+| v2 | v3 |
+|----|-----|
+| L1 plan / review / gate / execute | **planning-delivery（L3 企画チーム）** |
+| orchestrator gate | **planning-pm gate** |
+| intake 後 planner 直接 | intake → bootstrap → dispatch（planning） |
 
-配賦 workflow（`with-dispatch`）では [`dispatch-workflow.md`](dispatch-workflow.md) の「子タスク完了」「エピック完了」を参照。
+v2 手順の記録: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)
+
+## オプション: work — サブタスク実行（deprecated）
+
+workflow: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) + `task-executor`（過渡期のみ）
 
 ## 検証記録
 
-- 基盤 11 タスク: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)
-- 入口化 5 タスク: [`docs/verification/orchestrator-intake-dryrun.md`](../verification/orchestrator-intake-dryrun.md)
+- 基盤 11 タスク: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)（v2 記録）
+- 入口化 5 タスク: [`docs/verification/orchestrator-intake-dryrun.md`](../verification/orchestrator-intake-dryrun.md)（v2 記録）
+- v3 組織変更: 本ドキュメント · [`docs/design/planning-delivery-io.md`](../design/planning-delivery-io.md)

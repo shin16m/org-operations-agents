@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import re
 import sys
 from datetime import datetime, timezone
 from typing import Any, Callable, Sequence
@@ -137,7 +138,67 @@ def list_subtasks(parent_gid: str, token: str) -> list[dict[str, Any]]:
     r = requests.get(
         f"{ASANA_BASE}/tasks/{parent_gid}/subtasks",
         headers=headers,
-        params={"opt_fields": "name,completed,gid"},
+        params={"opt_fields": "name,completed,gid,notes"},
+    )
+    r.raise_for_status()
+    return r.json()["data"]
+
+
+ASSIGNEE_LINE = re.compile(r"^担当:\s*(\S+)\s*$", re.MULTILINE)
+STATUS_LINE = re.compile(r"^状態:\s*(\S+)\s*$", re.MULTILINE)
+# Write `チーム:`; parse accepts legacy `課:` for backward compatibility.
+DEPT_LINE_WRITE = "チーム"
+DEPT_LINE_PARSE = re.compile(r"^(?:課|チーム):\s*(\S+)\s*$", re.MULTILINE)
+DEPT_LINE_STRIP = re.compile(r"^(?:課|チーム):\s*\S+\s*$", re.MULTILINE)
+
+
+def parse_task_assignment(notes: str) -> dict[str, str | None]:
+    """Parse チーム / 担当 / 状態 from task notes header."""
+    return {
+        "department": (m.group(1) if (m := DEPT_LINE_PARSE.search(notes or "")) else None),
+        "assignee": (m.group(1) if (m := ASSIGNEE_LINE.search(notes or "")) else None),
+        "status": (m.group(1) if (m := STATUS_LINE.search(notes or "")) else None),
+    }
+
+
+def format_assignment_header(
+    *,
+    department: str | None = None,
+    assignee: str | None = None,
+    status: str | None = None,
+) -> str:
+    lines: list[str] = []
+    if department:
+        lines.append(f"{DEPT_LINE_WRITE}: {department.strip()}")
+    if assignee:
+        lines.append(f"担当: {assignee.strip()}")
+    if status:
+        lines.append(f"状態: {status.strip()}")
+    return "\n".join(lines) + ("\n\n" if lines else "")
+
+
+def merge_notes_with_assignment(
+    existing_notes: str,
+    *,
+    department: str | None = None,
+    assignee: str | None = None,
+    status: str | None = None,
+) -> str:
+    """Replace or prepend assignment header; keep ## 背景以下."""
+    body = existing_notes or ""
+    for pat in (DEPT_LINE_STRIP, ASSIGNEE_LINE, STATUS_LINE):
+        body = pat.sub("", body)
+    body = body.strip()
+    header = format_assignment_header(department=department, assignee=assignee, status=status)
+    return (header + body).strip()
+
+
+def update_task_notes(task_gid: str, notes: str, token: str) -> dict[str, Any]:
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.put(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        json={"data": {"notes": notes}},
+        headers=headers,
     )
     r.raise_for_status()
     return r.json()["data"]
@@ -149,6 +210,8 @@ def assemble_subtask_notes(
     done_when: str,
     pillar: str | None = None,
     department: str | None = None,
+    assignee: str | None = None,
+    status: str | None = "assigned",
 ) -> str:
     """Build Asana task notes per issue-story-planner v1.1+ / asana-buddy SKILL."""
     bg = background.strip()
@@ -156,11 +219,16 @@ def assemble_subtask_notes(
     dw = done_when.strip()
     parts: list[str] = []
     if department and department.strip():
-        parts.append(f"課: {department.strip()}\n")
+        parts.append(f"{DEPT_LINE_WRITE}: {department.strip()}")
+    if assignee and assignee.strip():
+        parts.append(f"担当: {assignee.strip()}")
+    if status and status.strip():
+        parts.append(f"状態: {status.strip()}")
     if pillar and pillar.strip():
-        parts.append(f"柱: {pillar.strip()}\n")
-    parts.append(f"## 背景\n{bg}\n\n## 概要\n{sm}\n\n## 完了条件\n{dw}")
-    return "\n".join(parts).strip()
+        parts.append(f"柱: {pillar.strip()}")
+    header = "\n".join(parts)
+    body = f"## 背景\n{bg}\n\n## 概要\n{sm}\n\n## 完了条件\n{dw}"
+    return f"{header}\n\n{body}".strip()
 
 
 def notes_from_legacy_body(body: str, pillar: str | None = None) -> str:
@@ -340,3 +408,111 @@ def handoff_subtask_notes(st: dict[str, Any]) -> str:
         st.get("pillar"),
         st.get("department"),
     )
+
+
+_SUBTASK_BRACKET_RE = re.compile(r"【\s*(\d+)\s*/\s*(\d+)\s*")
+
+
+def parse_subtask_index(name: str, expected_count: int | None = None) -> int | None:
+    """Return 0-based subtasks[] index from title 【n/m】, or None."""
+    m = _SUBTASK_BRACKET_RE.search(name)
+    if not m:
+        return None
+    n, total = int(m.group(1)), int(m.group(2))
+    if n < 1 or total < 1 or n > total:
+        return None
+    if expected_count is not None and total != expected_count:
+        return None
+    return n - 1
+
+
+def sync_handoff_to_parent(
+    parent_gid: str,
+    handoff: dict[str, Any],
+    token: str,
+    *,
+    update_parent_notes: bool = True,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Update existing epic notes and sync subtasks (match 【n/m】, fuzzy department, create missing)."""
+    expected = handoff["subtasks"]
+    expected_count = len(expected)
+    headers = {"Authorization": f"Bearer {token}"}
+    result: dict[str, Any] = {
+        "parent_gid": parent_gid,
+        "updated_parent": False,
+        "updated": [],
+        "created": [],
+        "fuzzy_matched": [],
+        "unmatched_asana": [],
+    }
+
+    if dry_run:
+        result["dry_run"] = True
+        result["would_update_parent"] = update_parent_notes
+        result["subtask_count"] = expected_count
+        return result
+
+    if update_parent_notes:
+        requests.put(
+            f"{ASANA_BASE}/tasks/{parent_gid}",
+            json={"data": {"notes": handoff["epic"]["notes_markdown"]}},
+            headers=headers,
+        ).raise_for_status()
+        result["updated_parent"] = True
+
+    asana_tasks = list_subtasks(parent_gid, token)
+    used: set[int] = set()
+    matched_gids: set[str] = set()
+
+    for t in asana_tasks:
+        idx = parse_subtask_index(t["name"], expected_count)
+        if idx is None:
+            continue
+        if idx in used:
+            continue
+        used.add(idx)
+        matched_gids.add(t["gid"])
+        st = expected[idx]
+        requests.put(
+            f"{ASANA_BASE}/tasks/{t['gid']}",
+            json={"data": {"name": st["title"], "notes": handoff_subtask_notes(st)}},
+            headers=headers,
+        ).raise_for_status()
+        result["updated"].append({"index": idx + 1, "gid": t["gid"], "title": st["title"]})
+
+    for idx, st in enumerate(expected):
+        if idx in used:
+            continue
+        dept = st.get("department")
+        if dept:
+            candidates = [
+                t
+                for t in asana_tasks
+                if t["gid"] not in matched_gids
+                and parse_subtask_index(t["name"], expected_count) is None
+                and parse_task_assignment(t.get("notes") or "").get("department") == dept
+            ]
+            if len(candidates) == 1:
+                t = candidates[0]
+                matched_gids.add(t["gid"])
+                used.add(idx)
+                requests.put(
+                    f"{ASANA_BASE}/tasks/{t['gid']}",
+                    json={"data": {"name": st["title"], "notes": handoff_subtask_notes(st)}},
+                    headers=headers,
+                ).raise_for_status()
+                result["fuzzy_matched"].append(
+                    {"index": idx + 1, "gid": t["gid"], "department": dept, "title": st["title"]}
+                )
+                continue
+
+        created = create_subtask(parent_gid, st["title"], handoff_subtask_notes(st), token)
+        used.add(idx)
+        result["created"].append({"index": idx + 1, "gid": created.get("gid"), "title": st["title"]})
+
+    for t in asana_tasks:
+        if t["gid"] not in matched_gids:
+            result["unmatched_asana"].append({"gid": t["gid"], "name": t["name"]})
+
+    return result

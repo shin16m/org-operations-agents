@@ -1,45 +1,33 @@
-# Extended workflow: default v2 + work (task execution)
-# default.yaml は変更しない。本ファイルは default v2 の全段階 + work を明示したコピー（extends は未解釈）。
+# Extended workflow: default v3 + work (task execution — deprecated)
+# default v3 の全段階 + work（過渡期 task-executor）
 id: with-execution
-version: "1"
-description: intake → plan → review → gate → execute → work
+version: "2"
+description: intake → bootstrap → dispatch → work（deprecated）
 
 policy:
-  review_required: true
+  review_required: false
   entry_step: intake
   entry_agent: workflow-orchestrator
-  note: タスク化まで default と同じ。サブタスク実行は work 段階（with-execution を参照）
+  note: 企画は planning-delivery。task-executor は過渡期のみ
 
 steps:
   - id: intake
     agent: workflow-orchestrator
     gate_after: null
 
-  - id: plan
-    agent: issue-story-planner
-    gate_after: null
-
-  - id: review
-    agent: plan-reviewer
-    required: true
-    gate_after: review_passed
-
-  - id: gate
-    agent: workflow-orchestrator
-    gate_after: handoff_approved
-
-  - id: execute
+  - id: bootstrap
     agent: asana-buddy
     gate_after: null
 
+  - id: dispatch
+    agent: task-dispatcher
+    gate_after: null
+    reads:
+      - workflows/organizations.yaml
+
   - id: work
     agent: task-executor
-    role: サブタスク実行。done_when 達成後 complete_task -y（エージェント判断可）
+    role: サブタスク実行（deprecated）
     gate_after: null
 
-gates:
-  review_passed:
-    description: plan-reviewer の PlanReviewResult が passed または passed_with_notes
-    blocks: [gate, execute, work]
-  handoff_approved:
-    description: gate で execute へ進行確認
+gates: {}

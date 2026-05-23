@@ -6,32 +6,47 @@ agents:
     slot: orchestrate
     skill_path: skills/platform/workflow-orchestrator
     enabled: true
-    workflow_steps: [intake, gate]
+    workflow_steps: [intake, bootstrap, dispatch]
     io:
       intake_input: raw_request（自然言語）
-      gate_input: AsanaBuddyHandoff + PlanReviewResult
+      bootstrap_input: 最小 Handoff（企画子 1 件）
       reads:
         - workflows/default.yaml
         - workflows/with-execution.yaml
         - workflows/with-dispatch.yaml
         - workflows/organizations.yaml
+        - workflows/planning-delivery.yaml
         - workflows/agent-registry.yaml
       session_doc: docs/design/workflow-session-io.md
 
+  - slug: planning-pm
+    slot: dept_orchestrate
+    skill_path: skills/planning/planning-pm
+    enabled: true
+    workflow_steps: []
+    io:
+      input_kind: DispatchRequest
+      output_kind: DeptWorkComplete
+      output_schema: skills/development/product-manager/schemas/dept-work-complete.v1.schema.json
+      schema_doc: docs/design/planning-delivery-io.md
+      reads:
+        - workflows/planning-delivery.yaml
+
   - slug: issue-story-planner
-    slot: plan
+    slot: dept_work
     skill_path: skills/planning/issue-story-planner
     enabled: true
-    note: 通常は orchestrator（intake）から委譲されて起動する
+    note: planning-pm から委譲。Handoff JSON を出力
     io:
       output_schema: skills/planning/issue-story-planner/schemas/asana-buddy-handoff.v1.schema.json
       output_kind: AsanaBuddyHandoff
       schema_version: "1.1"
 
   - slug: plan-reviewer
-    slot: review
+    slot: dept_review
     skill_path: skills/planning/plan-reviewer
     enabled: true
+    note: planning-pm から委譲。企画 Handoff の品質ゲート
     io:
       input_kind: AsanaBuddyHandoff
       output_kind: PlanReviewResult
@@ -58,7 +73,7 @@ agents:
     skill_path: skills/platform/task-executor
     enabled: true
     deprecated: true
-    note: 過渡期。新規は task-dispatcher + 課 workflow を使用
+    note: 過渡期。新規は task-dispatcher + チーム workflow を使用
     workflow_steps: [work]
     io:
       input_kind: TaskWorkRequest
@@ -94,7 +109,7 @@ agents:
       input_kind: DispatchRequest
       output_kind: DeptWorkComplete
       output_schema: skills/development/product-manager/schemas/dept-work-complete.v1.schema.json
-      schema_doc: docs/design/dept-work-io.md
+      schema_doc: docs/design/development-delivery-io.md
       reads:
         - workflows/development-delivery.yaml
 

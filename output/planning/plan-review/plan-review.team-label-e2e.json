@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "status": "passed_with_notes",
+  "summary": "チーム表記 E2E 用 Handoff。企画子 + 開発検証子の 2 件。department 付与済み。bootstrap 企画子は fuzzy マッチ想定。",
+  "findings": [
+    {
+      "severity": "low",
+      "category": "risk",
+      "message": "bootstrap 企画子と本 Handoff 【1/2】は同一役割。sync 時 fuzzy マッチで更新される。",
+      "subtask_index": 0
+    },
+    {
+      "severity": "low",
+      "category": "io_contract",
+      "message": "notes は `チーム:` 行。schema_version 1.2。",
+      "subtask_index": 1
+    }
+  ]
+}

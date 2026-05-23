@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -15,7 +14,7 @@ if str(_SCRIPT_DIR) not in sys.path:
 import requests
 
 from agent_handler_asana import ASANA_BASE, get_token, load_env_from_dotfile
-from asana_program_common import create_subtask, handoff_subtask_notes
+from asana_program_common import load_handoff, parse_subtask_index, sync_handoff_to_parent
 
 DEFAULT_HANDOFF = (
     Path(__file__).resolve().parents[3]
@@ -25,23 +24,6 @@ DEFAULT_HANDOFF = (
     / "handoff.agent-workflow-orchestration.json"
 )
 DEFAULT_PARENT = "1214879346897459"
-
-# 【n/m】 in title → 0-based index (n - 1). Validates total against handoff length when given.
-_SUBTASK_BRACKET_RE = re.compile(r"【\s*(\d+)\s*/\s*(\d+)\s*")
-
-
-def parse_subtask_index(name: str, expected_count: int | None = None) -> int | None:
-    """Return 0-based subtasks[] index from title, or None if not matched / invalid."""
-    m = _SUBTASK_BRACKET_RE.search(name)
-    if not m:
-        return None
-    n_s, total_s = m.group(1), m.group(2)
-    n, total = int(n_s), int(total_s)
-    if n < 1 or total < 1 or n > total:
-        return None
-    if expected_count is not None and total != expected_count:
-        return None
-    return n - 1
 
 
 def complete_subtasks(
@@ -94,15 +76,14 @@ def main() -> None:
     )
     args = p.parse_args()
 
-    handoff = json.loads(Path(args.handoff).read_text(encoding="utf-8"))
-    expected = handoff["subtasks"]
-    expected_count = len(expected)
+    handoff = load_handoff(args.handoff)
+    expected_count = len(handoff["subtasks"])
 
     load_env_from_dotfile()
     token = get_token()
-    headers = {"Authorization": f"Bearer {token}"}
 
     if args.dry_run:
+        sync_handoff_to_parent(args.parent, handoff, token, dry_run=True)
         print("dry-run parent", args.parent, "subtasks", expected_count)
         return
 
@@ -113,46 +94,14 @@ def main() -> None:
         print("complete-only done")
         return
 
-    requests.put(
-        f"{ASANA_BASE}/tasks/{args.parent}",
-        json={"data": {"notes": handoff["epic"]["notes_markdown"]}},
-        headers=headers,
-    ).raise_for_status()
-    print("updated_parent", args.parent)
-
-    r = requests.get(
-        f"{ASANA_BASE}/tasks/{args.parent}/subtasks",
-        headers=headers,
-        params={"opt_fields": "name"},
-    )
-    r.raise_for_status()
-    asana_tasks = r.json()["data"]
-
-    used: set[int] = set()
-    for t in asana_tasks:
-        idx = parse_subtask_index(t["name"], expected_count)
-        if idx is None:
-            print("unmatched", t["gid"], t["name"][:60])
-            continue
-        if idx in used:
-            print("duplicate_skip", t["gid"], t["name"][:60])
-            continue
-        used.add(idx)
-        st = expected[idx]
-        requests.put(
-            f"{ASANA_BASE}/tasks/{t['gid']}",
-            json={"data": {"name": st["title"], "notes": handoff_subtask_notes(st)}},
-            headers=headers,
-        ).raise_for_status()
-        print("updated", idx + 1, st["title"][:55])
-
-    for idx, st in enumerate(expected):
-        if idx in used:
-            continue
-        created = create_subtask(args.parent, st["title"], handoff_subtask_notes(st), token)
-        print("created", idx + 1, created.get("gid"), st["title"][:55])
-
-    print("done mapped", len(used), "created", len(expected) - len(used))
+    result = sync_handoff_to_parent(args.parent, handoff, token)
+    print("synced", args.parent)
+    for item in result.get("updated", []):
+        print("updated", item["index"], item["gid"])
+    for item in result.get("fuzzy_matched", []):
+        print("fuzzy_matched", item["index"], item["gid"])
+    for item in result.get("created", []):
+        print("created", item["index"], item["gid"])
 
 
 if __name__ == "__main__":

@@ -1,13 +1,15 @@
-# platform — 横断スキル
+# platform — 統括グループ
 
-L1 企画パイプライン・Asana 連携・配賦・メタ（agent-creater）。課内 delivery には入らない。
+**統括グループ**（dispatch 対象外）。intake / bootstrap / dispatch 委譲・Asana 連携・メタ。
 
 | slug | 役割 |
 |------|------|
-| workflow-orchestrator | intake / gate |
-| asana-buddy | execute（Asana API） |
-| task-dispatcher | dispatch |
+| workflow-orchestrator | intake / bootstrap / dispatch 委譲 |
+| asana-buddy | Asana API（bootstrap / 本番投入 / 読取 / 完了） |
+| task-dispatcher | チームへのルーティング |
 | task-executor | work（deprecated） |
 | agent-creater | 新規 `skills/<organization>/<slug>/` 生成 |
 
 成果物: [`output/platform/`](../../output/platform/)
+
+設計: [`docs/design/department-model.md`](../../docs/design/department-model.md)

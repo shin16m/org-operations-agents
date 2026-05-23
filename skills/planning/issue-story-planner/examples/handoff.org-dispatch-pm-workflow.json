@@ -1,43 +1,43 @@
 {
   "schema_version": "1.2",
   "meta": {
-    "title": "組織配賦・開発課 PM ワークフロー",
+    "title": "組織配賦・開発チーム PM ワークフロー",
     "locale": "ja-JP"
   },
   "epic": {
     "title": "【agent-create-supporter】組織配賦・子タスク単位 PM ワークフロー",
-    "notes_markdown": "## 課題点の整理\n\n- **できていること:** 企画フェーズ（intake → plan → review → gate → execute）と、単一 `task-executor` によるサブタスク 1 件実行（`with-execution.yaml`）。\n- **足りないこと:**\n  - 企画後の **課への配賦**（開発課・分析課など）\n  - **子タスク 1 件 = ディスパッチ 1 回 = 課内ワークフロー 1 本**（開発課は PM がハブ）\n  - 要件定義書 → 開発・検証 → 詳細仕様書（整合レビュー・修正ループ）の直列フロー\n- **制約:** 新規 `skills/<organization>/<slug>/` は **agent-creater のみ**。企画 review（plan-reviewer）はエピック単位のまま維持。\n\n## 目指す利用像\n\n```\n企画: オーケストレーター → 企画課(planner+reviewer) → Asana(企画書) → オーケストレーター\n配賦: オーケストレーター → タスクディスパッチャー → 課（子タスクごと）\n開発課(1子タスク): PM → 要件定義(doc+review) → 開発(dev+review+検証) → 詳細仕様(doc+整合review) → 修正ループ → オーケストレーターへ完了\n分析課: 別 workflow（本エピックではルーティング表とプレースホルダまで）\n```\n\n## 配賦単位（合意済み）\n\n- **ディスパッチ単位:** Asana **子タスク 1 件**\n- 同一親エピック内に **開発向け・分析向け** の子が混在しうる\n- オーケストレーターは **全子完了** でエピック完了を判断\n\n## 進め方\n\nサブタスク 1→12 を上から順。agent-creater 系（6–9）は直前の設計タスク完了後。\n\n## 参照\n\n- 現行: `workflows/with-execution.yaml`, `skills/platform/task-executor/`\n- 本 Handoff: `skills/planning/issue-story-planner/examples/handoff.org-dispatch-pm-workflow.json`"
+    "notes_markdown": "## 課題点の整理\n\n- **できていること:** 企画フェーズ（intake → plan → review → gate → execute）と、単一 `task-executor` によるサブタスク 1 件実行（`with-execution.yaml`）。\n- **足りないこと:**\n  - 企画後の **チームへの配賦**（開発チーム・分析チームなど）\n  - **子タスク 1 件 = ディスパッチ 1 回 = チーム内ワークフロー 1 本**（開発チームは PM がハブ）\n  - 要件定義書 → 開発・検証 → 詳細仕様書（整合レビュー・修正ループ）の直列フロー\n- **制約:** 新規 `skills/<organization>/<slug>/` は **agent-creater のみ**。企画 review（plan-reviewer）はエピック単位のまま維持。\n\n## 目指す利用像\n\n```\n企画: オーケストレーター → 企画チーム(planner+reviewer) → Asana(企画書) → オーケストレーター\n配賦: オーケストレーター → タスクディスパッチャー → チーム（子タスクごと）\n開発チーム(1子タスク): PM → 要件定義(doc+review) → 開発(dev+review+検証) → 詳細仕様(doc+整合review) → 修正ループ → オーケストレーターへ完了\n分析チーム: 別 workflow（本エピックではルーティング表とプレースホルダまで）\n```\n\n## 配賦単位（合意済み）\n\n- **ディスパッチ単位:** Asana **子タスク 1 件**\n- 同一親エピック内に **開発向け・分析向け** の子が混在しうる\n- オーケストレーターは **全子完了** でエピック完了を判断\n\n## 進め方\n\nサブタスク 1→12 を上から順。agent-creater 系（6–9）は直前の設計タスク完了後。\n\n## 参照\n\n- 現行: `workflows/with-execution.yaml`, `skills/platform/task-executor/`\n- 本 Handoff: `skills/planning/issue-story-planner/examples/handoff.org-dispatch-pm-workflow.json`"
   },
   "subtasks": [
     {
       "title": "【1/12・設計】組織モデル・子タスク単位ディスパッチ・完了集約",
       "pillar": "設計",
       "department": "planning",
-      "background": "現状 work は task-executor が子 1 件を単独処理。利用者が想定する「課に振って PM が最後まで回す」モデルが未表現。",
-      "summary": "docs/design に企画レイヤー／配賦レイヤー／課内レイヤーの 3 層図、オーケストレーター・ディスパッチャー・PM の責務表、子完了→親エピック完了の集約ルールを記載。asana-buddy は横断（作成・読取・完了）のままと明記。",
-      "done_when": "設計 doc があり、ディスパッチ単位=子タスク 1 件・課内 workflow は独立インスタンスと書かれている。"
+      "background": "現状 work は task-executor が子 1 件を単独処理。利用者が想定する「チームに振って PM が最後まで回す」モデルが未表現。",
+      "summary": "docs/design に企画レイヤー／配賦レイヤー／チーム内レイヤーの 3 層図、オーケストレーター・ディスパッチャー・PM の責務表、子完了→親エピック完了の集約ルールを記載。asana-buddy は横断（作成・読取・完了）のままと明記。",
+      "done_when": "設計 doc があり、ディスパッチ単位=子タスク 1 件・チーム内 workflow は独立インスタンスと書かれている。"
     },
     {
       "title": "【2/12・設計】Handoff v1.2（department）と organizations ルーティング",
       "pillar": "設計",
       "department": "planning",
-      "background": "企画時に「この子は開発課／分析課」を決めないとディスパッチャーが振れない。現行 v1.1 は pillar のみ任意。",
+      "background": "企画時に「この子は開発チーム／分析チーム」を決めないとディスパッチャーが振れない。現行 v1.1 は pillar のみ任意。",
       "summary": "subtasks[].department（例: development, analysis, planning）のスキーマ草案と pillar→department マッピング方針。`workflows/organizations.yaml` 草案（department → workflow_id, entry_agent）。issue-story-planner SKILL に付与ガイド節の追記案。",
-      "done_when": "スキーマ草案と organizations.yaml 草案がリポジトリにあり、分析課はプレースホルダ workflow でよい旨が書かれている。"
+      "done_when": "スキーマ草案と organizations.yaml 草案がリポジトリにあり、分析チームはプレースホルダ workflow でよい旨が書かれている。"
     },
     {
-      "title": "【3/12・設計】開発課ワークフロー（PM ハブ・状態機械）",
+      "title": "【3/12・設計】開発チームワークフロー（PM ハブ・状態機械）",
       "pillar": "設計",
       "department": "planning",
-      "background": "開発課は PM が要件定義依頼→開発依頼→詳細仕様依頼→修正ループを子 1 件のスコープで進行する。",
+      "background": "開発チームは PM が要件定義依頼→開発依頼→詳細仕様依頼→修正ループを子 1 件のスコープで進行する。",
       "summary": "`workflows/development-delivery.yaml` 草案: 段階（要件定義 doc+review → PM → dev+review → 検証 → PM → 詳細仕様 doc+整合 review → 修正分岐 → 完了報告）。各段階の agent slug とゲートを表にする。",
       "done_when": "YAML または設計表があり、ミスマッチ時 fix_target=document|code の分岐が定義されている。"
     },
     {
-      "title": "【4/12・設計】課内 I/O（DispatchRequest・レビュー結果・完了報告）",
+      "title": "【4/12・設計】チーム内 I/O（DispatchRequest・レビュー結果・完了報告）",
       "pillar": "設計",
       "department": "planning",
-      "background": "PlanReviewResult は企画用。課内には DocReviewResult / CodeReviewResult / VerificationResult / MismatchReviewResult が必要。",
+      "background": "PlanReviewResult は企画用。チーム内には DocReviewResult / CodeReviewResult / VerificationResult / MismatchReviewResult が必要。",
       "summary": "DispatchRequest（task_gid, parent_gid, department, workflow_id）と DeptWorkComplete（task_gid, artifacts[], status）の JSON Schema 草案を skills 配下 docs/design に配置。TaskWorkRequest との関係（task-executor 置換）を 1 節で記載。",
       "done_when": "I/O 表と schema 草案があり、task-executor からの移行方針（廃止または PM 薄ラッパ）が書かれている。"
     },
@@ -51,23 +51,23 @@
     },
     {
       "title": "【6/12・実装】agent-creater で task-dispatcher 生成",
-      "pillar": "実装・開発課",
+      "pillar": "実装・開発チーム",
       "department": "development",
-      "background": "ディスパッチャーは課へ振るだけ。要件定義・コーディングはしない。タスク 2・4 の契約に従う。",
-      "summary": "agent-creater で `skills/platform/task-dispatcher/` を生成。入力: 子 task_gid + department（または fetch 結果から解決）。出力: 課 workflow の entry（product-manager 等）への prompt_snippet。Handoff 再生成はしない。",
-      "done_when": "skills/platform/task-dispatcher/ に README, SKILL, personas があり、やらないこと（課内作業本体）が明記されている。"
+      "background": "ディスパッチャーはチームへ振るだけ。要件定義・コーディングはしない。タスク 2・4 の契約に従う。",
+      "summary": "agent-creater で `skills/platform/task-dispatcher/` を生成。入力: 子 task_gid + department（または fetch 結果から解決）。出力: チーム workflow の entry（product-manager 等）への prompt_snippet。Handoff 再生成はしない。",
+      "done_when": "skills/platform/task-dispatcher/ に README, SKILL, personas があり、やらないこと（チーム内作業本体）が明記されている。"
     },
     {
       "title": "【7/12・実装】agent-creater で product-manager 生成",
-      "pillar": "実装・開発課",
+      "pillar": "実装・開発チーム",
       "department": "development",
-      "background": "開発課のハブ。子 1 件の状態機械を進行し、doc-writer / developer / reviewer へ依頼する。",
+      "background": "開発チームのハブ。子 1 件の状態機械を進行し、doc-writer / developer / reviewer へ依頼する。",
       "summary": "agent-creater で `skills/development/product-manager/` を生成。責務: タスク 3 の状態に沿った依頼・受領・分岐（コード修正要→developer、完了→オーケストレーター報告）。asana-buddy で子完了マークは PM 判断後と明記。",
-      "done_when": "skills/development/product-manager/ が存在し、開発課 workflow の entry_agent として registry 案に載せられる。"
+      "done_when": "skills/development/product-manager/ が存在し、開発チーム workflow の entry_agent として registry 案に載せられる。"
     },
     {
       "title": "【8/12・実装】agent-creater で doc-writer・developer・reviewer 生成",
-      "pillar": "実装・開発課",
+      "pillar": "実装・開発チーム",
       "department": "development",
       "background": "PM から委譲される実行ロール。レビュアーはコンテキスト（要件定義／コード／仕様整合）を受け取る。",
       "summary": "agent-creater で `skills/development/doc-writer/`, `skills/development/developer/`, `skills/development/reviewer/`（必要なら verification 節を reviewer または別 slug）を生成。各 SKILL に消費する review スキーマと成果物パス（requirements-doc, detailed-spec, code）を記載。",
@@ -75,18 +75,18 @@
     },
     {
       "title": "【9/12・実装】workflows・registry（dispatch + development-delivery）",
-      "pillar": "実装・開発課",
+      "pillar": "実装・開発チーム",
       "department": "development",
-      "background": "with-execution の work=task-executor を dispatch + 課 workflow に差し替えるか拡張する。default v2 は破壊しない。",
+      "background": "with-execution の work=task-executor を dispatch + チーム workflow に差し替えるか拡張する。default v2 は破壊しない。",
       "summary": "`workflows/with-dispatch.yaml`（execute 後 dispatch 段階）と `workflows/development-delivery.yaml` を追加。`agent-registry.yaml` に task-dispatcher, product-manager, doc-writer, developer, reviewer を登録。organizations.yaml と接続。",
-      "done_when": "YAML と registry がコミット可能で、分析課は未実装でもルーティング行だけ存在する。"
+      "done_when": "YAML と registry がコミット可能で、分析チームは未実装でもルーティング行だけ存在する。"
     },
     {
       "title": "【10/12・整備】workflow-orchestrator・task-executor 移行・README",
-      "pillar": "整備・開発課",
+      "pillar": "整備・開発チーム",
       "department": "development",
       "background": "利用者は自然言語のみで「子タスクを実行」まで進めたい。task-executor は過渡期の単一ワーカー。",
-      "summary": "orchestrator SKILL: execute 後の子一覧→dispatcher 委譲例。README: 企画→配賦→開発課 PM フロー図。task-executor を deprecated または PM 専用ラッパにする方針を 1 節。docs/e2e に dispatch 章を追加。",
+      "summary": "orchestrator SKILL: execute 後の子一覧→dispatcher 委譲例。README: 企画→配賦→開発チーム PM フロー図。task-executor を deprecated または PM 専用ラッパにする方針を 1 節。docs/e2e に dispatch 章を追加。",
       "done_when": "orchestrator / README / e2e が with-dispatch を参照し、子 1 件ごとに PM workflow が走る旨が書かれている。"
     },
     {
@@ -94,15 +94,15 @@
       "pillar": "整備",
       "department": "planning",
       "background": "タスク 2 のスキーマを planner が出力できるようにする。",
-      "summary": "asana-buddy-handoff スキーマ v1.2（department 任意）と本エピック Handoff 例の更新。planner SKILL に department 付与ルールを本格追記。handoff_to_asana が department を notes に `課: development` 等で載せるか方針決定・実装。",
+      "summary": "asana-buddy-handoff スキーマ v1.2（department 任意）と本エピック Handoff 例の更新。planner SKILL に department 付与ルールを本格追記。handoff_to_asana が department を notes に `チーム: development` 等で載せるか方針決定・実装。",
       "done_when": "スキーマ・例・planner SKILL が v1.2 と整合し、dry-run で handoff_to_asana が通る。"
     },
     {
-      "title": "【12/12・検証】ディスパッチ→開発課 PM のスモーク記録",
-      "pillar": "検証・開発課",
+      "title": "【12/12・検証】ディスパッチ→開発チーム PM のスモーク記録",
+      "pillar": "検証・開発チーム",
       "department": "development",
       "background": "タスク 6–10 完了後でないと E2E は空振り。本エピックの Asana 子を 1 件使った記録でよい。",
-      "summary": "架空または本エピックの子 1 件で: fetch_task → dispatcher → PM（ドライラン可）→ complete_task の手順を docs/verification に記載。開発課・分析課のルーティング分岐を 1 行ずつ確認。",
+      "summary": "架空または本エピックの子 1 件で: fetch_task → dispatcher → PM（ドライラン可）→ complete_task の手順を docs/verification に記載。開発チーム・分析チームのルーティング分岐を 1 行ずつ確認。",
       "done_when": "検証 doc に GID・使用 workflow・期待する完了報告先（オーケストレーター）が書かれている。"
     }
   ]

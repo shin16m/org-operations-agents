@@ -1,8 +1,8 @@
 # product-manager SKILL
 
-**独立スキル:** 開発課における **子タスク 1 件**の進行管理（L3 ハブ）。
+**独立スキル:** 開発チームにおける **子タスク 1 件**の進行管理（L3 ハブ）。
 
-人間向け: [`README.md`](README.md) · workflow: [`workflows/development-delivery.yaml`](../../../workflows/development-delivery.yaml)
+人間向け: [`README.md`](README.md) · workflow: [`workflows/development-delivery.yaml`](../../../workflows/development-delivery.yaml) · I/O: [`docs/design/development-delivery-io.md`](../../../docs/design/development-delivery-io.md)
 
 ## 責務
 
@@ -35,7 +35,8 @@
 
 ## やらないこと
 
-- Handoff 新規作成（→ issue-story-planner）
+- Handoff 新規作成（→ 企画チーム）
+- Handoff JSON をチーム間入力として読む（→ Asana 子 notes を読む）
 - ディスパッチ（→ task-dispatcher）
 - 新規 `skills/<organization>/<slug>/`（→ agent-creater）
 

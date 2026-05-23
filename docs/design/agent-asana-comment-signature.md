@@ -77,7 +77,7 @@ executed_at: 2026-05-18T14:30:00+09:00
 ## 6. 完了との順序（必須）
 
 ```
-comment_task.py  →  complete_task.py -y  →  DeptWorkComplete（課内）
+comment_task.py  →  complete_task.py -y  →  DeptWorkComplete（チーム内）
 ```
 
 コメントなしで `complete_task.py` だけ実行しない。

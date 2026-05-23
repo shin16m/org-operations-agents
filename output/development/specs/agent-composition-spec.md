@@ -5,7 +5,7 @@
 | 文書種別 | 詳細仕様書（detailed-spec） |
 | 作成者ロール | product-manager |
 | 対応要件定義 | [`output/development/requirements/agent-composition-requirements.md`](../requirements/agent-composition-requirements.md) |
-| 版 | 1.1 |
+| 版 | 1.2 |
 | 日付 | 2026-05-23 |
 
 ---
@@ -19,12 +19,19 @@
     │
     ▼
 ┌──────────────────────────────────────────────────┐
-│ L1  workflows/default.yaml (v2)                  │
-│     intake → plan → review → gate → execute      │
-│     agents: orchestrator, planner, reviewer,     │
+│ L1  workflows/default.yaml (v3)                  │
+│     intake → bootstrap → dispatch（企画）          │
+│     agents: orchestrator, asana-buddy, dispatcher│
+└──────────────────────────────────────────────────┘
+    │ Asana 親 + 企画子
+    ▼
+┌──────────────────────────────────────────────────┐
+│ L3  workflows/planning-delivery.yaml             │
+│     Handoff → review → gate → Asana タスク化     │
+│     agents: planning-pm, planner, reviewer,      │
 │             asana-buddy                          │
 └──────────────────────────────────────────────────┘
-    │ Asana 親 + 子タスク
+    │ Asana 親 + execution 系子
     ▼
 ┌──────────────────────────────────────────────────┐
 │ L2  workflows/with-dispatch.yaml               │
@@ -36,7 +43,6 @@
     ▼
 ┌──────────────────────────────────────────────────┐
 │ L3  workflows/development-delivery.yaml         │
-│     (scope: single_subtask)                      │
 │     agents: product-manager (hub)                │
 │             doc-writer, developer, reviewer      │
 │  — または —                                      │
@@ -53,11 +59,12 @@
 
 | ファイル | id | 終端 step | 用途 |
 |----------|-----|-----------|------|
-| `workflows/default.yaml` | default | execute | 企画〜Asana 化（標準） |
-| `workflows/with-dispatch.yaml` | with-dispatch | dispatch | 企画 + 子タスク配賦 |
+| `workflows/default.yaml` | default | dispatch | 受付〜企画 dispatch（標準） |
+| `workflows/planning-delivery.yaml` | planning-delivery | pm_complete | 企画チーム・子 1 件 |
+| `workflows/with-dispatch.yaml` | with-dispatch | dispatch | 受付 + execution 系 dispatch |
 | `workflows/with-execution.yaml` | with-execution | work | **過渡期** — 単一 task-executor |
-| `workflows/development-delivery.yaml` | development-delivery | pm_complete | 開発課・子 1 件 |
-| `workflows/analysis-delivery.yaml` | analysis-delivery | pm_complete | 分析課・子 1 件 |
+| `workflows/development-delivery.yaml` | development-delivery | pm_complete | 開発チーム・子 1 件 |
+| `workflows/analysis-delivery.yaml` | analysis-delivery | pm_complete | 分析チーム・子 1 件 |
 | `workflows/organizations.yaml` | — | — | department → workflow ルーティング |
 | `workflows/agent-registry.yaml` | — | — | slug・slot・I/O 登録 |
 
@@ -69,59 +76,35 @@
 
 登録元: [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml)
 
-### 2.1 L1 — 企画
+### 2.1 L1 — 受付
 
 #### workflow-orchestrator
 
 | 項目 | 値 |
 |------|-----|
 | slot | orchestrate |
-| workflow_steps | intake, gate |
+| workflow_steps | intake, bootstrap, dispatch |
 | 入力（intake） | `raw_request`（自然言語） |
-| 入力（gate） | AsanaBuddyHandoff + PlanReviewResult |
-| 出力 | `prompt_snippet`, `current_step_id`, `gate_status` |
-| 参照 | default.yaml, with-dispatch.yaml, organizations.yaml, agent-registry.yaml |
+| 出力 | bootstrap Handoff → dispatch 委譲 |
 
-**intake 出力例（plan 向け）:**
+### 2.2 L3 — 企画チーム
 
-```
-あなたは issue-story-planner スキルです。テーマ「〈課題〉」について…
-AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須）の JSON を1つだけ出力してください。
-```
-
-**gate 後（execute 向け）:** `handoff_to_asana.py` コマンド例を含む snippet。
-
-**execute 後（dispatch 向け）:** 未完了子の GID + `DispatchRequest` 例。
-
-#### issue-story-planner
+#### planning-pm
 
 | 項目 | 値 |
 |------|-----|
-| slot | plan |
-| 出力 | AsanaBuddyHandoff |
-| schema | v1.1: `schemas/asana-buddy-handoff.v1.schema.json` |
-| | v1.2: `schemas/asana-buddy-handoff.v1.2.schema.json`（+ `subtasks[].department`） |
-| 子タスク順 | JSON 配列 = 着手順（先頭が最初）。API は**逆順**で create |
+| slot | dept_orchestrate |
+| workflow | planning-delivery |
+| ミッション | Handoff → review → gate → Asana タスク化 |
 
-#### plan-reviewer
+#### issue-story-planner / plan-reviewer
 
-| 項目 | 値 |
-|------|-----|
-| slot | review |
-| 入力 | AsanaBuddyHandoff |
-| 出力 | PlanReviewResult v1.0 |
-| 通過 status | `passed`, `passed_with_notes` |
+| slug | slot | 役割 |
+|------|------|------|
+| issue-story-planner | dept_work | Handoff JSON |
+| plan-reviewer | dept_review | PlanReviewResult |
 
-#### asana-buddy
-
-| 項目 | 値 |
-|------|-----|
-| slot | execute |
-| スクリプト | `handoff_to_asana.py`, `fetch_task.py`, `complete_task.py` |
-| Handoff 受理 | schema_version `1.1` または `1.2`（`load_handoff`） |
-| 子 notes 組立 | `課:` → `柱:` → 背景 / 概要 / 完了条件（`assemble_subtask_notes`） |
-
-### 2.2 L2 — 配賦
+### 2.3 L2 — 配賦
 
 #### task-dispatcher
 
@@ -132,25 +115,17 @@ AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須
 | 出力 | `workflow_id`, `entry_agent`, entry 用 `prompt_snippet` |
 | ルーティング | organizations.yaml `departments[]` |
 
-**organizations.yaml — development（有効）**
+**配賦順序:** 初回 `department=planning` → 企画完了後 `development` / `analysis`
 
-```yaml
-id: development
-workflow_id: development-delivery
-entry_agent: product-manager
-enabled: true
-```
+#### asana-buddy
 
-**organizations.yaml — analysis（有効）**
+| 項目 | 値 |
+|------|-----|
+| slot | execute |
+| 用途 | bootstrap（L1）/ Handoff 本番投入（企画チーム L3） |
+| スクリプト | `handoff_to_asana.py`, `fetch_task.py`, `complete_task.py` |
 
-```yaml
-id: analysis
-workflow_id: analysis-delivery
-entry_agent: analytics-pm
-enabled: true
-```
-
-### 2.3 L3 — 開発課
+### 2.4 L3 — 開発チーム
 
 #### product-manager
 
@@ -169,7 +144,7 @@ enabled: true
 | developer | code（リポジトリ変更） | code → verification |
 | reviewer | 各 ReviewResult JSON | requirements, code, verification, mismatch |
 
-### 2.4 L3 — 分析課
+### 2.5 L3 — 分析チーム
 
 #### analytics-pm
 
@@ -195,7 +170,7 @@ enabled: true
 
 詳細: [`docs/design/analysis-delivery-io.md`](../design/analysis-delivery-io.md)
 
-### 2.5 メタ・レガシー
+### 2.6 メタ・レガシー
 
 | slug | 備考 |
 |------|------|
@@ -204,9 +179,9 @@ enabled: true
 
 ---
 
-## 3. 課内ワークフロー詳細
+## 3. チーム内ワークフロー詳細
 
-### 3.1 開発課（development-delivery）
+### 3.1 開発チーム（development-delivery）
 
 | order | step id | agent | gate_after | artifact |
 |-------|---------|-------|------------|----------|
@@ -222,7 +197,7 @@ enabled: true
 | 10 | mismatch_review | reviewer | mismatch_resolved | MismatchReviewResult |
 | 11 | pm_complete | product-manager | — | DeptWorkComplete |
 
-### 3.2 開発課 — 分岐（mismatch）
+### 3.2 開発チーム — 分岐（mismatch）
 
 ```mermaid
 flowchart TD
@@ -233,7 +208,7 @@ flowchart TD
   MR -->|status passed*| DONE[pm_complete]
 ```
 
-### 3.3 開発課 — 成果物パス規約（推奨）
+### 3.3 開発チーム — 成果物パス規約（推奨）
 
 | artifact | パス例 |
 |----------|--------|
@@ -241,7 +216,7 @@ flowchart TD
 | detailed-spec | `output/development/specs/<scope>-spec.md` |
 | 本ドキュメント | `agent-composition-*`（リポジトリ全体の構成説明） |
 
-### 3.4 分析課（analysis-delivery）
+### 3.4 分析チーム（analysis-delivery）
 
 [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) — entry: **analytics-pm**。要求定義 → データ設計 → ETL → 品質 → 探索 → モデル → **本番ゲート** → デプロイ → 価値検証。
 
@@ -270,7 +245,7 @@ Handoff 例: [`handoff.analysis-delivery.json`](../../skills/planning/issue-stor
 | AsanaBuddyHandoff | 1.1 / 1.2 | epic, subtasks[] |
 | PlanReviewResult | 1.0 | status, summary, findings[] |
 
-### 4.2 配賦・課内系
+### 4.2 配賦・チーム内系
 
 | 型 | ファイル |
 |----|----------|
@@ -286,9 +261,9 @@ Handoff 例: [`handoff.analysis-delivery.json`](../../skills/planning/issue-stor
 ### 4.3 Asana notes 形式（子タスク）
 
 ```markdown
-課: development
+チーム: development
 
-柱: 実装・開発課
+柱: 実装・開発チーム
 
 ## 背景
 …
@@ -300,42 +275,49 @@ Handoff 例: [`handoff.analysis-delivery.json`](../../skills/planning/issue-stor
 …
 ```
 
-`fetch_task.py` は notes を**そのまま表示**する。`課:` の自動パース API は**未実装**（dispatcher SKILL は LLM による読取を前提）。
+`fetch_task.py` は notes を**そのまま表示**する。`チーム:` の自動パース API は**未実装**（dispatcher SKILL は LLM による読取を前提）。
 
-### 4.4 department 解決順（推奨運用）
+### 4.4 department 解決順（task-dispatcher）
 
-1. DispatchRequest の `department`（明示）
-2. Handoff v1.2 の `subtasks[].department`
-3. Asana notes の `課:` 行
-4. `organizations.yaml` の `pillar_defaults`（**文書上のヒューリスティックのみ**、コード未実装）
+1. `DispatchRequest` の `department`（明示）
+2. Asana 子 notes の `チーム:` 行（企画チームが `handoff_to_asana.py` 投入時に付与）
+3. `organizations.yaml` の `pillar_defaults`（notes の `柱:` 等からヒューリスティック推定）
+
+**チーム間 I/O として Handoff JSON ファイルは読まない。** Handoff の `subtasks[].department` は企画チーム内で notes に反映される時点で公式化する。
 
 ---
 
 ## 5. エンドツーエンドシーケンス
 
-### 5.1 企画〜Asana
+### 5.1 企画〜Asana（default v3）
 
 ```mermaid
 sequenceDiagram
   participant U as 利用者
   participant O as workflow-orchestrator
+  participant D as task-dispatcher
+  participant PM as planning-pm
   participant P as issue-story-planner
   participant R as plan-reviewer
   participant A as asana-buddy
 
   U->>O: 生課題 (intake)
-  O-->>U: plan prompt_snippet
-  U->>P: 課題
-  P-->>U: Handoff JSON
-  U->>R: Handoff
-  R-->>U: PlanReviewResult
-  U->>O: gate
-  O-->>U: execute prompt_snippet
-  U->>A: handoff_to_asana.py
-  A-->>U: parent_gid, subtasks
+  O->>O: bootstrap Handoff 生成
+  O->>A: handoff_to_asana.py（企画子 1 件）
+  O->>D: DispatchRequest(department=planning)
+  D->>PM: 委譲
+  PM->>P: Handoff 作成
+  P-->>PM: Handoff JSON
+  PM->>R: plan review
+  R-->>PM: PlanReviewResult
+  PM->>U: gate（Handoff 要約・承認）
+  U->>PM: handoff_approved
+  PM->>A: handoff_to_asana.py --require-review-result（sync）
+  PM->>O: DeptWorkComplete
+  A-->>O: parent_gid, execution 系子
 ```
 
-### 5.2 配賦〜開発課完了（子 1 件）
+### 5.2 配賦〜開発チーム完了（子 1 件）
 
 ```mermaid
 sequenceDiagram
@@ -351,7 +333,7 @@ sequenceDiagram
   O-->>U: dispatch prompt_snippet
   U->>D: DispatchRequest
   D-->>U: PM prompt_snippet
-  U->>PM: 開発課起動
+  U->>PM: 開発チーム起動
   PM->>DW: 要件定義書
   DW->>RV: requirements review
   RV-->>PM: DocReviewResult OK
@@ -405,11 +387,11 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 | G2 | `pillar_defaults` **コード未実装** | department 推定が不安定 |
 | G3 | `with-dispatch` は dispatch で終端 | development-delivery は**別 YAML**、PM 起動は手動/プロンプト連鎖 |
 | G4 | `workflow-session-io.md` が dispatch 未反映 | セッション `current_step_id` に `dispatch` なし |
-| G5 | `asana-buddy` SKILL が v1.1 表記のまま | `課:` 行の公式説明が SKILL に未統合 |
+| G5 | `asana-buddy` SKILL が v1.1 表記のまま | `チーム:` 行の公式説明が SKILL に未統合 |
 | G6 | registry の planner / asana-buddy が schema **1.1 固定表記** | v1.2 は実際には load_handoff 受理 |
 | G7 | `task-executor` が deprecated かつ **enabled: true** | 誤ルートの余地 |
-| G8 | 組織配賦・分析課スキルは **手動雛形** | CONTRIBUTING の agent-creater 唯一入口と注記ずれ |
-| G9 | 課内 ReviewResult の **CLI 検証なし** | JSON Schema は参照用 |
+| G8 | 組織配賦・分析チームスキルは **手動雛形** | CONTRIBUTING の agent-creater 唯一入口と注記ずれ |
+| G9 | チーム内 ReviewResult の **CLI 検証なし** | JSON Schema は参照用 |
 
 ---
 
@@ -419,8 +401,8 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 |---------|--------------|------|
 | FR-L1-01〜09 | §2.1, §5.1, §4.1 | v1.2 は load_handoff 対応 |
 | FR-L2-01〜07 | §2.2, §4.4, §5.2 | G2, G3 が推奨要件の弱点 |
-| FR-L3-01〜08 | §3.1, §5.2 | 開発課・プロンプト順守前提 |
-| FR-L3-A01〜A08 | §2.4, §3.4 | 分析課（analysis-delivery） |
+| FR-L3-01〜08 | §3.1, §5.2 | 開発チーム・プロンプト順守前提 |
+| FR-L3-A01〜A08 | §2.4, §3.4 | 分析チーム（analysis-delivery） |
 | FR-X-01〜05 | §2.5, §7, §8 G8 | |
 | NFR-01〜05 | §1.2, §8 G1 | |
 
@@ -431,4 +413,4 @@ orchestrator が `fetch_task.py --list-subtasks` で全子 `completed` を確認
 | 版 | 日付 | 変更 |
 |----|------|------|
 | 1.0 | 2026-05-18 | 初版（現状構成の PM 起票） |
-| 1.1 | 2026-05-23 | 分析課 delivery 実装（analytics-pm ハブ + 7 ロール）を反映 |
+| 1.1 | 2026-05-23 | 分析チーム delivery 実装（analytics-pm ハブ + 7 ロール）を反映 |

@@ -10,35 +10,57 @@
 |------------|-----|------|
 | `session_id` | string | 任意のセッション識別子（例: UUID または日時） |
 | `raw_request` | string | 利用者が intake で渡した生課題（自然言語） |
-| `current_step_id` | enum | `intake` \| `plan` \| `review` \| `gate` \| `execute` \| `work` |
-| `handoff_path` | string? | 保存した Handoff JSON のパス |
-| `review_result_path` | string? | `PlanReviewResult` JSON のパス |
+| `current_step_id` | enum | `intake` \| `bootstrap` \| `dispatch` \| `work` |
+| `bootstrap_handoff_path` | string? | bootstrap Handoff JSON のパス |
+| `parent_gid` | string? | Asana 親エピック GID |
+| `planning_child_gid` | string? | bootstrap 企画子 GID |
+| `handoff_path` | string? | 本番 Handoff JSON（企画チーム出力） |
+| `review_result_path` | string? | `PlanReviewResult` JSON |
 | `workflow_id` | string | 例: `default` |
 
-## orchestrator の二役
+## orchestrator の役割（v3）
 
 | step id | 役割 | 入力 | 出力（モデル） |
 |---------|------|------|----------------|
-| `intake` | 課題受付・窓口 | `raw_request` | 次: `plan` への `prompt_snippet` |
-| `gate` | ゲート・execute 判定 | Handoff + `PlanReviewResult` | 次: `execute` への `prompt_snippet` または差し戻し |
+| `intake` | 課題受付・窓口 | `raw_request` | bootstrap Handoff |
+| `bootstrap` | 最小 Asana 作成 | bootstrap Handoff | 親 GID + 企画子 GID |
+| `dispatch` | 初回 = 企画チーム配賦 | DispatchRequest | planning-pm 用 prompt_snippet |
 
-## 各 step の入出力
+企画 gate / Handoff 詳細 / Asana 本番投入は **planning-pm（planning-delivery）** が担当。
+
+## L1 各 step の入出力（default v3）
 
 | step id | agent | 入力 | 出力 |
 |---------|-------|------|------|
-| `intake` | workflow-orchestrator | 生課題 | plan 委譲プロンプト |
-| `plan` | issue-story-planner | 生課題（orchestrator 経由） | `AsanaBuddyHandoff` v1.1 |
-| `review` | plan-reviewer | Handoff 案 | `PlanReviewResult` |
-| `gate` | workflow-orchestrator | Handoff + PlanReviewResult | execute 可否・プロンプト |
-| `execute` | asana-buddy | 承認済み Handoff | Asana タスク |
-| `work` | task-executor | Asana 子タスク GID | `TaskWorkResult` + 完了マーク |
+| `intake` | workflow-orchestrator | 生課題 | bootstrap Handoff |
+| `bootstrap` | asana-buddy | bootstrap Handoff | Asana 親 + 企画子 |
+| `dispatch` | task-dispatcher | DispatchRequest（planning） | planning-pm prompt |
 
-拡張（execute 後）: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml)
+## 企画チーム L3（planning-delivery）
+
+| step id | agent | 入力 | 出力 |
+|---------|-------|------|------|
+| `handoff_plan` | issue-story-planner | 生課題 + 子 notes | `AsanaBuddyHandoff` |
+| `plan_review` | plan-reviewer | Handoff 案 | `PlanReviewResult` |
+| `pm_gate` | planning-pm | Handoff + Review | execute 可否 |
+| `asana_execute` | asana-buddy | 承認済み Handoff | Asana タスク群 |
+| `pm_complete` | planning-pm | — | `DeptWorkComplete` |
+
+## 拡張
+
+| 段階 | ファイル | 内容 |
+|------|----------|------|
+| execution 系 dispatch | [`with-dispatch.yaml`](../../workflows/with-dispatch.yaml) | dev/analysis 子 |
+| work（deprecated） | [`with-execution.yaml`](../../workflows/with-execution.yaml) | task-executor |
 
 ## 起動条件
 
-- **intake:** セッション開始時。`current_step_id` は `intake` または未設定。
-- **gate:** `review_passed` 満た後。`PlanReviewResult.status` が `passed` / `passed_with_notes`。
-- **work:** execute 後。サブタスク実行依頼時（`task-executor`）。完了マークはエージェント判断可。
+- **intake:** セッション開始時。
+- **dispatch（execution 系）:** 企画 `DeptWorkComplete` 後。未完了 execution 系子が存在すること。
+- **work:** deprecated task-executor 使用時のみ。
 
-生課題のみで orchestrator（intake）を起動できる。plan / review / execute / work の実処理は各スキルに委譲する。
+生課題のみで orchestrator（intake）を起動できる。企画・実行の実処理は各チーム workflow に委譲する。
+
+## 移行（v2 → v3）
+
+v2 の `plan` / `review` / `gate` / `execute` は L1 から削除し、planning-delivery（L3）へ移管。履歴: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)

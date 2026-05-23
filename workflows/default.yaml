@@ -1,41 +1,32 @@
-# Default workflow — orchestrator intake entry (v2)
-# 変更: v1 は plan 先頭。v2 から intake → plan → review → gate → execute。
+# Default workflow — orchestrator intake entry (v3)
+# v2: intake → plan → review → gate → execute（L1 完結）
+# v3: 企画（plan/review/gate/execute）を planning-delivery（L3）へ移管
 id: default
-version: "2"
-description: intake → plan → review（必須）→ gate → execute
+version: "3"
+description: intake → bootstrap → dispatch（企画チームへ最初の配賦）
 
 policy:
-  review_required: true
+  review_required: false
   entry_step: intake
   entry_agent: workflow-orchestrator
+  note: plan/review/gate/asana 投入は planning-delivery（L3 企画チーム）で実行
 
 steps:
   - id: intake
     agent: workflow-orchestrator
-    role: 課題受付。plan へ委譲プロンプトを返す
+    role: 課題受付。bootstrap 用最小 Handoff（企画子 1 件）を生成
     gate_after: null
 
-  - id: plan
-    agent: issue-story-planner
-    gate_after: null
-
-  - id: review
-    agent: plan-reviewer
-    required: true
-    gate_after: review_passed
-
-  - id: gate
-    agent: workflow-orchestrator
-    role: review 後。Handoff 要約を人間に提示し handoff_approved（Asana 投入前の明示承認）を得てから execute へ
-    gate_after: handoff_approved
-
-  - id: execute
+  - id: bootstrap
     agent: asana-buddy
+    role: 親 + 企画子タスク 1 件を Asana に作成（dispatch 可能にする）
     gate_after: null
 
-gates:
-  review_passed:
-    description: plan-reviewer の PlanReviewResult が passed または passed_with_notes
-    blocks: [gate, execute]
-  handoff_approved:
-    description: gate 段階で利用者が Asana タスク作成（execute）へ進行を明示承認。承認前は handoff_to_asana.py を実行しない
+  - id: dispatch
+    agent: task-dispatcher
+    role: 企画子タスクを planning-delivery へルーティング
+    gate_after: null
+    reads:
+      - workflows/organizations.yaml
+
+gates: {}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "default v3 ドライラン — bootstrap",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】企画チーム L3 化・default v3 ドライラン",
+    "notes_markdown": "## 生課題（intake）\n\ndefault v3 workflow（`intake → bootstrap → dispatch → planning-delivery`）が E2E 手順どおり再現できるか、ローカルでドライランする。\n\n## 制約\n\n- review 必須（plan-reviewer）\n- gate は planning-pm\n- Asana 未設定時は bootstrap / execute をスキップし、JSON 成果物までを記録する"
+  },
+  "subtasks": [
+    {
+      "title": "企画・Handoff 作成",
+      "department": "planning",
+      "background": "企画チーム L3 化後、planner / reviewer は task-dispatcher 経由で planning-pm から起動される。bootstrap 段階では dispatch 可能な企画子 1 件が必要。",
+      "summary": "課題整理・解決ストーリー・execution 系子タスク案を含む AsanaBuddyHandoff を作成し、plan-reviewer レビュー後に Asana へ反映する。",
+      "done_when": "Handoff JSON と PlanReviewResult が output/planning/ に保存され、planning-pm gate で承認後 handoff_to_asana が実行可能な状態（または Asana 未設定時は JSON 保存まで完了）。"
+    }
+  ]
+}

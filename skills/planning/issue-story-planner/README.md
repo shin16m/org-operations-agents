@@ -6,10 +6,10 @@
 
 ## 標準パイプライン
 
-通常は [`workflow-orchestrator`](../../platform/workflow-orchestrator/README.md)（**intake**）から委譲されて起動します。
+[`planning-pm`](../planning-pm/SKILL.md)（企画チーム PM）から委譲されて起動します。
 
 ```
-orchestrator（intake）→ 本スキル（plan）→ plan-reviewer → orchestrator（gate）→ asana-buddy
+task-dispatcher（planning）→ planning-pm → 本スキル → plan-reviewer → planning-pm（gate）→ asana-buddy
 ```
 
 ## 使い方（Copilot / Cursor）
@@ -27,11 +27,11 @@ AsanaBuddyHandoff v1.1（各 subtask に background・summary・done_when 必須
 | [`examples/handoff.agent-workflow-orchestration.json`](examples/handoff.agent-workflow-orchestration.json) | 基盤エピック |
 | [`examples/handoff.orchestrator-intake-entry.json`](examples/handoff.orchestrator-intake-entry.json) | 入口化エピック |
 | [`examples/handoff.skill-review-remediation.json`](examples/handoff.skill-review-remediation.json) | レビュー指摘是正 |
-| [`examples/handoff.analysis-delivery.json`](examples/handoff.analysis-delivery.json) | 分析課 delivery |
+| [`examples/handoff.analysis-delivery.json`](examples/handoff.analysis-delivery.json) | 分析チーム delivery |
 
 スキーマ: [`schemas/asana-buddy-handoff.v1.schema.json`](schemas/asana-buddy-handoff.v1.schema.json)
 
 ## 注意
 
-- 新規 `skills/<organization>/<slug>/` は作らない → [`agent-creater`](../agent-creater/SKILL.md)
-- Handoff 出力後は **plan-reviewer 必須**（[`workflows/default.yaml`](../../../workflows/default.yaml)）
+- 新規 `skills/<organization>/<slug>/` は作らない → [`agent-creater`](../../platform/agent-creater/SKILL.md)
+- Handoff 出力後は **plan-reviewer 必須**（[`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml)）

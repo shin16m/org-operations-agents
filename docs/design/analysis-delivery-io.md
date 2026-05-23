@@ -1,15 +1,50 @@
-# 分析課 I/O・運用ルール
+# 分析チーム delivery I/O
 
-分析課 workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) · 組織: [`org-dispatch-model.md`](org-dispatch-model.md)
+workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) · 組織: [`department-model.md`](department-model.md)
 
-## レイヤー位置
+## 組織
+
+| 項目 | 値 |
+|------|-----|
+| department id | `analysis` |
+| ラベル | 分析チーム |
+| PM ハブ | analytics-pm |
+| スコープ | Asana 子タスク 1 件 = workflow インスタンス 1 本 |
+
+---
+
+## チーム間 I/O（公式）
+
+### 入力
+
+| 来源 | 形式 |
+|------|------|
+| task-dispatcher | `DispatchRequest`（`department: analysis`） |
+| Asana | 子タスク **notes**（背景・概要・完了条件） |
+| Asana（任意） | 親エピック notes |
+
+**読まないもの:** Handoff JSON、PlanReviewResult（チーム間 I/O として禁止）
+
+### 出力
+
+| 形式 | 説明 |
+|------|------|
+| `DeptWorkComplete` | `department: analysis` |
+| Asana | 署名付きコメント + 子タスク完了 |
+| チーム内成果物 | 下表 |
+
+---
+
+## チーム内 I/O
+
+### workflow 概要
 
 ```
 L2 task-dispatcher（department=analysis）
   → L3 analytics-pm（ハブ）
     → data-architect / data-engineer / data-steward / data-analyst / data-scientist / ml-engineer
     → analysis-reviewer（各ゲート）
-  → DeptWorkComplete → orchestrator
+  → DeptWorkComplete → 統括グループ
 ```
 
 ## 成果物パス（推奨・別リポジトリ想定）
@@ -26,6 +61,14 @@ L2 task-dispatcher（department=analysis）
 | 価値検証 | analytics-pm | リリースノート・KPI レポート | `output/analysis/releases/<task_gid>.md` |
 
 > 製品コード・パイプライン実体は **別リポジトリ** に置く。本リポジトリは workflow・スキル定義のみ。
+
+## やらないこと
+
+- Handoff 新規作成（→ 企画チーム）
+- ディスパッチ（→ task-dispatcher）
+- 他チーム成果物の直接編集
+
+---
 
 ## 必須運用ルール
 
@@ -64,7 +107,7 @@ L2 task-dispatcher（department=analysis）
 
 | 種別 | review_kind | スキーマ |
 |------|-------------|----------|
-| 分析課ドキュメント・成果物 | `analytics_requirements` \| `data_model` \| `pipeline` \| `data_quality` \| `analysis_insights` \| `model_eval` | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
+| 分析チームドキュメント・成果物 | `analytics_requirements` \| `data_model` \| `pipeline` \| `data_quality` \| `analysis_insights` \| `model_eval` | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
 | 本番デプロイゲート | `production_deploy_gate` | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
 | デプロイ検証 | `deploy_verification` | `skills/development/reviewer/schemas/verification-result.v1.schema.json` |
 
@@ -78,6 +121,6 @@ analytics-pm 完了時は product-manager と同一スキーマ（`department: a
 
 ## Asana 記録
 
-開発課と同様: 各ロール完了時に `comment_task.py`（署名付き）→ analytics-pm が `complete_task.py -y` → `DeptWorkComplete`。
+開発チームと同様: 各ロール完了時に `comment_task.py`（署名付き）→ analytics-pm が `complete_task.py -y` → `DeptWorkComplete`。
 
 契約: [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md)

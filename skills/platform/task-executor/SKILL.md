@@ -2,7 +2,7 @@
 
 **独立スキル:** Asana 上の**既存サブタスク**を読み、`done_when` に沿ってリポジトリ内作業を行い、完了を報告する（`work` スロット）。
 
-> **Deprecated:** 新規依頼は [`with-dispatch.yaml`](../../../workflows/with-dispatch.yaml) → [`task-dispatcher`](../task-dispatcher/SKILL.md) → 課 workflow（開発課は [`product-manager`](../../development/product-manager/SKILL.md)）を使用する。本スキルは過渡期の単一ワーカーとして残す。
+> **Deprecated:** 新規依頼は [`with-dispatch.yaml`](../../../workflows/with-dispatch.yaml) → [`task-dispatcher`](../task-dispatcher/SKILL.md) → チーム workflow（開発チームは [`product-manager`](../../development/product-manager/SKILL.md)）を使用する。本スキルは過渡期の単一ワーカーとして残す。
 
 人間向け: [`README.md`](README.md) · I/O: [`docs/design/task-work-io.md`](../../../docs/design/task-work-io.md) · 境界: [`docs/design/task-execution-boundary.md`](../../../docs/design/task-execution-boundary.md)
 

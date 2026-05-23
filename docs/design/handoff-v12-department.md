@@ -11,11 +11,11 @@
 
 ## department 値
 
-| 値 | 課 | L2 先 workflow |
+| 値 | チーム | L3 先 workflow |
 |----|-----|----------------|
-| `development` | 開発課 | `development-delivery` |
-| `analysis` | 分析課 | `analysis-delivery` |
-| `planning` | 企画課 | L1 のみ（通常は dispatch しない） |
+| `planning` | 企画チーム | `planning-delivery`（bootstrap 企画子・企画専用子） |
+| `development` | 開発チーム | `development-delivery` |
+| `analysis` | 分析チーム | `analysis-delivery` |
 
 ## pillar → department（v1.2 未設定時）
 
@@ -23,8 +23,15 @@
 
 ## Asana notes への反映
 
-`handoff_to_asana` は `department` があるとき notes 先頭に `課: {department}\n` を付与（v1.1 互換: `load_handoff` は 1.1 / 1.2 両方受理）。
+`handoff_to_asana` は `department` があるとき notes 先頭に `チーム: {department}\n` を付与（**読取は legacy `課:` も受理**）。v1.1 互換: `load_handoff` は 1.1 / 1.2 両方受理。
+
+## Handoff とチーム間 I/O
+
+`AsanaBuddyHandoff` は**企画チームのチーム内成果物**。他チームの公式入力は Asana 子タスク + notes（[`department-model.md`](department-model.md)）。`subtasks[].department` は `handoff_to_asana` 投入時に notes の `チーム:` 行へ反映され、**task-dispatcher は Handoff ファイルを読まない**。
 
 ## planner 追記
 
-本格追記は [`issue-story-planner/SKILL.md`](../../skills/planning/issue-story-planner/SKILL.md) タスク 11。チェックリストは [`planner-orchestrator-dispatch-notes.md`](planner-orchestrator-dispatch-notes.md)。
+企画 Handoff の execution 系子には `department` を付与する。bootstrap 企画子は `planning` 固定。
+
+- チェックリスト: [`planner-orchestrator-dispatch-notes.md`](planner-orchestrator-dispatch-notes.md)
+- SKILL: [`issue-story-planner/SKILL.md`](../../skills/planning/issue-story-planner/SKILL.md)

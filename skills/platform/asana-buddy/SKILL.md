@@ -4,15 +4,23 @@
 
 人間向けのセットアップ・コマンド例は [`README.md`](README.md) を参照。
 
-## 標準パイプライン（execute スロット・review 必須）
+## 標準パイプライン
+
+**bootstrap（L1）:**
 
 ```
-workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必須）→ workflow-orchestrator（gate）→ asana-buddy（本スキル）
+workflow-orchestrator（intake）→ asana-buddy（bootstrap: 親 + 企画子 1 件）
 ```
 
-- 投入は **`AsanaBuddyHandoff` v1.1**（[`handoff_to_asana.py`](optional/handoff_to_asana.py)）。
-- **前提:** 同じ Handoff に対する **`plan-reviewer` の `PlanReviewResult`**（`status`: `passed` または `passed_with_notes`）と、`workflow-orchestrator` による execute 許可。未達なら投入しない。
-- 人間レビューのみで `plan-reviewer` を飛ばす運用は**不可**（[`workflows/default.yaml`](../../../workflows/default.yaml)）。
+**Handoff 投入（企画チーム L3・review 必須）:**
+
+```
+planning-pm → issue-story-planner → plan-reviewer（必須）→ planning-pm（gate）→ asana-buddy（本スキル）
+```
+
+- bootstrap 投入は **`--require-review-result` なし**（最小 Asana 作成）。
+- 本番 Handoff 投入は **`AsanaBuddyHandoff` v1.1**（[`handoff_to_asana.py`](optional/handoff_to_asana.py)）+ **`PlanReviewResult`** + planning-pm による `handoff_approved`。
+- 人間レビューのみで `plan-reviewer` を飛ばす運用は**不可**（[`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml)）。
 - エコシステム: [`docs/inventory/skills-inventory.md`](../../../docs/inventory/skills-inventory.md) · E2E [`docs/e2e/default-workflow.md`](../../../docs/e2e/default-workflow.md) · 基盤 Handoff 例 [`../../planning/issue-story-planner/examples/handoff.agent-workflow-orchestration.json`](../../planning/issue-story-planner/examples/handoff.agent-workflow-orchestration.json)
 
 ## レイアウト
@@ -55,8 +63,8 @@ workflow-orchestrator（intake）→ issue-story-planner → plan-reviewer（必
 
 親＋子の一括は次のいずれか:
 
-- **推奨:** [`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) — `AsanaBuddyHandoff` v1.1 JSON をそのまま投入。運用で review 必須を強制する場合は `--require-review-result path/to/review.json` を付与（`PlanReviewResult` の `status` が `passed` / `passed_with_notes` であること）
-- **既存エピックの更新:** [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) — Handoff を同期（子タイトルの **【n/m】** で対応付け）。`--complete-through N --complete-only` で一括完了。通常の作業完了は [`complete_task.py`](optional/complete_task.py)
+- **推奨:** [`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) — 新規作成、または `--if-not-exists` / `--parent` で**既存親へ sync**（bootstrap 後の本番 Handoff 投入）
+- **補助:** [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) — 同上 sync + `--complete-through N --complete-only` で一括完了
 - **テーマ別:** `asana_<テーマ>_program.py` — 定数 `SUBTASKS` から投入（[`asana_program_common.py`](optional/asana_program_common.py) の `notes_from_legacy_body` で v1.1 形式に整形）
 
 ## 一括プログラムの命名

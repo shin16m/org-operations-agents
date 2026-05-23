@@ -12,7 +12,7 @@ if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
-from asana_program_common import console_safe, fetch_task, list_subtasks  # noqa: E402
+from asana_program_common import console_safe, fetch_task, list_subtasks, parse_task_assignment  # noqa: E402
 
 
 def main() -> None:
@@ -20,6 +20,7 @@ def main() -> None:
     p.add_argument("--gid", required=True, help="Task GID")
     p.add_argument("--json", action="store_true", help="Output raw JSON")
     p.add_argument("--list-subtasks", action="store_true", help="List subtasks of --gid as parent")
+    p.add_argument("--show-assignee", action="store_true", help="Print チーム/担当/状態 from notes")
     args = p.parse_args()
 
     load_env_from_dotfile()
@@ -39,6 +40,9 @@ def main() -> None:
     print(console_safe(f"gid: {data.get('gid')}"))
     print(console_safe(f"name: {data.get('name')}"))
     print(console_safe(f"completed: {data.get('completed')}"))
+    if args.show_assignee:
+        a = parse_task_assignment(data.get("notes") or "")
+        print(console_safe(f"チーム: {a.get('department') or '-'}  担当: {a.get('assignee') or '-'}  状態: {a.get('status') or '-'}"))
     parent = data.get("parent") or {}
     if parent.get("gid"):
         print(console_safe(f"parent: {parent.get('gid')} {parent.get('name', '')[:50]}"))

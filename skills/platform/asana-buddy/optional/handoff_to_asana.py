@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Create Asana epic + subtasks from issue-story-planner AsanaBuddyHandoff JSON (v1.1).
+"""Create or sync Asana epic + subtasks from AsanaBuddyHandoff JSON (v1.1 / v1.2).
 
 Usage:
-  python handoff_to_asana.py --handoff ../../planning/issue-story-planner/examples/handoff.example.json --list-projects
-  python handoff_to_asana.py --handoff handoff.json --require-review-result review.json -y --dry-run
-  python handoff_to_asana.py --handoff handoff.json --require-review-result review.json -y --if-not-exists
-  python handoff_to_asana.py --handoff handoff.json -y --project <GID>
+  python handoff_to_asana.py --handoff handoff.json --list-projects
+  python handoff_to_asana.py --handoff handoff.json --require-review-result review.json -y
+  python handoff_to_asana.py --handoff handoff.json -y --if-not-exists
+  python handoff_to_asana.py --handoff handoff.json -y --parent <PARENT_GID>
+  python handoff_to_asana.py --handoff handoff.json -y --if-not-exists --dry-run
 """
 from __future__ import annotations
 
@@ -27,20 +28,43 @@ from asana_program_common import (  # noqa: E402
     load_handoff,
     load_review_result,
     resolve_project_with_fallback,
+    sync_handoff_to_parent,
 )
 
 
+def _print_sync_result(result: dict) -> None:
+    if result.get("dry_run"):
+        print(
+            "dry-run sync",
+            f"parent={result['parent_gid']}",
+            f"update_parent={result.get('would_update_parent')}",
+            f"subtasks={result.get('subtask_count')}",
+        )
+        return
+    if result.get("updated_parent"):
+        print("updated_parent", result["parent_gid"])
+    for item in result.get("updated", []):
+        print("updated_subtask", item["index"], item["gid"], console_safe(item["title"][:50]))
+    for item in result.get("fuzzy_matched", []):
+        print("fuzzy_matched", item["index"], item["gid"], item.get("department"), console_safe(item["title"][:50]))
+    for item in result.get("created", []):
+        print("created_subtask", item["index"], item["gid"], console_safe(item["title"][:50]))
+    for item in result.get("unmatched_asana", []):
+        print("unmatched_asana", item["gid"], console_safe(item["name"][:50]))
+
+
 def main() -> None:
-    p = argparse.ArgumentParser(description="Import AsanaBuddyHandoff v1.1 JSON into Asana")
+    p = argparse.ArgumentParser(description="Import or sync AsanaBuddyHandoff JSON into Asana")
     p.add_argument("--handoff", required=True, help="Path to handoff JSON file")
-    p.add_argument("--project", default=None, help="Asana project GID")
+    p.add_argument("--project", default=None, help="Asana project GID (create mode only)")
+    p.add_argument("--parent", default=None, help="Existing parent epic GID (sync mode)")
     p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
     p.add_argument("--list-projects", action="store_true", help="List projects and exit")
     p.add_argument("--dry-run", action="store_true", help="Print plan only")
     p.add_argument(
         "--if-not-exists",
         action="store_true",
-        help="Skip if epic.title already exists as top-level project task",
+        help="If epic.title exists in project, sync to that parent instead of creating",
     )
     p.add_argument(
         "--require-review-result",
@@ -66,13 +90,31 @@ def main() -> None:
     subtasks = data["subtasks"]
     epic_title = epic["title"].strip()
 
-    project_id = resolve_project_with_fallback(args.project)
+    parent_gid = args.parent
 
-    if args.if_not_exists:
+    if args.if_not_exists and not parent_gid:
+        project_id = resolve_project_with_fallback(args.project)
         existing = find_project_task_by_exact_name(project_id, epic_title, token)
         if existing:
-            print(f"skip: epic already exists gid={existing}")
+            parent_gid = existing
+
+    if parent_gid:
+        if args.dry_run:
+            _print_sync_result(
+                sync_handoff_to_parent(parent_gid, data, token, dry_run=True)
+            )
             return
+        if not args.yes:
+            print(f"Sync handoff to existing parent {parent_gid}? (y/N): ", end="")
+            if input().strip().lower() != "y":
+                print("abort")
+                sys.exit(0)
+        result = sync_handoff_to_parent(parent_gid, data, token)
+        print("synced_existing", parent_gid)
+        _print_sync_result(result)
+        return
+
+    project_id = resolve_project_with_fallback(args.project)
 
     if args.dry_run:
         print(

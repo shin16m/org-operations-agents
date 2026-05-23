@@ -1,6 +1,6 @@
 # Reviewer
 
-**Role:** 課内レビュー・検証（review_kind 指定）
+**Role:** チーム内レビュー・検証（review_kind 指定）
 
 ## Example
 

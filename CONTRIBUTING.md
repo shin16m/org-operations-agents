@@ -8,6 +8,17 @@
 
 PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) のゲート・境界に抵触しないか確認する。
 
+## 新チーム追加（必須 4 点セット）
+
+[`docs/design/department-model.md`](docs/design/department-model.md) に従う:
+
+1. [`workflows/organizations.yaml`](workflows/organizations.yaml) — `departments[]` に 1 行
+2. `workflows/<id>-delivery.yaml` — チーム内 workflow
+3. `docs/design/<id>-delivery-io.md` — チーム内 I/O + チーム間 I/O
+4. PM ハブ — `skills/<dept>/<dept>-pm/`（`agent-creater` で生成可）
+
+**チーム間 I/O:** Asana 子タスク + notes + `DispatchRequest` / `DeptWorkComplete`。Handoff JSON はチーム間に使わない。
+
 ## スキル変更
 
 - I/O 破壊的変更は Handoff `schema_version` と schema JSON を更新する。
@@ -19,8 +30,8 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 
 ## ワークフロー運用
 
-- 標準 workflow（v2）の入口は **`workflow-orchestrator`（intake）**。順序: intake → plan → review → gate → execute（[`workflows/default.yaml`](workflows/default.yaml)）。
-- **`plan-reviewer` による review は必須**。Handoff を Asana に載せる前に `PlanReviewResult`（`passed` / `passed_with_notes`）を得ること。
+- 標準 workflow（v3）の入口は **`workflow-orchestrator`（intake）**。順序: intake → bootstrap → dispatch → planning-delivery（Handoff → review → gate → Asana）→ execution 系 dispatch（[`workflows/default.yaml`](workflows/default.yaml)）。
+- **`plan-reviewer` による review は必須**（planning-delivery 内）。Handoff を Asana に載せる前に `PlanReviewResult` を得ること。
 - **Asana 投入（CI・本番）:** `handoff_to_asana.py` には `--require-review-result` を付与する（review JSON なしでは CLI が失敗する）。
 - **エージェント作業の可視化:** タスク完了前に [`comment_task.py`](skills/platform/asana-buddy/optional/comment_task.py) で **agent slug + skill パス**の署名付きコメントを投稿する（[`docs/design/agent-asana-comment-signature.md`](docs/design/agent-asana-comment-signature.md)）。その後 `complete_task.py`。
 - **移行:** 以前 issue-story-planner 先頭で運用していた場合も、**新規依頼は orchestrator（intake）から**開始する。
@@ -28,4 +39,5 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 ## 検証
 
 - E2E: [`docs/e2e/default-workflow.md`](docs/e2e/default-workflow.md)
+- 企画チーム v3 スモーク: [`docs/verification/planning-dept-v3-smoke.md`](docs/verification/planning-dept-v3-smoke.md)
 - 記録例: [`docs/verification/e2e-dryrun.md`](docs/verification/e2e-dryrun.md)

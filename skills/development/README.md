@@ -1,4 +1,4 @@
-# development — 開発課
+# development — 開発チーム
 
 子タスク 1 件あたり `development-delivery` workflow。PM がハブ。
 
@@ -10,3 +10,5 @@
 | reviewer | コードレビュー・検証・整合 |
 
 成果物: [`output/development/`](../../output/development/)（requirements / specs / reviews）
+
+I/O: [`docs/design/development-delivery-io.md`](../../docs/design/development-delivery-io.md)

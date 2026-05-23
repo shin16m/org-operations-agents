@@ -1,0 +1,59 @@
+# Planning department workflow — one instance per Asana subtask (department=planning).
+# planning-pm is the hub; invoked after task-dispatcher routes department=planning.
+# Mission: 企画成果（Handoff）を Asana タスク群に落とし込む。
+id: planning-delivery
+version: "1"
+description: PM-led planning delivery (Handoff → review → gate → Asana タスク化)
+
+policy:
+  scope: single_subtask
+  entry_agent: planning-pm
+  parent_context: read_parent_epic_notes
+  operational_rules_doc: docs/design/planning-delivery-io.md
+
+steps:
+  - id: pm_intake
+    agent: planning-pm
+    role: 子タスクの background/summary/done_when と親 notes（生課題）を読み、企画フェーズへ
+
+  - id: handoff_plan
+    agent: issue-story-planner
+    role: 課題整理・解決ストーリー・Handoff JSON 作成
+    artifact: asana-buddy-handoff
+
+  - id: plan_review
+    agent: plan-reviewer
+    role: Handoff 品質レビュー（必須）
+    review_kind: handoff
+    gate_after: review_passed
+
+  - id: pm_gate
+    agent: planning-pm
+    role: Handoff 要約を人間に提示し handoff_approved を得てから Asana 投入へ
+    gate_after: handoff_approved
+
+  - id: asana_execute
+    agent: asana-buddy
+    role: 承認済み Handoff を Asana に反映（親更新 + 実行系子タスク作成）
+    artifact: asana-tasks
+
+  - id: pm_complete
+    agent: planning-pm
+    role: DeptWorkComplete 出力・comment_task → complete_task -y・オーケストレーターへ報告
+
+gates:
+  review_passed:
+    description: PlanReviewResult status passed または passed_with_notes
+  handoff_approved:
+    description: pm_gate で人間が Asana タスク作成（asana_execute）を明示承認
+
+branches:
+  plan_revision:
+    from: plan_review
+    when: status == needs_revision
+    to: handoff_plan
+  plan_blocked:
+    from: plan_review
+    when: status == blocked
+    to: pm_intake
+    note: PM が利用者へエスカレーション

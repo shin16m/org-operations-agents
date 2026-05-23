@@ -1,43 +1,48 @@
-# Department → workflow routing (draft).
-# Consumed by task-dispatcher. New departments add a row here + workflow YAML.
-version: "1"
+# Department → workflow routing.
+# Consumed by task-dispatcher. New departments: see docs/design/department-model.md
+version: "2"
 
 departments:
+  - id: planning
+    label: 企画チーム
+    workflow_id: planning-delivery
+    entry_agent: planning-pm
+    skill_root: skills/planning
+    output_root: output/planning
+    delivery_io_doc: docs/design/planning-delivery-io.md
+    enabled: true
+
   - id: development
-    label: 開発課
+    label: 開発チーム
     workflow_id: development-delivery
     entry_agent: product-manager
     skill_root: skills/development
     output_root: output/development
+    delivery_io_doc: docs/design/development-delivery-io.md
     enabled: true
 
   - id: analysis
-    label: 分析課
+    label: 分析チーム
     workflow_id: analysis-delivery
     entry_agent: analytics-pm
     skill_root: skills/analysis
     output_root: output/analysis
+    delivery_io_doc: docs/design/analysis-delivery-io.md
     enabled: true
 
-  - id: planning
-    label: 企画課
-    workflow_id: default
-    entry_agent: issue-story-planner
-    skill_root: skills/planning
-    output_root: output/planning
-    enabled: true
-    note: L1 企画フェーズ用。L2 ディスパッチ対象には通常含めない。
-
-# 横断（registry 参照用・dispatch 対象外）
-platform:
+# 統括グループ（registry 参照用・dispatch 対象外）
+coordination_group:
+  id: coordination
+  label: 統括グループ
   skill_root: skills/platform
   output_root: output/platform
+  note: intake / bootstrap / dispatch / Asana CRUD / メタ。チーム内 delivery には入らない。
 
-# pillar（Handoff v1.1）→ department のヒューリスティック（v1.2 未設定時）
+# pillar（Handoff v1.2 未設定時）→ department ヒューリスティック
 pillar_defaults:
-  - match: ["実装", "開発課", "検証・開発課", "整備・開発課"]
+  - match: ["実装", "開発チーム", "開発チーム", "検証・開発チーム", "検証・開発チーム", "整備・開発チーム", "整備・開発チーム"]
     department: development
-  - match: ["分析", "データ", "ETL", "モデル", "ML", "ダッシュボード", "KPI"]
+  - match: ["分析", "分析チーム", "データ", "ETL", "モデル", "ML", "ダッシュボード", "KPI"]
     department: analysis
-  - match: ["設計", "方針", "整備", "検証", "企画"]
+  - match: ["設計", "方針", "整備", "検証", "企画", "企画チーム"]
     department: planning

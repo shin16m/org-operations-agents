@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "status": "passed_with_notes",
+  "summary": "v3 ドライラン用 Handoff は epic / subtasks が検証目的と一致。企画子 + 開発チーム検証子の 2 件で着手順が明確。Asana 未設定時は子【2/2】をローカル完了でよい。",
+  "findings": [
+    {
+      "severity": "low",
+      "category": "risk",
+      "message": "bootstrap 企画子と本 Handoff の企画子【1/2】は同一役割。Asana 投入時は親 notes 更新 + 子【2/2】追加を想定（bootstrap 子は planning-pm が complete）。",
+      "subtask_index": 0
+    },
+    {
+      "severity": "low",
+      "category": "io_contract",
+      "message": "schema_version 1.2、各 subtask に department 付与済み。v1.1 必須フィールドも充足。",
+      "subtask_index": 1
+    },
+    {
+      "severity": "low",
+      "category": "task_granularity",
+      "message": "子【2/2】は doc-writer 相当の記録作業。development 配賦後に実施可能。",
+      "subtask_index": 1
+    }
+  ]
+}

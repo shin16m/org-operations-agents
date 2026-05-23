@@ -32,13 +32,13 @@
 
 ## workflow 拡張案
 
-- **採用:** [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) — default v2 の後に `work` 段階を追加
-- **非採用（当面）:** `default.yaml` を v3 に直接変更（既存 E2E との差分を PR で分離）
+- **採用:** [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) — default v3 の後に `work` 段階を追加
+- **default v3:** intake → bootstrap → dispatch（企画は planning-delivery）
 
 ```yaml
 # with-execution.yaml（要約）
 steps:
-  - intake → plan → review → gate → execute → work
+  - intake → bootstrap → dispatch → work
 work:
   agent: task-executor
 ```

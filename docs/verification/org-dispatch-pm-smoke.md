@@ -1,4 +1,4 @@
-# 組織配賦・開発課 PM — スモーク記録
+# 組織配賦・開発チーム PM — スモーク記録
 
 エピック Handoff: [`handoff.org-dispatch-pm-workflow.json`](../../skills/planning/issue-story-planner/examples/handoff.org-dispatch-pm-workflow.json)
 
@@ -14,9 +14,11 @@
 
 | 段階 | ファイル |
 |------|----------|
-| 企画 | `workflows/default.yaml` |
+| 受付 | `workflows/default.yaml` v3（intake → bootstrap → dispatch） |
+| 企画チーム | `workflows/planning-delivery.yaml` → `planning-pm` |
 | 配賦 | `workflows/with-dispatch.yaml` → `task-dispatcher` |
-| 開発課 | `workflows/development-delivery.yaml` → `product-manager` |
+| 開発チーム | `workflows/development-delivery.yaml` → `product-manager` |
+| 分析チーム | `workflows/analysis-delivery.yaml` → `analytics-pm` |
 
 ## 手順（ドライラン可）
 
@@ -37,10 +39,11 @@
 
 | department | workflow_id | entry_agent | 状態 |
 |------------|-------------|-------------|------|
+| planning | planning-delivery | planning-pm | 実装済み（v3） |
 | development | development-delivery | product-manager | 実装済み |
-| analysis | analysis-delivery | analytics-pm | 実装済み（2026-05 追加） |
+| analysis | analysis-delivery | analytics-pm | 実装済み |
 
-> 本スモーク（2026-05-17）は開発課のみ実施。分析課ルーティングは [`docs/e2e/dispatch-workflow.md`](../e2e/dispatch-workflow.md) を参照。
+> 本スモーク（2026-05-17）は開発チームのみ実施。分析チームルーティングは [`docs/e2e/dispatch-workflow.md`](../e2e/dispatch-workflow.md) を参照。
 
 ## 完了報告先
 
@@ -51,5 +54,5 @@
 - `docs/design/org-dispatch-model.md`
 - `workflows/organizations.yaml`, `development-delivery.yaml`, `with-dispatch.yaml`
 - `skills/platform/task-dispatcher/`, `product-manager/`, `doc-writer/`, `developer/`, `reviewer/`
-- 分析課（後追い）: `workflows/analysis-delivery.yaml`, `skills/analysis/analytics-pm/`, `skills/data-*/`, `skills/analysis/ml-engineer/`, `skills/analysis/analysis-reviewer/`
-- Handoff v1.2 スキーマ・`asana_program_common` の `課:` 行
+- 分析チーム（後追い）: `workflows/analysis-delivery.yaml`, `skills/analysis/analytics-pm/`, `skills/data-*/`, `skills/analysis/ml-engineer/`, `skills/analysis/analysis-reviewer/`
+- Handoff v1.2 スキーマ・`asana_program_common` の `チーム:` 行

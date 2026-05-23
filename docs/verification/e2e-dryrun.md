@@ -5,7 +5,7 @@
 - 2026-05-17 — マルチエージェント基盤エピック
 - 2026-05-17 — workflow v2（orchestrator intake）・スキルレビュー是正
 
-## スコープ（v2）
+## スコープ（v2 — 履歴）
 
 | 段階 | 確認内容 |
 |------|----------|
@@ -15,6 +15,17 @@
 | gate | workflow-orchestrator → execute 委譲 |
 | execute | handoff_to_asana.py（任意 `--require-review-result`） |
 
+## スコープ（v3 — 現行）
+
+| 段階 | 確認内容 |
+|------|----------|
+| intake | workflow-orchestrator → bootstrap Handoff |
+| bootstrap | asana-buddy → 親 + 企画子 |
+| dispatch | task-dispatcher → planning-pm |
+| planning-delivery | Handoff → review → gate → Asana タスク化 |
+
+手順: [`docs/e2e/default-workflow.md`](../e2e/default-workflow.md)
+
 ## 中間成果物（パス）
 
 | 段階 | ファイル |
@@ -23,7 +34,7 @@
 | I/O | `docs/design/workflow-io-contract.md` |
 | セッション | `docs/design/workflow-session-io.md` |
 | registry | `workflows/agent-registry.yaml` |
-| workflow | `workflows/default.yaml` v2 |
+| workflow | `workflows/default.yaml` v3（v2 記録は上記） |
 | review 契約 | `docs/design/plan-reviewer-contract.md` |
 | review スキーマ | `skills/planning/plan-reviewer/schemas/plan-review-result.v1.schema.json` |
 | E2E 手順 | `docs/e2e/default-workflow.md` |

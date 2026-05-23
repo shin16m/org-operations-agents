@@ -1,8 +1,8 @@
 # plan-reviewer SKILL
 
-**独立スキル:** Handoff v1.1 のプラン品質ゲート（`review` スロット・**ワークフロー必須段階**）。新規 `skills/<organization>/<slug>/` は作成しない → [`agent-creater`](../agent-creater/SKILL.md)。
+**独立スキル:** Handoff v1.1 のプラン品質ゲート（**企画チーム L3・planning-pm から委譲**）。新規 `skills/<organization>/<slug>/` は作成しない → [`agent-creater`](../../platform/agent-creater/SKILL.md)。
 
-**省略不可:** 標準 workflow（[`workflows/default.yaml`](../../../workflows/default.yaml)）では、Asana 投入前に本スキルによる `PlanReviewResult` が必須。
+**省略不可:** [`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) では、Asana 投入前に本スキルによる `PlanReviewResult` が必須。
 
 人間向け手順: [`README.md`](README.md)
 
@@ -35,7 +35,7 @@
 
 ## ゲート
 
-- `passed` / `passed_with_notes` → 下流 [`workflow-orchestrator`（gate）](../../platform/workflow-orchestrator/SKILL.md) → [`asana-buddy`](../../platform/asana-buddy/SKILL.md) 可
+- `passed` / `passed_with_notes` → [`planning-pm`（gate）](../planning-pm/SKILL.md) → [`asana-buddy`](../../platform/asana-buddy/SKILL.md) 可
 - `needs_revision` / `blocked` → `issue-story-planner` へ差し戻し。Asana 投入不可
 
 ## Asana 記録（任意）
