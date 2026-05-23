@@ -13,8 +13,6 @@
 
 **full-ui 時:** UX チーム `ux-reviewer` が実装一致 review（[`ux-delivery-io.md`](../../docs/design/ux-delivery-io.md)）
 
-Deprecated: `doc-writer` / `reviewer`（v1）
-
 成果物: [`output/development/`](../../output/development/)
 
 I/O: [`docs/design/development-delivery-io.md`](../../docs/design/development-delivery-io.md) · PM 委譲: [`docs/design/development-pm-assignment.md`](../../docs/design/development-pm-assignment.md)

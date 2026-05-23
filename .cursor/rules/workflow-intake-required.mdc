@@ -45,7 +45,7 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | 開発 | product-manager | `output/development/` |
 | 分析 | analytics-pm | `output/analysis/` |
 
-**開発チーム** — 要件 / 仕様 → doc-writer + reviewer → 実装 → 検証。
+**開発チーム** — 要件 → 設計 → 実装 → dev-reviewer / qa-verifier（v3）。
 
 **分析チーム** — [`analysis-delivery`](workflows/analysis-delivery.yaml)（SLA・本番ゲート必須）→ `output/analysis/reviews/`。
 

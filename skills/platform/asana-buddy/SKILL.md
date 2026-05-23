@@ -56,7 +56,7 @@ planning-pm → issue-story-planner → plan-reviewer（必須）→ planning-pm
 ### 消費側の約束事
 
 1. **`epic.title` / `epic.notes_markdown`** — 親タスクの `name` / `notes` に対応。一括スクリプトでは既存の `EPIC_NAME` / `EPIC_NOTES` 定数へ写経するか、小さな専用プログラムから `create_task` を呼ぶ。
-2. **`subtasks`** — 配列は **着手順（先頭＝最初にやること）**。Asana が「新しいサブタスクを上に積む」表示になりやすいため、**API では配列の逆順で `create_subtask`** すること（[`optional/asana_inflation_2026_household_program.py`](optional/asana_inflation_2026_household_program.py) の `reversed(SUBTASKS)` と同じ方針）。
+2. **`subtasks`** — 配列は **着手順（先頭＝最初にやること）**。Asana が「新しいサブタスクを上に積む」表示になりやすいため、**API では配列の逆順で `create_subtask`** すること（[`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) · [`asana_program_common.create_subtasks_reversed`](optional/asana_program_common.py) と同じ方針）。
 3. **各子タスクの Asana `notes`** — ハンドオフでは `background`（背景）・`summary`（概要）・`done_when`（完了条件）が**必須**。消費側はこれらを 1 本の `notes` にまとめる（例: `## 背景` / `## 概要` / `## 完了条件` の Markdown 見出しで連結）。`pillar` がある場合は先頭に `柱: {pillar}\n\n` を付けてから続けてよい。
 
 単発タスクのみなら引き続き `agent_handler_asana.py` の `--name` / `--notes` を使う。
@@ -65,11 +65,9 @@ planning-pm → issue-story-planner → plan-reviewer（必須）→ planning-pm
 
 - **推奨:** [`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) — 新規作成、または `--if-not-exists` / `--parent` で**既存親へ sync**（bootstrap 後の本番 Handoff 投入）
 - **補助:** [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) — 同上 sync + `--complete-through N --complete-only` で一括完了
-- **テーマ別:** `asana_<テーマ>_program.py` — 定数 `SUBTASKS` から投入（[`asana_program_common.py`](optional/asana_program_common.py) の `notes_from_legacy_body` で v1.1 形式に整形）
+- **PM サブ分解:** [`optional/pm_assign_subtasks.py`](optional/pm_assign_subtasks.py) — assign plan JSON からネストサブ作成
 
-## 一括プログラムの命名
-
-テーマ別の親タスク＋サブタスク投入用は `optional/asana_<テーマ>_program.py`（例: 物価・家計、社会課題、`optional/asana_hikikomori_support_program.py`（ひきこもり支援）、`optional/asana_ai_agent_adoption_program.py`（AIエージェント普及の阻害要因））を置く。
+Handoff を使わない ad-hoc 一括は fork 先で `asana_program_common.py` を import した小スクリプトを **optional/** に置く（本テンプレには同梱しない）。
 
 ## Asana タスク CLI（読取・コメント・完了）
 

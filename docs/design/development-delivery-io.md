@@ -25,8 +25,6 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 | qa-verifier | dept_review | 動作検証 |
 | ux-reviewer | dept_review | **full-ui** 時の実装一致 review（UX チーム所属・開発 PM から委譲） |
 
-**Deprecated:** `doc-writer` / `reviewer`（v1）— registry `enabled: false`
-
 ---
 
 ## チーム間 I/O（公式）

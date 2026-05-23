@@ -86,7 +86,7 @@ python tools/run_all_teams_dryrun.py --parent 1215081453840132 --skip-bootstrap 
 
 `workflow-orchestrator`, `asana-buddy`, `task-dispatcher`, `issue-story-planner`, `plan-reviewer`, `planning-pm`, `ux-pm`, `ux-designer`, `ux-reviewer`, `analytics-pm`, `data-architect`, `data-engineer`, `data-steward`, `data-analyst`, `data-scientist`, `ml-engineer`, `analysis-reviewer`, `product-manager`, `requirements-writer`, `tech-designer`, `developer`, `dev-reviewer`, `qa-verifier`
 
-**対象外（意図）:** `agent-creater`（meta）· `doc-writer` / `reviewer`（disabled）
+**対象外（意図）:** `agent-creater`（meta）
 
 ---
 

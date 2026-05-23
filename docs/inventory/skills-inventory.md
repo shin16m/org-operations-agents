@@ -41,8 +41,6 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | `ux-pm` | 業務 | UX チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
 | `ux-designer` | 業務 | UX チーム | 実装済 | 体験設計・Design System |
 | `ux-reviewer` | 業務 | UX チーム | 実装済 | ux_spec / ux_implementation |
-| `doc-writer` | 業務 | 開発チーム | deprecated | → requirements-writer |
-| `reviewer` | 業務 | 開発チーム | deprecated | → dev-reviewer + qa-verifier |
 | `analytics-pm` | 業務 | 分析チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
 | `data-architect` | 業務 | 分析チーム | 実装済 | データモデル・SLA |
 | `data-engineer` | 業務 | 分析チーム | 実装済 | ETL/ELT パイプライン |

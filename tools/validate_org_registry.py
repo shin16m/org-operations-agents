@@ -323,6 +323,14 @@ def main() -> int:
         errors.append("workflows/with-execution.yaml must be removed with task-executor")
     if (ROOT / "skills/platform/task-executor").is_dir():
         errors.append("skills/platform/task-executor/ must be removed")
+    if (ROOT / "skills/development/doc-writer").is_dir():
+        errors.append("skills/development/doc-writer/ must be removed (use requirements-writer)")
+    if (ROOT / "skills/development/reviewer").is_dir():
+        errors.append("skills/development/reviewer/ must be removed (use dev-reviewer + qa-verifier)")
+    for legacy_program in (ROOT / "skills/platform/asana-buddy/optional").glob("asana_*_program.py"):
+        errors.append(f"{legacy_program.relative_to(ROOT)} must be removed (use handoff_to_asana.py)")
+    if "doc-writer" in registry_text or re.search(r"slug:\s*reviewer\b", registry_text):
+        errors.append("agent-registry.yaml must not register deprecated doc-writer / reviewer")
 
     if errors:
         print("\nVALIDATION FAILED:", file=sys.stderr)

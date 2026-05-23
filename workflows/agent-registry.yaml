@@ -158,18 +158,6 @@ agents:
       output_schemas:
         - skills/ux/ux-reviewer/schemas/ux-review-result.v1.schema.json
 
-  - slug: doc-writer
-    slot: dept_work
-    skill_path: skills/development/doc-writer
-    enabled: false
-    note: "deprecated → requirements-writer"
-
-  - slug: reviewer
-    slot: dept_review
-    skill_path: skills/development/reviewer
-    enabled: false
-    note: "deprecated → dev-reviewer + qa-verifier"
-
   - slug: analytics-pm
     slot: dept_orchestrate
     skill_path: skills/analysis/analytics-pm
