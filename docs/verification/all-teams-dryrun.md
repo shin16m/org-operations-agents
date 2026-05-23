@@ -108,6 +108,7 @@ python tools/run_all_teams_dryrun.py --parent 1215081453840132 --skip-bootstrap 
 1. **PM サブタスク分解** — ux-pm / analytics-pm / product-manager いずれも `pm_assign_subtasks.py` で nested サブ作成 → ワーカー comment/complete → PM が親 complete。
 2. **full-ui 依存** — UX 子完了後、development 子 notes に `profile: full-ui` + `## 依存` を転記してから development サブタスク投入。
 3. **初回失敗** — `update_task_notes.py --notes` は `--assignee` 必須のため CLI 直呼びは失敗。スクリプト内 API 直呼びに修正済。
+4. **v1 dryrun の限界** — `run_all_teams_dryrun.py` は **ワーカーを別エージェントセッションで起動しない**。PM 脚本が全 slug の comment を代投する **wiring 検証**のみ。実 multi-agent は [`pm-worker-dispatch-ssot.md`](../design/pm-worker-dispatch-ssot.md) + `pm_emit_worker_prompt.py` を使う。
 
 ---
 

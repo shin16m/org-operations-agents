@@ -193,6 +193,15 @@ def main() -> int:
         pm_text = pm_skill.read_text(encoding="utf-8")
         if "pm_assign_subtasks" not in pm_text or "output/development/app/" not in pm_text:
             errors.append("product-manager SKILL must forbid direct app/ writes and require pm_assign_subtasks")
+        if "pm_emit_worker_prompt" not in pm_text or "pm-worker-dispatch-ssot" not in pm_text:
+            errors.append("product-manager SKILL must reference L3b worker dispatch")
+
+    worker_ssot = ROOT / "docs/design/pm-worker-dispatch-ssot.md"
+    if not worker_ssot.is_file():
+        errors.append("missing docs/design/pm-worker-dispatch-ssot.md")
+    emit_tool = ROOT / "tools/pm_emit_worker_prompt.py"
+    if not emit_tool.is_file():
+        errors.append("missing tools/pm_emit_worker_prompt.py")
 
     if errors:
         print("\nVALIDATION FAILED:", file=sys.stderr)

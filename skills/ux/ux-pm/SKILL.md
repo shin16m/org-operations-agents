@@ -25,6 +25,16 @@
 
 再実施時: 完了タスクは `complete_task.py --undo -y`。旧成果物は `output/ux/_archive/` 参照。
 
+## ワーカー dispatch（L3b・必須）
+
+`pm_assign_subtasks` 後、ux-designer / ux-reviewer の作業は **別セッション**で起動する。
+
+```powershell
+python tools/pm_emit_worker_prompt.py --parent <親GID> --department ux
+```
+
+PM セッションは snippet 出力後一旦終了。SSOT: [`pm-worker-dispatch-ssot.md`](../../../docs/design/pm-worker-dispatch-ssot.md)
+
 ## 責務
 
 1. `fetch_task.py --gid <task_gid> --show-assignee` で子 notes を読む

@@ -76,7 +76,12 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 
 【PM のみ】サブ完了のたびに当該サブを complete。全サブ完了後 comment_task → 親 complete → DeptWorkComplete（artifacts[] 公開）。
 
-参照: docs/design/ux-pm-assignment.md · skills/ux/ux-pm/SKILL.md
+【L3b — ワーカー dispatch（必須）】サブタスク作成後、PM セッションで worker 作業を続けない。
+1. `python tools/pm_emit_worker_prompt.py --parent {task_gid} --department ux` で先頭サブの WorkerDispatchSnippet を出力
+2. その snippet を **別エージェントセッション**（ux-designer 等）へ渡す
+3. PM セッションは一旦終了。ワーカー comment 後に PM がサブ complete → 次サブへ
+
+参照: docs/design/ux-pm-assignment.md · docs/design/pm-worker-dispatch-ssot.md · skills/ux/ux-pm/SKILL.md
 ```
 
 ---
@@ -108,7 +113,12 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 
 【PM のみ】全サブ完了後 comment_task → 親 complete → DeptWorkComplete。
 
-参照: docs/design/development-pm-assignment.md · skills/development/product-manager/SKILL.md
+【L3b — ワーカー dispatch（必須）】サブタスク作成後、PM セッションで requirements-writer / developer 等の作業を続けない。
+1. `python tools/pm_emit_worker_prompt.py --parent {task_gid} --department development`
+2. WorkerDispatchSnippet を **別セッション**の該当 worker へ渡す
+3. PM セッションは一旦終了
+
+参照: docs/design/development-pm-assignment.md · docs/design/pm-worker-dispatch-ssot.md · skills/development/product-manager/SKILL.md
 ```
 
 ---
@@ -135,7 +145,12 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 
 【PM のみ】サブ完了のたびに当該サブを complete。全サブ完了後 comment_task → 親 complete → DeptWorkComplete。
 
-参照: docs/design/analytics-pm-assignment.md · skills/analysis/analytics-pm/SKILL.md
+【L3b — ワーカー dispatch（必須）】
+1. `python tools/pm_emit_worker_prompt.py --parent {task_gid} --department analysis`
+2. WorkerDispatchSnippet を data-* / analysis-reviewer の **別セッション**へ渡す
+3. PM セッションは一旦終了
+
+参照: docs/design/analytics-pm-assignment.md · docs/design/pm-worker-dispatch-ssot.md · skills/analysis/analytics-pm/SKILL.md
 ```
 
 ---

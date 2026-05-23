@@ -25,6 +25,17 @@
 
 再実施時: 完了タスクは `complete_task.py --undo -y`。旧成果物は `output/development/_archive/` 参照。
 
+## ワーカー dispatch（L3b・必須）
+
+サブタスク作成後、**PM セッションで worker 作業を続けない。**
+
+1. `python tools/pm_emit_worker_prompt.py --parent <親GID> --department development`
+2. 出力された **WorkerDispatchSnippet** を利用者 / **別エージェントセッション**（requirements-writer, developer 等）へ渡す
+3. **PM セッションは一旦終了**（ワーカー `comment_task` を待つ）
+4. ワーカー完了後 PM が当該サブを `complete_task -y` → 次サブで 1 に戻る
+
+SSOT: [`pm-worker-dispatch-ssot.md`](../../../docs/design/pm-worker-dispatch-ssot.md)
+
 ## 責務
 
 1. `fetch_task.py --gid <task_gid> --show-assignee` で子 notes（背景・概要・完了条件・**profile**）を読む

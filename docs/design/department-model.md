@@ -19,6 +19,7 @@
 2. **チーム間は契約のみ** — チームをまたぐ公式 I/O は下表に限定する
 3. **Handoff JSON はチーム間 I/O に使わない** — 企画チームの**チーム内**成果物。他チームは読まない
 4. **統括グループは配線** — intake / bootstrap / dispatch / Asana CRUD。業務判断はチーム PM へ
+5. **L3 は二段 dispatch** — L2 で PM のみ · L3b で PM → ワーカー（[`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md)）。PM 1 セッションで worker 成果物まで書かない
 
 ---
 

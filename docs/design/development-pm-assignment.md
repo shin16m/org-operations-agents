@@ -23,6 +23,8 @@
 4. pm_assign_subtasks.py でサブタスク作成 + 各 担当: 設定
 5. 親 notes → 担当: product-manager, 状態: in_progress, profile: <決定値>
 6. サブ完了のたびに次フェーズを確認し、全サブ完了後に DeptWorkComplete
+
+**L3b:** 各サブについて [`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md) に従い WorkerDispatchSnippet を別セッションへ渡す。PM が worker 成果物まで同一セッションで書かない。
 ```
 
 **禁止:** サブタスクを作らず、親タスク notes の `担当:` だけ requirements-writer / developer 等に書き換えて委譲すること。
@@ -184,6 +186,7 @@ fetch_task.py --show-assignee で担当が developer であることを確認し
 ## 参照
 
 - **dispatch prompt:** [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md#development)
+- **worker dispatch:** [`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md)
 - [`development-delivery-io.md`](development-delivery-io.md)
 - [`ux-delivery-io.md`](ux-delivery-io.md)
 - [`development-delivery.yaml`](../../workflows/development-delivery.yaml)
