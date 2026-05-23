@@ -31,7 +31,7 @@ workflows/agent-registry.yaml + workflows/*.yaml
 | **スラッグ** | `kebab-case`、ASCII のみ（例: `asana-buddy`, `invoice-helper`）。表示名はペルソナや SKILL 本文で別途定義。 |
 | **README.md** | 人間向けの概要・セットアップ・実行例（**必須**）。 |
 | **SKILL.md** | Cursor / Copilot 向けのスキル定義・運用・I/O 契約（**必須**）。 |
-| **personas/** | `*.json` / `*.md` のペルソナ定義（**必須**）。 |
+| **personas/** | `personas/<slug>.md` — ペルソナ定義（**必須・正典は Markdown のみ**） |
 | **optional/** | 外部 API 連携スクリプト、`requirements.txt` 等（必要時のみ）。機密はコミットしない（`.env` は gitignore）。 |
 | **prompts.md** または **prompts/** | エージェント専用の問診・コアプロンプトだけを分けたい場合に追加。 |
 
@@ -47,8 +47,7 @@ skills/
     ├── README.md          # 人間向け（必須）
     ├── SKILL.md           # スキル定義（必須）
     ├── personas/
-    │   ├── <persona-name>.json
-    │   └── <persona-name>.md
+    │   └── <persona-name>.md    # 正典（必須）
     ├── optional/          # 外部連携・スクリプトがある場合のみ
     │   ├── requirements.txt
     │   └── ...
@@ -63,7 +62,7 @@ skills/
 
 1. スラッグを決め、`skills/<organization>/<agent-slug>/` を新規作成する（**`agent-creater` の外**）。
 2. **`README.md`**（セットアップ・実行例）と **`SKILL.md`**（スキル契約）を書く。README から SKILL へリンクする。
-3. **`personas/`** に JSON と Markdown を置く（ペルソナ問診の出力をここへ保存する手順を README に書く）。
+3. **`personas/<slug>.md`** を置く（正典）。Copilot 向け `.json` は**新規では生成しない**（既存スキルの json は legacy 互換）。
 4. 外部連携が必要なら **`optional/`** にスクリプトと `requirements.txt` を置く。API キーはリポジトリに含めない。
 5. 必要なら `prompts.md` を追加。他スキルとの連携（例: issue-story-planner → asana-buddy）があれば SKILL.md に I/O を明記する。
 

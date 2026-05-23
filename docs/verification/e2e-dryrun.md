@@ -1,21 +1,6 @@
-# E2E ドライラン記録
+# E2E ドライラン記録（v3）
 
-## 実施日
-
-- 2026-05-17 — マルチエージェント基盤エピック
-- 2026-05-17 — workflow v2（orchestrator intake）・スキルレビュー是正
-
-## スコープ（v2 — 履歴）
-
-| 段階 | 確認内容 |
-|------|----------|
-| intake | workflow-orchestrator → planner 委譲プロンプト |
-| plan | issue-story-planner → Handoff v1.1 |
-| review | plan-reviewer → PlanReviewResult v1.0 |
-| gate | workflow-orchestrator → execute 委譲 |
-| execute | handoff_to_asana.py（任意 `--require-review-result`） |
-
-## スコープ（v3 — 現行）
+## スコープ（現行）
 
 | 段階 | 確認内容 |
 |------|----------|
@@ -34,16 +19,9 @@
 | I/O | `docs/design/workflow-io-contract.md` |
 | セッション | `docs/design/workflow-session-io.md` |
 | registry | `workflows/agent-registry.yaml` |
-| workflow | `workflows/default.yaml` v3（v2 記録は上記） |
+| workflow | `workflows/default.yaml` v3 |
 | review 契約 | `docs/design/plan-reviewer-contract.md` |
-| review スキーマ | `skills/planning/plan-reviewer/schemas/plan-review-result.v1.schema.json` |
 | E2E 手順 | `docs/e2e/default-workflow.md` |
-| 入口化 dryrun | `docs/verification/orchestrator-intake-dryrun.md` |
-
-## Asana エピック（参考）
-
-- 基盤構築: https://app.asana.com/1/1214766054680431/project/1214771428861230/task/1214879346897459
-- オーケストレーター入口化: https://app.asana.com/1/1214766054680431/project/1214771428861230/task/1214873888809993
 
 ## 拡張スモーク（registry）
 
@@ -51,12 +29,15 @@
 
 ## 結果
 
-- ルート README → intake 起点の v3 手順で再現可能（v2 履歴は本ファイル §スコープ参照）
+- ルート README → intake 起点の **v3** 手順で再現可能
 - `handoff_to_asana.py --require-review-result` で review ゲートを CLI 強制可能
-- レガシー `skills/platform/agent-creater/agents/asana-buddy/` 削除済み
 
-## 最新の dryrun 記録
+## 最新 dryrun 記録
 
 - 全チーム E2E: [`all-teams-dryrun.md`](all-teams-dryrun.md)
 - 企画チーム L3 化: [`planning-dept-v3-dryrun.md`](planning-dept-v3-dryrun.md)
-- 一覧: [`README.md`](README.md)
+- 索引: [`README.md`](README.md)
+
+## 履歴（v2）
+
+v2 記録: [`archive/default-v2-dryrun.md`](archive/default-v2-dryrun.md) · intake v2: [`archive/orchestrator-intake-v2-dryrun.md`](archive/orchestrator-intake-v2-dryrun.md)
