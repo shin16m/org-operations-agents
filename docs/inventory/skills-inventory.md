@@ -20,7 +20,6 @@ workflow-orchestrator（intake → bootstrap → dispatch）
   → analytics-pm → data-architect / … / analysis-reviewer（分析チーム）
 ```
 
-- 過渡期: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) + `task-executor`
 - 組織ルーティング: [`workflows/organizations.yaml`](../../workflows/organizations.yaml)
 
 ## スキル一覧
@@ -52,7 +51,6 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | `data-scientist` | 業務 | 分析チーム | 実装済 | モデル開発 |
 | `ml-engineer` | 業務 | 分析チーム | 実装済 | デプロイ・MLOps |
 | `analysis-reviewer` | 業務 | 分析チーム | 実装済 | 分析レビュー・本番ゲート |
-| `task-executor` | 業務 | `work` | **deprecated** | 単一ワーカー（過渡期） |
 | `agent-creater` | メタ | — | 実装済 | 要件 → `skills/<organization>/<slug>/` 雛形 |
 
 ## 機械検証
@@ -73,7 +71,6 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | ファイル | 用途 |
 |----------|------|
 | `handoff.org-dispatch-pm-workflow.json` | 組織配賦・PM ワークフロー |
-| `handoff.task-executor-agent.json` | タスク実行フェーズ（レガシー） |
 | `handoff.agent-workflow-orchestration.json` | 基盤エピック |
 | `handoff.analysis-delivery.json` | 分析チーム delivery |
 | `handoff.ux-web-app.json` | UX + full-ui 開発（Web Epic） |

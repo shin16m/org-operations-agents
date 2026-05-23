@@ -8,6 +8,8 @@
 
 **PM → ワーカー dispatch SSOT:** [`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md) — L3b。PM だけが動く状態を防ぐ第 2 配賦。
 
+**レビュー NG → 修正タスク SSOT:** [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md) — Result は PM へ提出。NG 時は修正サブを新規追加。**完了タスクの `--undo` 再開は禁止。**
+
 **新 department 追加時:** [`new-department-checklist.md`](new-department-checklist.md) · 検証: `python tools/validate_org_registry.py`
 
 ## DispatchRequest（task-dispatcher 入力）
@@ -76,7 +78,7 @@
 
 企画: [`planning-delivery-io.md`](planning-delivery-io.md) · UX: [`ux-delivery-io.md`](ux-delivery-io.md) · 開発: [`development-delivery-io.md`](development-delivery-io.md) · 分析: [`analysis-delivery-io.md`](analysis-delivery-io.md)
 
-共通: `status` は `passed` \| `passed_with_notes` \| `failed`。`failed` 時は差し戻し先を `message` に明記。
+共通: `status` は `passed` \| `passed_with_notes` \| `failed`。reviewer は **PM へ提出**（`comment_task` + JSON）。`failed` 時は PM が **修正サブタスクを新規作成**（[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)）。完了済みタスクを `--undo` しない。
 
 ### MismatchReviewResult 追加フィールド
 
@@ -85,22 +87,22 @@
 | `fix_target` | enum | `document` \| `code` |
 | `mismatch_summary` | string | 不整合の要約 |
 
-- `document` → requirements-writer（mode=as-built-spec）が仕様修正
-- `code` → PM が developer へ修正依頼
+- `document` → PM が requirements-writer 向け **修正サブ**を新規作成
+- `code` → PM が developer 向け **修正サブ**を新規作成
 
-## TaskWorkRequest との関係（task-executor 移行）
+詳細: [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)
 
-| 項目 | TaskWorkRequest / task-executor | 新モデル |
-|------|--------------------------------|----------|
-| 単位 | 子 1 件 | 同じ |
-| 実行 | 単一エージェントが全部 | dispatcher → チーム workflow → 複数ロール |
-| 完了 | TaskWorkResult | DeptWorkComplete |
+## 移行完了（旧 TaskWorkRequest モデル）
 
-**移行方針:**
+旧「単一ワーカーが子 1 件を全部実行」モデル（TaskWorkRequest / TaskWorkResult）は **廃止**。  
+現行は **task-dispatcher → チーム PM → ワーカー**（[`department-model.md`](department-model.md)）。
 
-- `task-executor` は **deprecated**（[`with-execution.yaml`](../../workflows/with-execution.yaml) 互換のため registry には残す）。
+| 旧 | 現行 |
+|----|------|
+| TaskWorkRequest / TaskWorkResult | `DispatchRequest` / `DeptWorkComplete` |
+| 単一 executor | チーム内複数ロール（requirements-writer, developer, …） |
+
 - 新規依頼は [`with-dispatch.yaml`](../../workflows/with-dispatch.yaml) の `dispatch` + チーム workflow を使う。
-- 緊急時のみ「子 GID だけ渡して全部やって」→ task-executor（過渡期）。
 
 ## 利用像
 

@@ -10,7 +10,7 @@
 |------------|-----|------|
 | `session_id` | string | 任意のセッション識別子（例: UUID または日時） |
 | `raw_request` | string | 利用者が intake で渡した生課題（自然言語） |
-| `current_step_id` | enum | `intake` \| `bootstrap` \| `dispatch` \| `work` |
+| `current_step_id` | enum | `intake` \| `bootstrap` \| `dispatch` |
 | `bootstrap_handoff_path` | string? | bootstrap Handoff JSON のパス |
 | `parent_gid` | string? | Asana 親エピック GID |
 | `planning_child_gid` | string? | bootstrap 企画子 GID |
@@ -50,14 +50,12 @@
 
 | 段階 | ファイル | 内容 |
 |------|----------|------|
-| execution 系 dispatch | [`with-dispatch.yaml`](../../workflows/with-dispatch.yaml) | dev/analysis 子 |
-| work（deprecated） | [`with-execution.yaml`](../../workflows/with-execution.yaml) | task-executor |
+| execution 系 dispatch | [`with-dispatch.yaml`](../../workflows/with-dispatch.yaml) | dev / ux / analysis 子 |
 
 ## 起動条件
 
 - **intake:** セッション開始時。
 - **dispatch（execution 系）:** 企画 `DeptWorkComplete` 後。未完了 execution 系子が存在すること。
-- **work:** deprecated task-executor 使用時のみ。
 
 生課題のみで orchestrator（intake）を起動できる。企画・実行の実処理は各チーム workflow に委譲する。
 

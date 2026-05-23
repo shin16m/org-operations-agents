@@ -53,6 +53,6 @@
 
 - `docs/design/org-dispatch-model.md`
 - `workflows/organizations.yaml`, `development-delivery.yaml`, `with-dispatch.yaml`
-- `skills/platform/task-dispatcher/`, `product-manager/`, `doc-writer/`, `developer/`, `reviewer/`
+- `skills/platform/task-dispatcher/`, `product-manager/`, `requirements-writer/`, `developer/`, `dev-reviewer/`, `qa-verifier/`
 - 分析チーム（後追い）: `workflows/analysis-delivery.yaml`, `skills/analysis/analytics-pm/`, `skills/data-*/`, `skills/analysis/ml-engineer/`, `skills/analysis/analysis-reviewer/`
 - Handoff v1.2 スキーマ・`asana_program_common` の `チーム:` 行

@@ -12,7 +12,7 @@
     {
       "severity": "low",
       "category": "risk",
-      "message": "with-execution.yaml の task-executor は即削除せず、タスク 10 で deprecated 明記後に移行する。",
+      "message": "task-executor / with-execution.yaml は削除済み。dispatch + チーム PM モデルが正。",
       "subtask_index": 9
     },
     {

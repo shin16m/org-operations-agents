@@ -33,11 +33,13 @@ $env:PYTHONIOENCODING='utf-8'
 
 期待: 起動するエージェント slug と `担当:` が一致。
 
-## 4. 再オープン
+## 4. レビュー NG（修正タスク）
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <PARENT_GID> --undo -y
+python tools/pm_create_fix_subtask.py --parent <PARENT_GID> --review-json skills/development/examples/review-result.code-failed.example.json --dry-run
 ```
+
+参照: [`pm-review-rework-ssot.md`](../design/pm-review-rework-ssot.md)
 
 ## 参照
 

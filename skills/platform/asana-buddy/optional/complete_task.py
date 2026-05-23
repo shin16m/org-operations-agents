@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Mark an Asana task completed (for task-executor)."""
+"""Mark an Asana task completed (PM / worker workflow)."""
 from __future__ import annotations
 
 import argparse
@@ -18,7 +18,11 @@ def main() -> None:
     p = argparse.ArgumentParser(description="Set Asana task completed flag")
     p.add_argument("--gid", required=True, help="Task GID")
     p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
-    p.add_argument("--undo", action="store_true", help="Mark incomplete")
+    p.add_argument(
+        "--undo",
+        action="store_true",
+        help="Mark incomplete (dryrun/teardown only — not for PM review rework)",
+    )
     args = p.parse_args()
 
     load_env_from_dotfile()

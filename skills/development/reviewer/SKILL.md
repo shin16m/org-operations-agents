@@ -16,10 +16,10 @@
 
 ## MismatchReviewResult
 
-- `fix_target: document` → doc-writer が仕様修正
-- `fix_target: code` → product-manager が developer へ修正依頼（doc-writer 業務完了）
+- `fix_target: document` → PM が requirements-writer 向け **修正サブ**を新規作成
+- `fix_target: code` → PM が developer 向け **修正サブ**を新規作成
 
-`status: passed*` のとき **署名コメント**（`comment_task.py --agent reviewer`）を投稿して PM へ提出。PM は **`comment_task.py` → `complete_task.py -y` → `DeptWorkComplete`** の順で子タスクを閉じる（[`docs/design/dept-work-io.md`](../../../docs/design/dept-work-io.md)）。
+`status: passed*` / `failed` とも PM へ提出。`failed` 時の PM 手順: [`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)
 
 ## やらないこと
 

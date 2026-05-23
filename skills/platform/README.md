@@ -7,7 +7,6 @@
 | workflow-orchestrator | intake / bootstrap / dispatch 委譲 |
 | asana-buddy | Asana API（bootstrap / 本番投入 / 読取 / 完了） |
 | task-dispatcher | チームへのルーティング |
-| task-executor | work（deprecated） |
 | agent-creater | 新規 `skills/<organization>/<slug>/` 生成 |
 
 成果物: [`output/platform/`](../../output/platform/)

@@ -11,6 +11,7 @@ policy:
   operational_rules_doc: docs/design/analysis-delivery-io.md
   assignment_doc: docs/design/analytics-pm-assignment.md
   dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#analysis
+  review_rework_ssot: docs/design/pm-review-rework-ssot.md
   pm_role: orchestrate_only
 
 steps:
@@ -157,4 +158,4 @@ branches:
     from: production_gate
     when: status == failed
     to: pm_handoff_scientist
-    note: モデルまたはデータ品質の差し戻し。PM が data-scientist / data-steward へ再委譲を判断
+    note: モデルまたはデータ品質の failed。PM が修正サブを新規作成

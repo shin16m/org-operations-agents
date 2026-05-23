@@ -16,7 +16,7 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 1. 要件定義書・設計書（あれば）・`done_when` を読む
 2. 実装成果に対し動作検証を実施
 3. **VerificationResult** を出力（`review_kind: verification`）
-4. `status: passed` で PM へ報告。`failed` は developer へ差し戻し理由を明記
+4. `status: passed*` で PM へ報告。`failed` も PM へ報告（PM が **developer 向け修正サブ**を新規作成 — [`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）
 5. 完了前に `comment_task.py`（`--agent qa-verifier`）
 
 ## 出力

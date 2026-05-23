@@ -20,6 +20,7 @@
 3. **Handoff JSON はチーム間 I/O に使わない** — 企画チームの**チーム内**成果物。他チームは読まない
 4. **統括グループは配線** — intake / bootstrap / dispatch / Asana CRUD。業務判断はチーム PM へ
 5. **L3 は二段 dispatch** — L2 で PM のみ · L3b で PM → ワーカー（[`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md)）。PM 1 セッションで worker 成果物まで書かない
+6. **レビュー NG** — Result は PM へ · OK 進行 · NG は修正サブ新規（[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)）。完了タスクの `--undo` 禁止
 
 ---
 

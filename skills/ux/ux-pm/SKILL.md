@@ -23,7 +23,7 @@
   --gid <GID> --department ux --assignee ux-designer --preserve-body -y
 ```
 
-再実施時: 完了タスクは `complete_task.py --undo -y`。旧成果物は `output/ux/_archive/` 参照。
+再実施・差し戻し: **`complete_task --undo` 禁止**。review `failed` → `python tools/pm_create_fix_subtask.py --parent <子GID> --review-json output/ux/reviews/<file>.json -y`（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）
 
 ## ワーカー dispatch（L3b・必須）
 
@@ -43,8 +43,9 @@ PM セッションは snippet 出力後一旦終了。SSOT: [`pm-worker-dispatch
 4. [`ux-delivery.yaml`](../../../workflows/ux-delivery.yaml) に沿い委譲:
    - **ux-designer** — 体験設計書・Design System（サブタスク単位）
    - **ux-reviewer** — 仕様 review（`ux_spec`）
-5. 完了前に `DeptWorkComplete.artifacts[]` に下流が参照する安定パスを含める
-6. 子の `done_when` を満たしたら **comment_task → complete_task -y → DeptWorkComplete**
+5. `UxReviewResult.status: failed` → **ux-designer 向け修正サブ**を新規作成 → 再 review サブ（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）
+6. 完了前に `DeptWorkComplete.artifacts[]` に下流が参照する安定パスを含める
+7. 子の `done_when` を満たしたら **comment_task → complete_task -y → DeptWorkComplete**
 
 ## 下流への公開
 

@@ -68,10 +68,21 @@
 
 # 担当確認
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\fetch_task.py --gid <GID> --show-assignee
-
-# 再着手（完了を戻す）
-.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <GID> --undo -y
 ```
+
+## L3b — ワーカー dispatch（必須）
+
+サブ作成後、data-* / analysis-reviewer は **別セッション**で起動する。
+
+```powershell
+python tools/pm_emit_worker_prompt.py --parent <親GID> --department analysis
+```
+
+SSOT: [`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md) — skill パスは **registry 解決**（クロス dept  worker 対応）。
+
+## レビュー NG 時（修正タスク）
+
+[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md) · CLI: `python tools/pm_create_fix_subtask.py --parent <GID> --review-json output/analysis/reviews/<file>.json [--fix-assignee <slug>] -y`
 
 ## 実行エージェントの起動例
 
@@ -80,15 +91,11 @@
 担当が data-engineer であることを確認してから作業し、完了前に comment_task.py を実行してください。
 ```
 
-## 再実施（やり直し）
-
-1. 親子タスクを `--undo` で未完了に戻す（または新サブタスクのみ追加）。
-2. 旧成果物は `output/analysis/_archive/` に残し、**strict-v2** 以下に新規作成。
-3. PM がアサイン計画 JSON を残す（`work/assign-plans/`）。
-
 ## 参照
 
 - **dispatch prompt:** [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md#analysis)
+- **worker dispatch:** [`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md)
+- **review NG → 修正タスク:** [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)
 - [`analysis-delivery-io.md`](analysis-delivery-io.md)
 - [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md)
 - [`skills/analysis/analytics-pm/SKILL.md`](../../skills/analysis/analytics-pm/SKILL.md)

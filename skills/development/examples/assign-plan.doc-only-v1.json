@@ -1,0 +1,42 @@
+{
+  "parent_title": "【3/4・開発】文書のみ（doc-only）",
+  "profile": "doc-only",
+  "subtasks": [
+    {
+      "name": "【3/4-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "doc-only profile。実装・検証フェーズ skip。",
+      "summary": "mode=requirements。`output/development/requirements/<parent_gid>-requirements.md` に要件定義書を作成。",
+      "done_when": "要件定義書が保存されている。"
+    },
+    {
+      "name": "【3/4-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を output/development/reviews/ に出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4-3・開発】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "as-built 文書化（実装なしでも現状仕様を文書化）。",
+      "summary": "mode=as-built-spec。`output/development/specs/<parent_gid>-spec.md` を作成。",
+      "done_when": "事後詳細仕様書が保存されている。"
+    },
+    {
+      "name": "【3/4-4・開発】mismatch review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "要件 vs 事後仕様の整合ゲート。",
+      "summary": "review_kind: mismatch。MismatchReviewResult を出力。",
+      "done_when": "MismatchReviewResult が passed または fix_target 処理済。"
+    }
+  ]
+}

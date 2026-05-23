@@ -103,10 +103,6 @@ fetch_task.py --list-subtasks で未完了の execution 系子を列挙し、
 
 オーケストレーターはセッション終了前に未完了子が無いか確認する。
 
-## execute 後の work 委譲（過渡期・単一ワーカー）
-
-[`task-executor`](../task-executor/SKILL.md) は **deprecated**。緊急時のみ [`with-execution.yaml`](../../../workflows/with-execution.yaml) を使用。
-
 ## 単一窓口について
 
 「単一窓口」は **最初に話しかける相手が orchestrator（intake）** である意味。企画 gate は planning-pm が担当する。

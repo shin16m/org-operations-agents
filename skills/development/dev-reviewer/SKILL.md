@@ -22,10 +22,11 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 
 ## MismatchReviewResult
 
-- `fix_target: document` → requirements-writer（mode=as-built-spec）が仕様修正
-- `fix_target: code` → product-manager が developer へ修正依頼
+- `fix_target: document` → PM が **requirements-writer 向け修正サブ**を新規作成
+- `fix_target: code` → PM が **developer 向け修正サブ**を新規作成
 
-`status: passed*` のとき **署名コメント**（`comment_task.py --agent dev-reviewer`）を投稿して PM へ提出。
+`status: passed*` のとき **署名コメント**（`comment_task.py --agent dev-reviewer`）を投稿して PM へ提出。  
+`status: failed` も review 作業完了として PM へ提出。PM が修正サブを追加（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）。**完了タスクの `--undo` は行わない。**
 
 ## やらないこと
 

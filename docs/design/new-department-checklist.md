@@ -59,7 +59,7 @@ python tools/validate_org_registry.py
 
 | # | 成果物 |
 |---|--------|
-| D1 | `docs/design/<id>-pm-assignment.md` — サブタスク分解必須 · CLI · `--show-assignee` · 再実施 |
+| D1 | `docs/design/<id>-pm-assignment.md` — サブタスク分解必須 · CLI · `--show-assignee` · [review NG → 修正タスク](pm-review-rework-ssot.md) |
 | D1b | [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md) — 該当 department 節を追加 |
 | D2 | PM SKILL — 「厳密運用（必須）」節 |
 | D3 | ワーカー SKILL — 着手前 `fetch_task --show-assignee` |

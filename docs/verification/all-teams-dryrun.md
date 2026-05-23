@@ -86,7 +86,7 @@ python tools/run_all_teams_dryrun.py --parent 1215081453840132 --skip-bootstrap 
 
 `workflow-orchestrator`, `asana-buddy`, `task-dispatcher`, `issue-story-planner`, `plan-reviewer`, `planning-pm`, `ux-pm`, `ux-designer`, `ux-reviewer`, `analytics-pm`, `data-architect`, `data-engineer`, `data-steward`, `data-analyst`, `data-scientist`, `ml-engineer`, `analysis-reviewer`, `product-manager`, `requirements-writer`, `tech-designer`, `developer`, `dev-reviewer`, `qa-verifier`
 
-**対象外（意図）:** `agent-creater`（meta）· `task-executor`（deprecated）· `doc-writer` / `reviewer`（disabled）
+**対象外（意図）:** `agent-creater`（meta）· `doc-writer` / `reviewer`（disabled）
 
 ---
 
@@ -121,6 +121,10 @@ python tools/run_all_teams_dryrun.py --parent 1215081453840132 --skip-bootstrap 
 - [x] 分析 8 サブ + analytics-pm 親 complete
 - [x] 開発 10 サブ + product-manager 親 complete
 - [x] 親エピック complete
+
+## dryrun 脚本と `--undo`
+
+`run_all_teams_dryrun.py` 内の `complete_task.py --undo` は **dryrun リセット専用**（PM の review 差し戻しには使わない）。運用: [`pm-review-rework-ssot.md`](../design/pm-review-rework-ssot.md)
 
 ## 関連
 

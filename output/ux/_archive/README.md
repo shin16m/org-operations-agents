@@ -1,5 +1,5 @@
 # UX 成果物アーカイブ
 
-再実施（`complete_task.py --undo` 後のやり直し）時、旧版をここへ退避する。
+修正ラウンドで旧版を退避する場合に使用する（[`pm-review-rework-ssot.md`](../../docs/design/pm-review-rework-ssot.md)）。
 
-運用: [`docs/design/ux-pm-assignment.md`](../../docs/design/ux-pm-assignment.md)
+**完了済み Asana タスクを `--undo` してやり直す運用は禁止。** 修正は新サブタスクで行う。

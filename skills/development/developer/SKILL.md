@@ -15,7 +15,7 @@ workflow: [`development-delivery.yaml`](../../../workflows/development-delivery.
 2. 完了後 **dev-reviewer**（`review_kind: code`）へレビュー依頼
 3. code review OK → **qa-verifier** へ動作検証依頼（developer は verification を自分で行わない）
 4. 検証 OK → **product-manager** へ開発完了報告
-5. PM からの修正依頼（mismatch `fix_target: code` 等）に対応
+5. PM から **[fix] 修正サブ**（review `failed` / mismatch 等）に対応 — notes の `## 修正依頼` と [`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)
 6. 完了前に `comment_task.py`（`--agent developer`）
 
 ## やらないこと

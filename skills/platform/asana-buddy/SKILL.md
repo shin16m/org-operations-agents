@@ -71,7 +71,7 @@ planning-pm → issue-story-planner → plan-reviewer（必須）→ planning-pm
 
 テーマ別の親タスク＋サブタスク投入用は `optional/asana_<テーマ>_program.py`（例: 物価・家計、社会課題、`optional/asana_hikikomori_support_program.py`（ひきこもり支援）、`optional/asana_ai_agent_adoption_program.py`（AIエージェント普及の阻害要因））を置く。
 
-## task-executor 連携（読取・完了）
+## Asana タスク CLI（読取・コメント・完了）
 
 | スクリプト | 用途 |
 |------------|------|
@@ -80,9 +80,9 @@ planning-pm → issue-story-planner → plan-reviewer（必須）→ planning-pm
 | [`optional/complete_task.py`](optional/complete_task.py) | `--gid -y` で完了マーク（**comment の後**） |
 | [`optional/sync_handoff_epic.py`](optional/sync_handoff_epic.py) | `--complete-through N --complete-only` で子【1/N】…【N/N】を一括完了 |
 
-**運用:** ローカルで `done_when` を満たしたら、**必ず** `comment_task.py` で署名コメント → `complete_task.py` で完了（product-manager / 各実行スキル）。詳細は [`docs/design/agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md) · [`docs/design/dept-work-io.md`](../../../docs/design/dept-work-io.md)。
+**運用:** ローカルで `done_when` を満たしたら、**必ず** `comment_task.py` で署名コメント → `complete_task.py` で完了（PM / 各ワーカー SKILL）。詳細は [`docs/design/agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md) · [`docs/design/dept-work-io.md`](../../../docs/design/dept-work-io.md)。
 
-実行本体は [`task-executor`](../task-executor/SKILL.md)。本スキルは Asana API の薄いラッパのみ。
+本スキルは Asana API の薄いラッパ。作業本体は各チーム workflow のワーカーが担当する。
 
 ## 環境変数
 

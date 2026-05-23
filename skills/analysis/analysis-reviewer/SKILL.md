@@ -25,7 +25,8 @@
 - `security_approved`
 - `sla_compliance`
 
-`passed*` のとき **署名コメント**（`comment_task.py --agent analysis-reviewer`）を投稿して analytics-pm へ提出。
+`passed*` のとき **署名コメント**（`comment_task.py --agent analysis-reviewer`）を投稿して analytics-pm へ提出。  
+`failed` も PM へ提出。PM が修正サブを新規追加（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）。
 
 ## data_model レビュー
 

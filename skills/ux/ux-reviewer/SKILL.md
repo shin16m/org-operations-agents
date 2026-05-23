@@ -20,9 +20,7 @@
 
 1. 対象成果物を読む（UX artifact または実装 URL/スクリーンショット）
 2. `UxReviewResult` JSON を `output/ux/reviews/` に保存
-3. `status: failed` 時:
-   - `ux_spec` → ux-designer へ差し戻し（ux-pm がサブ再アサイン）
-   - `ux_implementation` → product-manager 経由で developer へ修正依頼
+3. `status: failed` 時: `fix_target` を JSON に記載し **委譲元 PM へ報告**（PM が修正サブを新規作成 — [`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）
 4. **comment_task.py** → 委譲元 PM へ報告
 
 ## a11y 観点（ux_spec）

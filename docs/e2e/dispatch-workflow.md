@@ -106,7 +106,3 @@ PM（profile 決定・サブタスク分解）→ 各 worker サブ → … → 
 運用ルール: [`docs/design/analysis-delivery-io.md`](../design/analysis-delivery-io.md)
 
 Handoff 例: [`handoff.analysis-delivery.json`](../../skills/planning/issue-story-planner/examples/handoff.analysis-delivery.json)
-
-## 過渡期
-
-単一 `task-executor` は [`default-workflow.md`](default-workflow.md#オプション-work--サブタスク実行deprecated) を参照。

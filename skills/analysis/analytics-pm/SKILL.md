@@ -14,14 +14,15 @@
 ```powershell
 # チーム内サブタスク作成（プラン JSON）
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\pm_assign_subtasks.py `
-  --parent <親GID> --plan .\work\assign-plans\fishing-task-1-strict.json -y
+  --parent <親GID> --plan .\skills\analysis\examples\assign-plan.dryrun-v1.json `
+  --department analysis --update-parent-assignee analytics-pm -y
 
 # 担当追記のみ
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\update_task_notes.py `
   --gid <GID> --assignee data-engineer --preserve-body -y
 ```
 
-再実施時: 完了タスクは `complete_task.py --undo -y`。成果物は `output/analysis/strict-v2/`（旧 bulk は `_archive/` 参照のみ）。
+再実施・差し戻し: **`complete_task --undo` 禁止**。review / gate `failed` → `python tools/pm_create_fix_subtask.py --parent <子GID> --review-json output/analysis/reviews/<file>.json [--fix-assignee <slug>] -y`（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）
 
 ## ワーカー dispatch（L3b・必須）
 
@@ -46,8 +47,9 @@ PM セッションは snippet 出力後一旦終了。SSOT: [`pm-worker-dispatch
    - **data-scientist** — モデル開発
    - **ml-engineer** — デプロイ・運用（**production_deploy_gate 通過後のみ**）
    - **analysis-reviewer** — 各レビュー・本番ゲート
-4. 子の `done_when` を満たしたら **comment_task → complete_task -y → DeptWorkComplete**
-5. **workflow-orchestrator** へ完了報告
+4. review / gate `failed` → **修正サブ**を新規作成 → 再 review サブ（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）
+5. 子の `done_when` を満たしたら **comment_task → complete_task -y → DeptWorkComplete**
+6. **workflow-orchestrator** へ完了報告
 
 ## Asana 記録（必須・順序）
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch an Asana task by GID (for task-executor)."""
+"""Fetch an Asana task by GID (PM / worker workflow)."""
 from __future__ import annotations
 
 import argparse

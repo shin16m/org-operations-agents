@@ -23,7 +23,13 @@
   --gid <GID> --department development --assignee tech-designer --preserve-body -y
 ```
 
-再実施時: 完了タスクは `complete_task.py --undo -y`。旧成果物は `output/development/_archive/` 参照。
+再実施・差し戻し: **完了タスクを `--undo` しない**。review `failed` 時:
+
+```powershell
+python tools/pm_create_fix_subtask.py --parent <子GID> --review-json output/development/reviews/<file>.json -y
+```
+
+SSOT: [`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)
 
 ## ワーカー dispatch（L3b・必須）
 
@@ -53,8 +59,9 @@ SSOT: [`pm-worker-dispatch-ssot.md`](../../../docs/design/pm-worker-dispatch-sso
    - **dev-reviewer** — 要件・設計・コード・mismatch レビュー
    - **ux-reviewer** — 実装 UI 一致（`full-ui` のみ）
    - **qa-verifier** — 動作検証
-6. `MismatchReviewResult.fix_target == code` 時: developer サブタスクへ修正依頼
-7. 子の `done_when` を満たしたら **comment_task → complete_task -y → DeptWorkComplete**
+6. `MismatchReviewResult.fix_target == code` 時: **developer 向け修正サブ**を新規作成 → L3b dispatch
+7. 各 review / verification で `failed`: **修正サブ** → 修正後 **再 review サブ**を新規追加（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）
+8. 子の `done_when` を満たしたら **comment_task → complete_task -y → DeptWorkComplete**
 
 ## Asana 記録（必須・順序）
 

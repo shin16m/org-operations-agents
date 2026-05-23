@@ -25,7 +25,6 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**集。宣
 | [`issue-story-planner`](skills/planning/issue-story-planner/SKILL.md) | 課題 → ストーリー → Handoff v1.1 |
 | [`plan-reviewer`](skills/planning/plan-reviewer/SKILL.md) | Handoff の品質・リスクレビュー |
 | [`asana-buddy`](skills/platform/asana-buddy/SKILL.md) | Handoff → Asana タスク |
-| [`task-executor`](skills/platform/task-executor/SKILL.md) | Asana サブタスク実行（work・**過渡期**） |
 | [`task-dispatcher`](skills/platform/task-dispatcher/SKILL.md) | 子タスクをチームへ配賦（dispatch） |
 | [`product-manager`](skills/development/product-manager/SKILL.md) | 開発チーム PM（子 1 件のハブ） |
 | [`ux-pm`](skills/ux/ux-pm/SKILL.md) | UX チーム PM |
@@ -102,14 +101,11 @@ dispatch → analytics-pm → data-architect / … / analysis-reviewer
 - 分析チーム: [`workflows/analysis-delivery.yaml`](workflows/analysis-delivery.yaml)
 
 - 推奨: [`workflows/with-dispatch.yaml`](workflows/with-dispatch.yaml) · [`docs/e2e/dispatch-workflow.md`](docs/e2e/dispatch-workflow.md)
-- 過渡期（単一ワーカー）: [`workflows/with-execution.yaml`](workflows/with-execution.yaml) + `task-executor`
 
 ## エピック進行
 
 - 基盤構築: [`handoff.agent-workflow-orchestration.json`](skills/planning/issue-story-planner/examples/handoff.agent-workflow-orchestration.json)
 - オーケストレーター入口化: [`handoff.orchestrator-intake-entry.json`](skills/planning/issue-story-planner/examples/handoff.orchestrator-intake-entry.json)
-- スキルレビュー是正: [`handoff.skill-review-remediation.json`](skills/planning/issue-story-planner/examples/handoff.skill-review-remediation.json)
-- タスク実行エージェント: [`handoff.task-executor-agent.json`](skills/planning/issue-story-planner/examples/handoff.task-executor-agent.json)
 - 組織配賦・PM ワークフロー: [`handoff.org-dispatch-pm-workflow.json`](skills/planning/issue-story-planner/examples/handoff.org-dispatch-pm-workflow.json)
 - 分析チーム delivery: [`handoff.analysis-delivery.json`](skills/planning/issue-story-planner/examples/handoff.analysis-delivery.json)
 

@@ -52,7 +52,7 @@ PM は **サブ 1 件ごと**に次を出力する（[`dispatch-prompt-ssot.md`]
 
 1. fetch_task.py --gid {sub_gid} --show-assignee で 担当: {worker_slug} を確認（不一致なら PM へ）
 2. サブ notes の done_when に従い成果物を作成
-3. comment_task.py --agent {worker_slug} --skill skills/{department}/{worker_slug}/SKILL.md -y
+3. comment_task.py --agent {worker_slug} --skill {skill_path_from_registry} -y
 4. PM へ完了報告（PM が complete_task.py --gid {sub_gid} -y）
 
 親タスク {parent_gid} の workflow 全体・他サブタスクは実行しないこと。
@@ -73,7 +73,7 @@ python tools/pm_emit_worker_prompt.py --parent <親GID> --department ux --all
 | department | PM | worker 例 |
 |------------|-----|-----------|
 | ux | ux-pm | ux-designer, ux-reviewer |
-| development | product-manager | requirements-writer, developer, … |
+| development | product-manager | requirements-writer, developer, **ux-reviewer**（UX 所属・registry 参照）, … |
 | analysis | analytics-pm | data-architect, data-engineer, … |
 
 ## dryrun との関係
@@ -83,8 +83,19 @@ python tools/pm_emit_worker_prompt.py --parent <親GID> --department ux --all
 | `run_all_teams_dryrun.py` v1 | **Asana comment のみ代投**（別エージェントセッションなし）→ wiring 検証用 |
 | 本番 / v2 dryrun | PM が `pm_emit_worker_prompt.py` → **別セッションで worker SKILL 起動** |
 
+## レビュー NG 時（L3b の続き）
+
+review サブで `failed` → PM は **`pm_create_fix_subtask.py`** で [fix] サブ作成 → L3b dispatch。完了済みサブの `--undo` は禁止。
+
+```powershell
+python tools/pm_create_fix_subtask.py --parent <親GID> --review-json output/<dept>/reviews/<file>.json -y
+```
+
+詳細: [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)
+
 ## 関連
 
 - L2 起動: [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md)
+- レビュー差し戻し: [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)
 - チーム内アサイン: `*-pm-assignment.md`
 - L2/L3 全体: [`department-model.md`](department-model.md)

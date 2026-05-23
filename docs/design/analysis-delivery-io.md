@@ -107,7 +107,7 @@ L2 task-dispatcher（department=analysis）
 - `DeployGateResult.security_approved: true`
 - `DeployGateResult.sla_compliance: true`
 
-いずれか false → `status: failed`。analytics-pm が差し戻し先を判断。
+いずれか false → `status: failed`。analytics-pm が **修正サブタスク**を新規作成（[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)）。
 
 ### 3. 監査ログと最小権限
 

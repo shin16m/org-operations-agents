@@ -87,9 +87,11 @@ ux-pm（intake・タスク洗い出し）
 
 ## 必須ゲート
 
-| ゲート | 担当 | 差し戻し |
-|--------|------|----------|
+| ゲート | 担当 | failed 時の修正担当 |
+|--------|------|---------------------|
 | `ux_review_passed` | ux-reviewer | ux-designer |
+
+`failed` 時: ux-pm が修正サブ → 再 review サブを新規追加（[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)）。
 
 ## 体験設計書の最低項目
 

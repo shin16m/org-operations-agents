@@ -10,6 +10,7 @@ policy:
   operational_rules_doc: docs/design/development-delivery-io.md
   assignment_doc: docs/design/development-pm-assignment.md
   dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#development
+  review_rework_ssot: docs/design/pm-review-rework-ssot.md
   pm_role: orchestrate_only
   delivery_profiles:
     full:
@@ -127,9 +128,9 @@ branches:
     from: mismatch_review
     when: fix_target == code
     to: pm_handoff_dev
-    note: PM が developer へ修正依頼
+    note: PM が developer 向け修正サブを新規作成
   ux_fix_implementation:
     from: ux_implementation_review
     when: fix_target == implementation
     to: development
-    note: PM が developer へ UX 一致修正依頼
+    note: PM が developer 向け修正サブを新規作成

@@ -12,7 +12,6 @@ agents:
       bootstrap_input: 最小 Handoff（企画子 1 件）
       reads:
         - workflows/default.yaml
-        - workflows/with-execution.yaml
         - workflows/with-dispatch.yaml
         - workflows/organizations.yaml
         - workflows/planning-delivery.yaml
@@ -67,24 +66,6 @@ agents:
       task_complete_script: skills/platform/asana-buddy/optional/complete_task.py
       comment_schema: skills/platform/asana-buddy/schemas/agent-work-comment.v1.schema.json
       comment_doc: docs/design/agent-asana-comment-signature.md
-
-  - slug: task-executor
-    slot: work
-    skill_path: skills/platform/task-executor
-    enabled: true
-    deprecated: true
-    note: 過渡期。新規は task-dispatcher + チーム workflow を使用
-    workflow_steps: [work]
-    io:
-      input_kind: TaskWorkRequest
-      output_kind: TaskWorkResult
-      input_schema: skills/platform/task-executor/schemas/task-work-request.v1.schema.json
-      output_schema: skills/platform/task-executor/schemas/task-work-result.v1.schema.json
-      schema_version: "1.0"
-      schema_doc: docs/design/task-work-io.md
-      boundary_doc: docs/design/task-execution-boundary.md
-      reads:
-        - workflows/with-execution.yaml
 
   - slug: task-dispatcher
     slot: dispatch

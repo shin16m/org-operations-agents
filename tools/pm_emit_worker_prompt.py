@@ -18,6 +18,11 @@ PY = ROOT / ".venv/Scripts/python.exe"
 if not PY.is_file():
     PY = Path(sys.executable)
 
+if str(ROOT / "tools") not in sys.path:
+    sys.path.insert(0, str(ROOT / "tools"))
+
+from agent_registry_util import skill_md_for_slug  # noqa: E402
+
 DEPT_PM = {
     "ux": "ux-pm",
     "development": "product-manager",
@@ -71,13 +76,14 @@ def emit_snippet(
     sub_gid: str,
     worker_slug: str,
 ) -> str:
+    skill_md = skill_md_for_slug(worker_slug)
     return f"""【WorkerDispatch】department={department} parent={parent_gid} sub={sub_gid} worker={worker_slug}
 
 あなたは {worker_slug} スキルです。Asana サブタスク GID {sub_gid} のみを実行してください。
 
 1. fetch_task.py --gid {sub_gid} --show-assignee で 担当: {worker_slug} を確認（不一致なら PM へ）
 2. サブ notes の done_when に従い成果物を作成
-3. comment_task.py --agent {worker_slug} --skill skills/{department}/{worker_slug}/SKILL.md -y
+3. comment_task.py --agent {worker_slug} --skill {skill_md} -y
 4. PM へ完了報告（PM が complete_task.py --gid {sub_gid} -y）
 
 親タスク {parent_gid} の workflow 全体・他サブタスクは実行しないこと。
@@ -116,14 +122,18 @@ def main() -> int:
     targets = pending_workers if args.all else pending_workers[:1]
     for gid, name, worker in targets:
         print(f"--- {name} ({gid}) → {worker} ---")
-        print(
-            emit_snippet(
-                department=args.department,
-                parent_gid=args.parent,
-                sub_gid=gid,
-                worker_slug=worker,
+        try:
+            print(
+                emit_snippet(
+                    department=args.department,
+                    parent_gid=args.parent,
+                    sub_gid=gid,
+                    worker_slug=worker,
+                )
             )
-        )
+        except (KeyError, FileNotFoundError) as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
         print()
     return 0
 

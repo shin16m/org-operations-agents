@@ -92,14 +92,16 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 
 ## 必須ゲート
 
-| ゲート | 担当 | 差し戻し |
-|--------|------|----------|
+| ゲート | 担当 | failed 時の修正担当 |
+|--------|------|---------------------|
 | `requirements_review_passed` | dev-reviewer | requirements-writer |
 | `design_review_passed` | dev-reviewer | tech-designer |
 | `code_review_passed` | dev-reviewer | developer |
 | `ux_implementation_review_passed` | ux-reviewer | developer（full-ui のみ） |
 | `verification_passed` | qa-verifier | developer |
 | `mismatch_resolved` | dev-reviewer | spec → requirements-writer / code → developer |
+
+`failed` 時: PM が **修正サブタスクを新規追加** → 修正後 **再 review サブを新規追加**。完了タスクの `--undo` 禁止（[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)）。
 
 ## 必須運用
 

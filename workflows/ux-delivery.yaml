@@ -11,6 +11,7 @@ policy:
   operational_rules_doc: docs/design/ux-delivery-io.md
   assignment_doc: docs/design/ux-pm-assignment.md
   dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#ux
+  review_rework_ssot: docs/design/pm-review-rework-ssot.md
   pm_role: orchestrate_only
 
 steps:

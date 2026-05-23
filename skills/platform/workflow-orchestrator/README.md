@@ -32,7 +32,6 @@ Asana 本番投入前の人間承認（`handoff_approved`）は **planning-pm** 
 |------|----------|
 | 標準（企画 dispatch まで） | [`workflows/default.yaml`](../../../workflows/default.yaml) v3 |
 | + execution 系 dispatch ループ | [`workflows/with-dispatch.yaml`](../../../workflows/with-dispatch.yaml) |
-| + task-executor（deprecated） | [`workflows/with-execution.yaml`](../../../workflows/with-execution.yaml) |
 | 企画チーム L3 | [`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) |
 
 ## 参照

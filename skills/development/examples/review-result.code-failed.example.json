@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "status": "failed",
+  "summary": "例: コード review NG。型ヒント不足とエラーハンドリング漏れ。",
+  "review_kind": "code",
+  "findings": [
+    {"severity": "high", "message": "API エラー時にユーザー向けメッセージが表示されない"},
+    {"severity": "medium", "message": "Design System の spacing トークン未使用箇所あり"}
+  ]
+}

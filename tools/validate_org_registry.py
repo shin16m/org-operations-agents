@@ -14,6 +14,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
+if str(ROOT / "tools") not in sys.path:
+    sys.path.insert(0, str(ROOT / "tools"))
+
+from agent_registry_util import (  # noqa: E402
+    CROSS_DEPT_WORKERS,
+    assign_plan_slugs,
+    enabled_skill_paths,
+    load_agents,
+    skill_md_for_slug,
+    worker_team_slug,
+    workflow_agents_from_yaml,
+)
+
 SCHEMA_PATHS = {
     "DispatchRequest": ROOT
     / "skills/platform/task-dispatcher/schemas/dispatch-request.v1.schema.json",
@@ -187,6 +200,8 @@ def main() -> int:
                 errors.append(f"{wf_name}.yaml missing policy.assignment_doc")
             if "dispatch_prompt_ssot:" not in wf_text:
                 errors.append(f"{wf_name}.yaml missing policy.dispatch_prompt_ssot")
+            if "review_rework_ssot:" not in wf_text:
+                errors.append(f"{wf_name}.yaml missing policy.review_rework_ssot")
 
     pm_skill = ROOT / "skills/development/product-manager/SKILL.md"
     if pm_skill.is_file():
@@ -195,13 +210,119 @@ def main() -> int:
             errors.append("product-manager SKILL must forbid direct app/ writes and require pm_assign_subtasks")
         if "pm_emit_worker_prompt" not in pm_text or "pm-worker-dispatch-ssot" not in pm_text:
             errors.append("product-manager SKILL must reference L3b worker dispatch")
+        if "pm-review-rework-ssot" not in pm_text:
+            errors.append("product-manager SKILL must reference pm-review-rework-ssot")
+
+    for pm_path in (
+        ROOT / "skills/ux/ux-pm/SKILL.md",
+        ROOT / "skills/analysis/analytics-pm/SKILL.md",
+    ):
+        if pm_path.is_file():
+            pm_text = pm_path.read_text(encoding="utf-8")
+            if "pm-review-rework-ssot" not in pm_text:
+                errors.append(f"{pm_path.relative_to(ROOT)} must reference pm-review-rework-ssot")
+
+    for assign_name in (
+        "development-pm-assignment.md",
+        "ux-pm-assignment.md",
+        "analytics-pm-assignment.md",
+    ):
+        assign_path = ROOT / "docs/design" / assign_name
+        if assign_path.is_file():
+            assign_text = assign_path.read_text(encoding="utf-8")
+            if "pm-review-rework-ssot" not in assign_text:
+                errors.append(f"{assign_name} must reference pm-review-rework-ssot")
+            if assign_name != "development-pm-assignment.md" and "pm-worker-dispatch-ssot" not in assign_text:
+                if assign_name in ("ux-pm-assignment.md", "analytics-pm-assignment.md"):
+                    errors.append(f"{assign_name} must reference pm-worker-dispatch-ssot")
+            if "complete_task.py --undo" in assign_text and "使わない" not in assign_text:
+                errors.append(f"{assign_name} must not document --undo for PM rework")
 
     worker_ssot = ROOT / "docs/design/pm-worker-dispatch-ssot.md"
     if not worker_ssot.is_file():
         errors.append("missing docs/design/pm-worker-dispatch-ssot.md")
+    rework_ssot = ROOT / "docs/design/pm-review-rework-ssot.md"
+    if not rework_ssot.is_file():
+        errors.append("missing docs/design/pm-review-rework-ssot.md")
     emit_tool = ROOT / "tools/pm_emit_worker_prompt.py"
     if not emit_tool.is_file():
         errors.append("missing tools/pm_emit_worker_prompt.py")
+    fix_tool = ROOT / "tools/pm_create_fix_subtask.py"
+    if not fix_tool.is_file():
+        errors.append("missing tools/pm_create_fix_subtask.py")
+    rework_ssot_text = rework_ssot.read_text(encoding="utf-8") if rework_ssot.is_file() else ""
+    if "pm_create_fix_subtask.py" not in rework_ssot_text:
+        errors.append("pm-review-rework-ssot.md must document pm_create_fix_subtask.py")
+
+    enabled_paths = enabled_skill_paths()
+    agents_meta = load_agents()
+
+    for wf_name in ("planning-delivery", "ux-delivery", "development-delivery", "analysis-delivery"):
+        wf_path = ROOT / f"workflows/{wf_name}.yaml"
+        if not wf_path.is_file():
+            continue
+        for agent in workflow_agents_from_yaml(wf_path):
+            if agent == "asana-buddy":
+                continue
+            if agent not in agents_meta:
+                errors.append(f"{wf_name}.yaml agent '{agent}' not in agent-registry.yaml")
+                continue
+            if not agents_meta[agent].get("enabled"):
+                errors.append(f"{wf_name}.yaml agent '{agent}' is disabled in registry")
+            try:
+                skill_md_for_slug(agent)
+            except (KeyError, FileNotFoundError) as exc:
+                errors.append(f"{wf_name}.yaml agent '{agent}': {exc}")
+
+    dev_wf = ROOT / "workflows/development-delivery.yaml"
+    if dev_wf.is_file():
+        for agent in workflow_agents_from_yaml(dev_wf):
+            if agent in CROSS_DEPT_WORKERS:
+                expected_team = CROSS_DEPT_WORKERS[agent]
+                try:
+                    team = worker_team_slug(agent)
+                except (KeyError, ValueError) as exc:
+                    errors.append(f"cross-dept worker {agent}: {exc}")
+                    continue
+                if team != expected_team:
+                    errors.append(
+                        f"cross-dept worker {agent}: expected skills/{expected_team}/, got team {team}"
+                    )
+
+    assign_globs: list[tuple[Path, str]] = [
+        (ROOT / "skills/development/examples", "assign-plan*.json"),
+        (ROOT / "skills/ux/examples", "assign-plan*.json"),
+        (ROOT / "skills/analysis/examples", "assign-plan*.json"),
+        (ROOT / "work/assign-plans", "*.json"),
+    ]
+    for base, pattern in assign_globs:
+        if not base.is_dir():
+            continue
+        for plan_path in sorted(base.glob(pattern)):
+            for slug in assign_plan_slugs(plan_path):
+                if slug not in enabled_paths:
+                    errors.append(f"{plan_path.relative_to(ROOT)}: unknown/disabled assignee '{slug}'")
+                else:
+                    try:
+                        skill_md_for_slug(slug)
+                    except FileNotFoundError as exc:
+                        errors.append(f"{plan_path.relative_to(ROOT)} assignee '{slug}': {exc}")
+
+    emit_snippet_path = ROOT / "tools/pm_emit_worker_prompt.py"
+    if emit_snippet_path.is_file():
+        emit_text = emit_snippet_path.read_text(encoding="utf-8")
+        if "skill_md_for_slug" not in emit_text:
+            errors.append("pm_emit_worker_prompt.py must resolve skill path via agent_registry_util")
+        if "skills/{department}/{worker_slug}" in emit_text:
+            errors.append("pm_emit_worker_prompt.py still hardcodes skills/{department}/{worker_slug}")
+
+    registry_text = (ROOT / "workflows/agent-registry.yaml").read_text(encoding="utf-8")
+    if "task-executor" in registry_text:
+        errors.append("agent-registry.yaml must not register task-executor (removed)")
+    if (ROOT / "workflows/with-execution.yaml").is_file():
+        errors.append("workflows/with-execution.yaml must be removed with task-executor")
+    if (ROOT / "skills/platform/task-executor").is_dir():
+        errors.append("skills/platform/task-executor/ must be removed")
 
     if errors:
         print("\nVALIDATION FAILED:", file=sys.stderr)

@@ -24,11 +24,11 @@ $env:PYTHONIOENCODING='utf-8'
 
 期待: 【1/7-1】担当 data-architect、【1/7-2】担当 analysis-reviewer
 
-## 3. 再オープン
+## 3. レビュー NG（修正タスク）
 
-```powershell
-.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid 1215079357115371 --undo -y
-```
+PM 差し戻しは **修正サブタスクの新規追加**。`--undo` は使わない。
+
+参照: [`pm-review-rework-ssot.md`](../design/pm-review-rework-ssot.md)
 
 ## 参照
 

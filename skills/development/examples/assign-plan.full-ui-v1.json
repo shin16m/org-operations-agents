@@ -59,7 +59,7 @@
     {
       "name": "【3/4-7・開発】UX 実装一致 review（ux-reviewer）",
       "assignee": "ux-reviewer",
-      "department": "development",
+      "department": "ux",
       "status": "assigned",
       "background": "full-ui 専用。UX ## 依存 の仕様と実装 UI の一致確認。",
       "summary": "review_kind: ux_implementation。UxReviewResult を `output/ux/reviews/` または development reviews に出力。",

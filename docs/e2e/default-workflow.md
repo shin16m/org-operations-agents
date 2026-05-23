@@ -143,10 +143,6 @@ bootstrap で同一 `epic.title` が既にある場合は **新規作成せず s
 
 v2 手順の記録: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)
 
-## オプション: work — サブタスク実行（deprecated）
-
-workflow: [`workflows/with-execution.yaml`](../../workflows/with-execution.yaml) + `task-executor`（過渡期のみ）
-
 ## 検証記録
 
 - 基盤 11 タスク: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)（v2 記録）

@@ -1,0 +1,24 @@
+{
+  "description": "Review NG 時に pm_create_fix_subtask.py が生成する [fix] + [re-review] の例（参考用・Asana には直接投入しない）",
+  "source_review": "skills/development/examples/review-result.code-failed.example.json",
+  "subtasks": [
+    {
+      "name": "[fix] developer — code review findings (R1)",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "Review NG に伴う修正（R1）。ゲート: code。",
+      "summary": "## 修正依頼\n（CLI が review JSON から自動生成）",
+      "done_when": "指摘が解消され、再 review を依頼できる状態。"
+    },
+    {
+      "name": "[re-review] dev-reviewer — code (R2)",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "修正 R1 完了後の再 review（R2）。",
+      "summary": "review_kind: code",
+      "done_when": "DocReviewResult / CodeReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}
