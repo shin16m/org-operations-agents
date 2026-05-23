@@ -5,7 +5,15 @@ alwaysApply: true
 
 # 標準 workflow 厳守（このリポジトリ）
 
-このリポジトリは **宣言的 workflow とエージェント挙動の定義** が主目的である。利用者が「作って」「実装して」と言っただけでは、**Handoff・レビュー・gate を経ずに製品コードの実装をこのリポジトリへ書き始めない**（成果物は別リポジトリまたは Asana 投入後のチーム内フローで扱う）。
+このリポジトリは **宣言的 workflow とエージェント挙動の定義** が主目的である。利用者が「作って」「実装して」「和久桶さん」と言っただけでは、**Handoff・レビュー・gate を経ずに製品コードの実装をこのリポジトリへ書き始めない**（成果物は別リポジトリまたは Asana 投入後のチーム内フローで扱う）。
+
+## 和久桶さん（workflow-orchestrator）への相談
+
+利用者が **和久桶 / 和久桶さん** に相談・依頼をインプットしたとき、エージェントは **workflow-orchestrator として intake から**同一セッションで進める。相談内容が組織変更・新 department・監査強化など **本リポジトリ自身のメタ変更**でも例外にしない（企画 → gate → development / audit 等の execution 子で実施）。
+
+**禁止:** 相談を受けてすぐ skills / registry / workflow / validate を編集し始める（監査チーム追加で発生した先行実装パターン）。
+
+**正規:** intake → bootstrap → planning（Handoff → plan-reviewer → gate）→ asana_execute → task-dispatcher → 各 PM L3。
 
 ## エージェントの進行責務（L1）
 
@@ -55,6 +63,7 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 ## 禁止（明示指示がない限り）
 
 - Handoff なしで製品実装をこのリポジトリに直接書き始める
+- **和久桶さん相談を受けて intake / bootstrap を飛ばす**
 - `plan-reviewer` を飛ばして Asana 投入する
 - ローカルだけ完了し、Asana を未完了のままにする
 - `complete_task.py` だけ実行し、署名コメントを省略する
@@ -72,4 +81,4 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 
 ## 開始時の一言（エージェント）
 
-実装・機能追加の依頼を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、企画 gate で承認を仰ぐ**旨を短く伝える。
+**和久桶さん / 実装・機能追加・組織変更の依頼**を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、企画 gate で承認を仰ぐ**旨を短く伝える。本体実装・メタ doc 更新は **gate 承認後の execution 系**で進める。

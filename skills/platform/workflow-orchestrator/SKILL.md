@@ -2,6 +2,9 @@
 
 **呼称:** **和久桶さん**（略: 和久桶）— 利用者がこの名前で依頼した場合も本スキル（`workflow-orchestrator`）として扱う。
 
+**相談・依頼の原則（必須）:** 和久桶さんへのインプット（相談・「作って」「お任せ」含む）は **常に既存 workflow の intake から**進める。Handoff · plan-reviewer · gate · Asana 投入 · execution 系 L3 dispatch を経ずに、registry / skills / workflow / docs の**本体変更に着手しない**。  
+（反面例: 監査チーム追加 — 先行実装後に Asana / Plan B 補完。以後は再発させない。記録: [`org-governance-audit-team-delivery.md`](../../../docs/verification/org-governance-audit-team-delivery.md)）
+
 **独立スキル:** 宣言的 workflow + agent-registry に基づく段階案内。**利用者の唯一の入口（intake）** と **dispatch 委譲**。ビジネスロジックは各スキル・チーム workflow に委譲。
 
 人間向け: [`README.md`](README.md) · セッション I/O: [`docs/design/workflow-session-io.md`](../../../docs/design/workflow-session-io.md)
@@ -21,11 +24,16 @@
 
 ### A. intake（課題受付）
 
+**最初の 1 手（相談・機能追加・組織変更すべて共通）:**
+
 1. 利用者の **生課題**（自然言語）を受け取る
-2. `WorkflowSession` を初期化（`current_step_id: intake`）
-3. **bootstrap 用最小 Handoff** を生成（親エピック + `department: planning` の企画子 1 件）
-4. **bootstrap → dispatch まで同一セッションで進める**（利用者に別チャット起動を求めない）
-5. 企画チーム（[`planning-pm`](../../planning/planning-pm/SKILL.md)）へ dispatch 委譲
+2. **方針を一言で示す** — 「intake → bootstrap → 企画 Handoff/review → gate 承認後に execution 系へ」と伝える
+3. `WorkflowSession` を初期化（`current_step_id: intake`）
+4. **bootstrap 用最小 Handoff** を生成（親エピック + `department: planning` の企画子 1 件）
+5. **bootstrap → dispatch まで同一セッションで進める**（利用者に別チャット起動を求めない）
+6. 企画チーム（[`planning-pm`](../../planning/planning-pm/SKILL.md)）へ dispatch 委譲
+
+**intake 中にやらないこと:** issue-story-planner / agent-creater / development PM の役割で skills・registry・workflow YAML・design doc を**直接編集して実装を始める**こと（企画 Handoff に落とし、gate 後の execution 子で進める）。
 
 ### B. bootstrap（最小 Asana 作成）
 
@@ -82,6 +90,7 @@ PM 代行で本体を先行完了した場合の事後補完: [`docs/verificatio
 
 ## やらないこと
 
+- **intake / bootstrap / 企画 gate 前に** registry · skills · workflow · SSOT doc の本体変更（→ 企画 Handoff → gate → execution 子）
 - Handoff の詳細作成（→ issue-story-planner / planning-pm 経由）
 - プランの詳細レビュー（→ plan-reviewer / planning-pm 経由）
 - 企画 gate（→ planning-pm）

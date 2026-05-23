@@ -63,6 +63,7 @@ org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.o
 ## エージェント進行（L1）
 
 - **intake 担当**は bootstrap → dispatch（企画チーム）まで同一セッションで進める。
+- **和久桶さん（workflow-orchestrator）への相談**も intake から。メタ変更（新 department · registry 等）を **gate 前に直接実装しない**（[`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md)）。
 - **企画 gate** は planning-pm が担当（L1 orchestrator から移管）。
 
 ## orchestrator の役割（v3）

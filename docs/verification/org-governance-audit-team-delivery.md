@@ -52,3 +52,12 @@
 | report vs live validate 照合 | `verify_consistency_audit_report.py` |
 | 監査子未完了の親 complete ブロック | `check_epic_audit_gate.py` |
 | SSOT 全 department 言及チェック | `validate_ssot_contract.py` 拡張 |
+
+## 教訓（workflow 順序）
+
+| 問題 | 正規 |
+|------|------|
+| 監査チーム定義を **Asana / gate 前に先行実装** | intake → bootstrap → Handoff → review → **gate** → asana_execute → development / audit L3 |
+| 本体先行後の Asana 記録 | Plan B（doc-only 事後補完）— **例外**。和久桶さん相談では最初から workflow を踏む |
+
+SSOT: [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) · [`.cursor/rules/workflow-intake-required.mdc`](../../.cursor/rules/workflow-intake-required.mdc)
