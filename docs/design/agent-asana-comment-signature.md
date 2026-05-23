@@ -168,7 +168,7 @@ handoff.all-teams-dryrun.json を出力。
 | requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier | 委譲作業完了・PM へ提出前 | `complete` |
 | product-manager | 子タスクを Asana 完了にする直前 | `complete` |
 | plan-reviewer | Handoff レビュー結果を返す前（対象タスクがある場合） | `complete` |
-| workflow-orchestrator | gate 判定・エピック完了報告前（親/子に記録する場合） | `complete` |
+| workflow-orchestrator | エピック完了報告前（親/子に記録する場合） | `complete` |
 | task-dispatcher | 配賦プロンプト返却のみの場合は不要。実作業後は担当スキルが投稿 | — |
 
 ## 8. 完了との順序（必須）

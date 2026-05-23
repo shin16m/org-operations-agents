@@ -45,6 +45,18 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | `review_passed` | **`plan-reviewer` 必須。** `PlanReviewResult.status` が `passed` または `passed_with_notes` | `asana_execute` 不可。差し戻しは `handoff_plan` |
 | `handoff_approved` | `review_passed` 済みのうえ、人間が planning-pm（pm_gate）経由で **Asana タスク作成** を明示承認 | `handoff_to_asana.py` を実行しない |
 
+## asana_execute 後（execution 系 — 必須分離）
+
+`handoff_to_asana.py`（`--require-review-result`）で execution 系子が Asana に存在した**後**:
+
+| 禁止 | 正規 |
+|------|------|
+| 同一セッションで development / ux / analysis の **成果物・doc 更新**に着手 | [`task-dispatcher`](../../skills/platform/task-dispatcher/SKILL.md) → 各 PM **intake** |
+| product-manager / ux-pm / analytics-pm が **ワーカー役を代行** | `pm_assign_subtasks` → **L3b** worker dispatch（[`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md)） |
+| gate 承認を「実装開始の合図」とみなす | 企画 PM は **comment → complete → DeptWorkComplete** まで。実行系は別 dispatch |
+
+org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../skills/development/examples/assign-plan.org-meta-doc-v1.json)）。本体を PM が先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../verification/asana-comment-detail-delivery.md)。
+
 ## エージェント進行（L1）
 
 - **intake 担当**は bootstrap → dispatch（企画チーム）まで同一セッションで進める。
@@ -93,7 +105,7 @@ sequenceDiagram
   PM->>A: handoff_to_asana
   A-->>PM: Asana 更新
   PM-->>O: DeptWorkComplete
-  O->>D: dispatch dev/analysis 子
+  O->>D: dispatch ux/dev/analysis 子
 ```
 
 ## 移行（v2 → v3）

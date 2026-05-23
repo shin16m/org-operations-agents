@@ -43,7 +43,8 @@
 
 ## やらないこと
 
-- 実行系子タスクの要件定義・実装（→ 開発チーム / 分析チーム）
+- 実行系子タスクの要件定義・実装（→ 開発チーム / UX チーム / 分析チーム）
+- **`asana_execute` 直後に同一セッションで execution 系の成果物を書く**（→ task-dispatcher → 各 PM intake + ワーカー dispatch）
 - Handoff JSON を他チームの入力として渡す（チーム間 I/O は **Asana notes**）
 - ディスパッチ（→ task-dispatcher / 統括グループ）
 - 新規 `skills/<organization>/<slug>/`（→ agent-creater）

@@ -1,6 +1,6 @@
-# 配賦 E2E（with-dispatch v2）
+# 配賦 E2E（default v3 · execution 系 dispatch）
 
-default v3 で企画完了（Handoff Asana 投入）後、**execution 系子タスク 1 件ごと**にチームへ配賦する手順。
+`workflows/with-dispatch.yaml`（ファイル版 v2）で定義される **企画完了後の execution 系子配賦**手順。標準パイプラインは default **v3**（[`workflow-io-contract.md`](../design/workflow-io-contract.md)）。
 
 ## 前提
 

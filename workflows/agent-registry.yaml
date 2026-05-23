@@ -43,6 +43,7 @@ agents:
       output_kind: AsanaBuddyHandoff
       schema_version: "1.1"
       schema_doc: docs/design/planning-delivery-io.md
+      note: Handoff JSON は 1.1 / 1.2 両対応（推奨 1.2）
       artifact_root: output/planning/handoff/
       reads:
         - workflows/planning-delivery.yaml
@@ -67,6 +68,7 @@ agents:
       input_kind: AsanaBuddyHandoff
       schema_version: "1.1"
       script: skills/platform/asana-buddy/optional/handoff_to_asana.py
+      note: Handoff JSON は 1.1 / 1.2 両対応（handoff_to_asana.py）
       task_read_script: skills/platform/asana-buddy/optional/fetch_task.py
       task_comment_script: skills/platform/asana-buddy/optional/comment_task.py
       task_complete_script: skills/platform/asana-buddy/optional/complete_task.py
@@ -104,7 +106,7 @@ agents:
     slot: dept_work
     skill_path: skills/development/requirements-writer
     enabled: true
-    note: development-delivery v2 — 要件・事後仕様
+    note: development-delivery v3 — 要件・事後仕様
     io:
       input_kind: asana_subtask_notes
       schema_doc: docs/design/development-delivery-io.md
@@ -116,7 +118,7 @@ agents:
     slot: dept_work
     skill_path: skills/development/tech-designer
     enabled: true
-    note: development-delivery v2 — 実装前設計
+    note: development-delivery v3 — 実装前設計
     io:
       input_kind: asana_subtask_notes
       schema_doc: docs/design/development-delivery-io.md

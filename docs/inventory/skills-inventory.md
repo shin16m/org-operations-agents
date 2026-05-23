@@ -68,4 +68,4 @@
 ## レガシー
 
 - `skills/platform/agent-creater/agents/` 配下への配置は**廃止済み**
-- default v2（L1 plan/review/gate/execute）: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md) に記録
+- default v2（L1 plan/review/gate/execute）: [`docs/verification/archive/`](../verification/archive/README.md)
