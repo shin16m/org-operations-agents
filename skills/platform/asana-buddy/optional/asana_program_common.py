@@ -258,6 +258,16 @@ def resolve_project_id(explicit: str | None) -> str | None:
     return None
 
 
+def resolve_section_id(explicit: str | None) -> str | None:
+    if explicit:
+        return explicit
+    for key in ("ASANA_SECTION_ID", "ASANA_SECTION"):
+        v = os.getenv(key)
+        if v:
+            return v.strip()
+    return None
+
+
 def find_project_task_by_exact_name(project_gid: str, name: str, token: str) -> str | None:
     headers = {"Authorization": f"Bearer {token}"}
     url: str | None = f"{ASANA_BASE}/projects/{project_gid}/tasks"

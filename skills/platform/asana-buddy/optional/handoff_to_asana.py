@@ -18,7 +18,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
-from agent_handler_asana import create_task, get_token, load_env_from_dotfile  # noqa: E402
+from agent_handler_asana import add_task_to_section, create_task, get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import (  # noqa: E402
     console_safe,
     create_subtasks_reversed,
@@ -28,6 +28,7 @@ from asana_program_common import (  # noqa: E402
     load_handoff,
     load_review_result,
     resolve_project_with_fallback,
+    resolve_section_id,
     sync_handoff_to_parent,
 )
 
@@ -115,12 +116,14 @@ def main() -> None:
         return
 
     project_id = resolve_project_with_fallback(args.project)
+    section_id = resolve_section_id(None)
 
     if args.dry_run:
+        section_note = f" section_gid={section_id}" if section_id else ""
         print(
             console_safe(
                 f"dry-run: would create 1 parent + {len(subtasks)} subtasks "
-                f"project_gid={project_id} epic={epic_title!r}"
+                f"project_gid={project_id}{section_note} epic={epic_title!r}"
             )
         )
         return
@@ -136,6 +139,10 @@ def main() -> None:
 
     created = create_task(project_id, epic_title, epic["notes_markdown"], token)
     print("created_parent", created.get("gid"), created.get("permalink_url", ""))
+
+    if section_id:
+        add_task_to_section(section_id, created["gid"], token)
+        print("added_to_section", section_id)
 
     create_subtasks_reversed(
         created["gid"],
