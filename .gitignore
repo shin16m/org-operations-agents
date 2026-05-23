@@ -24,3 +24,7 @@ Thumbs.db
 
 # IDE (JetBrains; .vscode/ often committed — omitted)
 .idea/
+
+# PM assign plans (epic-specific; folder kept via .gitkeep)
+work/assign-plans/*
+!work/assign-plans/.gitkeep
