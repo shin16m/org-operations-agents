@@ -47,6 +47,17 @@
 3. 各子完了（`DeptWorkComplete`）のたびに 1 に戻る
 4. **すべての子**が `completed` になったら利用者へエピック完了報告
 
+### E. asana_execute 後（execution 系 — 必須分離）
+
+企画 gate で `handoff_to_asana.py` を実行した**後**:
+
+1. **同一セッションで development / ux / analysis の成果物を書かない**
+2. 未完了 execution 系子ごとに [`task-dispatcher`](../task-dispatcher/SKILL.md) で PM へ dispatch
+3. 各 PM は `pm_assign_subtasks` → **L3b** でワーカーへ委譲（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md)）
+4. org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../development/examples/assign-plan.org-meta-doc-v1.json) 参照）
+
+PM 代行で本体を先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../../../docs/verification/asana-comment-detail-delivery.md)
+
 ## 現段階 ID（default v3）
 
 `intake` | `bootstrap` | `dispatch`（workflow YAML と同一）
@@ -67,6 +78,7 @@
 - プランの詳細レビュー（→ plan-reviewer / planning-pm 経由）
 - 企画 gate（→ planning-pm）
 - 新規 `skills/<organization>/<slug>/`（→ agent-creater）
+- **execution 系 PM のワーカー代行**（gate 承認後も task-dispatcher → PM intake 必須）
 
 ## 起動例 A — intake（課題を渡す）
 

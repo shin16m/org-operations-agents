@@ -38,6 +38,7 @@
 | [`team-label-e2e-dryrun.md`](team-label-e2e-dryrun.md) | `チーム:` 表記移行検証 |
 | [`e2e-dryrun.md`](e2e-dryrun.md) | E2E 基盤（v3 スコープ） |
 | [`orchestrator-intake-dryrun.md`](orchestrator-intake-dryrun.md) | intake 入口化（v3） |
+| [`asana-comment-detail-delivery.md`](asana-comment-detail-delivery.md) | コメント詳細化 epic · PM 代行事後補完（方針 B） |
 
 ### archive（v2 以前の履歴）
 

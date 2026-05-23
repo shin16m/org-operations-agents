@@ -1,0 +1,43 @@
+{
+  "parent_title": "【開発】org-ops メタ doc 更新（doc-only · 監査用テンプレ）",
+  "profile": "doc-only",
+  "description": "docs/design/ · skills/platform/ · tools/ のみ変更する org-operations-agents 自身の改善向け。本体先行完了時は verification 記録で方針 B 補完。",
+  "subtasks": [
+    {
+      "name": "【1/4】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "doc-only。org-ops メタ doc / SKILL 更新。",
+      "summary": "Handoff 開発子 done_when を requirements に落とす。",
+      "done_when": "output/development/requirements/<parent_gid>-requirements.md が存在する。"
+    },
+    {
+      "name": "【2/4】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を reviews 配下に出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "as-built 文書化。",
+      "summary": "mode=as-built-spec。specs 配下に事後仕様。",
+      "done_when": "output/development/specs/<parent_gid>-spec.md が存在する。"
+    },
+    {
+      "name": "【4/4】mismatch review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "要件 vs 事後仕様の整合。",
+      "summary": "review_kind: mismatch。MismatchReviewResult を出力。",
+      "done_when": "MismatchReviewResult が passed または fix_target 処理済。"
+    }
+  ]
+}
