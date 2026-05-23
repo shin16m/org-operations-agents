@@ -49,7 +49,7 @@ coordination_group:
 
 # pillar（Handoff v1.2 未設定時）→ department ヒューリスティック
 pillar_defaults:
-  - match: ["実装", "開発チーム", "開発チーム", "検証・開発チーム", "検証・開発チーム", "整備・開発チーム", "整備・開発チーム"]
+  - match: ["実装", "開発チーム", "検証・開発チーム", "整備・開発チーム"]
     department: development
   - match: ["UX", "UI", "画面", "体験", "Design System", "ワイヤー", "Figma"]
     department: ux

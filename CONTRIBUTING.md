@@ -4,7 +4,9 @@
 
 1. **`agent-creater`** — Copilot/Cursor で問診し、`skills/<organization>/<slug>/` の README / SKILL / personas 雛形を生成・保存する。他スキルでフォルダを手書きしない。
 2. **registry** — [`workflows/agent-registry.yaml`](workflows/agent-registry.yaml) に slug・slot・I/O 参照・`enabled` を追加する。
-3. **workflow** — [`workflows/default.yaml`](workflows/default.yaml)（または別 workflow ファイル）に段階・`agent` 参照を追加する。
+3. **workflow** — 追加先は **エージェントの所属レイヤ**に従う:
+   - L1 統括（platform）— [`workflows/default.yaml`](workflows/default.yaml) または [`workflows/with-dispatch.yaml`](workflows/with-dispatch.yaml)
+   - L3 チーム worker（planning / development / ux / analysis）— `workflows/<dept>-delivery.yaml` + [`workflows/organizations.yaml`](workflows/organizations.yaml) の `departments[].entry_agent` / `skill_root`
 
 PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) のゲート・境界に抵触しないか確認する。
 
@@ -24,6 +26,8 @@ PR では [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contra
 ```powershell
 python tools/validate_org_registry.py
 ```
+
+PR では [`.github/workflows/validate.yml`](.github/workflows/validate.yml) が同じスクリプトを実行する。失敗すると merge できない。
 
 **チーム取り決め一覧:** [`team-conventions.md`](docs/design/team-conventions.md) · 組織: [`department-model.md`](docs/design/department-model.md)
 

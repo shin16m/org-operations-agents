@@ -39,15 +39,18 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 
 企画完了（Asana に execution 系子が存在）後は **task-dispatcher** で子タスクごとにチーム workflow へ配賦する。
 
-| チーム | ハブ | 成果物ルート |
-|----|------|----------------|
-| 企画 | planning-pm | `output/planning/` |
-| 開発 | product-manager | `output/development/` |
-| 分析 | analytics-pm | `output/analysis/` |
+| チーム | ハブ | 成果物ルート | workflow |
+|----|------|----------------|---|
+| 企画 | planning-pm | `output/planning/` | [`planning-delivery`](workflows/planning-delivery.yaml) |
+| 開発 | product-manager | `output/development/` | [`development-delivery`](workflows/development-delivery.yaml) |
+| 分析 | analytics-pm | `output/analysis/` | [`analysis-delivery`](workflows/analysis-delivery.yaml) |
+| UX | ux-pm | `output/ux/` | [`ux-delivery`](workflows/ux-delivery.yaml) |
 
-**開発チーム** — 要件 → 設計 → 実装 → dev-reviewer / qa-verifier（v3）。
+**開発チーム** — 要件 → 設計 → 実装 → dev-reviewer / qa-verifier。
 
 **分析チーム** — [`analysis-delivery`](workflows/analysis-delivery.yaml)（SLA・本番ゲート必須）→ `output/analysis/reviews/`。
+
+**UX チーム** — [`ux-delivery`](workflows/ux-delivery.yaml)（ux-pm がサブタスク分解 → ux-designer / ux-reviewer）。`full-ui` 開発時は ux-reviewer が実装一致レビューにも参加。
 
 共通: 子タスク完了は `comment_task.py`（署名付き）→ `complete_task.py -y`。
 

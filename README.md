@@ -32,7 +32,7 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 | [`product-manager`](skills/development/product-manager/SKILL.md) | 開発チーム PM（子 1 件のハブ） |
 | [`ux-pm`](skills/ux/ux-pm/SKILL.md) | UX チーム PM |
 | [`ux-designer`](skills/ux/ux-designer/SKILL.md) / [`ux-reviewer`](skills/ux/ux-reviewer/SKILL.md) | UX チーム委譲ロール |
-| [`requirements-writer`](skills/development/requirements-writer/SKILL.md) / [`tech-designer`](skills/development/tech-designer/SKILL.md) / [`developer`](skills/development/developer/SKILL.md) / [`dev-reviewer`](skills/development/dev-reviewer/SKILL.md) / [`qa-verifier`](skills/development/qa-verifier/SKILL.md) | 開発チーム委譲ロール（v2） |
+| [`requirements-writer`](skills/development/requirements-writer/SKILL.md) / [`tech-designer`](skills/development/tech-designer/SKILL.md) / [`developer`](skills/development/developer/SKILL.md) / [`dev-reviewer`](skills/development/dev-reviewer/SKILL.md) / [`qa-verifier`](skills/development/qa-verifier/SKILL.md) | 開発チーム委譲ロール |
 | [`analytics-pm`](skills/analysis/analytics-pm/SKILL.md) | 分析チーム PM（子 1 件のハブ） |
 | [`data-architect`](skills/analysis/data-architect/SKILL.md) / [`data-engineer`](skills/analysis/data-engineer/SKILL.md) / [`data-steward`](skills/analysis/data-steward/SKILL.md) / [`data-analyst`](skills/analysis/data-analyst/SKILL.md) / [`data-scientist`](skills/analysis/data-scientist/SKILL.md) / [`ml-engineer`](skills/analysis/ml-engineer/SKILL.md) / [`analysis-reviewer`](skills/analysis/analysis-reviewer/SKILL.md) | 分析チームの委譲ロール |
 

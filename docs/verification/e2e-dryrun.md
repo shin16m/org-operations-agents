@@ -51,6 +51,12 @@
 
 ## 結果
 
-- ルート README → intake 起点の v2 手順で再現可能
+- ルート README → intake 起点の v3 手順で再現可能（v2 履歴は本ファイル §スコープ参照）
 - `handoff_to_asana.py --require-review-result` で review ゲートを CLI 強制可能
 - レガシー `skills/platform/agent-creater/agents/asana-buddy/` 削除済み
+
+## 最新の dryrun 記録
+
+- 全チーム E2E: [`all-teams-dryrun.md`](all-teams-dryrun.md)
+- 企画チーム L3 化: [`planning-dept-v3-dryrun.md`](planning-dept-v3-dryrun.md)
+- 一覧: [`README.md`](README.md)
