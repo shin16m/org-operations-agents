@@ -33,6 +33,18 @@ workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery
 | Asana | 署名付きコメント + 子タスク完了 |
 | チーム内成果物 | 下表 |
 
+### 下流チーム向け公開（成果物共有）
+
+分析完了時、開発等が **読み取り専用**で利用できるよう以下を残す。
+
+| 項目 | 内容 |
+|------|------|
+| `DeptWorkComplete.artifacts[]` | モデルパス・API URL・カタログ・設計書への安定参照 |
+| カタログ / モデルカード | スキーマ・入出力・バージョン・SLA |
+| 変更依頼 | 下流からの変更は **分析チームの子タスク**で受ける（下流が `output/analysis/` を直接編集しない） |
+
+企画・開発 PM は notes の [`## 依存（読み取り専用）`](department-model.md#成果物共有読み取り専用) に転記する。
+
 ---
 
 分析チーム PM 委譲（担当・サブタスク）: [`analytics-pm-assignment.md`](analytics-pm-assignment.md)

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DocReviewResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "summary", "review_kind"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "passed_with_notes", "failed"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "review_kind": {
+      "type": "string",
+      "enum": ["requirements", "detailed_spec", "design"]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "message"],
+        "properties": {
+          "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+          "message": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

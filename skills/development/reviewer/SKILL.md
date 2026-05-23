@@ -1,5 +1,7 @@
 # reviewer SKILL
 
+> **Deprecated（development-delivery v2）:** [`dev-reviewer`](../dev-reviewer/SKILL.md) と [`qa-verifier`](../qa-verifier/SKILL.md) を使用。registry では `enabled: false`。
+
 **独立スキル:** PM / doc-writer / developer から委譲された **チーム内レビュー・動作検証**。
 
 ## review_kind

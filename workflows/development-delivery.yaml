@@ -1,88 +1,117 @@
-# Development department workflow — one instance per Asana subtask.
-# PM is the hub; invoked after task-dispatcher routes department=development.
+# Development department workflow v2 — one instance per Asana subtask.
+# PM hub; optional design phase; dev-reviewer vs qa-verifier split.
 id: development-delivery
-version: "1"
-description: PM-led delivery for a single subtask (requirements → dev → detailed spec)
+version: "2"
+description: PM-led delivery (requirements → design → dev → review/QA → as-built spec)
 
 policy:
   scope: single_subtask
   entry_agent: product-manager
   parent_context: read_parent_epic_notes
   operational_rules_doc: docs/design/development-delivery-io.md
+  assignment_doc: docs/design/development-pm-assignment.md
+  delivery_profiles:
+    full:
+      description: 要件 → 設計 → 実装 → レビュー/QA → 事後仕様
+    lite:
+      description: 設計 skip（小変更・バグ修正）
+      skip_steps: [design_doc, design_review]
+    doc-only:
+      description: 文書のみ（実装 skip）
+      skip_steps: [design_doc, design_review, development, code_review, verification]
 
 steps:
   - id: pm_intake
     agent: product-manager
-    role: 子タスクの background/summary/done_when を読み、要件定義フェーズへ
+    role: notes（profile 含む）を読み、delivery profile を決めて委譲開始
 
   - id: requirements_doc
-    agent: doc-writer
-    role: 要件定義書作成
+    agent: requirements-writer
+    role: 要件定義書作成（mode=requirements）
     artifact: requirements-doc
 
   - id: requirements_review
-    agent: reviewer
+    agent: dev-reviewer
     role: 要件定義書レビュー
     review_kind: requirements
     gate_after: requirements_review_passed
 
+  - id: design_doc
+    agent: tech-designer
+    role: 技術設計書作成（実装前）
+    artifact: design-doc
+    skip_when_profile: [lite, doc-only]
+
+  - id: design_review
+    agent: dev-reviewer
+    role: 技術設計書レビュー
+    review_kind: design
+    gate_after: design_review_passed
+    skip_when_profile: [lite, doc-only]
+
   - id: pm_handoff_dev
     agent: product-manager
-    role: 要件定義書を developer へ渡す
+    role: 要件・設計を developer へ渡す
+    skip_when_profile: [doc-only]
 
   - id: development
     agent: developer
     role: 実装
     artifact: code
+    skip_when_profile: [doc-only]
 
   - id: code_review
-    agent: reviewer
+    agent: dev-reviewer
     role: コードレビュー
     review_kind: code
     gate_after: code_review_passed
+    skip_when_profile: [doc-only]
 
   - id: verification
-    agent: reviewer
-    role: 動作検証
+    agent: qa-verifier
+    role: 動作検証（実装者と独立）
     review_kind: verification
     gate_after: verification_passed
+    skip_when_profile: [doc-only]
 
   - id: pm_request_spec
     agent: product-manager
-    role: 詳細仕様書作成を doc-writer へ依頼
+    role: 事後詳細仕様作成を requirements-writer へ依頼（mode=as-built-spec）
 
-  - id: detailed_spec
-    agent: doc-writer
-    role: 詳細仕様書作成
+  - id: as_built_spec
+    agent: requirements-writer
+    role: 事後詳細仕様書作成
     artifact: detailed-spec
 
   - id: mismatch_review
-    agent: reviewer
-    role: 要件定義書と詳細仕様の整合レビュー
+    agent: dev-reviewer
+    role: 要件定義書と事後詳細仕様の整合レビュー
     review_kind: mismatch
     gate_after: mismatch_resolved
 
   - id: pm_complete
     agent: product-manager
-    role: DeptWorkComplete 出力・complete_task -y・オーケストレーターへ報告
+    role: DeptWorkComplete・comment_task → complete_task -y
 
 gates:
   requirements_review_passed:
-    description: DocReviewResult status passed*
+    description: DocReviewResult status passed*（requirements）
+  design_review_passed:
+    description: DocReviewResult status passed*（design）。lite/doc-only は skip
   code_review_passed:
     description: CodeReviewResult status passed*
   verification_passed:
     description: VerificationResult status passed
   mismatch_resolved:
-    description: MismatchReviewResult fix_target 処理済み（document 修正完了 or code は PM→developer ループ後）
+    description: MismatchReviewResult 処理済
 
 branches:
   mismatch_fix_document:
     from: mismatch_review
     when: fix_target == document
-    to: detailed_spec
+    to: as_built_spec
   mismatch_fix_code:
     from: mismatch_review
     when: fix_target == code
     to: pm_handoff_dev
-    note: doc-writer 業務は一旦完了。PM が developer へ修正依頼。
+    note: PM が developer へ修正依頼

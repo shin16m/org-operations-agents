@@ -18,7 +18,7 @@
 |------|------------|------------|------------|
 | id | `planning` | `development` | `analysis` |
 | PM ハブ | planning-pm | product-manager | analytics-pm |
-| ミッション | Handoff → review → gate → **Asana タスク化**（他チームの入力源） | 要件 → 実装 → 検証 → **詳細仕様** | 要求 → データ → パイプライン → モデル → **本番ゲート** → 価値検証 |
+| ミッション | Handoff → review → gate → **Asana タスク化**（他チームの入力源） | 要件 → 設計 → 実装 → レビュー/QA → **事後仕様** | 要求 → データ → パイプライン → モデル → **本番ゲート** → 価値検証 |
 | workflow | [`planning-delivery`](../../workflows/planning-delivery.yaml) | [`development-delivery`](../../workflows/development-delivery.yaml) | [`analysis-delivery`](../../workflows/analysis-delivery.yaml) |
 | 詳細 I/O | [`planning-delivery-io.md`](planning-delivery-io.md) | [`development-delivery-io.md`](development-delivery-io.md) | [`analysis-delivery-io.md`](analysis-delivery-io.md) |
 | 成果物ルート | `output/planning/` | `output/development/` | `output/analysis/`（実体は別リポジトリ想定） |
@@ -30,7 +30,9 @@
 | 統括グループ → チーム | `DispatchRequest` + Asana 子 **notes**（`チーム:` / 背景・概要・完了条件） |
 | チーム → 統括グループ | `DeptWorkComplete` + `comment_task` + `complete_task` |
 
-**禁止（全 execution 系チーム）:** Handoff JSON・PlanReviewResult・他チーム `output/` の直接参照。
+**禁止（workflow 入力として）:** Handoff JSON・PlanReviewResult・他チーム `output/` の**無契約な直接探索**。
+
+**許可（成果物共有）:** 他チーム artifact の **読み取り専用利用** — notes の `## 依存（読み取り専用）` 経由（[`department-model.md`](department-model.md)「成果物共有」）。
 
 企画チームのみ Handoff / PlanReview を**チーム内**で使用し、他チームへは **Asana notes** で渡す。
 
@@ -43,6 +45,10 @@
 ```
 
 legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`handoff-v12-department.md`](handoff-v12-department.md)）。
+
+### 成果物共有（チーム横断・読み取り専用）
+
+分析モデル・データ等を開発が利用する場合: 上流 `DeptWorkComplete.artifacts[]` → notes の `## 依存（読み取り専用）` → 下流が consume。詳細: [`department-model.md`](department-model.md#成果物共有読み取り専用)。
 
 ---
 
@@ -70,14 +76,12 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 
 | 区分 | 取り決め |
 |------|----------|
-| 入力 | 子 notes のみ（Handoff JSON は読まない） |
-| チーム内フロー | 要件定義 → 要件 review → 実装 → code review → 検証 → 詳細仕様 → mismatch review |
-| 必須ゲート | 要件 review / code review / verification / mismatch 解消 |
-| 成果物 | `requirements/<gid>-requirements.md`、`specs/<gid>-spec.md`、`reviews/` |
-| コード置き場 | 別リポジトリまたは本リポジトリ（タスク notes で指定） |
-| PM 完了 | 各ロール `comment_task` → PM が `complete_task` → `DeptWorkComplete` |
-| mismatch | `fix_target: document` → doc-writer / `code` → PM → developer |
-| やらないこと | Handoff 作成、dispatch、他チーム成果物編集、agent-creater 代替 |
+| 入力 | 子 notes（`profile:` / `担当:` 可） |
+| チーム内フロー | 要件 → 設計（skip可）→ 実装 → dev-reviewer → qa-verifier → 事後仕様 → mismatch |
+| profile | `full` / `lite` / `doc-only` |
+| 必須ゲート | 要件 / 設計 / code / verification / mismatch |
+| PM 委譲 | [`development-pm-assignment.md`](development-pm-assignment.md) |
+| やらないこと | Handoff 作成、dispatch |
 
 → 詳細: [`development-delivery-io.md`](development-delivery-io.md)
 

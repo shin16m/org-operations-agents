@@ -6,7 +6,7 @@
 |----------|------|------------------|
 | [`platform/`](platform/) | **統括グループ** | workflow-orchestrator, asana-buddy, task-dispatcher, agent-creater |
 | [`planning/`](planning/) | 企画チーム | planning-pm, issue-story-planner, plan-reviewer |
-| [`development/`](development/) | 開発チーム | product-manager, doc-writer, developer, reviewer |
+| [`development/`](development/) | 開発チーム | product-manager, requirements-writer, tech-designer, developer, dev-reviewer, qa-verifier |
 | [`analysis/`](analysis/) | 分析チーム | analytics-pm, data-*, ml-engineer, analysis-reviewer |
 
 組織モデル: [`docs/design/department-model.md`](../docs/design/department-model.md)

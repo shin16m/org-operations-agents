@@ -1,5 +1,7 @@
 # doc-writer SKILL
 
+> **Deprecated（development-delivery v2）:** [`requirements-writer`](../requirements-writer/SKILL.md) を使用。registry では `enabled: false`。
+
 **独立スキル:** PM から委譲された **文書作成**（要件定義書・詳細仕様書）。
 
 ## 責務

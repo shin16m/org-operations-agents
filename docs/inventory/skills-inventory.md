@@ -15,7 +15,7 @@ workflow-orchestrator（intake → bootstrap → dispatch）
   → planning-pm（企画チーム）
     → issue-story-planner → plan-reviewer（必須）→ planning-pm（gate）→ asana-buddy
   → task-dispatcher（execution 系子ごと）
-  → product-manager → doc-writer / developer / reviewer（開発チーム）
+  → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier（開発チーム v2）
   → analytics-pm → data-architect / … / analysis-reviewer（分析チーム）
 ```
 
@@ -33,9 +33,13 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | `asana-buddy` | 業務 | `execute` | 実装済 | bootstrap / Handoff → Asana API |
 | `task-dispatcher` | 業務 | `dispatch` | 実装済 | `DispatchRequest` → チーム entry 委譲 |
 | `product-manager` | 業務 | 開発チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
-| `doc-writer` | 業務 | 開発チーム | 実装済 | 要件定義・詳細仕様 |
+| `requirements-writer` | 業務 | 開発チーム | 実装済 | 要件定義・事後仕様 |
+| `tech-designer` | 業務 | 開発チーム | 実装済 | 技術設計 |
 | `developer` | 業務 | 開発チーム | 実装済 | 実装・修正 |
-| `reviewer` | 業務 | 開発チーム | 実装済 | チーム内レビュー・検証 |
+| `dev-reviewer` | 業務 | 開発チーム | 実装済 | 文書・コード・整合レビュー |
+| `qa-verifier` | 業務 | 開発チーム | 実装済 | 動作検証 |
+| `doc-writer` | 業務 | 開発チーム | deprecated | → requirements-writer |
+| `reviewer` | 業務 | 開発チーム | deprecated | → dev-reviewer + qa-verifier |
 | `analytics-pm` | 業務 | 分析チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
 | `data-architect` | 業務 | 分析チーム | 実装済 | データモデル・SLA |
 | `data-engineer` | 業務 | 分析チーム | 実装済 | ETL/ELT パイプライン |
@@ -55,7 +59,7 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | `PlanReviewResult` | plan-reviewer schemas |
 | `DispatchRequest` / `DeptWorkComplete` | task-dispatcher / product-manager schemas |
 | チーム内レビュー（企画） | plan-reviewer schemas |
-| チーム内レビュー（開発） | reviewer/schemas/ |
+| チーム内レビュー（開発） | dev-reviewer/schemas/ · qa-verifier/schemas/ |
 | チーム内レビュー（分析） | analysis-reviewer/schemas/ |
 
 ## Handoff 例

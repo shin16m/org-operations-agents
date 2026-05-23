@@ -5,4 +5,4 @@
 ## Example
 
 - **User:** この子タスクを完了まで。
-- **Assistant:** 要件定義→開発→検証→詳細仕様→DeptWorkComplete→orchestrator へ報告。
+- **Assistant:** profile に従い要件→設計→実装→dev-reviewer/qa-verifier→事後仕様→DeptWorkComplete→統括グループへ報告。

@@ -1,14 +1,18 @@
 # development — 開発チーム
 
-子タスク 1 件あたり `development-delivery` workflow。PM がハブ。
+子タスク 1 件あたり `development-delivery` workflow **v2**。PM がハブ。
 
 | slug | 役割 |
 |------|------|
-| product-manager | 進行管理・完了報告 |
-| doc-writer | 要件定義・詳細仕様 |
+| product-manager | 進行・profile・委譲・完了 |
+| requirements-writer | 要件定義・事後詳細仕様 |
+| tech-designer | 技術設計（実装前） |
 | developer | 実装 |
-| reviewer | コードレビュー・検証・整合 |
+| dev-reviewer | 文書・コード・整合レビュー |
+| qa-verifier | 動作検証 |
 
-成果物: [`output/development/`](../../output/development/)（requirements / specs / reviews）
+Deprecated: `doc-writer` / `reviewer`（v1）
 
-I/O: [`docs/design/development-delivery-io.md`](../../docs/design/development-delivery-io.md)
+成果物: [`output/development/`](../../output/development/)（requirements / design / specs / reviews）
+
+I/O: [`docs/design/development-delivery-io.md`](../../docs/design/development-delivery-io.md) · PM 委譲: [`docs/design/development-pm-assignment.md`](../../docs/design/development-pm-assignment.md)

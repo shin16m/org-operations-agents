@@ -37,6 +37,8 @@ workflow: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery
 
 他チーム（開発・分析）は Handoff JSON を読まない。Asana notes が唯一の公式入力。
 
+**チーム横断の依存:** execution 系子の `background` / `summary` / `done_when` に、上流成果物への参照を書く。Asana 反映後は notes の **`## 依存（読み取り専用）`** として読める（[`department-model.md`](department-model.md#成果物共有読み取り専用)）。issue-story-planner は分析→開発など **子タスク間依存**があるとき Handoff subtask に明記する。
+
 ---
 
 ## チーム内 workflow 概要

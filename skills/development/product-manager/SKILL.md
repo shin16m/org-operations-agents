@@ -2,59 +2,53 @@
 
 **独立スキル:** 開発チームにおける **子タスク 1 件**の進行管理（L3 ハブ）。
 
-人間向け: [`README.md`](README.md) · workflow: [`workflows/development-delivery.yaml`](../../../workflows/development-delivery.yaml) · I/O: [`docs/design/development-delivery-io.md`](../../../docs/design/development-delivery-io.md)
+人間向け: [`README.md`](README.md) · workflow: [`workflows/development-delivery.yaml`](../../../workflows/development-delivery.yaml) v2 · I/O: [`docs/design/development-delivery-io.md`](../../../docs/design/development-delivery-io.md) · 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)
 
 ## 責務
 
-1. `fetch_task.py --gid <task_gid>` で子の notes（背景・概要・完了条件）を読む
+1. `fetch_task.py --gid <task_gid>` で子 notes（背景・概要・完了条件・**profile**）を読む
 2. 親エピック notes を文脈として参照（任意）
-3. 状態に沿い委譲:
-   - **doc-writer** — 要件定義書 → 詳細仕様書
+3. **delivery profile** を決定（省略時 `full`）:
+   - `full` — 要件 → 設計 → 実装 → レビュー/QA → 事後仕様
+   - `lite` — 設計 skip
+   - `doc-only` — 実装 skip
+4. [`development-delivery.yaml`](../../../workflows/development-delivery.yaml) に沿い委譲:
+   - **requirements-writer** — 要件 / 事後仕様（mode 指定）
+   - **tech-designer** — 技術設計（full のみ）
    - **developer** — 実装・修正
-   - **reviewer** — 各レビュー・動作検証
-4. `MismatchReviewResult.fix_target == code` 時: developer へ修正依頼（doc-writer 業務は一旦完了）
-5. 子の `done_when` を満たしたら **必ず** `complete_task.py` を実行してから `DeptWorkComplete` を出力する（順序固定）
-6. **workflow-orchestrator** へ完了を報告
+   - **dev-reviewer** — 要件・設計・コード・mismatch レビュー
+   - **qa-verifier** — 動作検証
+5. notes に `担当:` を追記してから委譲（[`development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md)）
+6. `MismatchReviewResult.fix_target == code` 時: developer へ修正依頼
+7. 子の `done_when` を満たしたら **comment_task → complete_task -y → DeptWorkComplete**
 
 ## Asana 記録（必須・順序）
 
 ```powershell
-# 1. 署名付きコメント（誰が何をしたか）
-.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent product-manager --skill skills/development/product-manager/SKILL.md --summary "子タスク完了" --body "実施内容..." -y
-
-# 2. 完了マーク
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent product-manager --skill skills/development/product-manager/SKILL.md --summary "子タスク完了" --body "..." -y
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\complete_task.py --gid <子GID> -y
 ```
 
-- 委譲先（doc-writer / developer / reviewer）も**各自の slug**で `comment_task.py` を実行してから PM に報告すること。
-- **`DeptWorkComplete` を出す前に** 1 → 2 の順で実行。ローカルのみ完了は**禁止**。
-- フォーマット: [`docs/design/agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md)
-- 同一エピックで連続して N 件まで完了した場合:  
-  `sync_handoff_epic.py --parent <親GID> --handoff <handoff.json> --complete-through N --complete-only`
-- 詳細: [`docs/design/dept-work-io.md`](../../../docs/design/dept-work-io.md)「Asana 完了同期」
+委譲先も各自 slug で `comment_task.py` を実行してから PM に報告する。
 
 ## やらないこと
 
 - Handoff 新規作成（→ 企画チーム）
-- Handoff JSON をチーム間入力として読む（→ Asana 子 notes を読む）
+- Handoff JSON をチーム間入力として読む
 - ディスパッチ（→ task-dispatcher）
 - 新規 `skills/<organization>/<slug>/`（→ agent-creater）
 
-## 成果物（artifact パス例）
+## 成果物パス
 
-| 種別 | 推奨パス例 |
-|------|------------|
-| 要件定義書 | `output/development/requirements/<task_gid>-requirements.md` |
-| 詳細仕様 | `output/development/specs/<task_gid>-spec.md` |
-| コード | リポジトリ内実装ファイル |
-
-## 出力
-
-完了時: `DeptWorkComplete` JSON（[`schemas/dept-work-complete.v1.schema.json`](schemas/dept-work-complete.v1.schema.json)）
+| 種別 | パス |
+|------|------|
+| 要件 | `output/development/requirements/<task_gid>-requirements.md` |
+| 設計 | `output/development/design/<task_gid>-design.md` |
+| 事後仕様 | `output/development/specs/<task_gid>-spec.md` |
+| レビュー | `output/development/reviews/` |
 
 ## 起動例
 
 ```
-product-manager として子タスク GID 1214877045257081 を進めてください。
-development-delivery workflow に従い、要件定義から開始します。
+product-manager: 子タスク GID ○○ を profile=lite で development-delivery v2 に従い進めてください。
 ```

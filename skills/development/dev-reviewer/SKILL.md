@@ -1,0 +1,33 @@
+# dev-reviewer SKILL
+
+**独立スキル:** PM / requirements-writer / tech-designer / developer から委譲された **静的レビュー**（文書・コード・整合）。
+
+**動作検証は qa-verifier が担当**（本スキルでは行わない）。
+
+## review_kind
+
+| review_kind | 入力 | 出力スキーマ |
+|-------------|------|--------------|
+| `requirements` | 要件定義書 | DocReviewResult |
+| `design` | 技術設計書 | DocReviewResult（`review_kind: design`） |
+| `code` | コード変更 | CodeReviewResult |
+| `mismatch` | 要件定義 + 事後詳細仕様 | MismatchReviewResult |
+
+## MismatchReviewResult
+
+- `fix_target: document` → requirements-writer（mode=as-built-spec）が仕様修正
+- `fix_target: code` → product-manager が developer へ修正依頼
+
+`status: passed*` のとき **署名コメント**（`comment_task.py --agent dev-reviewer`）を投稿して PM へ提出。
+
+## やらないこと
+
+- 動作検証（→ qa-verifier）
+- 企画 Handoff の plan-reviewer 代替
+- 実装・文書の主作成
+
+## 起動例
+
+```
+dev-reviewer: review_kind=code で実装差分をレビューし、CodeReviewResult を返してください。
+```

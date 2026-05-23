@@ -113,26 +113,52 @@ agents:
       reads:
         - workflows/development-delivery.yaml
 
-  - slug: doc-writer
+  - slug: requirements-writer
     slot: dept_work
-    skill_path: skills/development/doc-writer
+    skill_path: skills/development/requirements-writer
     enabled: true
+    note: development-delivery v2 — 要件・事後仕様
+
+  - slug: tech-designer
+    slot: dept_work
+    skill_path: skills/development/tech-designer
+    enabled: true
+    note: development-delivery v2 — 実装前設計
 
   - slug: developer
     slot: dept_work
     skill_path: skills/development/developer
     enabled: true
 
-  - slug: reviewer
+  - slug: dev-reviewer
     slot: dept_review
-    skill_path: skills/development/reviewer
+    skill_path: skills/development/dev-reviewer
     enabled: true
     io:
       output_schemas:
-        - skills/development/reviewer/schemas/doc-review-result.v1.schema.json
-        - skills/development/reviewer/schemas/code-review-result.v1.schema.json
-        - skills/development/reviewer/schemas/verification-result.v1.schema.json
-        - skills/development/reviewer/schemas/mismatch-review-result.v1.schema.json
+        - skills/development/dev-reviewer/schemas/doc-review-result.v1.schema.json
+        - skills/development/dev-reviewer/schemas/code-review-result.v1.schema.json
+        - skills/development/dev-reviewer/schemas/mismatch-review-result.v1.schema.json
+
+  - slug: qa-verifier
+    slot: dept_review
+    skill_path: skills/development/qa-verifier
+    enabled: true
+    io:
+      output_schemas:
+        - skills/development/qa-verifier/schemas/verification-result.v1.schema.json
+
+  - slug: doc-writer
+    slot: dept_work
+    skill_path: skills/development/doc-writer
+    enabled: false
+    note: "deprecated → requirements-writer"
+
+  - slug: reviewer
+    slot: dept_review
+    skill_path: skills/development/reviewer
+    enabled: false
+    note: "deprecated → dev-reviewer + qa-verifier"
 
   - slug: analytics-pm
     slot: dept_orchestrate

@@ -27,7 +27,7 @@
 | `department` | string | はい | 例 `development` |
 | `status` | enum | はい | `completed` \| `blocked` \| `needs_rework` |
 | `summary` | string | はい | 1–2 文 |
-| `artifacts` | string[] | いいえ | 成果物パス |
+| `artifacts` | string[] | いいえ | 成果物パス（下流 PM が notes `## 依存` に転記可能 — [`department-model.md`](department-model.md#成果物共有読み取り専用)） |
 
 スキーマ: [`skills/development/product-manager/schemas/dept-work-complete.v1.schema.json`](../../skills/development/product-manager/schemas/dept-work-complete.v1.schema.json)
 
@@ -37,7 +37,7 @@
 
 | タイミング | 担当 | 操作 |
 |------------|------|------|
-| 委譲作業完了時 | doc-writer / developer / reviewer 等 | `comment_task.py`（`agent` + `skill` + 実施内容） |
+| 委譲作業完了時 | requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier 等 | `comment_task.py`（`agent` + `skill` + 実施内容） |
 | 子タスク完了直前 | **planning-pm / product-manager / analytics-pm** | 同上ののち `complete_task.py` |
 
 ```powershell
@@ -60,10 +60,10 @@
 
 | 種別 | 用途 | `review_kind` | スキーマ |
 |------|------|---------------|----------|
-| DocReviewResult | 要件定義 / 詳細仕様 | `requirements` \| `detailed_spec` | `skills/development/reviewer/schemas/doc-review-result.v1.schema.json` |
-| CodeReviewResult | コードレビュー | `code` | `skills/development/reviewer/schemas/code-review-result.v1.schema.json` |
-| VerificationResult | 動作検証 | `verification` | `skills/development/reviewer/schemas/verification-result.v1.schema.json` |
-| MismatchReviewResult | 要件 vs 仕様整合 | `mismatch` | `skills/development/reviewer/schemas/mismatch-review-result.v1.schema.json` |
+| DocReviewResult | 要件定義 / 設計 / 詳細仕様 | `requirements` \| `design` \| `detailed_spec` | `skills/development/dev-reviewer/schemas/doc-review-result.v1.schema.json` |
+| CodeReviewResult | コードレビュー | `code` | `skills/development/dev-reviewer/schemas/code-review-result.v1.schema.json` |
+| VerificationResult | 動作検証 | `verification` | `skills/development/qa-verifier/schemas/verification-result.v1.schema.json` |
+| MismatchReviewResult | 要件 vs 仕様整合 | `mismatch` | `skills/development/dev-reviewer/schemas/mismatch-review-result.v1.schema.json` |
 | AnalysisDocReviewResult | 分析チームドキュメント | 各種 | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
 | DeployGateResult | 本番デプロイ前ゲート | `production_deploy_gate` | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
 
@@ -78,8 +78,8 @@
 | `fix_target` | enum | `document` \| `code` |
 | `mismatch_summary` | string | 不整合の要約 |
 
-- `document` → doc-writer が仕様書修正
-- `code` → PM が developer へ修正依頼（doc-writer 業務は一旦完了）
+- `document` → requirements-writer（mode=as-built-spec）が仕様修正
+- `code` → PM が developer へ修正依頼
 
 ## TaskWorkRequest との関係（task-executor 移行）
 

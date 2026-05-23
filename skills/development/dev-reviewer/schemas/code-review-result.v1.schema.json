@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CodeReviewResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "summary", "review_kind"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "passed_with_notes", "failed"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "review_kind": { "type": "string", "const": "code" },
+    "findings": { "type": "array", "items": { "type": "object" } }
+  }
+}

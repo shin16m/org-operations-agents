@@ -7,7 +7,7 @@
   "examples": [
     {
       "user": "子タスクを開発チームで進めて",
-      "assistant": "fetch_task で内容確認→要件定義を doc-writer へ依頼します。"
+      "assistant": "fetch_task で内容確認→profile を決め、requirements-writer へ要件定義を依頼します。"
     }
   ]
 }
