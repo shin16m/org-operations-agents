@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "全チーム dryrun — bootstrap",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】全チーム・全メンバー dryrun（2026-05-23）",
+    "notes_markdown": "## 目的\n\n4 L3 チーム（planning / ux / development / analysis）+ プラットフォーム配賦で、**各メンバーが comment_task → complete** まで到達する E2E dryrun。\n\n## 配賦順\n\nplanning → ux → development（full-ui）/ analysis\n\n## 記録\n\n`docs/verification/all-teams-dryrun.md`"
+  },
+  "subtasks": [
+    {
+      "title": "【0/4・企画】Handoff 作成・レビュー",
+      "department": "planning",
+      "background": "bootstrap 企画子。planning-delivery の入口。",
+      "summary": "全チーム dryrun 用 Handoff を issue-story-planner 相当で作成し plan-reviewer 後 Asana sync。",
+      "done_when": "handoff.all-teams-dryrun.json / plan-review が存在し execution 系子が Asana にある。"
+    }
+  ]
+}

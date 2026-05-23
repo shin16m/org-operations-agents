@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "status": "passed_with_notes",
+  "summary": "全チーム dryrun Handoff。planning / ux / analysis / development 各 1 子。department 付与済み。",
+  "findings": [
+    {
+      "severity": "low",
+      "category": "scope",
+      "message": "dryrun 用 stub 成果物。本番実装は別リポジトリ。",
+      "subtask_index": null
+    }
+  ]
+}

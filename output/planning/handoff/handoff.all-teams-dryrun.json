@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "全チーム dryrun — 本番 Handoff",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【agent-create-supporter】全チーム・全メンバー dryrun（2026-05-23）",
+    "notes_markdown": "## 解決ストーリー\n\n1. **企画** — Handoff sync\n2. **UX** — ux-pm サブタスク分解 → ux-designer / ux-reviewer\n3. **分析** — analytics-pm サブタスク → 全分析ワーカー\n4. **開発** — product-manager サブタスク（full-ui）→ 全開発ワーカー + ux-reviewer\n\n## 検証\n\n各 slug が `fetch_task --show-assignee` 確認後に comment + complete。"
+  },
+  "subtasks": [
+    {
+      "title": "【1/4・企画】Handoff 作成・レビュー・Asana sync",
+      "department": "planning",
+      "background": "bootstrap 企画子に fuzzy マッチ。",
+      "summary": "本 Handoff + PlanReviewResult を planning-pm 経由で sync。",
+      "done_when": "execution 系子（UX・分析・開発）が親下に存在する。"
+    },
+    {
+      "title": "【2/4・UX】体験設計 dryrun",
+      "department": "ux",
+      "background": "development full-ui の blocking 前提。",
+      "summary": "ux-delivery v1。ux-pm がサブタスク分解し ux-designer / ux-reviewer が dryrun 成果物を作成。",
+      "done_when": "UxReviewResult passed* · DeptWorkComplete.artifacts[] 公開。"
+    },
+    {
+      "title": "【3/4・分析】全ロール dryrun",
+      "department": "analysis",
+      "background": "分析チーム全 enabled ワーカーの comment 到達確認。",
+      "summary": "analytics-pm が assign-plan.dryrun-v1 でサブタスク作成。各 data-* / analysis-reviewer が stub 成果物。",
+      "done_when": "全サブ complete · analytics-pm が DeptWorkComplete。"
+    },
+    {
+      "title": "【4/4・開発】full-ui dryrun",
+      "department": "development",
+      "background": "【2/4・UX】完了後。profile=full-ui。",
+      "summary": "product-manager が assign-plan.full-ui-v1 でフェーズ分解。全開発ロール + ux-reviewer（ux_implementation）。",
+      "done_when": "全サブ complete · verification_passed 相当 · product-manager DeptWorkComplete。"
+    }
+  ]
+}
