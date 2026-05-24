@@ -25,6 +25,8 @@ python tools/asana_ops_poller.py --once --auto-bootstrap --dry-run
 
 `auto_intake_runner -y` 成功後、**同一プロセス**で `close_intake_source_task.py` を呼び出す。
 
+**レトロ intake 追跡:** ソース `1215103019709727` · エピック `1215088011649502`（検証・監査子付きクローズ）
+
 ```powershell
 python tools/auto_intake_runner.py --task <SOURCE_GID> -y
 # → posted_story / updated source completed=True
