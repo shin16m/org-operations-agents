@@ -37,7 +37,7 @@
 
 1. `python tools/intake_from_asana.py --task <url|gid> [--out output/platform/intake/<gid>-snapshot.json]`
 2. snapshot の `name` / `notes` を生課題として bootstrap Handoff の `epic.notes_markdown` に引用（`## ソース Asana タスク` 節 + GID）
-3. 以降は自然言語 intake と同一（bootstrap → dispatch）
+3. bootstrap → **close_intake_source**（元タスク comment+complete）→ dispatch まで同一セッションで進める
 
 **intake 中にやらないこと:** issue-story-planner / agent-creater / development PM の役割で skills・registry・workflow YAML・design doc を**直接編集して実装を始める**こと（企画 Handoff に落とし、gate 後の execution 子で進める）。
 
@@ -46,6 +46,7 @@
 1. bootstrap Handoff を `output/planning/handoff/bootstrap.<theme>.json` に保存
 2. `handoff_to_asana.py` を **`--require-review-result` なし**で実行（bootstrap 専用）
 3. 親 GID・企画子 GID をセッションに記録
+4. **intake-asana 時（`meta.source_task_gid` または snapshot あり）:** bootstrap 直後に `close_intake_source_task.py --source <元GID> --epic <親GID> -y` で元タスクへ新エピックリンクを comment し **complete**（エピック notes には bootstrap Handoff の `## ソース Asana タスク` 節で相互リンク済み）
 
 ### C. dispatch 委譲（L1 初回 = 企画チーム）
 

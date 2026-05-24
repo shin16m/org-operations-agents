@@ -18,6 +18,7 @@
 | `bootstrap_handoff_path` | string? | bootstrap Handoff JSON のパス |
 | `parent_gid` | string? | Asana 親エピック GID |
 | `planning_child_gid` | string? | bootstrap 企画子 GID |
+| `source_task_closed` | boolean? | intake-asana 時、元タスクを comment+complete 済みか |
 | `handoff_path` | string? | 本番 Handoff JSON（企画チーム出力） |
 | `review_result_path` | string? | `PlanReviewResult` JSON |
 | `workflow_id` | string | 例: `default` |
@@ -38,6 +39,7 @@
 |---------|-------|------|------|
 | `intake` | workflow-orchestrator | 生課題 **または** Asana タスク ref | bootstrap Handoff |
 | `bootstrap` | asana-buddy | bootstrap Handoff | Asana 親 + 企画子 |
+| `close_intake_source` | asana-buddy | `source_task_gid` + `parent_gid` | 元タスク comment+complete（intake-asana のみ） |
 | `dispatch` | task-dispatcher | DispatchRequest（planning） | planning-pm prompt |
 
 ## 企画チーム L3（planning-delivery）
@@ -61,7 +63,7 @@
 - **intake:** セッション開始時。
 - **dispatch（execution 系）:** 企画 `DeptWorkComplete` 後。未完了 execution 系子が存在すること。
 
-生課題 **または Asana タスク URL/GID** で orchestrator（intake / intake-asana）を起動できる。CLI: [`tools/intake_from_asana.py`](../../tools/intake_from_asana.py)。企画・実行の実処理は各チーム workflow に委譲する。
+生課題 **または Asana タスク URL/GID** で orchestrator（intake / intake-asana）を起動できる。CLI: [`tools/intake_from_asana.py`](../../tools/intake_from_asana.py)。**intake-asana** では bootstrap 直後に [`close_intake_source_task.py`](../../skills/platform/asana-buddy/optional/close_intake_source_task.py) で元タスクを新エピックへリンクして complete する。企画・実行の実処理は各チーム workflow に委譲する。
 
 ## 移行（v2 → v3）
 
