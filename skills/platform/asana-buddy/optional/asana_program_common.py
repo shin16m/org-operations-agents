@@ -215,6 +215,49 @@ def create_task_story(task_gid: str, text: str, token: str) -> dict[str, Any]:
     return r.json()["data"]
 
 
+def list_task_comment_stories(task_gid: str, token: str) -> list[dict[str, Any]]:
+    """Return user comment stories (excludes system/activity events)."""
+    headers = {"Authorization": f"Bearer {token}"}
+    rows: list[dict[str, Any]] = []
+    offset = None
+    while True:
+        params: dict[str, Any] = {
+            "opt_fields": "text,created_at,created_by.name,resource_subtype,type",
+            "limit": 100,
+        }
+        if offset:
+            params["offset"] = offset
+        r = requests.get(
+            f"{ASANA_BASE}/tasks/{task_gid}/stories",
+            headers=headers,
+            params=params,
+        )
+        r.raise_for_status()
+        body = r.json()
+        for story in body["data"]:
+            text = (story.get("text") or "").strip()
+            if not text:
+                continue
+            subtype = (story.get("resource_subtype") or "").strip()
+            stype = (story.get("type") or "").strip()
+            if subtype != "comment_added" and stype != "comment":
+                continue
+            author = ((story.get("created_by") or {}).get("name") or "").strip()
+            rows.append(
+                {
+                    "gid": story.get("gid", ""),
+                    "text": text,
+                    "created_at": story.get("created_at") or "",
+                    "author": author or None,
+                }
+            )
+        offset = (body.get("next_page") or {}).get("offset")
+        if not offset:
+            break
+    rows.sort(key=lambda x: x.get("created_at") or "")
+    return rows
+
+
 def load_agent_work_comment(path: str) -> dict[str, Any]:
     import json
     from pathlib import Path

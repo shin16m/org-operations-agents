@@ -13,7 +13,7 @@
 | `raw_request` | string | 利用者が intake で渡した生課題（自然言語） |
 | `source_task_gid` | string? | intake-asana 時の Asana タスク GID |
 | `source_task_url` | string? | intake-asana 時の Asana URL |
-| `source_task_snapshot_path` | string? | `intake_from_asana.py --out` の JSON パス |
+| `source_task_snapshot_path` | string? | `intake_from_asana.py --out` の JSON パス（v1.1: `comments` / `comments_markdown` 含む場合あり） |
 | `current_step_id` | enum | `intake` \| `bootstrap` \| `dispatch` |
 | `bootstrap_handoff_path` | string? | bootstrap Handoff JSON のパス |
 | `parent_gid` | string? | Asana 親エピック GID |
@@ -63,7 +63,7 @@
 - **intake:** セッション開始時。
 - **dispatch（execution 系）:** 企画 `DeptWorkComplete` 後。未完了 execution 系子が存在すること。
 
-生課題 **または Asana タスク URL/GID** で orchestrator（intake / intake-asana）を起動できる。CLI: [`tools/intake_from_asana.py`](../../tools/intake_from_asana.py)。**intake-asana** では bootstrap 直後に [`close_intake_source_task.py`](../../skills/platform/asana-buddy/optional/close_intake_source_task.py) で元タスクを新エピックへリンクして complete する。企画・実行の実処理は各チーム workflow に委譲する。
+生課題 **または Asana タスク URL/GID** で orchestrator（intake / intake-asana）を起動できる。CLI: [`tools/intake_from_asana.py`](../../tools/intake_from_asana.py)（snapshot **v1.1** — notes + ユーザーコメント stories）。**intake-asana** では bootstrap 直後に [`close_intake_source_task.py`](../../skills/platform/asana-buddy/optional/close_intake_source_task.py) で元タスクを新エピックへリンクして complete する。企画・実行の実処理は各チーム workflow に委譲する。
 
 ## 移行（v2 → v3）
 

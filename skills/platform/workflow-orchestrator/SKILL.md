@@ -36,7 +36,7 @@
 **intake-asana（Asana タスク起点）:**
 
 1. `python tools/intake_from_asana.py --task <url|gid> [--out output/platform/intake/<gid>-snapshot.json]`
-2. snapshot の `name` / `notes` を生課題として bootstrap Handoff の `epic.notes_markdown` に引用（`## ソース Asana タスク` 節 + GID）
+2. snapshot の `name` / `notes` **および** `comments` / `comments_markdown`（あれば）を生課題として bootstrap Handoff の `epic.notes_markdown` に引用（`## ソース Asana タスク` 節 + GID · コメントあり時は `## ソースコメント` 節）
 3. bootstrap → **close_intake_source**（元タスク comment+complete）→ dispatch まで同一セッションで進める
 
 **intake 中にやらないこと:** issue-story-planner / agent-creater / development PM の役割で skills・registry・workflow YAML・design doc を**直接編集して実装を始める**こと（企画 Handoff に落とし、gate 後の execution 子で進める）。
@@ -137,7 +137,8 @@ Asana タスク: 〈URL または GID〉
 
 **bootstrap Handoff 追加要件（intake-asana）:**
 
-- `epic.notes_markdown` 先頭に `## ソース Asana タスク` — GID · URL · タスク名
+- `epic.notes_markdown` 先頭に `## ソース Asana タスク` — GID · URL · タスク名 · notes 本文
+- コメントがある場合は `## ソースコメント` 節に snapshot の `comments_markdown` を引用（Handoff / プラン設計の入力に含める）
 - 本文に snapshot の `notes` を引用（権限不足で fetch 失敗時は利用者へ GID/権限を確認）
 
 ## 起動例 B — 企画完了後（実行系 dispatch）

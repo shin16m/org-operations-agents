@@ -40,7 +40,8 @@ intake_from_asana.py で読取 → bootstrap Handoff → dispatch（企画チー
 
 ## 期待結果
 
-- exit 0 · JSON に `schema_version: "1.0"` · `task_gid` · `name` · `notes`
+- exit 0 · JSON に `schema_version: "1.1"`（`--no-comments` 時は `"1.0"`）· `task_gid` · `name` · `notes`
+- v1.1: `comments[]` / `comments_markdown`（ユーザーコメント story のみ）
 - GID / URL 両方で同一タスクを取得
 - 403/404 時は stderr に権限・存在エラーメッセージ（exit 3）
 
