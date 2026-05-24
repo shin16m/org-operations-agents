@@ -1,6 +1,6 @@
 # Asana 担当種別カスタムフィールド — 運用 SSOT
 
-| 版 | 1.0 |
+| 版 | 1.1 |
 | 日付 | 2026-05-24 |
 
 ## 目的
@@ -26,10 +26,13 @@ Asana プロジェクトの **担当種別** enum CF で、タスクが **AI エ
 
 | CLI / 関数 | 担当種別 |
 |------------|----------|
-| `handoff_to_asana.py` 親タスク create | `AI` |
-| `create_subtask`（handoff / pm_assign_subtasks / fix subtask 等） | `AI` |
+| `handoff_to_asana.py` 親タスク create / sync 更新 | `AI` |
+| `create_subtask`（handoff / pm_assign_subtasks / fix subtask 等） | **設定しない** |
 
-サブタスクは **親と同じプロジェクトへ `addProject` した後** に CF を設定する（プロジェクトスコープ CF のため）。
+### サブタスクに CF を付けない理由
+
+プロジェクトスコープ CF をサブタスクに付けるには `addProject` が必要だが、**addProject したサブタスクはプロジェクト一覧・セクション直下に独立タスクとして表示される**（[`asana-subtask-layout-fix-dryrun`](../verification/asana-subtask-layout-fix-dryrun.md)）。  
+そのため org-ops は **エピック親（プロジェクト直下タスク）のみ** `AI` を設定し、サブタスクは notes の `担当:` 等で判別する。
 
 ## human の設定
 
@@ -49,4 +52,5 @@ ASANA_ASSIGNEE_TYPE_DISABLED=true
 ## 参照
 
 - ソース intake-asana: `1215082835252581`
+- layout-fix: [`docs/verification/asana-subtask-layout-fix-dryrun.md`](../verification/asana-subtask-layout-fix-dryrun.md)
 - dryrun: [`docs/verification/asana-assignee-type-field-dryrun.md`](../verification/asana-assignee-type-field-dryrun.md)

@@ -106,37 +106,14 @@ def add_task_to_project(task_gid: str, project_gid: str, token: str) -> None:
     r.raise_for_status()
 
 
-def task_project_gid(task_gid: str, token: str) -> str | None:
-    """Return first project GID on task (for subtask CF inheritance)."""
+def remove_task_from_project(task_gid: str, project_gid: str, token: str) -> None:
     headers = {"Authorization": f"Bearer {token}"}
-    r = requests.get(
-        f"{ASANA_BASE}/tasks/{task_gid}",
+    r = requests.post(
+        f"{ASANA_BASE}/tasks/{task_gid}/removeProject",
+        json={"data": {"project": project_gid}},
         headers=headers,
-        params={"opt_fields": "projects.gid,memberships.project.gid"},
     )
     r.raise_for_status()
-    data = r.json()["data"]
-    projects = data.get("projects") or []
-    if projects:
-        return projects[0].get("gid")
-    for m in data.get("memberships") or []:
-        proj = (m.get("project") or {}).get("gid")
-        if proj:
-            return proj
-    return None
-
-
-def ensure_subtask_project_membership(sub_gid: str, parent_gid: str, token: str) -> None:
-    """Subtasks need project membership before project-scoped custom fields apply."""
-    project = task_project_gid(parent_gid, token) or resolve_project_with_fallback(None)
-    if not project:
-        return
-    try:
-        add_task_to_project(sub_gid, project, token)
-    except requests.HTTPError as exc:
-        if exc.response is not None and exc.response.status_code == 400:
-            return
-        raise
 
 
 _DISPLAY_NAMES_CACHE: dict[str, str] | None = None
@@ -456,14 +433,12 @@ def list_accessible_projects(token: str) -> None:
 
 
 def create_subtask(parent_gid: str, name: str, notes: str, token: str) -> dict:
+    """Create a subtask under parent only (no addProject — avoids list/section top-level display)."""
     headers = {"Authorization": f"Bearer {token}"}
     payload = {"data": {"name": name, "notes": notes, "parent": parent_gid}}
     r = requests.post(f"{ASANA_BASE}/tasks", json=payload, headers=headers)
     r.raise_for_status()
-    data = r.json()["data"]
-    ensure_subtask_project_membership(data["gid"], parent_gid, token)
-    set_assignee_type_org_ops(data["gid"], token)
-    return data
+    return r.json()["data"]
 
 
 def create_subtasks_reversed(
