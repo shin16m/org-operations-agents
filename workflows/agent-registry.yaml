@@ -320,6 +320,45 @@ agents:
       reads:
         - workflows/audit-delivery.yaml
 
+  - slug: governance-pm
+    slot: dept_orchestrate
+    skill_path: skills/governance/governance-pm
+    enabled: true
+    workflow_steps: []
+    io:
+      input_kind: DispatchRequest
+      output_kind: DeptWorkComplete
+      output_schema: skills/development/product-manager/schemas/dept-work-complete.v1.schema.json
+      schema_doc: docs/design/governance-delivery-io.md
+      reads:
+        - workflows/governance-delivery.yaml
+
+  - slug: ssot-implementer
+    slot: dept_work
+    skill_path: skills/governance/ssot-implementer
+    enabled: true
+    io:
+      input_kind: asana_subtask_notes
+      output_kind: org_meta_implementation
+      schema_doc: docs/design/governance-delivery-io.md
+      artifact_root: output/governance/records/
+      reads:
+        - workflows/governance-delivery.yaml
+
+  - slug: governance-reviewer
+    slot: dept_review
+    skill_path: skills/governance/governance-reviewer
+    enabled: true
+    io:
+      input_kind: org_meta_implementation
+      output_kind: GovernanceReviewResult
+      output_schema: skills/governance/governance-reviewer/schemas/governance-review-result.v1.schema.json
+      schema_version: "1.0"
+      schema_doc: docs/design/governance-delivery-io.md
+      artifact_root: output/governance/reviews/
+      reads:
+        - workflows/governance-delivery.yaml
+
   - slug: agent-creater
     slot: meta
     skill_path: skills/platform/agent-creater

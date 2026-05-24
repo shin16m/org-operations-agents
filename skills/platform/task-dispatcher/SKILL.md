@@ -9,7 +9,7 @@
 `DispatchRequest` v1.0（[`schemas/dispatch-request.v1.schema.json`](schemas/dispatch-request.v1.schema.json)）
 
 - `task_gid`（必須）
-- `department`（必須）: `development` | `analysis` | `planning` | `ux` | `audit`
+- `department`（必須）: `development` | `analysis` | `planning` | `ux` | `governance` | `audit`
 - `parent_gid`（任意）
 
 `department` 未指定時: `fetch_task.py` で notes を読み、`チーム:` 行または `pillar_defaults` で推定。
@@ -38,12 +38,13 @@
 | development | development-delivery | product-manager | [`development-pm-assignment.md`](../../../docs/design/development-pm-assignment.md) |
 | analysis | analysis-delivery | analytics-pm | [`analytics-pm-assignment.md`](../../../docs/design/analytics-pm-assignment.md) |
 | ux | ux-delivery | ux-pm | [`ux-pm-assignment.md`](../../../docs/design/ux-pm-assignment.md) |
+| governance | governance-delivery | governance-pm | [`governance-pm-assignment.md`](../../../docs/design/governance-pm-assignment.md) |
 | audit | audit-delivery | audit-pm | [`audit-pm-assignment.md`](../../../docs/design/audit-pm-assignment.md) |
 
 ## 配賦順序（推奨）
 
 1. **L1 初回:** intake 後の bootstrap 企画子 → `department=planning`
-2. **L2 続き:** 企画完了後 → **`ux`（Web Epic・UI 先行）** → `development` / `analysis` → **`audit`（組織変更時・最後）**
+2. **L2 続き:** 企画完了後 → **`ux`（Web Epic・UI 先行）** → `development` / `analysis` → **`governance`（org-meta）** → **`audit`（組織変更時・最後）**
 
 ## やらないこと
 

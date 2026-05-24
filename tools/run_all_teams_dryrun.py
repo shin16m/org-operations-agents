@@ -57,12 +57,14 @@ DEPT_PM: dict[str, str] = {
     "ux": "ux-pm",
     "analysis": "analytics-pm",
     "development": "product-manager",
+    "governance": "governance-pm",
 }
 
 DEPT_PLANS: dict[str, Path] = {
     "ux": ROOT / "skills/ux/examples/assign-plan.web-app-v1.json",
     "analysis": ROOT / "skills/analysis/examples/assign-plan.dryrun-v1.json",
     "development": ROOT / "skills/development/examples/assign-plan.full-ui-v1.json",
+    "governance": ROOT / "skills/governance/examples/assign-plan.org-meta-v1.json",
 }
 
 DEPT_MARKERS: dict[str, tuple[str, ...]] = {
@@ -70,6 +72,7 @@ DEPT_MARKERS: dict[str, tuple[str, ...]] = {
     "ux": ("UX", "ux"),
     "analysis": ("分析", "analysis"),
     "development": ("開発", "development", "full-ui"),
+    "governance": ("governance", "org-meta", "組織改善"),
 }
 
 

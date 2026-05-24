@@ -41,6 +41,9 @@
 | `data-scientist` | 業務 | 分析チーム | 実装済 | モデル開発 |
 | `ml-engineer` | 業務 | 分析チーム | 実装済 | デプロイ・MLOps |
 | `analysis-reviewer` | 業務 | 分析チーム | 実装済 | 分析レビュー・本番ゲート |
+| `governance-pm` | 業務 | 組織改善チームハブ | 実装済 | org-meta 子 → `DeptWorkComplete` |
+| `ssot-implementer` | 業務 | 組織改善チーム | 実装済 | SSOT ファイル変更 |
+| `governance-reviewer` | 業務 | 組織改善チーム | 実装済 | org_meta → `GovernanceReviewResult` |
 | `audit-pm` | 業務 | 監査チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
 | `consistency-auditor` | 業務 | 監査チーム | 実装済 | 機械検証 → `ConsistencyAuditReport` |
 | `audit-reviewer` | 業務 | 監査チーム | 実装済 | org_governance → `AuditReviewResult` |

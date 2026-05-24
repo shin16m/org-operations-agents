@@ -39,6 +39,15 @@ departments:
     delivery_io_doc: docs/design/ux-delivery-io.md
     enabled: true
 
+  - id: governance
+    label: 組織改善チーム
+    workflow_id: governance-delivery
+    entry_agent: governance-pm
+    skill_root: skills/governance
+    output_root: output/governance
+    delivery_io_doc: docs/design/governance-delivery-io.md
+    enabled: true
+
   - id: audit
     label: 監査チーム
     workflow_id: audit-delivery
@@ -68,3 +77,5 @@ pillar_defaults:
     department: planning
   - match: ["監査", "監査チーム", "整合性", "統制", "governance", "SSOT"]
     department: audit
+  - match: ["組織改善", "org-meta", "registry", "workflow YAML", "skills 追加", "department 追加"]
+    department: governance

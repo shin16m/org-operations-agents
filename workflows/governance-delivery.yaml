@@ -1,0 +1,42 @@
+# Governance department workflow — org-meta / SSOT implementation (not product code).
+id: governance-delivery
+version: "1"
+description: PM-led org improvement (SSOT implement → governance review)
+
+policy:
+  scope: single_subtask
+  entry_agent: governance-pm
+  parent_context: read_parent_epic_notes
+  operational_rules_doc: docs/design/governance-delivery-io.md
+  assignment_doc: docs/design/governance-pm-assignment.md
+  dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#governance
+  review_rework_ssot: docs/design/pm-review-rework-ssot.md
+  pm_role: orchestrate_only
+
+steps:
+  - id: pm_intake
+    agent: governance-pm
+    role: 子 notes（Handoff 開発/governance 子）を読み、assign plan でサブ 2 件を作成
+
+  - id: pm_assign
+    agent: governance-pm
+    role: pm_assign_subtasks — ssot-implementer / governance-reviewer
+
+  - id: ssot_implementation
+    agent: ssot-implementer
+    role: registry · skills · workflow · docs/tools の SSOT 変更（Handoff/epic notes 準拠）
+    artifact: org-meta-implementation
+
+  - id: governance_review
+    agent: governance-reviewer
+    role: 実装が Handoff・epic notes と一致するかレビュー
+    review_kind: org_meta
+    gate_after: governance_review_passed
+
+  - id: pm_complete
+    agent: governance-pm
+    role: DeptWorkComplete · comment_task → complete_task -y
+
+gates:
+  governance_review_passed:
+    description: GovernanceReviewResult status passed または passed_with_notes

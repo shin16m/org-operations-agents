@@ -11,7 +11,7 @@
     "parent_gid": { "type": "string", "minLength": 1 },
     "department": {
       "type": "string",
-      "enum": ["development", "analysis", "planning", "ux", "audit"]
+      "enum": ["development", "analysis", "planning", "ux", "governance", "audit"]
     },
     "status": {
       "type": "string",

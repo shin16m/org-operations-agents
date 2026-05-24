@@ -17,6 +17,7 @@
 | `development` | 開発チーム | `development-delivery` |
 | `analysis` | 分析チーム | `analysis-delivery` |
 | `ux` | UX チーム | `ux-delivery` |
+| `governance` | 組織改善チーム | `governance-delivery` |
 | `audit` | 監査チーム | `audit-delivery` |
 
 ## pillar → department（v1.2 未設定時）

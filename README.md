@@ -1,6 +1,6 @@
 # org-operations-agents
 
-**組織運用エージェントテンプレート** — `agent-creater`（エージェント生成）と 5 チーム構成の org runtime（intake → plan → Asana → dispatch · 監査チーム含む）を同梱。fork して拡張する。
+**組織運用エージェントテンプレート** — `agent-creater`（エージェント生成）と **6 チーム**構成の org runtime（intake → plan → Asana → dispatch · 監査チーム含む）を同梱。fork して拡張する。
 
 Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言的 workflow・Asana 連携の SSOT。
 
@@ -10,7 +10,7 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 
 | パス | 内容 |
 |------|------|
-| [`skills/`](skills/) | エージェント定義（統括グループ / 企画チーム / 開発チーム / 分析チーム / UX チーム / **監査チーム** `audit`）+ 各 `personas/` |
+| [`skills/`](skills/) | エージェント定義（統括グループ / 企画 / 開発 / 分析 / UX / **組織改善** `governance` / **監査** `audit`）+ 各 `personas/` |
 | [`output/`](output/) | 実行時ワークスペース（**git 管理外**・フォルダテンプレのみ） |
 | [`work/`](work/) | PM assign plan 等の実行時作業領域 |
 | [`workflows/`](workflows/) | 宣言的 workflow |
@@ -37,6 +37,8 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 | [`data-architect`](skills/analysis/data-architect/SKILL.md) / [`data-engineer`](skills/analysis/data-engineer/SKILL.md) / [`data-steward`](skills/analysis/data-steward/SKILL.md) / [`data-analyst`](skills/analysis/data-analyst/SKILL.md) / [`data-scientist`](skills/analysis/data-scientist/SKILL.md) / [`ml-engineer`](skills/analysis/ml-engineer/SKILL.md) / [`analysis-reviewer`](skills/analysis/analysis-reviewer/SKILL.md) | 分析チームの委譲ロール |
 | [`audit-pm`](skills/audit/audit-pm/SKILL.md) | 監査チーム PM（組織変更エピックの L3 統制） |
 | [`consistency-auditor`](skills/audit/consistency-auditor/SKILL.md) / [`audit-reviewer`](skills/audit/audit-reviewer/SKILL.md) | 監査チーム委譲ロール |
+| [`governance-pm`](skills/governance/governance-pm/SKILL.md) | 組織改善チーム PM（org-meta SSOT 変更） |
+| [`ssot-implementer`](skills/governance/ssot-implementer/SKILL.md) / [`governance-reviewer`](skills/governance/governance-reviewer/SKILL.md) | 組織改善チーム委譲ロール |
 
 ## 標準 workflow（default v3）
 
@@ -94,6 +96,7 @@ dispatch → planning-pm → issue-story-planner / plan-reviewer → asana-buddy
 dispatch → ux-pm → ux-designer / ux-reviewer
 dispatch → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier（full-ui 時 ux-reviewer も）
 dispatch → analytics-pm → data-architect / … / analysis-reviewer
+dispatch → governance-pm → ssot-implementer / governance-reviewer（org-meta）
 dispatch → audit-pm → consistency-auditor / audit-reviewer（組織変更時・execution 系の最後）
 ```
 

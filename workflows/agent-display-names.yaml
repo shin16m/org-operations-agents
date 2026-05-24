@@ -25,6 +25,9 @@ display_names:
   data-scientist: データサイエンティスト
   ml-engineer: ML エンジニア
   analysis-reviewer: 分析レビュアー
+  governance-pm: 組織改善 PM
+  ssot-implementer: SSOT 実装担当
+  governance-reviewer: 組織改善レビュアー
   audit-pm: 監査 PM
   consistency-auditor: 整合性監査担当
   audit-reviewer: 監査レビュアー

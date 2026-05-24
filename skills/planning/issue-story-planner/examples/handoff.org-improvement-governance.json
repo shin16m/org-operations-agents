@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "組織改善エピック例 — governance department",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【org-governance】組織改善 workflow 例",
+    "notes_markdown": "## 配賦順\n\nplanning → **governance**（org-meta）→ **audit**（最後）\n\n## 参照\n\n- docs/design/org-improvement-workflow.md"
+  },
+  "subtasks": [
+    {
+      "title": "【1/3・企画】Handoff 作成",
+      "department": "planning",
+      "background": "企画子。",
+      "summary": "Handoff 設計。",
+      "done_when": "gate 承認。"
+    },
+    {
+      "title": "【2/3・governance】org-meta SSOT 整備",
+      "department": "governance",
+      "background": "組織改善チーム。",
+      "summary": "ssot-implementer + governance-reviewer。",
+      "done_when": "GovernanceReviewResult passed。"
+    },
+    {
+      "title": "【3/3・監査】組織整合性監査（L3）",
+      "department": "audit",
+      "background": "監査子。",
+      "summary": "validate + AuditReviewResult。",
+      "done_when": "audit passed。"
+    }
+  ]
+}

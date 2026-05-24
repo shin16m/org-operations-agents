@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GovernanceReviewResult",
+  "type": "object",
+  "required": ["schema_version", "status", "summary", "review_kind"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "status": {
+      "type": "string",
+      "enum": ["passed", "passed_with_notes", "failed"]
+    },
+    "summary": { "type": "string", "minLength": 1 },
+    "review_kind": { "type": "string", "const": "org_meta" },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "message"],
+        "properties": {
+          "severity": { "type": "string" },
+          "category": { "type": "string" },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

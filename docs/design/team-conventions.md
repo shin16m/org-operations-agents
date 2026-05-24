@@ -14,16 +14,15 @@
 
 ---
 
-## 五チーム比較
+## 六チーム比較
 
-| 項目 | 企画チーム | UX チーム | 開発チーム | 分析チーム | 監査チーム |
-|------|------------|-----------|------------|------------|------------|
-| id | `planning` | `ux` | `development` | `analysis` | `audit` |
-| PM ハブ | planning-pm | ux-pm | product-manager | analytics-pm | audit-pm |
-| ミッション | Handoff → review → gate → **Asana タスク化** | 体験設計 → Design System → **artifact 公開** | 要件 → 設計 → 実装 → レビュー/QA → **事後仕様** | 要求 → データ → モデル → **本番ゲート** | **組織整合性検証** → report + review |
-| workflow | [`planning-delivery`](../../workflows/planning-delivery.yaml) | [`ux-delivery`](../../workflows/ux-delivery.yaml) | [`development-delivery`](../../workflows/development-delivery.yaml) v3 | [`analysis-delivery`](../../workflows/analysis-delivery.yaml) | [`audit-delivery`](../../workflows/audit-delivery.yaml) |
-| 詳細 I/O | [`planning-delivery-io.md`](planning-delivery-io.md) | [`ux-delivery-io.md`](ux-delivery-io.md) | [`development-delivery-io.md`](development-delivery-io.md) | [`analysis-delivery-io.md`](analysis-delivery-io.md) | [`audit-delivery-io.md`](audit-delivery-io.md) |
-| 成果物ルート | `output/planning/` | `output/ux/` | `output/development/` | `output/analysis/` | `output/audit/` |
+| 項目 | 企画 | UX | 開発 | 分析 | 組織改善 | 監査 |
+|------|------|-----|------|------|----------|------|
+| id | `planning` | `ux` | `development` | `analysis` | `governance` | `audit` |
+| PM | planning-pm | ux-pm | product-manager | analytics-pm | governance-pm | audit-pm |
+| ミッション | Handoff → gate → Asana | UX 設計 → artifact | 製品要件→実装 | データ→本番ゲート | **org-meta SSOT 実装** | 整合性検証 |
+| workflow | planning-delivery | ux-delivery | development-delivery | analysis-delivery | governance-delivery | audit-delivery |
+| 成果物 | `output/planning/` | `output/ux/` | `output/development/` | `output/analysis/` | `output/governance/` | `output/audit/` |
 
 ### チーム間 I/O（全チーム共通）
 
@@ -54,6 +53,21 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 分析モデル・UX 仕様等を下流が利用する場合: 上流 `DeptWorkComplete.artifacts[]` → notes の `## 依存（読み取り専用）` → 下流が consume。
 
 **Web アプリ Epic（推奨順）:** planning → **ux**（blocking）→ development（`full-ui`）／ analysis（任意）→ **audit**（組織変更時・最後）
+
+---
+
+## 組織改善チーム
+
+**単位:** 子タスク 1 件 = `governance-delivery` 1 インスタンス。**org-meta 変更。audit の直前。**
+
+| 区分 | 取り決め |
+|------|----------|
+| 入力 | 親 epic notes · Handoff スコープ |
+| PM 必須 | **ssot-implementer → governance-reviewer**（[`governance-pm-assignment.md`](governance-pm-assignment.md)） |
+| ミッション | registry · skills · workflow · docs/tools の SSOT 変更 |
+| やらないこと | Handoff 設計（→ 企画）、製品コード（→ development）、監査（→ audit） |
+
+→ [`governance-delivery-io.md`](governance-delivery-io.md) · [`org-improvement-workflow.md`](org-improvement-workflow.md)
 
 ---
 

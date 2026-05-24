@@ -18,6 +18,7 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 | analysis | [`analytics-pm-assignment.md`](analytics-pm-assignment.md) |
 | planning | [`planning-delivery-io.md`](planning-delivery-io.md) |
 | audit | [`audit-pm-assignment.md`](audit-pm-assignment.md) |
+| governance | [`governance-pm-assignment.md`](governance-pm-assignment.md) |
 
 **L3 共通（PM 運用）:**
 
@@ -175,6 +176,30 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 
 ---
 
+## governance
+
+**entry:** `governance-pm` · **workflow:** `governance-delivery`
+
+```
+あなたは governance-pm スキルです。Asana 子タスク GID {task_gid} を進めてください。
+
+【intake — 最初の 1 手（必須）】
+1. fetch_task.py --gid {task_gid} --show-assignee
+2. 親エピック notes · Handoff スコープ（org-meta）を確認
+3. pm_assign_subtasks.py で **Asana サブタスク 2 件**を作成
+   例: --plan skills/governance/examples/assign-plan.org-meta-v1.json --department governance --update-parent-assignee governance-pm -y
+
+【禁止 — PM がやってはいけないこと】
+- 自分で registry / skills / workflow / doc を直接編集（→ ssot-implementer）
+- GovernanceReviewResult を PM が自己作成
+
+【L3b】pm_emit_worker_prompt.py --parent {task_gid} --department governance
+
+参照: docs/design/governance-pm-assignment.md · docs/design/org-improvement-workflow.md
+```
+
+---
+
 ## audit
 
 **entry:** `audit-pm` · **workflow:** `audit-delivery`
@@ -193,7 +218,7 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 - サブタスク未作成のまま親 担当: だけ consistency-auditor に書き換える
 - 自分で validate スクリプトを実行して ConsistencyAuditReport / AuditReviewResult を書く
 - output/audit/reports/ · output/audit/reviews/ へ PM 署名なしで直接保存
-- registry / workflow の修正実装（findings のみ。修正は development 子へ）
+- registry / workflow の修正実装（findings のみ。修正は governance 子へ）
 
 【PM のみ】サブ完了のたびに当該サブを complete。全サブ完了後 comment_task → 親 complete → DeptWorkComplete（artifacts[] に report / review パス）。
    ※ PM の comment --body: 実施内容・判断・成果物・次の状態（§4–5）

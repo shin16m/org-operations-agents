@@ -1,0 +1,24 @@
+{
+  "parent_title": "【governance】org-meta SSOT 整備",
+  "profile": "org-meta-lite",
+  "subtasks": [
+    {
+      "name": "【1/2・governance】SSOT 実装（ssot-implementer）",
+      "assignee": "ssot-implementer",
+      "department": "governance",
+      "status": "assigned",
+      "background": "Handoff / epic notes に従い org-meta ファイルを変更。",
+      "summary": "registry · skills · workflow · docs/tools を実装。validate 実行で exit 0 を確認。",
+      "done_when": "git diff が epic スコープ内。validate 3 本 exit 0。実施記録を output/governance/records/ に保存（任意）。"
+    },
+    {
+      "name": "【2/2・governance】実装レビュー（governance-reviewer）",
+      "assignee": "governance-reviewer",
+      "department": "governance",
+      "status": "assigned",
+      "background": "Handoff 整合レビュー。",
+      "summary": "review_kind: org_meta。GovernanceReviewResult を output/governance/reviews/ に保存。",
+      "done_when": "GovernanceReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

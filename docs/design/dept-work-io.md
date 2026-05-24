@@ -19,7 +19,7 @@
 | `schema_version` | string | はい | `"1.0"` |
 | `task_gid` | string | はい | 子タスク GID |
 | `parent_gid` | string | いいえ | 親エピック GID |
-| `department` | string | はい | `planning` \| `ux` \| `development` \| `analysis` \| `audit` |
+| `department` | string | はい | `planning` \| `ux` \| `development` \| `analysis` \| `governance` \| `audit` |
 | `workflow_id` | string | いいえ | 省略時は organizations.yaml から解決 |
 | `locale` | string | いいえ | 例 `ja-JP` |
 
@@ -32,7 +32,7 @@
 | `schema_version` | string | はい | `"1.0"` |
 | `task_gid` | string | はい | 完了した子タスク |
 | `parent_gid` | string | いいえ | 親エピック |
-| `department` | string | はい | `planning` \| `ux` \| `development` \| `analysis` \| `audit` |
+| `department` | string | はい | `planning` \| `ux` \| `development` \| `analysis` \| `governance` \| `audit` |
 | `status` | enum | はい | `completed` \| `blocked` \| `needs_rework` |
 | `summary` | string | はい | 1–2 文 |
 | `artifacts` | string[] | いいえ | 成果物パス（下流 PM が notes `## 依存` に転記可能 — [`department-model.md`](department-model.md#成果物共有読み取り専用)） |
@@ -78,7 +78,7 @@
 | ConsistencyAuditReport | 組織整合性（機械検証） | — | `skills/audit/consistency-auditor/schemas/consistency-audit-report.v1.schema.json` |
 | AuditReviewResult | 組織ガバナンスレビュー | `org_governance` | `skills/audit/audit-reviewer/schemas/audit-review-result.v1.schema.json` |
 
-企画: [`planning-delivery-io.md`](planning-delivery-io.md) · UX: [`ux-delivery-io.md`](ux-delivery-io.md) · 開発: [`development-delivery-io.md`](development-delivery-io.md) · 分析: [`analysis-delivery-io.md`](analysis-delivery-io.md) · 監査: [`audit-delivery-io.md`](audit-delivery-io.md)
+企画: [`planning-delivery-io.md`](planning-delivery-io.md) · UX: [`ux-delivery-io.md`](ux-delivery-io.md) · 開発: [`development-delivery-io.md`](development-delivery-io.md) · 分析: [`analysis-delivery-io.md`](analysis-delivery-io.md) · 組織改善: [`governance-delivery-io.md`](governance-delivery-io.md) · 監査: [`audit-delivery-io.md`](audit-delivery-io.md)
 
 共通: `status` は `passed` \| `passed_with_notes` \| `failed`。reviewer は **PM へ提出**（`comment_task` + JSON）。`failed` 時は PM が **修正サブタスクを新規作成**（[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)）。完了済みタスクを `--undo` しない。
 

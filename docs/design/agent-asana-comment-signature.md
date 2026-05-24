@@ -141,7 +141,7 @@ handoff.all-teams-dryrun.json を出力。
 - failed → PM が修正サブタスクを新規作成
 ```
 
-### 5.3 チーム PM（planning-pm / product-manager / ux-pm / analytics-pm / audit-pm）
+### 5.3 チーム PM（planning-pm / product-manager / ux-pm / analytics-pm / governance-pm / audit-pm）
 
 ```markdown
 ## 実施内容

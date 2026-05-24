@@ -32,11 +32,12 @@
 
 | ファイル | 内容 |
 |----------|------|
+| [`org-improvement-governance-team-dryrun.md`](org-improvement-governance-team-dryrun.md) | 組織改善チーム governance 追加 |
 | [`project-consistency-check-dryrun.md`](project-consistency-check-dryrun.md) | 定期 SSOT 整合性チェック · validate 4 本 |
 | [`asana-intake-comments-dryrun.md`](asana-intake-comments-dryrun.md) | intake-asana snapshot v1.1 · コメント stories |
 | [`intake-source-task-closure-dryrun.md`](intake-source-task-closure-dryrun.md) | intake 元タスク comment+complete |
 | [`asana-subtask-layout-fix-dryrun.md`](asana-subtask-layout-fix-dryrun.md) | サブタスク addProject 撤回 |
-| [`all-teams-dryrun.md`](all-teams-dryrun.md) | 全チーム E2E（5 チーム × 全 enabled slug が complete まで到達。`audit` は組織変更時のみ） |
+| [`all-teams-dryrun.md`](all-teams-dryrun.md) | 全チーム E2E（6 チーム × enabled slug · `audit` は組織変更時のみ） |
 | [`planning-dept-v3-dryrun.md`](planning-dept-v3-dryrun.md) | default v3 ドライラン（企画チーム L3 化 + 開発 dispatch） |
 | [`ux-delivery-v1-dryrun.md`](ux-delivery-v1-dryrun.md) | UX チーム + development full-ui |
 | [`team-label-e2e-dryrun.md`](team-label-e2e-dryrun.md) | `チーム:` 表記移行検証 |
