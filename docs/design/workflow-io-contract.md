@@ -63,7 +63,7 @@ org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.o
 
 **PM review gate（execution）:** [`pm-assign-review-gate.md`](pm-assign-review-gate.md) · planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)
 
-**Asana ドリブン運用（Phase 1–4）:** [`asana-driven-ops.md`](asana-driven-ops.md) — スキャン intake · planning gate Asana 化 · 保留再開 · **Phase 4:** auto-intake SSOT · `--record-wait` ダッシュボード必須（`asana_ops_poller` / `check_workflow_suspend` · [`workflow-session-io.md`](workflow-session-io.md) SuspendedSession）
+**Asana ドリブン運用（Phase 1–4）:** [`asana-driven-ops.md`](asana-driven-ops.md) — スキャン intake · planning gate Asana 化 · 保留再開 · **Phase 4:** auto-intake SSOT · `--record-wait` ダッシュボード必須（`asana_ops_poller` / `check_workflow_suspend` · [`workflow-session-io.md`](workflow-session-io.md) SuspendedSession）。**gate 到達時チェックリスト:** [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) §H
 
 **タスク / エピックレトロ（親 complete 前）:** [`task-retrospective-ssot.md`](task-retrospective-ssot.md) — 各 complete 前レトロ · audit 後集約 · 依頼者承認 → intake 起票
 

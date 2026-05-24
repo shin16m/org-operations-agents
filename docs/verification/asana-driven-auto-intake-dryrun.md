@@ -65,6 +65,7 @@ python tools/asana_ops_poller.py --once   # 【承認】complete 後 RESUME 行
 
 - `auto_intake_runner` / poller `--auto-bootstrap` は planning gate を**代行しない**（正規分離）
 - `DISPATCH hint=...` 行で record-wait 手順を stderr に出力
+- **orchestrator 必須チェックリスト:** [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) §H · レトロ intake `1215087735824033` · エピック `1215087772975159`
 
 ## 採否
 

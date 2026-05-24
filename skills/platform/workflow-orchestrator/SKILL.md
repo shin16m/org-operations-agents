@@ -150,7 +150,51 @@ python tools/cursor_intake_dispatch.py --task <SOURCE_GID> --dry-run
 python tools/cursor_intake_dispatch.py --task <SOURCE_GID> -y
 ```
 
-**gate 到達時は必ず `--record-wait`**（ダッシュボード WAIT）。planning 【承認】/ PM 【レビュー】作成だけでは反映されない。
+**gate 到達時は必ず `--record-wait`**（ダッシュボード WAIT）。planning 【承認】/ PM 【レビュー】作成だけでは反映されない。詳細チェックリスト: **§H**。
+
+### H. gate 到達時必須チェックリスト（`--record-wait` · 省略禁止）
+
+Orchestrator が planning gate または PM review gate に到達し、**人間承認待ちでセッションを終了する前**に以下をすべて実施する。【承認】/【レビュー】サブ作成**のみ**ではダッシュボード WAIT に載らない（[`asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md)）。
+
+#### planning gate（`handoff_approved` 待ち）
+
+| # | チェック | 確認 |
+|---|----------|------|
+| 1 | `PlanReviewResult` = `passed` / `passed_with_notes` | `output/planning/plan-review/*.json` |
+| 2 | Handoff 要約を利用者へ提示 | planning-pm gate |
+| 3 | 【承認】サブ GID · URL を控える | Asana（ドリブン運用時） |
+| 4 | **`--record-wait` 実行** | 下記コマンド |
+| 5 | セッション終了 | `handoff_to_asana --require-review-result` は **RESUME 後** |
+
+```powershell
+python tools/asana_ops_poller.py --record-wait <親GID> <【承認】サブGID> <承認サブURL>
+```
+
+#### PM review gate（execution PM · L3b dispatch 前）
+
+| # | チェック | 確認 |
+|---|----------|------|
+| 1 | `pm_assign_subtasks` 完了 | worker サブ存在 |
+| 2 | 【レビュー】サブ GID · URL を控える | `create_pm_review_gate.py` |
+| 3 | **`--record-wait` 実行**（`--gate-kind` 必須） | 下記コマンド |
+| 4 | セッション終了 | RESUME 後に worker dispatch |
+
+```powershell
+python tools/asana_ops_poller.py --record-wait <PM子GID> <【レビュー】サブGID> <URL> `
+  --gate-kind pm_review_gate --department development
+```
+
+（`--department` は dispatch 先: `development` · `ux` · `analysis` · `governance` · `audit`）
+
+#### 再開（共通）
+
+```powershell
+python tools/asana_ops_poller.py --once
+python tools/check_workflow_suspend.py --all --require-resumable
+# RESUME 後: handoff_to_asana / pm_emit_worker_prompt / task-dispatcher
+```
+
+**やらないこと:** gate サブ作成のみで `--record-wait` を省略してセッション終了すること。
 
 ## 現段階 ID（default v3）
 
