@@ -6,9 +6,11 @@ Usage:
   python tools/asana_ops_poller.py --once --dry-run --human
   python tools/asana_ops_poller.py --watch --interval 60
   python tools/asana_ops_poller.py --once --trigger-intake 1215082835252575
+  python tools/asana_ops_poller.py --once --auto-bootstrap --dry-run
+  python tools/asana_ops_poller.py --once --auto-bootstrap -y
   python tools/asana_ops_poller.py --once --projects 1214771428861230,OTHER_ID
 
-Output lines (UX SSOT): SCAN · SKIP · INTAKE · WAIT · RESUME
+Output lines (UX SSOT): SCAN · SKIP · INTAKE · DISPATCH · WAIT · RESUME
 """
 from __future__ import annotations
 
@@ -148,6 +150,16 @@ def trigger_intake(gid: str, *, dry_run: bool, human: bool = False) -> int:
     return 0
 
 
+def run_auto_bootstrap(gid: str, *, dry_run: bool, yes: bool) -> int:
+    cmd = [sys.executable, str(ROOT / "tools/auto_intake_runner.py"), "--task", gid]
+    if yes and not dry_run:
+        cmd.append("-y")
+    else:
+        cmd.append("--dry-run")
+    r = subprocess.run(cmd, cwd=str(ROOT))
+    return r.returncode
+
+
 def load_sessions() -> list[dict]:
     if not SESSIONS_DIR.is_dir():
         return []
@@ -181,8 +193,12 @@ def scan_projects(
     dry_run: bool,
     human: bool,
     trigger_gid: str | None,
+    auto_bootstrap: bool = False,
+    yes: bool = False,
 ) -> int:
     if trigger_gid:
+        if auto_bootstrap:
+            return run_auto_bootstrap(trigger_gid, dry_run=dry_run, yes=yes)
         return trigger_intake(trigger_gid, dry_run=dry_run, human=human)
 
     cfg = assignee_type_config()
@@ -220,6 +236,8 @@ def scan_projects(
             print(f"CANDIDATE  project={project_gid}  task={gid}  url={url}")
             if human:
                 print(f"  → intake 候補: {(task.get('name') or '')[:60]}", file=sys.stderr)
+            if auto_bootstrap:
+                return run_auto_bootstrap(gid, dry_run=dry_run, yes=yes)
 
     if len(project_gids) > 1:
         print(f"SCAN  total  projects={len(project_gids)}  candidates={total_candidates}  skipped={total_skipped}")
@@ -292,6 +310,17 @@ def main() -> int:
     p.add_argument("--human", action="store_true", help="Human-readable stderr hints")
     p.add_argument("--trigger-intake", metavar="GID", help="Run intake_from_asana for one task")
     p.add_argument(
+        "--auto-bootstrap",
+        action="store_true",
+        help="Phase 4: first CANDIDATE (or --trigger-intake GID) → auto_intake_runner",
+    )
+    p.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="With --auto-bootstrap: execute (default dry-run)",
+    )
+    p.add_argument(
         "--record-wait",
         nargs=3,
         metavar=("PARENT_GID", "SUB_GID", "URL"),
@@ -346,6 +375,8 @@ def main() -> int:
             dry_run=args.dry_run,
             human=args.human,
             trigger_gid=args.trigger_intake,
+            auto_bootstrap=args.auto_bootstrap,
+            yes=args.yes,
         )
 
     if args.once:

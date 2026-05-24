@@ -1,0 +1,33 @@
+{
+  "parent_title": "【2/5・開発】poller / CLI auto-bootstrap ランナー",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【2/5-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "Phase 4 CLI baseline 実装。",
+      "summary": "auto_intake_runner · poller --auto-bootstrap 要件。",
+      "done_when": "requirements md 保存済み。"
+    },
+    {
+      "name": "【2/5-2・開発】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "SSOT 子【1/5】承認済み。",
+      "summary": "tools/auto_intake_runner.py · asana_ops_poller --auto-bootstrap/-y。",
+      "done_when": "dry-run / -y 動作 · DISPATCH 行出力。"
+    },
+    {
+      "name": "【2/5-3・開発】検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "dry-run 検証。",
+      "summary": "poller --auto-bootstrap --dry-run。",
+      "done_when": "VerificationResult passed。"
+    }
+  ]
+}

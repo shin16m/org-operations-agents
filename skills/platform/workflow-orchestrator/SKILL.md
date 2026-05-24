@@ -131,6 +131,27 @@ python tools/check_workflow_suspend.py --all --require-resumable
 
 **やらないこと（Phase 1）:** `--trigger-intake` から bootstrap まで無人完走 · Webhook 本番 · マルチプロジェクト横断。
 
+### G. Asana ドリブン auto-intake（Phase 4 · 任意）
+
+[`docs/design/asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md) Phase 4 — **CLI baseline 必須** · Cursor SDK optional。
+
+**CLI auto-bootstrap（和久桶 intake baseline）:**
+
+```powershell
+python tools/asana_ops_poller.py --once --auto-bootstrap --dry-run
+python tools/auto_intake_runner.py --task <SOURCE_GID> -y
+# → DISPATCH 行 · planning-pm へ dispatch
+```
+
+**Cursor SDK PoC（`CURSOR_API_KEY` 設定時のみ）:**
+
+```powershell
+python tools/cursor_intake_dispatch.py --task <SOURCE_GID> --dry-run
+python tools/cursor_intake_dispatch.py --task <SOURCE_GID> -y
+```
+
+**gate 到達時は必ず `--record-wait`**（ダッシュボード WAIT）。planning 【承認】/ PM 【レビュー】作成だけでは反映されない。
+
 ## 現段階 ID（default v3）
 
 `intake` | `bootstrap` | `dispatch`（workflow YAML と同一）

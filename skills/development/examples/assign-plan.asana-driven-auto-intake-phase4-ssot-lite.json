@@ -1,0 +1,51 @@
+{
+  "parent_title": "【1/5・開発】Phase 4 auto-intake I/O · SSOT 設計",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【1/5-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "Phase 4 auto-intake。CLI baseline 必須 · Cursor SDK optional。SSOT 更新が主成果。",
+      "summary": "mode=requirements。`output/development/requirements/1215087416996784-requirements.md` に Phase 4 I/O · 検出条件 · 二経路 · 安全弁 · validate 基準を記載。",
+      "done_when": "要件定義書が保存され、asana-driven-ops.md v1.3+ の章立てが明確。"
+    },
+    {
+      "name": "【1/5-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を output/development/reviews/ に出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【1/5-3・開発】SSOT 実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件に基づき design SSOT を更新。",
+      "summary": "`docs/design/asana-driven-ops.md` Phase 4 節追加 · `workflow-io-contract.md` cross-ref · poller 語彙 `DISPATCH` 案。",
+      "done_when": "asana-driven-ops.md v1.3+ · validate_ssot_contract exit 0。"
+    },
+    {
+      "name": "【1/5-4・開発】doc review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "doc / SSOT ゲート。",
+      "summary": "review_kind: code（doc-only 変更）。CodeReviewResult を出力。",
+      "done_when": "CodeReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【1/5-5・開発】validate 検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "SSOT 整合 validate。",
+      "summary": "review_kind: verification。validate 3 本 + validate_ssot_contract。",
+      "done_when": "VerificationResult status が passed。"
+    }
+  ]
+}
