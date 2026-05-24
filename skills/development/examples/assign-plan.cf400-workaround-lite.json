@@ -1,0 +1,51 @@
+{
+  "parent_title": "【1/3・development】sync_assignee_type_env CLI 実装",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【1/3-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "CF 400 · .env GID 手動設定がボトルネック。",
+      "summary": "requirements: sync_assignee_type_env · dry-run/write · 400 SSOT 連携。",
+      "done_when": "要件定義書保存済み。"
+    },
+    {
+      "name": "【1/3-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "DocReviewResult 出力。",
+      "done_when": "passed または passed_with_notes。"
+    },
+    {
+      "name": "【1/3-3・開発】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "custom_field_settings から担当種別 GID 解決。",
+      "summary": "tools/sync_assignee_type_env.py · dryrun doc。",
+      "done_when": "両プロジェクト dry-run OK · validate exit 0。"
+    },
+    {
+      "name": "【1/3-4・開発】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "code ゲート。",
+      "summary": "CodeReviewResult 出力。",
+      "done_when": "passed または passed_with_notes。"
+    },
+    {
+      "name": "【1/3-5・開発】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "dry-run 両プロジェクト。",
+      "summary": "VerificationResult 出力。",
+      "done_when": "passed。"
+    }
+  ]
+}

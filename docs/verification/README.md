@@ -32,6 +32,7 @@
 
 | ファイル | 内容 |
 |----------|------|
+| [`cf400-workaround-dryrun.md`](cf400-workaround-dryrun.md) | CF 400 workaround · sync_assignee_type_env CLI |
 | [`asana-driven-ops-phase3-dryrun.md`](asana-driven-ops-phase3-dryrun.md) | Asana ドリブン Phase 3 · Webhook · ダッシュボード MVP |
 | [`asana-driven-ops-phase2-dryrun.md`](asana-driven-ops-phase2-dryrun.md) | Asana ドリブン Phase 2 · gate 統合 · マルチプロジェクト · RESUME snippet |
 | [`asana-driven-ops-dryrun.md`](asana-driven-ops-dryrun.md) | Asana ドリブン運用 · poller / suspend CLI · Phase 1 |

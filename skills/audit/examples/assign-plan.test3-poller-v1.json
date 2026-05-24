@@ -1,0 +1,24 @@
+{
+  "parent_title": "【1/1・audit】poller 検出テスト — 整合確認",
+  "profile": "governance-audit",
+  "subtasks": [
+    {
+      "name": "【1/1-1・監査】機械検証（consistency-auditor）",
+      "assignee": "consistency-auditor",
+      "department": "audit",
+      "status": "assigned",
+      "background": "poller テストエピック完了前の最小 validate。",
+      "summary": "validate 3 本実行 · ConsistencyAuditReport を output/audit/reports/ に保存。",
+      "done_when": "ConsistencyAuditReport 保存済み。"
+    },
+    {
+      "name": "【1/1-2・監査】レビュー（audit-reviewer）",
+      "assignee": "audit-reviewer",
+      "department": "audit",
+      "status": "assigned",
+      "background": "監査ゲート。",
+      "summary": "AuditReviewResult passed を output/audit/reviews/ に保存。",
+      "done_when": "AuditReviewResult passed。"
+    }
+  ]
+}

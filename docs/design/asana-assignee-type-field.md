@@ -1,6 +1,6 @@
 # Asana 担当種別カスタムフィールド — 運用 SSOT
 
-| 版 | 1.3 |
+| 版 | 1.4 |
 | 日付 | 2026-05-24 |
 
 ## 目的
@@ -12,7 +12,28 @@ Asana プロジェクトの **担当種別** enum CF で、タスクが **AI エ
 | **AI** | org-ops CLI / エージェント workflow が作成・管理するタスク |
 | **human** | 利用者が Asana 上で人間を assignee にしたタスク（手動設定） |
 
-## GID（プロジェクト `1214771428861230`）
+`.env` で上書き可能: [`skills/platform/asana-buddy/optional/.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
+
+**プロジェクトごとに CF GID が異なる。** 切替時は [`tools/sync_assignee_type_env.py`](../../tools/sync_assignee_type_env.py) で `.env` を同期する。
+
+```powershell
+python tools/sync_assignee_type_env.py --project <PROJECT_GID> --dry-run
+python tools/sync_assignee_type_env.py --project <PROJECT_GID> --write -y
+```
+
+## API 400 — パターンと workaround
+
+| # | パターン | API メッセージ例 | 対処 |
+|---|----------|------------------|------|
+| 1 | **GID 不一致** | `Custom field with ID … is not on given object` | `sync_assignee_type_env.py --write` で正しいプロジェクト GID を `.env` に反映 |
+| 2 | **worker サブ** | PUT 400（layout-fix · addProject なし） | stderr 警告 · `CF=skip` · notes `担当:` で運用継続 |
+| 3 | **未設定** | （400 ではない）poller `SKIP no_cf` | Asana UI または親タスク create 時に AI を設定 |
+
+poller / `set_assignee_type_org_ops` が 400 のとき **処理は中断しない**（警告のみ）。intake 候補判定は `.env` の field GID とタスクの `custom_fields` の一致が前提。
+
+## GID（プロジェクト別）
+
+### `1214771428861230`（エージェント組織構築）
 
 | 種別 | GID |
 |------|-----|
@@ -20,7 +41,13 @@ Asana プロジェクトの **担当種別** enum CF で、タスクが **AI エ
 | enum `AI` | `1215082835199211` |
 | enum `human` | `1215082835199210` |
 
-`.env` で上書き可能: [`skills/platform/asana-buddy/optional/.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
+### `1215102364986851`（poller テスト等）
+
+| 種別 | GID |
+|------|-----|
+| フィールド「担当種別」 | `1215102364986855` |
+| enum `AI` | `1215102364986857` |
+| enum `human` | `1215102364986856` |
 
 ## org-ops が自動設定するタイミング
 
