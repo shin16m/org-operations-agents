@@ -279,6 +279,58 @@ def assign_user(task_gid: str, user_gid: str, token: str) -> bool:
         return False
 
 
+def get_task_custom_fields(task_gid: str, token: str) -> dict[str, dict]:
+    """Return task custom_fields keyed by field_gid.
+
+    Each value is `{"name": <field name>, "enum_value": <enum option dict | None>}`.
+    """
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        headers=headers,
+        params={
+            "opt_fields": (
+                "custom_fields.gid,custom_fields.name,"
+                "custom_fields.enum_value.gid,custom_fields.enum_value.name"
+            )
+        },
+    )
+    r.raise_for_status()
+    out: dict[str, dict] = {}
+    for cf in (r.json().get("data") or {}).get("custom_fields") or []:
+        gid = str(cf.get("gid") or "")
+        if not gid:
+            continue
+        out[gid] = {
+            "name": (cf.get("name") or "").strip(),
+            "enum_value": cf.get("enum_value"),
+        }
+    return out
+
+
+def read_approval_result(task_gid: str, token: str) -> str | None:
+    """Return Approval Result enum option name ('OK'/'NG'), or None if unset/CF disabled."""
+    cfg = approval_result_config()
+    if not cfg:
+        return None
+    try:
+        cfs = get_task_custom_fields(task_gid, token)
+    except requests.HTTPError as exc:
+        print(
+            f"警告: Approval Result 読取失敗 task={task_gid}: {exc}",
+            file=sys.stderr,
+        )
+        return None
+    cf = cfs.get(cfg["field_gid"])
+    if not cf:
+        return None
+    enum_value = cf.get("enum_value")
+    if not enum_value:
+        return None
+    name = (enum_value.get("name") or "").strip()
+    return name or None
+
+
 def add_task_to_project(task_gid: str, project_gid: str, token: str) -> None:
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.post(

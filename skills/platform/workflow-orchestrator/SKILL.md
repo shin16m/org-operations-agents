@@ -148,6 +148,30 @@ python tools/check_workflow_suspend.py --all --require-resumable
 # RESUME 後: handoff_to_asana / task-dispatcher / 該当 PM へ dispatch
 ```
 
+**承認サブ自動 Ready 復帰 + NG ループ（A/B/C 完成後の運用）:**
+
+承認サブの完了は [`tools/approval_helper.py`](../../../tools/approval_helper.py)（B）と [`tools/wakuoke_resume_scan.py`](../../../tools/wakuoke_resume_scan.py)（C）が連動して扱う。詳細: [`docs/design/approval-flow.md`](../../../docs/design/approval-flow.md)。
+
+```powershell
+# B: 承認サブ完了監視（オンデマンド · デーモン化しない）
+python tools/approval_helper.py --parent <親GID> --approval-sub <承認サブGID> `
+  --gate-kind planning_approval --once
+# 完了検知 → 親 OS State=Ready · Approval Required=No へ自動戻し → ログ JSON 出力
+
+# C: Ready epic + ヘルパーログ突合 → RESUME / ESCALATE 行を出力
+python tools/wakuoke_resume_scan.py --project <PROJECT_GID> --max-ng 3 --dry-run
+# RESUME parent=... result=OK  → 次の execution dispatch（和久桶セッション）
+# RESUME parent=... result=NG count=N/M → 承認サブのコメントを読み修正方針を提示し再 dispatch
+# ESCALATE parent=... count=M/M → 親 epic に escalation コメントが投稿済（依頼者判断へ）
+```
+
+**NG ループ運用方針:**
+
+- `Approval Result=NG` または「Result 未設定で完了」は **NG 扱い**（C スキャナで counter +1）
+- counter は `output/platform/approval-helper/ng-counters/<parent>.json` に永続化
+- `--max-ng`（default 3）到達時は親に escalation コメント投稿 + 自動 resume を停止
+- counter リセットは依頼者判断 — 該当 JSON を削除/編集する運用（自動化は将来）
+
 **やらないこと（Phase 1）:** `--trigger-intake` から bootstrap まで無人完走 · Webhook 本番 · マルチプロジェクト横断。
 
 ### G. Asana ドリブン auto-intake（Phase 4 · 任意）

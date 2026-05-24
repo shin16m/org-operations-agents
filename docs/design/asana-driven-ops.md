@@ -23,8 +23,10 @@ Asana を運用ダッシュボードとして、**AI タスク検出 → intake 
 | Webhook dryrun | [`tools/asana_webhook_handler.py`](../../tools/asana_webhook_handler.py) | **Phase 3** — POST /webhook · complete 検知 |
 | ダッシュボード | [`tools/asana_ops_dashboard.py`](../../tools/asana_ops_dashboard.py) | **Phase 3** — WAIT/RESUME 一覧 UI（port 8765） |
 | intake snapshot | [`tools/intake_from_asana.py`](../../tools/intake_from_asana.py) | Asana タスク → snapshot JSON |
-| 承認サブ作成 | [`create_approval_subtask.py`](../../skills/platform/asana-buddy/optional/create_approval_subtask.py) | 【承認】/【レビュー】汎用 |
-| 承認 polling | [`check_approval_subtask.py`](../../skills/platform/asana-buddy/optional/check_approval_subtask.py) | サブ complete 検知 |
+| 承認サブ作成 | [`create_approval_subtask.py`](../../skills/platform/asana-buddy/optional/create_approval_subtask.py) | 【承認】/【レビュー】汎用（**親 OS State=Waiting / Approval Required=Yes / 人間 assignee も自動設定** — [`approval-flow.md`](approval-flow.md)） |
+| 承認 polling | [`check_approval_subtask.py`](../../skills/platform/asana-buddy/optional/check_approval_subtask.py) | サブ complete 検知（1 回） |
+| 承認ヘルパー | [`tools/approval_helper.py`](../../tools/approval_helper.py) | 完了監視 + 親 CF 戻し（Ready/No）+ ログ JSON — [`approval-flow.md` §5.1](approval-flow.md) |
+| resume scanner | [`tools/wakuoke_resume_scan.py`](../../tools/wakuoke_resume_scan.py) | Ready epic + ヘルパーログを突合し RESUME / ESCALATE 行を出力 · NG ループ上限管理 — [`approval-flow.md` §5.3](approval-flow.md) |
 
 ## CLI 出力語彙（UX SSOT）
 

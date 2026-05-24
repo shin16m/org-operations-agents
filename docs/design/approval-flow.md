@@ -62,9 +62,109 @@ CF 追加と env 同期は [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_
 
 | Epic | 範囲 | ステータス |
 |------|------|------------|
-| **A** Approval Result CF + 人間 assignee 連携 | 起票時の **書込み** すべて（OS State/ApprovalRequired/assignee）· Approval Result CF env 同期 | 本ドキュメント策定（実装済 / governance 配賦中） |
-| **B** 承認ヘルパー | 完了検知 + 親 CF 戻し（OS State→Ready, ApprovalRequired→No）· session JSON 拡張 | 別 Intake `1215089409856284` |
-| **C** Ready 再開ループ | OS State=Ready epic の自動 resume · NG コメント反映 · NG ループ上限 | 別 Intake `1215102436390998` |
+| **A** Approval Result CF + 人間 assignee 連携 | 起票時の **書込み** すべて（OS State/ApprovalRequired/assignee）· Approval Result CF env 同期 | 実装済 |
+| **B** 承認ヘルパー | 完了検知 + 親 CF 戻し（OS State→Ready, ApprovalRequired→No）· `tools/approval_helper.py` + `read_approval_result` | 実装済 |
+| **C** Ready 再開ループ | OS State=Ready epic の resume scanner · NG コメント反映 · NG ループ上限 + escalation · `tools/wakuoke_resume_scan.py` | 実装済 |
+
+### 5.1 B 承認ヘルパー CLI 仕様
+
+実装: [`tools/approval_helper.py`](../../tools/approval_helper.py)
+
+```
+python tools/approval_helper.py \
+    --parent <EPIC_GID> --approval-sub <SUB_GID> \
+    --gate-kind <planning_approval|pm_review_gate> \
+    [--interval 30] [--timeout 604800] [--once] \
+    [--log-dir output/platform/approval-helper]
+```
+
+| exit | 意味 |
+|------|------|
+| 0 | 承認検知 → 親 CF を Ready/No に戻し → ログ JSON 出力 |
+| 1 | `--once` で承認サブが pending（ログ未出力） |
+| 2 | 承認サブが見つからない |
+| 124 | `--timeout` 超過 |
+
+ログ JSON スキーマ:
+
+```json
+{
+  "helper_version": "1.0",
+  "parent_gid": "...",
+  "approval_sub_gid": "...",
+  "gate_kind": "planning_approval",
+  "started_at": "ISO8601",
+  "completed_at": "ISO8601",
+  "approval_result": "OK | NG | null",
+  "approval_comments_excerpt": "<= 200 chars",
+  "parent_state_after": {"os_state": "Ready", "approval_required": "No"}
+}
+```
+
+CF / env 未設定の場合は `parent_state_after` が `unchanged` となり、`approval_result` が `null` になる（A の警告のみで継続するエラーモデル踏襲）。
+
+### 5.2 関連実装関数（B 追加分）
+
+| 関数 | 用途 |
+|------|------|
+| `get_task_custom_fields(task_gid, token)` | 単発タスクの custom_fields を `{field_gid: {name, enum_value}}` で取得 |
+| `read_approval_result(task_gid, token)` | Approval Result enum option 名（OK / NG / None）を返す |
+
+### 5.3 C resume scanner CLI 仕様
+
+実装: [`tools/wakuoke_resume_scan.py`](../../tools/wakuoke_resume_scan.py)
+
+```
+python tools/wakuoke_resume_scan.py \
+    [--project <PROJECT_GID>] [--max-ng 3] [--dry-run] \
+    [--escalation-user <USER_GID>]
+```
+
+**出力語彙**
+
+| 行頭 | 意味 |
+|------|------|
+| `SCAN` | スキャン開始（project / max_ng / dry_run を表示） |
+| `READY` | Ready epic でヘルパーログ無し（fresh dispatch lane） |
+| `RESUME` | Ready epic で `consumed=false` ヘルパーログあり、再開可能（OK / NG 双方） |
+| `ESCALATE` | NG ループが `--max-ng` に到達。親 epic に escalation コメント投稿（dry-run 時は出力のみ） |
+| `DONE` | スキャン完了サマリ |
+
+**処理フロー**
+
+1. `is_watch_epic` で Agent Type=AI · Task Type=Epic を抽出
+2. `read_os_state` が Ready かつ `read_approval_required` が Yes でないものに絞る
+3. `output/platform/approval-helper/<parent>-*.json` を modtime 降順、最初に見つかった `consumed=false` ログを採用
+4. `approval_result` で分岐:
+   - `OK`: `RESUME ... result=OK` 出力 + ログを `consumed=true` 更新
+   - `NG` / `null`: NG counter `output/platform/approval-helper/ng-counters/<parent>.json` を increment し、`history` に最大 10 件保持
+     - `ng_count < max_ng`: `RESUME ... result=NG count=<n>/<max>` 出力
+     - `ng_count >= max_ng`: `ESCALATE ... count=<n>/<max>` 出力 + `_post_escalation_comment`
+5. 全件処理後 `DONE  ready_total=<n>` 出力
+
+**NG counter ファイル**
+
+```json
+{
+  "parent_gid": "...",
+  "ng_count": 2,
+  "max_ng": 3,
+  "updated_at": "ISO8601",
+  "history": [
+    {"sub_gid": "...", "completed_at": "...", "result": "NG", "excerpt": "<= 200 chars"}
+  ]
+}
+```
+
+**ヘルパーログの consumed フラグ**
+
+`approval_helper.py` は書出し時に `consumed: false` を初期値で含める。resume scanner が処理したログは `consumed: true` + `consumed_at` を書き戻して二重カウントを防止する。
+
+**スコープ外（C ではやらない）**
+
+- 自動 execution dispatch（resume 後の dispatch は和久桶セッションが Asana コメントを読んで人間判断）
+- planner / PM 自動再起動
+- Webhook（既存 polling MVP 路線維持）
 
 ## 6. env キー
 
