@@ -26,12 +26,18 @@
 
 **最初の 1 手（相談・機能追加・組織変更すべて共通）:**
 
-1. 利用者の **生課題**（自然言語）を受け取る
+1. 利用者の **生課題** を受け取る — **自然言語** または **Asana タスク URL / GID**（`intake-asana`）
 2. **方針を一言で示す** — 「intake → bootstrap → 企画 Handoff/review → gate 承認後に execution 系へ」と伝える
 3. `WorkflowSession` を初期化（`current_step_id: intake`）
 4. **bootstrap 用最小 Handoff** を生成（親エピック + `department: planning` の企画子 1 件）
 5. **bootstrap → dispatch まで同一セッションで進める**（利用者に別チャット起動を求めない）
 6. 企画チーム（[`planning-pm`](../../planning/planning-pm/SKILL.md)）へ dispatch 委譲
+
+**intake-asana（Asana タスク起点）:**
+
+1. `python tools/intake_from_asana.py --task <url|gid> [--out output/platform/intake/<gid>-snapshot.json]`
+2. snapshot の `name` / `notes` を生課題として bootstrap Handoff の `epic.notes_markdown` に引用（`## ソース Asana タスク` 節 + GID）
+3. 以降は自然言語 intake と同一（bootstrap → dispatch）
 
 **intake 中にやらないこと:** issue-story-planner / agent-creater / development PM の役割で skills・registry・workflow YAML・design doc を**直接編集して実装を始める**こと（企画 Handoff に落とし、gate 後の execution 子で進める）。
 
@@ -116,6 +122,22 @@ PM 代行で本体を先行完了した場合の事後補完: [`docs/verificatio
 DispatchRequest（task_gid=〈企画子GID〉, parent_gid=〈親GID〉, department=planning）で
 task-dispatcher を起動し、planning-pm 用 prompt_snippet を返してください。
 ```
+
+## 起動例 C — intake-asana（Asana タスク URL / GID）
+
+```
+あなたは workflow-orchestrator スキルです（intake-asana モード）。
+Asana タスク: 〈URL または GID〉
+
+1. python tools/intake_from_asana.py --task 〈URL|GID〉 --out output/platform/intake/〈gid〉-snapshot.json
+2. snapshot の name / notes を生課題として bootstrap Handoff を生成（epic.notes_markdown に ## ソース Asana タスク 節）
+3. bootstrap → dispatch（企画チーム）まで進めてください。
+```
+
+**bootstrap Handoff 追加要件（intake-asana）:**
+
+- `epic.notes_markdown` 先頭に `## ソース Asana タスク` — GID · URL · タスク名
+- 本文に snapshot の `notes` を引用（権限不足で fetch 失敗時は利用者へ GID/権限を確認）
 
 ## 起動例 B — 企画完了後（実行系 dispatch）
 

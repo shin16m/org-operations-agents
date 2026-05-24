@@ -9,7 +9,11 @@
 | フィールド | 型 | 説明 |
 |------------|-----|------|
 | `session_id` | string | 任意のセッション識別子（例: UUID または日時） |
+| `intake_mode` | enum? | `natural_language`（既定）\| `asana_task` |
 | `raw_request` | string | 利用者が intake で渡した生課題（自然言語） |
+| `source_task_gid` | string? | intake-asana 時の Asana タスク GID |
+| `source_task_url` | string? | intake-asana 時の Asana URL |
+| `source_task_snapshot_path` | string? | `intake_from_asana.py --out` の JSON パス |
 | `current_step_id` | enum | `intake` \| `bootstrap` \| `dispatch` |
 | `bootstrap_handoff_path` | string? | bootstrap Handoff JSON のパス |
 | `parent_gid` | string? | Asana 親エピック GID |
@@ -22,7 +26,7 @@
 
 | step id | 役割 | 入力 | 出力（モデル） |
 |---------|------|------|----------------|
-| `intake` | 課題受付・窓口 | `raw_request` | bootstrap Handoff |
+| `intake` | 課題受付・窓口 | `raw_request` または Asana タスク ref | bootstrap Handoff |
 | `bootstrap` | 最小 Asana 作成 | bootstrap Handoff | 親 GID + 企画子 GID |
 | `dispatch` | 初回 = 企画チーム配賦 | DispatchRequest | planning-pm 用 prompt_snippet |
 
@@ -32,7 +36,7 @@
 
 | step id | agent | 入力 | 出力 |
 |---------|-------|------|------|
-| `intake` | workflow-orchestrator | 生課題 | bootstrap Handoff |
+| `intake` | workflow-orchestrator | 生課題 **または** Asana タスク ref | bootstrap Handoff |
 | `bootstrap` | asana-buddy | bootstrap Handoff | Asana 親 + 企画子 |
 | `dispatch` | task-dispatcher | DispatchRequest（planning） | planning-pm prompt |
 
@@ -57,7 +61,7 @@
 - **intake:** セッション開始時。
 - **dispatch（execution 系）:** 企画 `DeptWorkComplete` 後。未完了 execution 系子が存在すること。
 
-生課題のみで orchestrator（intake）を起動できる。企画・実行の実処理は各チーム workflow に委譲する。
+生課題 **または Asana タスク URL/GID** で orchestrator（intake / intake-asana）を起動できる。CLI: [`tools/intake_from_asana.py`](../../tools/intake_from_asana.py)。企画・実行の実処理は各チーム workflow に委譲する。
 
 ## 移行（v2 → v3）
 

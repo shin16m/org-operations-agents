@@ -10,11 +10,23 @@
 
 ### 1. intake — 課題を渡す（ここから開始）
 
+**自然言語:**
+
 ```
 あなたは workflow-orchestrator スキルです（intake モード）。
 課題: 〈依頼内容を自然言語で〉
 bootstrap 用最小 Handoff を生成し、bootstrap → dispatch（企画チーム）まで進めてください。
 ```
+
+**Asana タスク（URL / GID）:**
+
+```
+あなたは workflow-orchestrator スキルです（intake-asana モード）。
+Asana タスク: 〈URL または GID〉
+intake_from_asana.py で読取 → bootstrap Handoff → dispatch（企画チーム）まで進めてください。
+```
+
+CLI: `python tools/intake_from_asana.py --task <url|gid>`
 
 ### 2. 企画完了後 — execution 系 dispatch
 
