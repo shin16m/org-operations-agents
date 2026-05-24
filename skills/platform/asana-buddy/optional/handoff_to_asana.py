@@ -143,8 +143,19 @@ def main() -> None:
     set_assignee_type_org_ops(created["gid"], token)
 
     if section_id:
-        add_task_to_section(section_id, created["gid"], token)
-        print("added_to_section", section_id)
+        try:
+            add_task_to_section(section_id, created["gid"], token)
+            print("added_to_section", section_id)
+        except Exception as exc:
+            parent_gid = created["gid"]
+            print("warn_section_add_failed", section_id, console_safe(str(exc)[:200]))
+            print("recovery_hint", f"--parent {parent_gid}")
+            print(
+                console_safe(
+                    "Parent and subtasks were still created; do not re-run create mode. "
+                    "Use --parent or --if-not-exists to sync."
+                )
+            )
 
     create_subtasks_reversed(
         created["gid"],

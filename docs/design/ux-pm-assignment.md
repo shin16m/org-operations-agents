@@ -12,6 +12,8 @@
 4. **担当エージェントだけ**がそのサブタスクを実行する（notes の `担当:` と自分の slug が一致すること）。
 5. 完了は **担当の comment_task → PM が当該サブを complete → 全サブ完了後に親を comment → complete**。
 
+**comment_task:** PM slug で ux-designer / ux-reviewer の作業を署名しない。実装作業は notes `担当:` のワーカー slug。
+
 ## PM の必須フロー（intake）
 
 ```

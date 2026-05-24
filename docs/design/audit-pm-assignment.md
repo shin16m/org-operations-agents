@@ -26,6 +26,8 @@
 | `output/audit/reports/` | consistency-auditor |
 | `output/audit/reviews/` | audit-reviewer |
 
+**comment_task:** PM slug で auditor / reviewer の作業を署名しない。実装作業は各ワーカー slug。
+
 プラン例: [`assign-plan.org-governance-v1.json`](../../skills/audit/examples/assign-plan.org-governance-v1.json)
 
 ## 参照

@@ -47,6 +47,25 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": [],
     },
     {
+        "name": "worker comment agent slug",
+        "files": [
+            ".cursor/rules/workflow-intake-required.mdc",
+            "skills/platform/workflow-orchestrator/SKILL.md",
+            "docs/design/agent-asana-comment-signature.md",
+        ],
+        "required_any": [],
+        "required_all": ["実作業ワーカーの slug"],
+    },
+    {
+        "name": "epic completion summary",
+        "files": [
+            "skills/platform/workflow-orchestrator/SKILL.md",
+            "docs/design/agent-asana-comment-signature.md",
+        ],
+        "required_any": [],
+        "required_all": ["comment_epic_summary.py"],
+    },
+    {
         "name": "audit team dispatch",
         "files": [
             "docs/design/workflow-io-contract.md",

@@ -32,6 +32,7 @@
 
 | ファイル | 内容 |
 |----------|------|
+| [`epic-ops-quality-dryrun.md`](epic-ops-quality-dryrun.md) | bootstrap 重複防止 · PM 委譲 · エピック完了サマリ |
 | [`governance-audit-consistency-dryrun.md`](governance-audit-consistency-dryrun.md) | governance + audit 主体の SSOT 整合性チェック |
 | [`org-improvement-governance-team-dryrun.md`](org-improvement-governance-team-dryrun.md) | 組織改善チーム governance 追加 |
 | [`project-consistency-check-dryrun.md`](project-consistency-check-dryrun.md) | 定期 SSOT 整合性チェック · validate 4 本 |
@@ -74,6 +75,7 @@
 | [`../../tools/check_new_department.py`](../../tools/check_new_department.py) | 新 department 追加チェックリスト |
 | [`../../tools/intake_from_asana.py`](../../tools/intake_from_asana.py) | intake-asana snapshot 取得 |
 | [`../../skills/platform/asana-buddy/optional/close_intake_source_task.py`](../../skills/platform/asana-buddy/optional/close_intake_source_task.py) | intake 元タスククローズ |
+| [`../../skills/platform/asana-buddy/optional/comment_epic_summary.py`](../../skills/platform/asana-buddy/optional/comment_epic_summary.py) | エピック complete 前サマリ |
 | [`../../tools/backfill_subtask_project_membership.py`](../../tools/backfill_subtask_project_membership.py) | 誤配置サブタスク removeProject |
 | [`../../tools/run_all_teams_dryrun.py`](../../tools/run_all_teams_dryrun.py) | 全チーム E2E dryrun（`all-teams-dryrun.md` を上書き生成） |
 

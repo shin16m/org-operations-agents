@@ -45,8 +45,9 @@
 
 1. bootstrap Handoff を `output/planning/handoff/bootstrap.<theme>.json` に保存
 2. `handoff_to_asana.py` を **`--require-review-result` なし**で実行（bootstrap 専用）
-3. 親 GID・企画子 GID をセッションに記録
-4. **intake-asana 時（`meta.source_task_gid` または snapshot あり）:** bootstrap 直後に `close_intake_source_task.py --source <元GID> --epic <親GID> -y` で元タスクへ新エピックリンクを comment し **complete**（エピック notes には bootstrap Handoff の `## ソース Asana タスク` 節で相互リンク済み）
+3. **`warn_section_add_failed` 時:** 出力の `created_parent <GID>` を控え、**`--parent <GID>` で再実行**（create モードを再実行しない — 重複親防止）
+4. 親 GID・企画子 GID をセッションに記録
+5. **intake-asana 時（`meta.source_task_gid` または snapshot あり）:** bootstrap 直後に `close_intake_source_task.py --source <元GID> --epic <親GID> -y` で元タスクへ新エピックリンクを comment し **complete**（エピック notes には bootstrap Handoff の `## ソース Asana タスク` 節で相互リンク済み）
 
 ### C. dispatch 委譲（L1 初回 = 企画チーム）
 
@@ -68,16 +69,24 @@
 python tools/check_epic_audit_gate.py --parent <親GID> --handoff output/planning/handoff/<handoff>.json
 ```
 
-exit 0 を確認してから `complete_task.py --gid <親GID> -y`。監査子未完了の親 complete は禁止。
+exit 0 を確認してから **依頼者向けサマリ**を投稿:
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_epic_summary.py `
+  --gid <親GID> --summary "エピック完了" --body-file .\output\platform\comments\epic-summary.md -y
+```
+
+その後 `complete_task.py --gid <親GID> -y`。監査子未完了の親 complete は禁止。
 
 ### E. asana_execute 後（execution 系 — 必須分離）
 
 企画 gate で `handoff_to_asana.py` を実行した**後**:
 
-1. **同一セッションで development / ux / analysis / audit の成果物を書かない**
+1. **同一セッションで development / ux / analysis / governance / audit の成果物を書かない**
 2. 未完了 execution 系子ごとに [`task-dispatcher`](../task-dispatcher/SKILL.md) で PM へ dispatch
 3. 各 PM は `pm_assign_subtasks` → **L3b** でワーカーへ委譲（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md)）
-4. org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../development/examples/assign-plan.org-meta-doc-v1.json) 参照）
+4. **PM がワーカー役を代行しない** — 実装作業の `comment_task --agent` は **実作業ワーカーの slug**（PM slug は DeptWorkComplete・委譲集約のみ）
+5. org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../development/examples/assign-plan.org-meta-doc-v1.json) 参照）
 
 PM 代行で本体を先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../../../docs/verification/asana-comment-detail-delivery.md)
 
@@ -154,7 +163,7 @@ fetch_task.py --list-subtasks で未完了の execution 系子を列挙し、
 | 状況 | コマンド例 |
 |------|------------|
 | チーム内子 1 件完了 | 各 PM が `comment_task.py` → `complete_task.py -y` |
-| 全子完了後 | 親を `complete_task.py --gid <親GID> -y`（推奨）→ エピック完了報告 |
+| 全子完了後 | `comment_epic_summary.py` → 親を `complete_task.py --gid <親GID> -y`（推奨）→ エピック完了報告 |
 
 オーケストレーターはセッション終了前に未完了子が無いか確認する。
 

@@ -23,6 +23,7 @@
 - PM が ssot-implementer の役割で registry/doc を直接編集
 - PM が GovernanceReviewResult を自己作成
 - サブ未作成で `担当:` だけワーカー slug に変更
+- **PM slug で ssot-implementer / governance-reviewer の作業を comment_task する**
 
 ## review NG
 

@@ -193,7 +193,17 @@ handoff.all-teams-dryrun.json を出力。
 comment_task.py  →  complete_task.py -y  →  DeptWorkComplete（チーム内）
 ```
 
+**`--agent` は実作業ワーカーの slug** — notes の `担当:` と一致させる。PM が developer / ssot-implementer 等の作業を PM slug で comment しない（PM は委譲集約・DeptWorkComplete・gate のみ PM slug 可）。
+
 コメントなしで `complete_task.py` だけ実行しない。
+
+### 8.1 エピック親 complete 前
+
+```
+comment_epic_summary.py  →  complete_task.py --gid <親GID> -y
+```
+
+[`optional/comment_epic_summary.py`](../../skills/platform/asana-buddy/optional/comment_epic_summary.py) — workflow-orchestrator 署名で依頼者向けサマリ（§4 依頼者向け節）を親タスクに投稿。
 
 ## 9. CLI
 

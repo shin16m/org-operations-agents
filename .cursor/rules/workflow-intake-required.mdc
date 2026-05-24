@@ -30,7 +30,13 @@ alwaysApply: true
 6. **pm_gate** — planning-pm が Handoff 要約を提示し、**Asana タスク作成の承認**を待つ
 7. **asana_execute** — 承認後のみ `asana-buddy`（`handoff_to_asana.py --require-review-result`）
 
-**gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → L3b worker dispatch）。PM がワーカー役を代行しない。
+**gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / governance / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → L3b worker dispatch）。**PM がワーカー役を代行しない**（実装作業は L3b ワーカーセッション。PM は委譲・集約のみ）。
+
+**bootstrap 部分失敗:** `handoff_to_asana.py` が `warn_section_add_failed` を出したら、出力の `created_parent` GID を控え **`--parent <GID>` で再実行**する（create モードの再実行で重複親を作らない）。
+
+**comment_task の `--agent`:** 実装作業の署名は **実作業ワーカーの slug**（notes の `担当:` と一致）。PM slug は DeptWorkComplete・委譲集約・gate のみ。
+
+**エピック complete 前:** `comment_epic_summary.py` で依頼者向けサマリを親タスクに投稿してから `complete_task.py`。
 
 ## 必須の順序
 
@@ -70,7 +76,9 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 - `plan-reviewer` を飛ばして Asana 投入する
 - ローカルだけ完了し、Asana を未完了のままにする
 - `complete_task.py` だけ実行し、署名コメントを省略する
-- **gate 承認直後に product-manager / ux-pm / analytics-pm として成果物を直接書く**（→ PM intake + ワーカー dispatch）
+- **gate 承認直後に product-manager / ux-pm / analytics-pm / governance-pm / audit-pm として成果物を直接書く**（→ PM intake + ワーカー dispatch）
+- **PM slug でワーカー作業を comment_task する**（→ 実作業ワーカーの slug）
+- **bootstrap section 失敗後に create モードを再実行して重複親を作る**
 
 ## 例外
 
