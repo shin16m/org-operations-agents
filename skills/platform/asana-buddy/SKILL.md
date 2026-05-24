@@ -36,7 +36,7 @@ planning-pm → issue-story-planner → plan-reviewer（必須）→ planning-pm
 
 1. リポジトリルートで `optional/setup_venv.ps1` を実行し、ルート `.venv` に依存関係を入れる。
 2. `ASANA_TOKEN` 等は **リポジトリにコミットしない**。`optional/.env`（gitignore 対象）に置くか、実行時に環境変数で渡す。
-3. **担当種別 CF** — org-ops が作成するタスクには自動で `AI` を設定（[`docs/design/asana-assignee-type-field.md`](../../../docs/design/asana-assignee-type-field.md) · `.env.example`）。
+3. **担当種別 CF** — org-ops が作成するタスクには `AI` または `human`（承認サブ）を自動設定。意味は **担当メンバー種別**（[`docs/design/asana-assignee-type-field.md`](../../../docs/design/asana-assignee-type-field.md) v1.5 · `.env.example`）。
 
 ## スクリプト実行例
 

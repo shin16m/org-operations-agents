@@ -23,4 +23,5 @@
 
 ## 参照
 
-- SSOT: [`docs/design/asana-assignee-type-field.md`](../design/asana-assignee-type-field.md)
+- SSOT: [`docs/design/asana-assignee-type-field.md`](../design/asana-assignee-type-field.md) v1.5
+- 説明整合エピック: `1215086786059352`（担当メンバー種別 AI/human · 2026-05-24）

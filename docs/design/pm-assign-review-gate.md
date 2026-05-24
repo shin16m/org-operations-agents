@@ -57,7 +57,7 @@ python tools/check_pm_review_gate.py --parent <PM子GID>
 
 共通 helper: [`create_approval_subtask.py`](../../skills/platform/asana-buddy/optional/create_approval_subtask.py) · [`check_approval_subtask.py`](../../skills/platform/asana-buddy/optional/check_approval_subtask.py) · [`asana_program_common.py`](../../skills/platform/asana-buddy/optional/asana_program_common.py)（`add_task_dependencies` / `wire_worker_subs_to_review_gate`）
 
-承認サブ作成時: 担当種別 CF = **human**（[`asana-assignee-type-field.md`](asana-assignee-type-field.md)）
+承認サブ作成時: 担当種別 CF = **human**（担当=人間 · org-ops 自動設定。「手動設定のみ」ではない — [`asana-assignee-type-field.md`](asana-assignee-type-field.md) v1.5）
 
 ## planning gate との違い
 

@@ -1,16 +1,27 @@
 # Asana 担当種別カスタムフィールド — 運用 SSOT
 
-| 版 | 1.4 |
+| 版 | 1.5 |
 | 日付 | 2026-05-24 |
 
 ## 目的
 
-Asana プロジェクトの **担当種別** enum CF で、タスクが **AI エージェント運用** か **人間担当** かを一覧で判別する。
+Asana プロジェクトの **担当種別** enum CF で、タスクの **担当メンバー（assignee）が AI エージェントか人間か** を一覧で判別する。
 
 | 値 | 意味 |
 |----|------|
-| **AI** | org-ops CLI / エージェント workflow が作成・管理するタスク |
-| **human** | 利用者が Asana 上で人間を assignee にしたタスク（手動設定） |
+| **AI** | 担当メンバーが **AI エージェント**（org-ops CLI / workflow が作成・管理する実行タスク） |
+| **human** | 担当メンバーが **人間**（依頼者・承認者など Asana 上で人が完了するタスク） |
+
+**`human` は「手動で CF を触ったタスク」に限らない。** 人間が作成した AI 実行タスクは **AI**、エージェントが作成した【承認】/【レビュー】は **human**（担当=人間）を org-ops が自動設定する。
+
+### 想定運用（設定者 × 担当種別）
+
+| 作成者 | タスク内容 | 担当種別 | 設定者 |
+|--------|------------|----------|--------|
+| 人間 | AI に実施させるタスク | **AI** | 人間 |
+| 人間 | 人間が実施するタスク | **human** | 人間 |
+| エージェント | 人の承認タスク（【レビュー】/【承認】等） | **human** | エージェント |
+| エージェント | AI で実施可能なタスク | **AI** | エージェント |
 
 `.env` で上書き可能: [`skills/platform/asana-buddy/optional/.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
 
@@ -70,8 +81,12 @@ API が 400 等で拒否する場合は stderr 警告 · dryrun 記録 · notes 
 
 org-ops は **Asana ユーザー assignee API を使わない** ため、`human` は次のいずれか:
 
-1. Asana UI でタスクに人間を assign したあと、**手動で CF を human に変更**
-2. 将来: 専用 CLI `set_assignee_type(task, human)`（本エピックスコープ外でも可）
+1. **org-ops CLI が `human` を自動設定** — `create_approval_subtask.py` / `create_pm_review_gate.py`（【承認】/【レビュー】= 人間が完了）
+2. **人間がタスク作成時に設定** — 人間が実施するタスクを `human` に
+3. Asana UI で CF を `human` に変更（assignee 変更後の整合用）
+4. 将来: 専用 CLI `set_assignee_type(task, human)`（任意）
+
+**誤解禁止:** `human` ≠「手動設定のみ」。**担当メンバーが人間であること**を示す（エージェントが承認サブ作成時も **human**）。
 
 ## 無効化
 
