@@ -1,8 +1,8 @@
 # Asana Task Type カスタムフィールド — 運用 SSOT
 
-| 版 | 1.0 |
+| 版 | 1.1 |
 | 日付 | 2026-05-24 |
-| エピック | `1215089212767842` |
+| エピック | `1215089212767842` · poller 更新 `1215089353199032` |
 
 ## 目的
 
@@ -17,20 +17,25 @@ Asana プロジェクトの **Task Type** enum CF で、タスクが **Intake（
 
 | 起票種別 | Task Type | Agent Type | 備考 |
 |----------|-----------|------------|------|
-| **Intake**（依頼者→和久桶入口） | **Intake** | **設定なし**（CF 未設定） | poller 候補は Agent Type=AI のみ。Intake は **Agent Type 未設定**のため poller 自動スキャン対象外 |
+| **Intake**（依頼者→和久桶入口） | **Intake** | **AI** | `asana_ops_poller` / `--auto-bootstrap` の CANDIDATE 条件 |
 | **Epic**（bootstrap / handoff 親） | **Epic** | **AI** | `handoff_to_asana.py` create 時に org-ops が自動設定 |
 
-**Intake タスク作成（依頼者または和久桶が Asana UI で起票）:**
+**Intake タスク作成（依頼者が Asana UI で起票）:**
 
 - Task Type = **Intake**
-- Agent Type = **未設定**（空のまま）
+- Agent Type = **AI**
+
+**poller intake 候補（`asana_ops_poller` · `--auto-bootstrap`）:**
+
+- 未完了 · トップレベル · `【org-ops】` 以外
+- **Agent Type = AI** かつ **Task Type = Intake**
 
 **Epic タスク作成（和久桶 bootstrap）:**
 
 - `handoff_to_asana.py` create モードが **Agent Type=AI · Task Type=Epic · OS State=Ready** を設定
 - 手動で epic を作る場合も同じ CF 組み合わせを守る
 
-## org-os watch 対象
+## org-os watch 対象（Epic · poller とは別）
 
 `org-os watch --project <GID>` が列挙するタスク:
 

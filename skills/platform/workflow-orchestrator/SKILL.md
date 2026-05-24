@@ -54,10 +54,10 @@
 
 | 起票 | Task Type | Agent Type |
 |------|-----------|------------|
-| **Intake**（依頼者→和久桶入口） | **Intake** | **設定なし**（未設定） |
+| **Intake**（依頼者→和久桶入口） | **Intake** | **AI** |
 | **Epic**（bootstrap 親） | **Epic** | **AI**（`handoff_to_asana` create 時に自動） |
 
-Intake タスクは Agent Type 未設定のため poller 自動スキャン対象外。Epic は org-os `watch`（Agent Type=AI · Task Type=Epic · OS State Ready/Waiting）の対象。
+Intake は `asana_ops_poller`（`--auto-bootstrap`）の CANDIDATE 条件。Epic は org-os `watch`（Agent Type=AI · Task Type=Epic · OS State Ready/Waiting）の対象。
 
 ### C. dispatch 委譲（L1 初回 = 企画チーム）
 

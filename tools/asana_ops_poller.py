@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Scan Asana project for AI intake candidates; monitor suspended workflow sessions.
+"""Scan Asana project for intake candidates (Agent Type=AI · Task Type=Intake); monitor sessions.
 
 Usage:
   python tools/asana_ops_poller.py --once
@@ -36,14 +36,16 @@ from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import (  # noqa: E402
     ASANA_BASE,
     assignee_type_config,
+    console_safe,
     list_task_comment_stories,
     resolve_project_with_fallback,
+    task_type_config,
 )
 
 SESSIONS_DIR = ROOT / "output/platform/sessions"
 INTAKE_MARKER = "intake 元タスクとして org-ops エピック"
 EPIC_PREFIX = "【org-ops】"
-OPT_FIELDS = "name,gid,completed,parent,permalink_url,custom_fields,custom_fields.enum_value"
+OPT_FIELDS = "name,gid,completed,parent,permalink_url,custom_fields,custom_fields.enum_value,custom_fields.enum_value.gid"
 
 
 def _assignee_kind(task: dict, cfg: dict[str, str] | None) -> str | None:
@@ -62,6 +64,26 @@ def _assignee_kind(task: dict, cfg: dict[str, str] | None) -> str | None:
             return "AI"
         if name.lower() == "human":
             return "human"
+        return name or None
+    return None
+
+
+def _task_type_kind(task: dict, cfg: dict[str, str] | None) -> str | None:
+    if not cfg:
+        return None
+    for cf in task.get("custom_fields") or []:
+        if str(cf.get("gid")) != cfg["field_gid"]:
+            continue
+        ev = cf.get("enum_value") or {}
+        if str(ev.get("gid")) == cfg["intake_gid"]:
+            return "Intake"
+        if str(ev.get("gid")) == cfg["epic_gid"]:
+            return "Epic"
+        name = (ev.get("name") or cf.get("display_value") or "").strip()
+        if name.lower() == "intake":
+            return "Intake"
+        if name.lower() == "epic":
+            return "Epic"
         return name or None
     return None
 
@@ -117,7 +139,11 @@ def _run_capture(cmd: list[str], *, label: str) -> subprocess.CompletedProcess[s
         return subprocess.CompletedProcess(cmd, returncode=1, stdout="", stderr=str(exc))
 
 
-def is_candidate(task: dict, cfg: dict[str, str] | None) -> tuple[bool, str]:
+def is_candidate(
+    task: dict,
+    at_cfg: dict[str, str] | None,
+    tt_cfg: dict[str, str] | None,
+) -> tuple[bool, str]:
     if task.get("completed"):
         return False, "completed"
     if task.get("parent"):
@@ -125,9 +151,12 @@ def is_candidate(task: dict, cfg: dict[str, str] | None) -> tuple[bool, str]:
     name = (task.get("name") or "").strip()
     if name.startswith(EPIC_PREFIX):
         return False, "epic"
-    kind = _assignee_kind(task, cfg)
-    if kind != "AI":
-        return False, "no_cf" if kind is None else f"cf={kind}"
+    agent = _assignee_kind(task, at_cfg)
+    if agent != "AI":
+        return False, "no_cf" if agent is None else f"agent_type={agent}"
+    task_type = _task_type_kind(task, tt_cfg)
+    if task_type != "Intake":
+        return False, "no_task_type" if task_type is None else f"task_type={task_type}"
     return True, "ok"
 
 
@@ -229,6 +258,7 @@ def scan_projects(
         return trigger_intake(trigger_gid, dry_run=dry_run, human=human)
 
     cfg = assignee_type_config()
+    tt_cfg = task_type_config()
     total_candidates = 0
     total_skipped = 0
     for project_gid in project_gids:
@@ -236,7 +266,7 @@ def scan_projects(
         candidates = 0
         skipped = 0
         for task in tasks:
-            ok, reason = is_candidate(task, cfg)
+            ok, reason = is_candidate(task, cfg, tt_cfg)
             if ok:
                 candidates += 1
             else:
@@ -244,15 +274,17 @@ def scan_projects(
                 if reason not in ("completed", "subtask"):
                     gid = task.get("gid")
                     print(
-                        f"SKIP  project={project_gid}  task={gid}  reason={reason}  "
-                        f"name={(task.get('name') or '')[:40]!r}"
+                        console_safe(
+                            f"SKIP  project={project_gid}  task={gid}  reason={reason}  "
+                            f"name={(task.get('name') or '')[:40]!r}"
+                        )
                     )
         print(f"SCAN  project={project_gid}  candidates={candidates}  skipped={skipped}")
         total_candidates += candidates
         total_skipped += skipped
 
         for task in tasks:
-            ok, reason = is_candidate(task, cfg)
+            ok, reason = is_candidate(task, cfg, tt_cfg)
             if not ok:
                 continue
             gid = str(task.get("gid"))
@@ -260,9 +292,9 @@ def scan_projects(
                 print(f"SKIP  duplicate intake  task={gid}")
                 continue
             url = task.get("permalink_url") or f"https://app.asana.com/0/0/0/{gid}"
-            print(f"CANDIDATE  project={project_gid}  task={gid}  url={url}")
+            print(console_safe(f"CANDIDATE  project={project_gid}  task={gid}  url={url}"))
             if human:
-                print(f"  → intake 候補: {(task.get('name') or '')[:60]}", file=sys.stderr)
+                print(console_safe(f"  → intake 候補: {(task.get('name') or '')[:60]}"), file=sys.stderr)
             if auto_bootstrap:
                 return run_auto_bootstrap(gid, dry_run=dry_run, yes=yes)
 

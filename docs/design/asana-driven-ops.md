@@ -42,8 +42,9 @@ Asana を運用ダッシュボードとして、**AI タスク検出 → intake 
 
 1. `completed = false`
 2. CF Agent Type = `AI`（[`asana-assignee-type-field.md`](asana-assignee-type-field.md) · 旧称 担当種別）
-3. 同一 `ASANA_PROJECT_ID`（横断は Phase 2）
-4. intake 済みでない（source complete または epic リンク story ありは除外）
+3. CF Task Type = `Intake`（[`asana-task-type-field.md`](asana-task-type-field.md)）
+4. 同一 `ASANA_PROJECT_ID`（横断は Phase 2）
+5. intake 済みでない（source complete または epic リンク story ありは除外）
 
 ## 保留 / 再開（Phase 1）
 
@@ -192,9 +193,9 @@ curl -X POST http://127.0.0.1:8766/webhook -H "Content-Type: application/json" ^
 |---|------|-------|
 | 1 | `completed = false` | 1 |
 | 2 | CF Agent Type = `AI` | 1 |
-| 3 | スキャン対象プロジェクト（`ASANA_PROJECT_ID` または `--projects`） | 2 |
-| 4 | 未 intake（`INTAKE_MARKER` story なし · epic 名 `【org-ops】` 除外） | 1 |
-| 5 | **拡張フック（将来）** — タイトル prefix · セクション · 追加 CF | 4+ |
+| 3 | CF Task Type = `Intake` | 4 |
+| 4 | スキャン対象プロジェクト（`ASANA_PROJECT_ID` または `--projects`） | 2 |
+| 5 | 未 intake（`INTAKE_MARKER` story なし · epic 名 `【org-ops】` 除外） | 1 |
 
 ### 二経路
 
