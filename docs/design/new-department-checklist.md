@@ -6,7 +6,11 @@
 
 ```powershell
 python tools/validate_org_registry.py
+python tools/check_new_department.py --department <id>   # 個別
+python tools/check_new_department.py --all                # 全 enabled
 ```
+
+`check_new_department.py` は **本チェックリスト A〜E の必須行**を機械チェックし、未該当箇所を列挙する（実装: [`tools/check_new_department.py`](../../tools/check_new_department.py)）。手動チェックの前に必ず実行。
 
 ---
 

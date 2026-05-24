@@ -38,3 +38,8 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: python tools/validate_ssot_contract.py
+
+      - name: Run check_new_department.py --all
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python tools/check_new_department.py --all

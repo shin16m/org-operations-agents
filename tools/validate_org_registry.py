@@ -348,6 +348,60 @@ def main() -> int:
     if "doc-writer" in registry_text or re.search(r"slug:\s*reviewer\b", registry_text):
         errors.append("agent-registry.yaml must not register deprecated doc-writer / reviewer")
 
+    # A2: 言及網羅チェック（5 系統）— audit-coverage-hardening
+    expected_team_count = len(dept_ids)
+    entry_agents = [d.get("entry_agent", "") for d in orgs if d.get("entry_agent")]
+
+    # A2-1 README.md
+    root_readme = ROOT / "README.md"
+    if root_readme.is_file():
+        body = root_readme.read_text(encoding="utf-8")
+        nums = [int(m) for m in re.findall(r"(\d+)\s*チーム", body)]
+        if nums and max(nums) != expected_team_count:
+            errors.append(
+                f"README.md: チーム数表記 max={max(nums)} does not match enabled departments ({expected_team_count})"
+            )
+
+    # A2-2 docs/verification/README.md
+    ver_readme = ROOT / "docs/verification/README.md"
+    if ver_readme.is_file():
+        body = ver_readme.read_text(encoding="utf-8")
+        nums = [int(m) for m in re.findall(r"(\d+)\s*チーム", body)]
+        if nums and max(nums) != expected_team_count:
+            errors.append(
+                f"docs/verification/README.md: チーム数表記 max={max(nums)} does not match enabled departments ({expected_team_count})"
+            )
+
+    # A2-3 run_all_teams_dryrun.py — execution 系 4 (audit は任意)
+    dryrun_script = ROOT / "tools/run_all_teams_dryrun.py"
+    if dryrun_script.is_file():
+        body = dryrun_script.read_text(encoding="utf-8")
+        for did in set(dept_ids) - {"audit"}:
+            if f'"{did}"' not in body:
+                errors.append(
+                    f"tools/run_all_teams_dryrun.py: DEPT_PM missing department '{did}'"
+                )
+
+    # A2-4 agent-asana-comment-signature.md — entry_agent 全員記載
+    comment_ssot = ROOT / "docs/design/agent-asana-comment-signature.md"
+    if comment_ssot.is_file():
+        body = comment_ssot.read_text(encoding="utf-8")
+        for agent in entry_agents:
+            if agent and agent not in body:
+                errors.append(
+                    f"agent-asana-comment-signature.md: missing entry_agent slug '{agent}'"
+                )
+
+    # A2-5 cursor rule — 全 enabled department
+    cursor_rule = ROOT / ".cursor/rules/workflow-intake-required.mdc"
+    if cursor_rule.is_file():
+        body = cursor_rule.read_text(encoding="utf-8")
+        for did in dept_ids:
+            if did not in body:
+                errors.append(
+                    f".cursor/rules/workflow-intake-required.mdc: missing department '{did}'"
+                )
+
     if errors:
         print("\nVALIDATION FAILED:", file=sys.stderr)
         for e in errors:

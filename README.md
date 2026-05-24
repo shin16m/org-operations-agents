@@ -1,6 +1,6 @@
 # org-operations-agents
 
-**組織運用エージェントテンプレート** — `agent-creater`（エージェント生成）と 4 チーム構成の org runtime（intake → plan → Asana → dispatch）を同梱。fork して拡張する。
+**組織運用エージェントテンプレート** — `agent-creater`（エージェント生成）と 5 チーム構成の org runtime（intake → plan → Asana → dispatch · 監査チーム含む）を同梱。fork して拡張する。
 
 Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言的 workflow・Asana 連携の SSOT。
 
@@ -10,7 +10,7 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 
 | パス | 内容 |
 |------|------|
-| [`skills/`](skills/) | エージェント定義（統括グループ / 企画チーム / 開発チーム / 分析チーム）+ 各 `personas/` |
+| [`skills/`](skills/) | エージェント定義（統括グループ / 企画チーム / 開発チーム / 分析チーム / UX チーム / **監査チーム** `audit`）+ 各 `personas/` |
 | [`output/`](output/) | 実行時ワークスペース（**git 管理外**・フォルダテンプレのみ） |
 | [`work/`](work/) | PM assign plan 等の実行時作業領域 |
 | [`workflows/`](workflows/) | 宣言的 workflow |

@@ -32,7 +32,7 @@
 
 | ファイル | 内容 |
 |----------|------|
-| [`all-teams-dryrun.md`](all-teams-dryrun.md) | 全チーム E2E（4 チーム × 全 enabled slug が complete まで到達） |
+| [`all-teams-dryrun.md`](all-teams-dryrun.md) | 全チーム E2E（5 チーム × 全 enabled slug が complete まで到達。`audit` は組織変更時のみ） |
 | [`planning-dept-v3-dryrun.md`](planning-dept-v3-dryrun.md) | default v3 ドライラン（企画チーム L3 化 + 開発 dispatch） |
 | [`ux-delivery-v1-dryrun.md`](ux-delivery-v1-dryrun.md) | UX チーム + development full-ui |
 | [`team-label-e2e-dryrun.md`](team-label-e2e-dryrun.md) | `チーム:` 表記移行検証 |

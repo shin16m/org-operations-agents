@@ -126,7 +126,7 @@ handoff.all-teams-dryrun.json を出力。
 - failed → PM が修正サブタスクを新規作成
 ```
 
-### 5.3 チーム PM（planning-pm / product-manager / ux-pm / analytics-pm）
+### 5.3 チーム PM（planning-pm / product-manager / ux-pm / analytics-pm / audit-pm）
 
 ```markdown
 ## 実施内容
@@ -166,6 +166,7 @@ handoff.all-teams-dryrun.json を出力。
 |--------|------------|-------|
 | ux-designer / ux-reviewer | 委譲作業完了・PM へ提出前 | `complete` |
 | requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier | 委譲作業完了・PM へ提出前 | `complete` |
+| consistency-auditor / audit-reviewer | 委譲作業完了・PM へ提出前 | `complete` |
 | product-manager | 子タスクを Asana 完了にする直前 | `complete` |
 | plan-reviewer | Handoff レビュー結果を返す前（対象タスクがある場合） | `complete` |
 | workflow-orchestrator | エピック完了報告前（親/子に記録する場合） | `complete` |
