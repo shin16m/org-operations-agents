@@ -35,6 +35,8 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 | [`requirements-writer`](skills/development/requirements-writer/SKILL.md) / [`tech-designer`](skills/development/tech-designer/SKILL.md) / [`developer`](skills/development/developer/SKILL.md) / [`dev-reviewer`](skills/development/dev-reviewer/SKILL.md) / [`qa-verifier`](skills/development/qa-verifier/SKILL.md) | 開発チーム委譲ロール |
 | [`analytics-pm`](skills/analysis/analytics-pm/SKILL.md) | 分析チーム PM（子 1 件のハブ） |
 | [`data-architect`](skills/analysis/data-architect/SKILL.md) / [`data-engineer`](skills/analysis/data-engineer/SKILL.md) / [`data-steward`](skills/analysis/data-steward/SKILL.md) / [`data-analyst`](skills/analysis/data-analyst/SKILL.md) / [`data-scientist`](skills/analysis/data-scientist/SKILL.md) / [`ml-engineer`](skills/analysis/ml-engineer/SKILL.md) / [`analysis-reviewer`](skills/analysis/analysis-reviewer/SKILL.md) | 分析チームの委譲ロール |
+| [`audit-pm`](skills/audit/audit-pm/SKILL.md) | 監査チーム PM（組織変更エピックの L3 統制） |
+| [`consistency-auditor`](skills/audit/consistency-auditor/SKILL.md) / [`audit-reviewer`](skills/audit/audit-reviewer/SKILL.md) | 監査チーム委譲ロール |
 
 ## 標準 workflow（default v3）
 
@@ -65,7 +67,8 @@ Copy-Item .\skills\platform\asana-buddy\optional\.env.example .\skills\platform\
 
 ## クイックスタート（Asana 投入）
 
-1. [`workflow-orchestrator`](skills/platform/workflow-orchestrator/README.md)（**intake**）に課題を渡す → bootstrap → dispatch（企画チーム）
+1. [`workflow-orchestrator`](skills/platform/workflow-orchestrator/README.md)（**intake**）に課題を渡す → bootstrap → dispatch（企画チーム）  
+   **intake-asana:** Asana タスク URL/GID も可（[`intake_from_asana.py`](tools/intake_from_asana.py) · [`workflow-orchestrator/SKILL.md`](skills/platform/workflow-orchestrator/SKILL.md) 起動例 C）
 2. [`planning-pm`](skills/planning/planning-pm/SKILL.md) が [`issue-story-planner`](skills/planning/issue-story-planner/SKILL.md) で Handoff JSON を得る
 3. **必須:** [`plan-reviewer`](skills/planning/plan-reviewer/SKILL.md) で `PlanReviewResult`（`passed` / `passed_with_notes`）
 4. [`planning-pm`](skills/planning/planning-pm/SKILL.md)（**gate**）で Asana 投入承認
@@ -91,6 +94,7 @@ dispatch → planning-pm → issue-story-planner / plan-reviewer → asana-buddy
 dispatch → ux-pm → ux-designer / ux-reviewer
 dispatch → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier（full-ui 時 ux-reviewer も）
 dispatch → analytics-pm → data-architect / … / analysis-reviewer
+dispatch → audit-pm → consistency-auditor / audit-reviewer（組織変更時・execution 系の最後）
 ```
 
 - 企画チーム: [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
