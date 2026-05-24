@@ -47,7 +47,31 @@ def _match_field_name(name: str) -> bool:
     return any(n == candidate or lower == candidate.lower() for candidate in FIELD_NAMES)
 
 
-def fetch_assignee_type_gids(project_gid: str, token: str) -> dict[str, str]:
+def _name_priority(name: str) -> int:
+    """Return priority index in FIELD_NAMES (lower is preferred). len(FIELD_NAMES) if no match."""
+    n_lower = (name or "").strip().lower()
+    for i, candidate in enumerate(FIELD_NAMES):
+        if n_lower == candidate.lower():
+            return i
+    return len(FIELD_NAMES)
+
+
+def fetch_assignee_type_gids(
+    project_gid: str, token: str, *, debug: bool = False
+) -> dict[str, str]:
+    """Discover Agent Type CF GIDs from project custom_field_settings.
+
+    Strategy (lazy reject for robustness against name collisions):
+
+    1. Collect every CF whose name matches FIELD_NAMES (case-insensitive)
+    2. For each candidate, require enum_options to contain BOTH "AI" and "human"
+    3. If multiple complete candidates exist, prefer FIELD_NAMES order (Agent Type > 担当種別)
+    4. If no complete candidate exists, raise with the observed candidate list
+    5. When debug=True (e.g. dry-run), warn-print the kept/skipped candidates so
+       callers can diagnose silent collisions where another field shares the name
+       (this was the failure mode that motivated the rewrite — see
+       docs/verification/approval-flow-e2e-dryrun.md §6).
+    """
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.get(
         f"{ASANA_BASE}/projects/{project_gid}/custom_field_settings",
@@ -57,35 +81,76 @@ def fetch_assignee_type_gids(project_gid: str, token: str) -> dict[str, str]:
         },
     )
     r.raise_for_status()
-    matched_name = ""
-    for row in r.json().get("data") or []:
+    rows = r.json().get("data") or []
+    candidates: list[dict[str, object]] = []
+    for row in rows:
         cf = row.get("custom_field") or {}
         cf_name = (cf.get("name") or "").strip()
         if not _match_field_name(cf_name):
             continue
-        matched_name = cf_name
         field_gid = str(cf.get("gid") or "")
         ai_gid = human_gid = ""
         for opt in cf.get("enum_options") or []:
-            name = (opt.get("name") or "").strip()
-            gid = str(opt.get("gid") or "")
-            if name.upper() == "AI":
-                ai_gid = gid
-            elif name.lower() == "human":
-                human_gid = gid
-        if not field_gid or not ai_gid or not human_gid:
-            raise ValueError(
-                f"project {project_gid}: {DISPLAY_FIELD_NAME!r} field found but enum AI/human incomplete"
+            opt_name = (opt.get("name") or "").strip()
+            opt_gid = str(opt.get("gid") or "")
+            if opt_name.upper() == "AI":
+                ai_gid = opt_gid
+            elif opt_name.lower() == "human":
+                human_gid = opt_gid
+        candidates.append(
+            {
+                "field_name": cf_name,
+                "field_gid": field_gid,
+                "ai_gid": ai_gid,
+                "human_gid": human_gid,
+                "complete": bool(field_gid and ai_gid and human_gid),
+                "priority": _name_priority(cf_name),
+            }
+        )
+
+    valid = [c for c in candidates if c["complete"]]
+
+    if debug or not valid:
+        if not candidates:
+            print(
+                f"  no candidate CF matched names {FIELD_NAMES!r}",
+                file=sys.stderr,
             )
-        return {
-            "field_gid": field_gid,
-            "ai_gid": ai_gid,
-            "human_gid": human_gid,
-            "field_name": matched_name,
-        }
-    raise ValueError(
-        f"project {project_gid}: no custom field named one of {FIELD_NAMES!r}"
-    )
+        else:
+            for c in candidates:
+                tag = "KEPT" if c["complete"] else "SKIP"
+                if c["complete"]:
+                    reason = "ok"
+                else:
+                    missing = []
+                    if not c["ai_gid"]:
+                        missing.append("AI")
+                    if not c["human_gid"]:
+                        missing.append("human")
+                    reason = f"missing enum {','.join(missing)}"
+                print(
+                    f"  [{tag}] field={c['field_name']!r} gid={c['field_gid']} {reason}",
+                    file=sys.stderr,
+                )
+
+    if not valid:
+        if not candidates:
+            raise ValueError(
+                f"project {project_gid}: no custom field named one of {FIELD_NAMES!r}"
+            )
+        raise ValueError(
+            f"project {project_gid}: matched {len(candidates)} field(s) named "
+            f"{FIELD_NAMES!r}, but none have both AI and human enum options"
+        )
+
+    valid.sort(key=lambda c: (c["priority"], c["field_gid"]))
+    chosen = valid[0]
+    return {
+        "field_gid": str(chosen["field_gid"]),
+        "ai_gid": str(chosen["ai_gid"]),
+        "human_gid": str(chosen["human_gid"]),
+        "field_name": str(chosen["field_name"]),
+    }
 
 
 def read_env_lines(path: Path) -> list[str]:
@@ -126,7 +191,7 @@ def main() -> int:
 
     load_env_from_dotfile()
     token = get_token()
-    gids = fetch_assignee_type_gids(args.project, token)
+    gids = fetch_assignee_type_gids(args.project, token, debug=args.dry_run)
     updates = {
         PROJECT_KEY: args.project,
         ENV_KEYS[0]: gids["field_gid"],
