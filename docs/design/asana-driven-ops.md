@@ -200,8 +200,9 @@ curl -X POST http://127.0.0.1:8766/webhook -H "Content-Type: application/json" ^
 
 | 経路 | 手段 | 必須 |
 |------|------|------|
-| **CLI baseline** | `intake_from_asana` → bootstrap Handoff → `handoff_to_asana`（review なし）→ planning dispatch | **はい** |
-| **CLI 実装** | [`tools/auto_intake_runner.py`](../../tools/auto_intake_runner.py) · poller `--auto-bootstrap` | 子【2/5】 |
+| **CLI baseline** | `intake_from_asana` → **triage** → bootstrap Handoff → `handoff_to_asana`（review なし）→ planning dispatch | **はい** |
+| **CLI 実装** | [`tools/auto_intake_runner.py`](../../tools/auto_intake_runner.py)（triage 統合）· poller `--auto-bootstrap` | 子【2/5】 |
+| **org-os** | [`tools/org_os.py`](../../tools/org_os.py) · [`products/org-os/`](../../products/org-os/) | 子【3/5】 · 境界 [`org-os-product-io.md`](org-os-product-io.md) |
 | **Cursor SDK** | `Agent.prompt` / `Agent.create` で orchestrator intake-asana プロンプト起動 | optional（PoC 子【3/5】） |
 
 ### フロー D. auto-intake（Phase 4）
@@ -210,7 +211,8 @@ curl -X POST http://127.0.0.1:8766/webhook -H "Content-Type: application/json" ^
 asana_ops_poller --once
   → CANDIDATE
   → INTAKE（snapshot）
-  → AUTO_BOOTSTRAP（--auto-bootstrap · 実装は子【2/5】）
+  → TRIAGE（epic_input）                    ← v4 追加
+  → AUTO_BOOTSTRAP（--auto-bootstrap · 子【2/5】）
   → planning: Handoff · review · gate
   → --record-wait（planning_approval）   ← ダッシュボード WAIT 必須
   → 依頼者【承認】complete

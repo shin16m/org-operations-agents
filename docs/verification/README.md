@@ -32,7 +32,11 @@
 
 | ファイル | 内容 |
 |----------|------|
-| [`asana-driven-auto-intake-dryrun.md`](asana-driven-auto-intake-dryrun.md) | Phase 4 auto-intake · CLI baseline · Cursor SDK PoC |
+| [`org-os-epic-retrospective-dryrun.md`](org-os-epic-retrospective-dryrun.md) | org-os エピック · レトロ集約 · intake gate |
+| [`org-os-governance-audit-delivery.md`](org-os-governance-audit-delivery.md) | org-os + triage エピック · governance SSOT · audit · epic complete |
+| [`org-os-dev-delivery-retro.md`](org-os-dev-delivery-retro.md) | 【2/5】【3/5】development lite 正規ルート事後補完 |
+| [`org-os-triage-workflow-dryrun.md`](org-os-triage-workflow-dryrun.md) | triage workflow 拡張 dryrun |
+| [`org-os-product-dryrun.md`](org-os-product-dryrun.md) | org-os 外部プロダクト dryrun |
 | [`asana-ops-poller-unicode-dryrun.md`](asana-ops-poller-unicode-dryrun.md) | poller RESUME 時 Windows subprocess デコード耐性 |
 | [`cf400-workaround-dryrun.md`](cf400-workaround-dryrun.md) | CF 400 workaround · sync_assignee_type_env CLI |
 | [`asana-driven-ops-phase3-dryrun.md`](asana-driven-ops-phase3-dryrun.md) | Asana ドリブン Phase 3 · Webhook · ダッシュボード MVP |

@@ -14,7 +14,7 @@
 | ファイル | 内容 |
 |----------|------|
 | [`docs/design/workflow-io-contract.md`](../../../docs/design/workflow-io-contract.md) | **パイプライン SSOT** · ゲート定義 |
-| [`workflows/default.yaml`](../../../workflows/default.yaml) | L1: intake / bootstrap / dispatch |
+| [`workflows/default.yaml`](../../../workflows/default.yaml) | L1: intake / triage / bootstrap / dispatch |
 | [`workflows/with-dispatch.yaml`](../../../workflows/with-dispatch.yaml) | 上記 + 実行系子の dispatch ループ |
 | [`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) | 企画チーム L3 |
 | [`workflows/organizations.yaml`](../../../workflows/organizations.yaml) | department → workflow / entry_agent |
@@ -27,7 +27,7 @@
 **最初の 1 手（相談・機能追加・組織変更すべて共通）:**
 
 1. 利用者の **生課題** を受け取る — **自然言語** または **Asana タスク URL / GID**（`intake-asana`）
-2. **方針を一言で示す** — 「intake → bootstrap → 企画 Handoff/review → gate 承認後に execution 系へ」と伝える
+2. **方針を一言で示す** — 「intake → triage → bootstrap → 企画 Handoff/review → gate 承認後に execution 系へ」と伝える
 3. `WorkflowSession` を初期化（`current_step_id: intake`）
 4. **bootstrap 用最小 Handoff** を生成（親エピック + `department: planning` の企画子 1 件）
 5. **bootstrap → dispatch まで同一セッションで進める**（利用者に別チャット起動を求めない）
@@ -36,8 +36,9 @@
 **intake-asana（Asana タスク起点）:**
 
 1. `python tools/intake_from_asana.py --task <url|gid> [--out output/platform/intake/<gid>-snapshot.json]`
-2. snapshot の `name` / `notes` **および** `comments` / `comments_markdown`（あれば）を生課題として bootstrap Handoff の `epic.notes_markdown` に引用（`## ソース Asana タスク` 節 + GID · コメントあり時は `## ソースコメント` 節）
-3. bootstrap → **close_intake_source**（元タスク comment+complete）→ dispatch まで同一セッションで進める
+2. **triage:** `python tools/intake_triage.py --snapshot ...` → `output/platform/triage/<gid>-epic-input.json`（title · priority · skill_tags）
+3. epic_input を入力に bootstrap Handoff を生成（`## ソース Asana タスク` + `## triage（epic_input）` 節）
+4. bootstrap → **close_intake_source**（元タスク comment+complete）→ dispatch まで同一セッションで進める
 
 **intake 中にやらないこと:** issue-story-planner / agent-creater / development PM の役割で skills・registry・workflow YAML・design doc を**直接編集して実装を始める**こと（企画 Handoff に落とし、gate 後の execution 子で進める）。
 
@@ -140,7 +141,21 @@ python tools/check_workflow_suspend.py --all --require-resumable
 ```powershell
 python tools/asana_ops_poller.py --once --auto-bootstrap --dry-run
 python tools/auto_intake_runner.py --task <SOURCE_GID> -y
-# → DISPATCH 行 · planning-pm へ dispatch
+# → INTAKE → TRIAGE → HANDOFF → DISPATCH（planning-pm）
+```
+
+**org-os CF GID 同期（依頼者 CF 追加後）:**
+
+```powershell
+python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --dry-run
+python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --write -y
+```
+
+**org-os 外部プロダクト（epic 状態）:**
+
+```powershell
+python tools/org_os.py status --epic <PARENT_GID>
+python tools/org_os.py watch --project <PROJECT_GID> --once
 ```
 
 **Cursor SDK PoC（`CURSOR_API_KEY` 設定時のみ）:**

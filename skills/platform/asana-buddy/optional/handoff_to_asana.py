@@ -24,6 +24,7 @@ from asana_program_common import (  # noqa: E402
     create_subtasks_reversed,
     find_project_task_by_exact_name,
     handoff_subtask_notes,
+    init_epic_os_state,
     list_accessible_projects,
     load_handoff,
     load_review_result,
@@ -141,6 +142,8 @@ def main() -> None:
     created = create_task(project_id, epic_title, epic["notes_markdown"], token)
     print("created_parent", created.get("gid"), created.get("permalink_url", ""))
     set_assignee_type_org_ops(created["gid"], token)
+    if init_epic_os_state(created["gid"], token):
+        print("init_epic_os_state", created["gid"], "Ready", "ApprovalRequired=No")
 
     if section_id:
         try:

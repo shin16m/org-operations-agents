@@ -1,9 +1,9 @@
-# Default workflow — orchestrator intake entry (v3)
-# v2: intake → plan → review → gate → execute（L1 完結）
-# v3: 企画（plan/review/gate/execute）を planning-delivery（L3）へ移管
+# Default workflow — orchestrator intake entry (v4)
+# v3: intake → bootstrap → dispatch（企画チームへ最初の配賦）
+# v4: intake → triage → bootstrap → dispatch（epic_input 正規化を L1 に追加）
 id: default
-version: "3"
-description: intake → bootstrap → dispatch（企画チームへ最初の配賦）
+version: "4"
+description: intake → triage → bootstrap → dispatch（企画チームへ最初の配賦）
 
 policy:
   review_required: false
@@ -14,12 +14,19 @@ policy:
 steps:
   - id: intake
     agent: workflow-orchestrator
-    role: 課題受付。bootstrap 用最小 Handoff（企画子 1 件）を生成
+    role: 課題受付。snapshot 取得（intake-asana / auto-intake）
     gate_after: null
+
+  - id: triage
+    agent: workflow-orchestrator
+    role: snapshot → epic_input JSON（title · priority · skill_tags · metadata）
+    gate_after: null
+    outputs:
+      - output/platform/triage/<source_gid>-epic-input.json
 
   - id: bootstrap
     agent: asana-buddy
-    role: 親 + 企画子タスク 1 件を Asana に作成（dispatch 可能にする）
+    role: epic_input を入力に親 + 企画子タスク 1 件を Asana に作成
     gate_after: null
 
   - id: dispatch

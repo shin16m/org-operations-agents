@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CLI auto-bootstrap: intake snapshot → bootstrap Handoff → Asana parent + planning child.
+"""CLI auto-bootstrap: intake snapshot → triage → bootstrap Handoff → Asana parent + planning child.
 
 Usage:
   python tools/auto_intake_runner.py --task <GID> --dry-run
@@ -9,23 +9,29 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
 ASANA_OPT = ROOT / "skills/platform/asana-buddy/optional"
-if str(ASANA_OPT) not in sys.path:
-    sys.path.insert(0, str(ASANA_OPT))
+for p in (str(TOOLS), str(ASANA_OPT)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import console_safe  # noqa: E402
+from intake_triage import (  # noqa: E402
+    bootstrap_notes_from_epic_input,
+    epic_title_from_input,
+    triage_snapshot,
+)
 
-EPIC_PREFIX = "【org-ops】"
 HANDOFF_DIR = ROOT / "output/planning/handoff"
 INTAKE_DIR = ROOT / "output/platform/intake"
+TRIAGE_DIR = ROOT / "output/platform/triage"
 PLANNING_SUB = {
     "title": "企画・Handoff 作成",
     "department": "planning",
@@ -35,30 +41,10 @@ PLANNING_SUB = {
 }
 
 
-def _slug(name: str) -> str:
-    s = re.sub(r"[^\w\-]+", "-", name.strip())[:48].strip("-")
-    return s or "intake"
-
-
-def build_bootstrap_handoff(snapshot: dict) -> dict:
-    gid = str(snapshot.get("task_gid") or "")
-    name = (snapshot.get("name") or "intake").strip()
-    url = snapshot.get("task_url") or f"https://app.asana.com/0/0/0/{gid}"
-    notes = snapshot.get("notes") or ""
-    comments_md = snapshot.get("comments_markdown") or ""
-
-    epic_title = name if name.startswith(EPIC_PREFIX) else f"{EPIC_PREFIX}{name[:72]}"
-
-    body = (
-        f"## ソース Asana タスク\n\n"
-        f"- GID: `{gid}`\n"
-        f"- URL: {url}\n"
-        f"- 名前: {name}\n\n"
-        f"## notes\n\n{notes}\n"
-    )
-    if comments_md:
-        body += f"\n## ソースコメント\n\n{comments_md}\n"
-    body += "\n## 経路\n\nauto-intake CLI baseline（`auto_intake_runner.py`）\n"
+def build_bootstrap_handoff(snapshot: dict, epic_input: dict) -> dict:
+    gid = str(snapshot.get("task_gid") or epic_input.get("metadata", {}).get("source_task_gid") or "")
+    epic_title = epic_title_from_input(epic_input)
+    body = bootstrap_notes_from_epic_input(epic_input, snapshot)
 
     return {
         "schema_version": "1.2",
@@ -94,11 +80,26 @@ def run_intake_snapshot(task_gid: str, *, dry_run: bool) -> Path:
     return out
 
 
-def write_handoff(snapshot: dict, *, dry_run: bool) -> Path:
+def run_triage(snapshot: dict, *, dry_run: bool) -> tuple[dict, Path]:
+    gid = str(snapshot.get("task_gid") or "unknown")
+    out = TRIAGE_DIR / f"{gid}-epic-input.json"
+    if dry_run:
+        print(f"TRIAGE  source={gid}  dry-run  would_write={out.as_posix()}")
+        return triage_snapshot(snapshot), out
+    TRIAGE_DIR.mkdir(parents=True, exist_ok=True)
+    result = triage_snapshot(snapshot)
+    out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+    ei = result["epic_input"]
+    print(f"TRIAGE  source={gid}  OK  out={out.as_posix()}")
+    print(f"  title={ei['title'][:60]!r}  skill_tags={ei['skill_tags']}")
+    return ei, out
+
+
+def write_handoff(snapshot: dict, epic_input: dict, *, dry_run: bool) -> Path:
     HANDOFF_DIR.mkdir(parents=True, exist_ok=True)
     gid = str(snapshot.get("task_gid") or "unknown")
     path = HANDOFF_DIR / f"bootstrap.auto-intake.{gid}.json"
-    data = build_bootstrap_handoff(snapshot)
+    data = build_bootstrap_handoff(snapshot, epic_input)
     if dry_run:
         print(f"HANDOFF  path={path.as_posix()}  dry-run")
         return path
@@ -184,7 +185,7 @@ def main() -> int:
     p = argparse.ArgumentParser(description="Auto-bootstrap from Asana intake source task")
     p.add_argument("--task", required=True, metavar="GID", help="Source task GID")
     p.add_argument("--dry-run", action="store_true", help="Print actions only (default without -y)")
-    p.add_argument("-y", "--yes", action="store_true", help="Execute intake, write handoff, create Asana tasks")
+    p.add_argument("-y", "--yes", action="store_true", help="Execute intake, triage, write handoff, create Asana tasks")
     args = p.parse_args()
 
     dry_run = args.dry_run or not args.yes
@@ -202,9 +203,15 @@ def main() -> int:
     else:
         snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
 
-    handoff_path = write_handoff(snapshot, dry_run=dry_run)
     if dry_run:
-        print("AUTO_BOOTSTRAP  dry-run  complete")
+        run_triage(snapshot, dry_run=True)
+        epic_input = triage_snapshot(snapshot)["epic_input"]
+    else:
+        epic_input, _ = run_triage(snapshot, dry_run=False)
+
+    handoff_path = write_handoff(snapshot, epic_input, dry_run=dry_run)
+    if dry_run:
+        print("AUTO_BOOTSTRAP  dry-run  complete  path=intake→triage→bootstrap")
         return 0
 
     source_gid = str(snapshot.get("task_gid") or args.task)

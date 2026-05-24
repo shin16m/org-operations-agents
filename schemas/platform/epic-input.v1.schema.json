@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "epic-input.v1",
+  "title": "EpicInput",
+  "description": "triage output consumed by bootstrap Handoff builder",
+  "type": "object",
+  "required": ["schema_version", "epic_input"],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "epic_input": {
+      "type": "object",
+      "required": ["title", "description", "priority", "skill_tags", "metadata"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+        "skill_tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "metadata": {
+          "type": "object",
+          "required": ["source", "source_task_gid"],
+          "properties": {
+            "requester": { "type": "string" },
+            "source": { "const": "intake" },
+            "source_task_gid": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

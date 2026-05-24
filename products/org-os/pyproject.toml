@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "org-os"
+version = "0.1.0"
+description = "Epic state machine for org-operations-agents (external product)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "requests>=2.28",
+]
+
+[project.scripts]
+org-os = "org_os.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

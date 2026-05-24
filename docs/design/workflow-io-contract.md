@@ -4,10 +4,10 @@ registry / workflow 実体は [`workflows/`](../../workflows/)。セッション
 
 **パイプライン図・段階一覧の SSOT は本ファイル。** README / CONTRIBUTING / SKILL / Cursor rule はここを参照し、同じ ASCII 図をコピーしない。
 
-## 標準パイプライン（default v3 · SSOT）
+## 標準パイプライン（default v4 · SSOT）
 
 ```
-workflow-orchestrator（intake → bootstrap → dispatch）
+workflow-orchestrator（intake → triage → bootstrap → dispatch）
   → planning-pm（企画チーム / planning-delivery）
     → issue-story-planner → plan-reviewer（必須）
     → planning-pm（gate）→ asana-buddy
@@ -15,22 +15,23 @@ workflow-orchestrator（intake → bootstrap → dispatch）
   → 各 PM: pm_assign_subtasks → **pm_review_gate（人間 · Asana dependencies）** → L3b worker dispatch
   → ux-pm → ux-designer / ux-reviewer
   → product-manager → requirements-writer / …
-  → analytics-pm → data-architect / …
   → governance-pm → ssot-implementer / governance-reviewer
   → audit-pm → consistency-auditor / audit-reviewer（組織変更エピックの **最後**）
 ```
 
-- L1 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v3
+- L1 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v4（v3 から triage step 追加）
+- org-ops ↔ org-os 境界: [`org-os-product-io.md`](org-os-product-io.md)
 - 企画 L3: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml)
 - 組織ルーティング: [`workflows/organizations.yaml`](../../workflows/organizations.yaml)
 - 手順（コマンド例）: [`docs/e2e/default-workflow.md`](../e2e/default-workflow.md)
 
-## 段階とスロット（default v3）
+## 段階とスロット（default v4）
 
 | 段階 ID | スロット | 担当スキル | 入力 | 出力 |
 |---------|----------|------------|------|------|
-| `intake` | orchestrate | workflow-orchestrator | 生課題（自然言語） | bootstrap 用最小 Handoff |
-| `bootstrap` | execute | asana-buddy | bootstrap Handoff | Asana 親 + 企画子 1 件 |
+| `intake` | orchestrate | workflow-orchestrator | 生課題 / Asana タスク | intake snapshot |
+| `triage` | orchestrate | workflow-orchestrator | snapshot | `epic_input` JSON（[`epic-input.v1.schema.json`](../../schemas/platform/epic-input.v1.schema.json)） |
+| `bootstrap` | execute | asana-buddy | epic_input 入力 Handoff | Asana 親 + 企画子 1 件 |
 | `dispatch` | dispatch | task-dispatcher | DispatchRequest（planning） | planning-pm 用 prompt_snippet |
 
 ## 企画チーム L3（planning-delivery）
@@ -79,8 +80,9 @@ org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.o
 
 | step | 役割 |
 |------|------|
-| `intake` | 課題受付。利用者の**唯一の入口** |
-| `bootstrap` | 最小 Asana（企画子 1 件） |
+| `intake` | 課題受付 · snapshot 取得 |
+| `triage` | snapshot → epic_input 正規化 |
+| `bootstrap` | 最小 Asana（企画子 1 件）· [`org-os-product-io.md`](org-os-product-io.md) CF 初期化 |
 | `dispatch` | 企画チームへ初回配賦；完了後は execution 系子を順次配賦 |
 
 ## 変更境界（新規スキル追加時）

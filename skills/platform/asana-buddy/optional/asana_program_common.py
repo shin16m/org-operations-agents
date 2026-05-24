@@ -116,6 +116,74 @@ def set_assignee_type_human(task_gid: str, token: str) -> bool:
         return False
 
 
+def org_os_cf_config() -> dict[str, str] | None:
+    """Return OS State + Approval Required CF GIDs from env, or None if unset."""
+    field = os.getenv("ASANA_OS_STATE_FIELD_GID", "").strip()
+    ready = os.getenv("ASANA_OS_STATE_READY_GID", "").strip()
+    if not field or not ready:
+        return None
+    cfg: dict[str, str] = {
+        "os_state_field_gid": field,
+        "ready_gid": ready,
+        "running_gid": os.getenv("ASANA_OS_STATE_RUNNING_GID", "").strip(),
+        "waiting_gid": os.getenv("ASANA_OS_STATE_WAITING_GID", "").strip(),
+        "done_gid": os.getenv("ASANA_OS_STATE_DONE_GID", "").strip(),
+        "approval_field_gid": os.getenv("ASANA_APPROVAL_REQUIRED_FIELD_GID", "").strip(),
+        "approval_yes_gid": os.getenv("ASANA_APPROVAL_REQUIRED_YES_GID", "").strip(),
+        "approval_no_gid": os.getenv("ASANA_APPROVAL_REQUIRED_NO_GID", "").strip(),
+    }
+    return cfg
+
+
+def set_org_os_custom_fields(
+    task_gid: str,
+    token: str,
+    *,
+    os_state: str,
+    approval_required: str | None = None,
+) -> bool:
+    """Set OS State (and optionally Approval Required) on an epic task."""
+    cfg = org_os_cf_config()
+    if not cfg:
+        return False
+    mapping = {
+        "ready": cfg.get("ready_gid"),
+        "running": cfg.get("running_gid"),
+        "waiting": cfg.get("waiting_gid"),
+        "done": cfg.get("done_gid"),
+    }
+    state_gid = mapping.get(os_state.lower())
+    if not state_gid:
+        raise ValueError(f"unknown os_state {os_state!r}")
+    custom_fields: dict[str, str] = {cfg["os_state_field_gid"]: state_gid}
+    if approval_required is not None:
+        ap_field = cfg.get("approval_field_gid")
+        if ap_field:
+            ap_gid = cfg.get("approval_yes_gid") if approval_required.lower() == "yes" else cfg.get("approval_no_gid")
+            if ap_gid:
+                custom_fields[ap_field] = ap_gid
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.put(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        json={"data": {"custom_fields": custom_fields}},
+        headers=headers,
+    )
+    r.raise_for_status()
+    return True
+
+
+def init_epic_os_state(task_gid: str, token: str) -> bool:
+    """New epic after bootstrap: OS State=Ready, Approval Required=No."""
+    try:
+        return set_org_os_custom_fields(task_gid, token, os_state="Ready", approval_required="no")
+    except (requests.HTTPError, ValueError) as exc:
+        print(
+            f"警告: org-os CF を設定できませんでした task={task_gid}: {exc}",
+            file=sys.stderr,
+        )
+        return False
+
+
 def add_task_to_project(task_gid: str, project_gid: str, token: str) -> None:
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.post(
