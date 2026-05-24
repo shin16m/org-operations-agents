@@ -27,15 +27,21 @@
 Asana ドリブン運用 epic より、planning gate を **【承認】サブ**で管理する手順を追加（詳細: [`asana-driven-ops.md`](asana-driven-ops.md)）。
 
 1. planning-pm: `PlanReviewResult` 通過後、`create_approval_subtask.py --title "【承認】Handoff 投入"` で要約 notes を付与
+   - サブ作成と同時に **親 `OS State=Waiting`** + **`Approval Required=Yes`** を自動設定
+   - サブの `assignee` を **`ASANA_DEFAULT_HUMAN_APPROVER_GID`** に自動設定（人間担当者）
+   - 詳細: [`approval-flow.md`](approval-flow.md)
 2. orchestrator: `asana_ops_poller.py --record-wait <企画子GID> <承認サブGID> <URL>` で SuspendedSession 保存 → セッション終了
-3. 依頼者: Asana UI で【承認】complete
+3. 依頼者: Asana UI で **`Approval Result=OK/NG`** を選択 → 【承認】complete
 4. 運用者: poller で `RESUME` 確認 → 新セッションで `handoff_to_asana.py --require-review-result`
+   - 将来（B 承認ヘルパー）: 完了検知 → 親 `OS State=Ready · Approval Required=No` 自動戻し
+   - 将来（C Ready 再開ループ）: `Approval Result=NG` の場合は和久桶が差し戻し
 
 チャット「承認」は **手動 intake / レガシー運用** のフォールバック。Asana ドリブン時は【承認】complete を正とする。
 
 ## 参照
 
 - [`asana-driven-ops.md`](asana-driven-ops.md) — スキャン · 保留再開 SSOT
+- [`approval-flow.md`](approval-flow.md) — 承認サブ ↔ 親 epic CF 写像 SSOT
 - [`workflow-io-contract.md`](workflow-io-contract.md) — パイプライン全体
 - [`pm-assign-review-gate.md`](pm-assign-review-gate.md) — PM review gate 詳細
 - [`complete_task.py`](../../skills/platform/asana-buddy/optional/complete_task.py) — 【レビュー】/【承認】はエージェント complete 禁止（exit 3）

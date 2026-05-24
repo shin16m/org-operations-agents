@@ -240,6 +240,45 @@ def init_epic_os_state(task_gid: str, token: str) -> bool:
         return False
 
 
+def approval_result_config() -> dict[str, str] | None:
+    """Return Approval Result CF GIDs from env, or None if unset.
+
+    Approval Result は承認サブ完了時に人間が OK/NG を選択する enum CF。
+    本フィールドの設定は B（承認ヘルパー）で読み取る前提で、A では env 同期のみ用意する。
+    """
+    field = os.getenv("ASANA_APPROVAL_RESULT_FIELD_GID", "").strip()
+    ok_gid = os.getenv("ASANA_APPROVAL_RESULT_OK_GID", "").strip()
+    ng_gid = os.getenv("ASANA_APPROVAL_RESULT_NG_GID", "").strip()
+    if not field or not ok_gid or not ng_gid:
+        return None
+    return {"field_gid": field, "ok_gid": ok_gid, "ng_gid": ng_gid}
+
+
+def human_approver_gid() -> str | None:
+    """Return Asana user GID configured as default human approver, or None."""
+    val = os.getenv("ASANA_DEFAULT_HUMAN_APPROVER_GID", "").strip()
+    return val or None
+
+
+def assign_user(task_gid: str, user_gid: str, token: str) -> bool:
+    """Set Asana standard `assignee` on a task. Returns True on success."""
+    headers = {"Authorization": f"Bearer {token}"}
+    try:
+        r = requests.put(
+            f"{ASANA_BASE}/tasks/{task_gid}",
+            json={"data": {"assignee": user_gid}},
+            headers=headers,
+        )
+        r.raise_for_status()
+        return True
+    except requests.HTTPError as exc:
+        print(
+            f"警告: assignee を設定できませんでした task={task_gid} user={user_gid}: {exc}",
+            file=sys.stderr,
+        )
+        return False
+
+
 def add_task_to_project(task_gid: str, project_gid: str, token: str) -> None:
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.post(

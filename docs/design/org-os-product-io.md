@@ -57,8 +57,9 @@ epic_input schema: [`schemas/platform/epic-input.v1.schema.json`](../../schemas/
 |-----------|------|------|
 | **OS State** | Ready / Running / Waiting / Done | epic 状態機械 |
 | **Approval Required** | Yes / No | 人間承認要否（【承認】サブと整合） |
+| **Approval Result** | OK / NG / 未設定(pending) | 承認サブ完了時に人間が選択（B 承認ヘルパーで読取） · 詳細は [`approval-flow.md`](approval-flow.md) |
 
-**開発スコープ外:** CF 作成。依頼者追加後に GID を sync する。
+**開発スコープ外:** CF 作成。依頼者追加後に GID を sync する。`Approval Result` は **optional** — 未追加でも他 CF 同期と起動は継続。
 
 ### 4.2 env キー命名（`.env`）
 
@@ -74,6 +75,10 @@ sync CLI: [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_os_cf_env.py)
 | `ASANA_APPROVAL_REQUIRED_FIELD_GID` | Approval Required フィールド GID |
 | `ASANA_APPROVAL_REQUIRED_YES_GID` | Yes enum GID |
 | `ASANA_APPROVAL_REQUIRED_NO_GID` | No enum GID |
+| `ASANA_APPROVAL_RESULT_FIELD_GID` | Approval Result フィールド GID（optional） |
+| `ASANA_APPROVAL_RESULT_OK_GID` | OK enum GID |
+| `ASANA_APPROVAL_RESULT_NG_GID` | NG enum GID |
+| `ASANA_DEFAULT_HUMAN_APPROVER_GID` | 承認サブの `assignee` に設定する Asana ユーザー GID |
 
 テンプレート: [`skills/platform/asana-buddy/optional/.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
 

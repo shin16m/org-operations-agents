@@ -20,7 +20,14 @@ if str(_SCRIPT_DIR) not in sys.path:
 import requests  # noqa: E402
 
 from agent_handler_asana import ASANA_BASE, get_token, load_env_from_dotfile  # noqa: E402
-from asana_program_common import console_safe, list_subtasks, set_assignee_type_human  # noqa: E402
+from asana_program_common import (  # noqa: E402
+    assign_user,
+    console_safe,
+    human_approver_gid,
+    list_subtasks,
+    set_assignee_type_human,
+    set_org_os_custom_fields,
+)
 
 
 def _create_subtask(parent_gid: str, title: str, notes: str, token: str) -> dict:
@@ -85,8 +92,36 @@ def main() -> None:
             sys.exit(0)
 
     sub = _create_subtask(args.parent, title, notes, token)
-    set_assignee_type_human(sub.get("gid", ""), token)
-    print("created_approval_subtask", sub.get("gid"), console_safe(title[:60]))
+    sub_gid = str(sub.get("gid") or "")
+    set_assignee_type_human(sub_gid, token)
+
+    human_gid = human_approver_gid()
+    if human_gid:
+        if assign_user(sub_gid, human_gid, token):
+            print(f"assigned_human {sub_gid} {human_gid}")
+    else:
+        print(
+            "警告: ASANA_DEFAULT_HUMAN_APPROVER_GID 未設定。assignee は手動設定してください。",
+            file=sys.stderr,
+        )
+
+    try:
+        if set_org_os_custom_fields(
+            args.parent, token, os_state="waiting", approval_required="yes"
+        ):
+            print(f"parent_os_state {args.parent} Waiting ApprovalRequired=Yes")
+        else:
+            print(
+                "警告: 親 epic の OS State / Approval Required 設定をスキップ（CF 未設定）。",
+                file=sys.stderr,
+            )
+    except (requests.HTTPError, ValueError) as exc:
+        print(
+            f"警告: 親 CF 設定失敗 parent={args.parent}: {exc}",
+            file=sys.stderr,
+        )
+
+    print("created_approval_subtask", sub_gid, console_safe(title[:60]))
 
 
 if __name__ == "__main__":
