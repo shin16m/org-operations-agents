@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -95,6 +96,27 @@ def already_intake_source(task_gid: str, token: str) -> bool:
     return False
 
 
+def _subprocess_env() -> dict[str, str]:
+    return {**os.environ, "PYTHONIOENCODING": "utf-8"}
+
+
+def _run_capture(cmd: list[str], *, label: str) -> subprocess.CompletedProcess[str]:
+    """Run a repo Python helper; never raise on Windows decode quirks."""
+    try:
+        return subprocess.run(
+            cmd,
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            env=_subprocess_env(),
+        )
+    except Exception as exc:  # noqa: BLE001 — poller must keep scanning
+        print(f"WARN  {label}  subprocess_err={exc}", file=sys.stderr)
+        return subprocess.CompletedProcess(cmd, returncode=1, stdout="", stderr=str(exc))
+
+
 def is_candidate(task: dict, cfg: dict[str, str] | None) -> tuple[bool, str]:
     if task.get("completed"):
         return False, "completed"
@@ -117,9 +139,14 @@ def _emit_resume_snippet(session: dict) -> None:
         "--session",
         session.get("session_id") or "",
     ]
-    r = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8")
-    if r.returncode == 0 and r.stdout.strip():
-        print(r.stdout.strip(), file=sys.stderr)
+    r = _run_capture(cmd, label="resume_snippet")
+    stdout = r.stdout or ""
+    if r.returncode == 0 and stdout.strip():
+        print(stdout.strip(), file=sys.stderr)
+    elif r.returncode != 0:
+        print(f"WARN  resume_snippet  exit={r.returncode}", file=sys.stderr)
+        if r.stderr:
+            print(r.stderr.strip(), file=sys.stderr)
 
 
 def trigger_intake(gid: str, *, dry_run: bool, human: bool = False) -> int:
@@ -135,7 +162,7 @@ def trigger_intake(gid: str, *, dry_run: bool, human: bool = False) -> int:
     if dry_run:
         print(f"INTAKE  source={gid}  dry-run  would_run={' '.join(cmd)}")
         return 0
-    r = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8")
+    r = _run_capture(cmd, label=f"intake_{gid}")
     if r.returncode != 0:
         print(f"INTAKE  source={gid}  ERR  exit={r.returncode}", file=sys.stderr)
         if r.stderr:

@@ -127,16 +127,43 @@ def run_handoff_to_asana(handoff_path: Path, *, dry_run: bool, yes: bool) -> dic
         raise SystemExit(r.returncode)
     out: dict[str, str] = {}
     for line in (r.stdout or "").splitlines():
-        if line.startswith("created_parent "):
+        if line.startswith(("created_parent ", "synced_existing ", "updated_parent ")):
             parts = line.split()
-            out["parent_gid"] = parts[1]
-            if len(parts) > 2:
+            if len(parts) >= 2:
+                out["parent_gid"] = parts[1]
+            if len(parts) > 2 and line.startswith("created_parent "):
                 out["parent_url"] = parts[2]
         elif line.startswith("created_subtask "):
             parts = line.split()
             if len(parts) >= 3:
                 out["planning_child_gid"] = parts[2]
     return out
+
+
+def run_close_intake_source(source_gid: str, epic_gid: str, *, dry_run: bool, yes: bool) -> None:
+    cmd = [
+        sys.executable,
+        str(ASANA_OPT / "close_intake_source_task.py"),
+        "--source",
+        source_gid,
+        "--epic",
+        epic_gid,
+    ]
+    if dry_run:
+        cmd.append("--dry-run")
+    elif yes:
+        cmd.append("-y")
+    r = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8")
+    if r.stdout:
+        print(r.stdout.strip())
+    if r.returncode != 0:
+        if r.stderr:
+            print(r.stderr.strip(), file=sys.stderr)
+        print(
+            f"WARN  close_intake_source failed  source={source_gid}  epic={epic_gid}",
+            file=sys.stderr,
+        )
+        raise SystemExit(r.returncode)
 
 
 def emit_dispatch(parent_gid: str, planning_gid: str) -> None:
@@ -146,6 +173,11 @@ def emit_dispatch(parent_gid: str, planning_gid: str) -> None:
     )
     print(f"DISPATCH  parent={parent_gid}  planning={planning_gid}")
     print(f"DISPATCH  snippet={console_safe(snippet)}")
+    print(
+        "DISPATCH  hint=planning gate 到達後: "
+        "asana_ops_poller --record-wait <親GID> <【承認】サブGID> <URL>",
+        file=sys.stderr,
+    )
 
 
 def main() -> int:
@@ -175,9 +207,12 @@ def main() -> int:
         print("AUTO_BOOTSTRAP  dry-run  complete")
         return 0
 
+    source_gid = str(snapshot.get("task_gid") or args.task)
     result = run_handoff_to_asana(handoff_path, dry_run=False, yes=True)
     parent = result.get("parent_gid", "")
     planning = result.get("planning_child_gid", "")
+    if parent and source_gid:
+        run_close_intake_source(source_gid, parent, dry_run=False, yes=True)
     if parent and planning:
         emit_dispatch(parent, planning)
     print(f"AUTO_BOOTSTRAP  OK  at={datetime.now(timezone.utc).isoformat()}")
