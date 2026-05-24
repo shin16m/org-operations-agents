@@ -41,6 +41,7 @@
 | [`asana-comment-detail-delivery.md`](asana-comment-detail-delivery.md) | コメント詳細化 epic · PM 代行事後補完（方針 B） |
 | [`org-governance-audit-team-delivery.md`](org-governance-audit-team-delivery.md) | 監査チーム追加 epic · CI + L3 監査ゲート |
 | [`asana-task-intake-dryrun.md`](asana-task-intake-dryrun.md) | Asana タスク起点 intake 窓口 · `intake_from_asana.py` |
+| [`asana-comment-human-friendly-dryrun.md`](asana-comment-human-friendly-dryrun.md) | Asana コメント v1.2 二層形式 · 表示名マップ |
 
 ### archive（v2 以前の履歴）
 

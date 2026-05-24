@@ -1,0 +1,31 @@
+# Agent slug → 依頼者向け表示名（Asana コメント v1.2）
+# SSOT: validate_org_registry.py が agent-registry.yaml の enabled slug と一致を検証
+
+display_names:
+  workflow-orchestrator: 統括（和久桶さん）
+  planning-pm: 企画 PM
+  issue-story-planner: 企画担当
+  plan-reviewer: 企画レビュアー
+  asana-buddy: Asana 連携
+  task-dispatcher: タスク配賦
+  product-manager: 開発 PM
+  requirements-writer: 要件担当
+  tech-designer: 設計担当
+  developer: 開発担当
+  dev-reviewer: 開発レビュアー
+  qa-verifier: 動作検証担当
+  ux-pm: UX PM
+  ux-designer: UX 設計担当
+  ux-reviewer: UX レビュアー
+  analytics-pm: 分析 PM
+  data-architect: データアーキテクト
+  data-engineer: データエンジニア
+  data-steward: データスチュワード
+  data-analyst: データアナリスト
+  data-scientist: データサイエンティスト
+  ml-engineer: ML エンジニア
+  analysis-reviewer: 分析レビュアー
+  audit-pm: 監査 PM
+  consistency-auditor: 整合性監査担当
+  audit-reviewer: 監査レビュアー
+  agent-creater: エージェント生成

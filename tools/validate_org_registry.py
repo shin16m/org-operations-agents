@@ -402,6 +402,19 @@ def main() -> int:
                     f".cursor/rules/workflow-intake-required.mdc: missing department '{did}'"
                 )
 
+    # agent-display-names.yaml — enabled registry slug 全員
+    display_path = ROOT / "workflows/agent-display-names.yaml"
+    if display_path.is_file():
+        display_body = display_path.read_text(encoding="utf-8")
+        enabled_slugs = re.findall(r"- slug:\s+(\S+)", registry_text)
+        for slug in enabled_slugs:
+            if f"{slug}:" not in display_body:
+                errors.append(
+                    f"workflows/agent-display-names.yaml: missing display name for enabled slug '{slug}'"
+                )
+    else:
+        errors.append("workflows/agent-display-names.yaml is missing")
+
     if errors:
         print("\nVALIDATION FAILED:", file=sys.stderr)
         for e in errors:

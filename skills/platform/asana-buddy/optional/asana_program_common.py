@@ -5,7 +5,10 @@ import os
 import re
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Callable, Sequence
+
+_REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def console_safe(text: str) -> str:
@@ -36,18 +39,44 @@ def fetch_task(task_gid: str, token: str) -> dict[str, Any]:
     return r.json()["data"]
 
 
-def format_signed_comment(
+_DISPLAY_NAMES_CACHE: dict[str, str] | None = None
+
+
+def load_agent_display_names() -> dict[str, str]:
+    """Load slug → 依頼者向け表示名 from workflows/agent-display-names.yaml."""
+    global _DISPLAY_NAMES_CACHE
+    if _DISPLAY_NAMES_CACHE is not None:
+        return _DISPLAY_NAMES_CACHE
+    path = _REPO_ROOT / "workflows/agent-display-names.yaml"
+    names: dict[str, str] = {}
+    if path.is_file():
+        in_block = False
+        for line in path.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if stripped == "display_names:":
+                in_block = True
+                continue
+            if not in_block or not stripped or stripped.startswith("#"):
+                continue
+            if ":" in stripped:
+                key, _, val = stripped.partition(":")
+                names[key.strip()] = val.strip()
+    _DISPLAY_NAMES_CACHE = names
+    return names
+
+
+def agent_display_name(slug: str) -> str:
+    return load_agent_display_names().get(slug.strip(), slug.strip())
+
+
+def _signature_block(
     agent: str,
     skill_path: str,
-    body: str,
     *,
     phase: str = "complete",
     executed_at: str | None = None,
     model: str | None = None,
-    summary: str | None = None,
-    artifacts: Sequence[str] | None = None,
 ) -> str:
-    """Build plain-text Asana story with agent-work-record signature header."""
     ts = executed_at or datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     lines = [
         "---",
@@ -60,24 +89,40 @@ def format_signed_comment(
     if model and model.strip():
         lines.append(f"model: {model.strip()}")
     lines.append("---")
-    lines.append("")
+    return "\n".join(lines)
 
-    parts: list[str] = []
+
+def format_signed_comment(
+    agent: str,
+    skill_path: str,
+    body: str,
+    *,
+    phase: str = "complete",
+    executed_at: str | None = None,
+    model: str | None = None,
+    summary: str | None = None,
+    artifacts: Sequence[str] | None = None,
+) -> str:
+    """Build Asana story: v1.2 — human block first, agent-work-record signature last."""
+    display = agent_display_name(agent)
+    human_lines = ["## 依頼者向け", "", f"**担当:** {display}"]
     if summary and summary.strip():
-        parts.append(f"## 要約\n{summary.strip()}")
+        human_lines.append(f"**要約:** {summary.strip()}")
+    human_lines.append("")
     main = (body or "").strip()
     if main:
-        parts.append(main)
+        human_lines.append(main)
+    elif not (summary and summary.strip()):
+        human_lines.append("作業が完了しました。")
     if artifacts:
         artifact_lines = "\n".join(f"- {a}" for a in artifacts if a and str(a).strip())
         if artifact_lines:
-            parts.append(f"## 成果物\n{artifact_lines}")
-    if parts:
-        lines.append("\n\n".join(parts))
-    else:
-        lines.append("（作業記録）")
-
-    return "\n".join(lines).strip() + "\n"
+            human_lines.extend(["", "## 成果物", artifact_lines])
+    human_block = "\n".join(human_lines).strip()
+    sig = _signature_block(
+        agent, skill_path, phase=phase, executed_at=executed_at, model=model
+    )
+    return f"{human_block}\n\n---\n\n{sig}\n"
 
 
 def create_task_story(task_gid: str, text: str, token: str) -> dict[str, Any]:
