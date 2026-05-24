@@ -19,6 +19,10 @@ steps:
     agent: analytics-pm
     role: 子 notes を読み、pm_assign_subtasks でサブタスク分解。**PM は data-* 実装を実行しない**
 
+  - id: pm_review_gate
+    agent: analytics-pm
+    role: create_pm_review_gate → 人間 complete → check_pm_review_gate exit 0 まで L3b dispatch 禁止
+
   - id: requirements
     agent: analytics-pm
     role: ビジネスゴール・KPI・成功基準・受け入れ基準を定義

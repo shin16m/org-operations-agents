@@ -30,6 +30,10 @@ steps:
     agent: product-manager
     role: notes（profile 含む）を読み、delivery profile を決め、pm_assign_subtasks でフェーズ分解。**PM は worker step を実行しない**
 
+  - id: pm_review_gate
+    agent: product-manager
+    role: pm_assign 後に create_pm_review_gate → 人間 complete → check_pm_review_gate exit 0 まで L3b dispatch 禁止
+
   - id: requirements_doc
     agent: requirements-writer
     role: 要件定義書作成（mode=requirements）

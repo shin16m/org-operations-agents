@@ -22,6 +22,10 @@ steps:
     agent: governance-pm
     role: pm_assign_subtasks — ssot-implementer / governance-reviewer
 
+  - id: pm_review_gate
+    agent: governance-pm
+    role: create_pm_review_gate → 人間 complete → check_pm_review_gate exit 0 まで L3b dispatch 禁止
+
   - id: ssot_implementation
     agent: ssot-implementer
     role: registry · skills · workflow · docs/tools の SSOT 変更（Handoff/epic notes 準拠）

@@ -23,6 +23,10 @@ steps:
     agent: ux-pm
     role: pm_assign_subtasks / update_task_notes で各サブに 担当: を設定
 
+  - id: pm_review_gate
+    agent: ux-pm
+    role: create_pm_review_gate → 人間 complete → check_pm_review_gate exit 0 まで L3b dispatch 禁止
+
   - id: ux_design
     agent: ux-designer
     role: 委譲サブタスク上で体験設計書または Design System を作成

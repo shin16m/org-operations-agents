@@ -32,6 +32,7 @@
 
 | ファイル | 内容 |
 |----------|------|
+| [`subtask-review-gate-dryrun.md`](subtask-review-gate-dryrun.md) | PM 委譲品質ゲート + 企画ブラッシュアップ |
 | [`epic-ops-quality-dryrun.md`](epic-ops-quality-dryrun.md) | bootstrap 重複防止 · PM 委譲 · エピック完了サマリ |
 | [`governance-audit-consistency-dryrun.md`](governance-audit-consistency-dryrun.md) | governance + audit 主体の SSOT 整合性チェック |
 | [`org-improvement-governance-team-dryrun.md`](org-improvement-governance-team-dryrun.md) | 組織改善チーム governance 追加 |
@@ -73,6 +74,10 @@
 | [`../../tools/verify_consistency_audit_report.py`](../../tools/verify_consistency_audit_report.py) | ConsistencyAuditReport の live 再検証 |
 | [`../../tools/check_epic_audit_gate.py`](../../tools/check_epic_audit_gate.py) | 監査子未完了の親 complete ブロック |
 | [`../../tools/check_new_department.py`](../../tools/check_new_department.py) | 新 department 追加チェックリスト |
+| [`../../tools/create_pm_review_gate.py`](../../tools/create_pm_review_gate.py) | PM assign 後の人間レビューゲート作成 |
+| [`../../tools/check_pm_review_gate.py`](../../tools/check_pm_review_gate.py) | PM レビューゲート承認 polling |
+| [`../../skills/platform/asana-buddy/optional/create_approval_subtask.py`](../../skills/platform/asana-buddy/optional/create_approval_subtask.py) | 汎用承認サブ作成 |
+| [`../../skills/platform/asana-buddy/optional/check_approval_subtask.py`](../../skills/platform/asana-buddy/optional/check_approval_subtask.py) | 汎用承認サブ polling |
 | [`../../tools/intake_from_asana.py`](../../tools/intake_from_asana.py) | intake-asana snapshot 取得 |
 | [`../../skills/platform/asana-buddy/optional/close_intake_source_task.py`](../../skills/platform/asana-buddy/optional/close_intake_source_task.py) | intake 元タスククローズ |
 | [`../../skills/platform/asana-buddy/optional/comment_epic_summary.py`](../../skills/platform/asana-buddy/optional/comment_epic_summary.py) | エピック complete 前サマリ |

@@ -23,8 +23,9 @@
 2. 完了条件から作業単位を分解
 3. assign plan JSON を work/assign-plans/ に残す
 4. pm_assign_subtasks.py --department analysis --update-parent-assignee analytics-pm -y
-5. 親 notes → 担当: analytics-pm, 状態: in_progress
-6. サブ完了のたびに PM が complete → 全サブ完了後 DeptWorkComplete
+5. **create_pm_review_gate.py** → 人間 complete → **check_pm_review_gate.py exit 0**
+6. 親 notes → 担当: analytics-pm, 状態: in_progress
+7. サブ完了のたびに PM が complete → 全サブ完了後 DeptWorkComplete
 ```
 
 **禁止:** サブタスクを作らず、親 notes の `担当:` だけ data-engineer 等に書き換えて委譲すること。

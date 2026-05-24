@@ -13,8 +13,13 @@
 | NG | `status: failed` → PM が **修正サブタスクを新規作成** → L3b でワーカー dispatch |
 | **禁止** | 完了済み Asana タスクの **`complete_task.py --undo` による再開** |
 | **禁止** | 完了済みサブの notes 書き換えだけで「やり直し」とみなすこと |
+| **禁止** | **PM 委譲品質ゲート**（[`pm-assign-review-gate.md`](pm-assign-review-gate.md)）の承認サブを undo して再利用 |
 
 `--undo` は dryrun  teardown 等の **運用ツール専用**。PM の差し戻しフローでは使わない。
+
+## PM 委譲品質ゲート（assign 後・dispatch 前）
+
+`pm_assign_subtasks` 直後の人間レビュー。差し戻し時は **新しい【レビュー】サブ**を追加し、旧承認サブは完了のまま残す（監査履歴）。詳細: [`pm-assign-review-gate.md`](pm-assign-review-gate.md)。
 
 ## フロー（L3 チーム内）
 

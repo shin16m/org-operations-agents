@@ -30,7 +30,9 @@ alwaysApply: true
 6. **pm_gate** — planning-pm が Handoff 要約を提示し、**Asana タスク作成の承認**を待つ
 7. **asana_execute** — 承認後のみ `asana-buddy`（`handoff_to_asana.py --require-review-result`）
 
-**gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / governance / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → L3b worker dispatch）。**PM がワーカー役を代行しない**（実装作業は L3b ワーカーセッション。PM は委譲・集約のみ）。
+**gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / governance / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → **`pm_review_gate`（人間）** → L3b worker dispatch）。**PM がワーカー役を代行しない**（実装作業は L3b ワーカーセッション。PM は委譲・集約のみ）。
+
+**企画 plan_brushup:** org 変更エピックでは `plan_review` 通過後・`pm_gate` 前に governance が Handoff をブラッシュアップ（[`planning-governance-brushup.md`](docs/design/planning-governance-brushup.md)）。
 
 **bootstrap 部分失敗:** `handoff_to_asana.py` が `warn_section_add_failed` を出したら、出力の `created_parent` GID を控え **`--parent <GID>` で再実行**する（create モードの再実行で重複親を作らない）。
 

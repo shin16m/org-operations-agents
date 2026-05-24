@@ -21,8 +21,9 @@
 2. 完了条件から作業単位を分解（例: 体験設計書 / Design System / ux_spec review）
 3. assign plan JSON を work/assign-plans/ または skills/ux/examples/ に残す
 4. pm_assign_subtasks.py でサブタスク作成 + 各 担当: 設定
-5. 親 notes → 担当: ux-pm, 状態: in_progress
-6. サブ完了のたびに 4→5 を繰り返し、全サブ完了後に DeptWorkComplete
+5. **create_pm_review_gate.py** → 人間 complete → **check_pm_review_gate.py exit 0**
+6. 親 notes → 担当: ux-pm, 状態: in_progress
+7. サブ完了のたびに 4→5 を繰り返し、全サブ完了後に DeptWorkComplete
 ```
 
 **禁止:** サブタスクを作らず、親タスク notes の `担当:` だけ ux-designer に書き換えて委譲すること。

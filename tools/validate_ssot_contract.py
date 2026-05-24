@@ -66,6 +66,26 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["comment_epic_summary.py"],
     },
     {
+        "name": "pm assign review gate",
+        "files": [
+            "docs/design/pm-assign-review-gate.md",
+            "docs/design/workflow-io-contract.md",
+            ".cursor/rules/workflow-intake-required.mdc",
+        ],
+        "required_any": [],
+        "required_all": ["pm_review_gate"],
+    },
+    {
+        "name": "planning governance brushup",
+        "files": [
+            "docs/design/planning-governance-brushup.md",
+            "workflows/planning-delivery.yaml",
+            "skills/platform/workflow-orchestrator/SKILL.md",
+        ],
+        "required_any": [],
+        "required_all": ["plan_brushup"],
+    },
+    {
         "name": "audit team dispatch",
         "files": [
             "docs/design/workflow-io-contract.md",

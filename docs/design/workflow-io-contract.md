@@ -9,11 +9,15 @@ registry / workflow 実体は [`workflows/`](../../workflows/)。セッション
 ```
 workflow-orchestrator（intake → bootstrap → dispatch）
   → planning-pm（企画チーム / planning-delivery）
-    → issue-story-planner → plan-reviewer（必須）→ planning-pm（gate）→ asana-buddy
+    → issue-story-planner → plan-reviewer（必須）
+    → governance-pm（plan_brushup · org 変更時）
+    → planning-pm（gate）→ asana-buddy
   → task-dispatcher（execution 系子ごと）
+  → 各 PM: pm_assign_subtasks → **pm_review_gate（人間）** → L3b worker dispatch
   → ux-pm → ux-designer / ux-reviewer
-  → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier
-  → analytics-pm → data-architect / … / analysis-reviewer
+  → product-manager → requirements-writer / …
+  → analytics-pm → data-architect / …
+  → governance-pm → ssot-implementer / governance-reviewer
   → audit-pm → consistency-auditor / audit-reviewer（組織変更エピックの **最後**）
 ```
 
@@ -36,6 +40,7 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 |---------|----------|------|------|------|
 | `handoff_plan` | dept_work | issue-story-planner | 生課題 + 子 notes | `AsanaBuddyHandoff` |
 | `plan_review` | dept_review | plan-reviewer | Handoff 案 | `PlanReviewResult` |
+| `plan_brushup` | dept_work | governance-pm | Handoff + PlanReviewResult | `output/governance/brushup/` 改善メモ |
 | `pm_gate` | dept_orchestrate | planning-pm | Handoff + PlanReviewResult | execute 可否 |
 | `asana_execute` | execute | asana-buddy | 承認済み Handoff | Asana 親更新 + 実行系子 |
 
@@ -53,7 +58,7 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | 禁止 | 正規 |
 |------|------|
 | 同一セッションで development / ux / analysis の **成果物・doc 更新**に着手 | [`task-dispatcher`](../../skills/platform/task-dispatcher/SKILL.md) → 各 PM **intake** |
-| product-manager / ux-pm / analytics-pm が **ワーカー役を代行** | `pm_assign_subtasks` → **L3b** worker dispatch（[`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md)） |
+| product-manager / ux-pm / analytics-pm が **ワーカー役を代行** | `pm_assign_subtasks` → **`pm_review_gate`（人間）** → **L3b** worker dispatch（[`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md)） |
 | gate 承認を「実装開始の合図」とみなす | 企画 PM は **comment → complete → DeptWorkComplete** まで。実行系は別 dispatch |
 
 org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../skills/development/examples/assign-plan.org-meta-doc-v1.json)）。本体を PM が先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../verification/asana-comment-detail-delivery.md)。

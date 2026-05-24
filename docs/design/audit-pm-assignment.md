@@ -14,9 +14,10 @@
 ```
 1. fetch_task.py --gid <子GID> --show-assignee
 2. pm_assign_subtasks.py --plan skills/audit/examples/assign-plan.org-governance-v1.json --department audit --update-parent-assignee audit-pm -y
-3. L3b: consistency-auditor セッションへ WorkerDispatchSnippet
-4. auditor 完了後 audit-reviewer セッションへ
-5. 全サブ完了 → 親 comment_task → complete_task → DeptWorkComplete
+3. **create_pm_review_gate.py** → 人間 complete → **check_pm_review_gate.py exit 0**
+4. L3b: consistency-auditor セッションへ WorkerDispatchSnippet
+5. auditor 完了後 audit-reviewer セッションへ
+6. 全サブ完了 → 親 comment_task → complete_task → DeptWorkComplete
 ```
 
 ## PM が書いてはいけない成果物

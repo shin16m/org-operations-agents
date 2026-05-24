@@ -23,8 +23,9 @@
 2. delivery profile を決定（省略時 full）。full-ui は ## 依存（UX）を確認
 3. profile に応じたフェーズ一覧を assign plan JSON に落とす
 4. pm_assign_subtasks.py でサブタスク作成 + 各 担当: 設定
-5. 親 notes → 担当: product-manager, 状態: in_progress, profile: <決定値>
-6. サブ完了のたびに次フェーズを確認し、全サブ完了後に DeptWorkComplete
+5. **create_pm_review_gate.py** → 人間 complete → **check_pm_review_gate.py exit 0**（[`pm-assign-review-gate.md`](pm-assign-review-gate.md)）
+6. 親 notes → 担当: product-manager, 状態: in_progress, profile: <決定値>
+7. サブ完了のたびに次フェーズを確認し、全サブ完了後に DeptWorkComplete
 
 **L3b:** 各サブについて [`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md) に従い WorkerDispatchSnippet を別セッションへ渡す。PM が worker 成果物まで同一セッションで書かない。
 ```

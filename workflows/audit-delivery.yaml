@@ -22,6 +22,10 @@ steps:
     agent: audit-pm
     role: pm_assign_subtasks — consistency-auditor / audit-reviewer
 
+  - id: pm_review_gate
+    agent: audit-pm
+    role: create_pm_review_gate → 人間 complete → check_pm_review_gate exit 0 まで L3b dispatch 禁止
+
   - id: consistency_audit
     agent: consistency-auditor
     role: validate_org_registry + validate_fixture_schemas + validate_ssot_contract → ConsistencyAuditReport

@@ -84,7 +84,7 @@ exit 0 を確認してから **依頼者向けサマリ**を投稿:
 
 1. **同一セッションで development / ux / analysis / governance / audit の成果物を書かない**
 2. 未完了 execution 系子ごとに [`task-dispatcher`](../task-dispatcher/SKILL.md) で PM へ dispatch
-3. 各 PM は `pm_assign_subtasks` → **L3b** でワーカーへ委譲（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md)）
+3. 各 PM は `pm_assign_subtasks` → **`pm_review_gate`（人間承認サブ）** → **L3b** でワーカーへ委譲（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md) · [`pm-assign-review-gate.md`](../../../docs/design/pm-assign-review-gate.md)）
 4. **PM がワーカー役を代行しない** — 実装作業の `comment_task --agent` は **実作業ワーカーの slug**（PM slug は DeptWorkComplete・委譲集約のみ）
 5. org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../development/examples/assign-plan.org-meta-doc-v1.json) 参照）
 
@@ -94,7 +94,7 @@ PM 代行で本体を先行完了した場合の事後補完: [`docs/verificatio
 
 `intake` | `bootstrap` | `dispatch`（workflow YAML と同一）
 
-企画チーム内の plan / review / gate / execute は [`planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) を参照。
+企画チーム内の plan / review / **plan_brushup** / gate / execute は [`planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) を参照。plan_brushup SSOT: [`planning-governance-brushup.md`](../../../docs/design/planning-governance-brushup.md)。
 
 ## registry 未登録 slug
 
