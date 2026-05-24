@@ -230,6 +230,8 @@ asana_ops_poller --once
 
 **注意:** 【承認】/【レビュー】サブ作成だけではダッシュボードに載らない。必ず `--record-wait` で `output/platform/sessions/` に保存する。
 
+**gate 到達時チェックリスト（§H）:** [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) §H — planning gate / PM review gate 到達時の必須手順。
+
 ### 安全弁
 
 - `--auto-bootstrap` は **dry-run 既定** · `-y` で opt-in

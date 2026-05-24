@@ -124,6 +124,15 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_any": [],
         "required_all": ["audit"],
     },
+    {
+        "name": "record-wait orchestrator checklist",
+        "files": [
+            "skills/platform/workflow-orchestrator/SKILL.md",
+            "docs/design/asana-driven-ops.md",
+        ],
+        "required_any": [],
+        "required_all": ["--record-wait", "§H"],
+    },
 ]
 
 FORBIDDEN_PATTERNS: list[tuple[str, str, str]] = [

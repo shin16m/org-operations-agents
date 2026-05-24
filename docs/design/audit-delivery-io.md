@@ -27,8 +27,9 @@ workflow: [`workflows/audit-delivery.yaml`](../../workflows/audit-delivery.yaml)
 - registry / workflow YAML 変更
 - dispatch SSOT · cursor rule · 新 department 追加
 - validate スクリプト追加・契約変更
+- **SSOT / org-meta 横断整合**（governance 子あり · 定期整合性チェックエピック）
 
-**配賦順:** 他 execution 系（ux / development / analysis）の **後**、親エピック complete の **直前**（[`department-model.md`](department-model.md) · [`workflow-io-contract.md`](workflow-io-contract.md)）。
+**配賦順:** governance（org-meta）の **後**、親エピック complete の **直前**（他 execution 系完了後 · [`department-model.md`](department-model.md) · [`workflow-io-contract.md`](workflow-io-contract.md)）。
 
 ---
 

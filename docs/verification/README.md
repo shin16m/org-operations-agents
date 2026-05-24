@@ -33,6 +33,7 @@
 | ファイル | 内容 |
 |----------|------|
 | [`asana-driven-auto-intake-dryrun.md`](asana-driven-auto-intake-dryrun.md) | Phase 4 auto-intake · CLI baseline · Cursor SDK PoC |
+| [`asana-ops-poller-unicode-dryrun.md`](asana-ops-poller-unicode-dryrun.md) | poller RESUME 時 Windows subprocess デコード耐性 |
 | [`cf400-workaround-dryrun.md`](cf400-workaround-dryrun.md) | CF 400 workaround · sync_assignee_type_env CLI |
 | [`asana-driven-ops-phase3-dryrun.md`](asana-driven-ops-phase3-dryrun.md) | Asana ドリブン Phase 3 · Webhook · ダッシュボード MVP |
 | [`asana-driven-ops-phase2-dryrun.md`](asana-driven-ops-phase2-dryrun.md) | Asana ドリブン Phase 2 · gate 統合 · マルチプロジェクト · RESUME snippet |
