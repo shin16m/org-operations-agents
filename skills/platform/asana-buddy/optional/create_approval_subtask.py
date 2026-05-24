@@ -20,7 +20,7 @@ if str(_SCRIPT_DIR) not in sys.path:
 import requests  # noqa: E402
 
 from agent_handler_asana import ASANA_BASE, get_token, load_env_from_dotfile  # noqa: E402
-from asana_program_common import console_safe, list_subtasks  # noqa: E402
+from asana_program_common import console_safe, list_subtasks, set_assignee_type_human  # noqa: E402
 
 
 def _create_subtask(parent_gid: str, title: str, notes: str, token: str) -> dict:
@@ -85,6 +85,7 @@ def main() -> None:
             sys.exit(0)
 
     sub = _create_subtask(args.parent, title, notes, token)
+    set_assignee_type_human(sub.get("gid", ""), token)
     print("created_approval_subtask", sub.get("gid"), console_safe(title[:60]))
 
 

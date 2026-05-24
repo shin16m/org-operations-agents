@@ -15,7 +15,7 @@
   --department governance --update-parent-assignee governance-pm -y
 ```
 
-5. **create_pm_review_gate.py** → 人間 complete → **check_pm_review_gate.py exit 0**
+5. **create_pm_review_gate.py** → **人間が Asana UI で complete**（エージェント禁止）→ **check_pm_review_gate.py exit 0**
 6. `python tools/pm_emit_worker_prompt.py --parent <子GID> --department governance`
 7. サブ完了ごとに complete → 親 comment → 親 complete → `DeptWorkComplete`
 

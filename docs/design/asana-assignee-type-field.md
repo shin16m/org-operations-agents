@@ -1,6 +1,6 @@
 # Asana 担当種別カスタムフィールド — 運用 SSOT
 
-| 版 | 1.1 |
+| 版 | 1.2 |
 | 日付 | 2026-05-24 |
 
 ## 目的
@@ -27,12 +27,15 @@ Asana プロジェクトの **担当種別** enum CF で、タスクが **AI エ
 | CLI / 関数 | 担当種別 |
 |------------|----------|
 | `handoff_to_asana.py` 親タスク create / sync 更新 | `AI` |
-| `create_subtask`（handoff / pm_assign_subtasks / fix subtask 等） | **設定しない** |
+| `handoff_to_asana.py` が新規作成する **execution 系 department 子**（エピック直下） | `AI`（addProject なし · PUT のみ） |
+| `pm_assign_subtasks.py` の **PM 進行親**（`--update-parent-assignee` 対象） | `AI` |
+| `create_approval_subtask.py` / `create_pm_review_gate.py`（【レビュー】/【承認】） | **human** |
+| `create_subtask`（PM 配下の worker サブ） | **設定しない** |
 
-### サブタスクに CF を付けない理由
+### worker サブに CF を付けない理由
 
-プロジェクトスコープ CF をサブタスクに付けるには `addProject` が必要だが、**addProject したサブタスクはプロジェクト一覧・セクション直下に独立タスクとして表示される**（[`asana-subtask-layout-fix-dryrun`](../verification/asana-subtask-layout-fix-dryrun.md)）。  
-そのため org-ops は **エピック親（プロジェクト直下タスク）のみ** `AI` を設定し、サブタスクは notes の `担当:` 等で判別する。
+プロジェクトスコープ CF を worker サブに付ける従来手段は `addProject` だが、**addProject したサブタスクはプロジェクト一覧・セクション直下に独立表示される**（[`asana-subtask-layout-fix-dryrun`](../verification/asana-subtask-layout-fix-dryrun.md)）。  
+worker サブは notes の `担当:` で判別する。**execution PM 子**（エピック直下の department 子）のみ PUT で `AI` を試行する。
 
 ## human の設定
 

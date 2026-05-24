@@ -161,7 +161,11 @@ def main() -> None:
         created["gid"],
         subtasks,
         token,
-        notes_for_item=handoff_subtask_notes,
+        notes_for_item=lambda st: handoff_subtask_notes(st),
+        on_created=lambda sub: (
+            set_assignee_type_org_ops(sub.get("gid", ""), token),
+            print("created_subtask", sub.get("gid")),
+        ),
     )
 
 

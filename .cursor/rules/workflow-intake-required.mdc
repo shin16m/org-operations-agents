@@ -36,6 +36,8 @@ alwaysApply: true
 
 **comment_task の `--agent`:** 実装作業の署名は **実作業ワーカーの slug**（notes の `担当:` と一致）。PM slug は DeptWorkComplete・委譲集約・gate のみ。
 
+**人間ゲート（【レビュー】/【承認】）:** エージェントは `complete_task.py` でこれらのサブを **完了してはならない**（利用者が Asana UI で complete）。チャットの「すすめて」「承認」は planning gate のみ有効で、PM assign review gate の代行にならない。
+
 **エピック complete 前:** `comment_epic_summary.py` で依頼者向けサマリを親タスクに投稿してから `complete_task.py`。
 
 ## 必須の順序

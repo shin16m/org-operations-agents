@@ -96,6 +96,26 @@ def set_assignee_type_org_ops(task_gid: str, token: str) -> bool:
         return False
 
 
+HUMAN_GATE_MARKERS = ("【レビュー】", "【承認】")
+
+
+def is_human_gate_task_name(name: str) -> bool:
+    n = (name or "").strip()
+    return any(n.startswith(marker) for marker in HUMAN_GATE_MARKERS)
+
+
+def set_assignee_type_human(task_gid: str, token: str) -> bool:
+    """Human approval subtasks → 担当種別 human."""
+    try:
+        return set_assignee_type(task_gid, "human", token)
+    except requests.HTTPError as exc:
+        print(
+            f"警告: 担当種別 human を設定できませんでした task={task_gid}: {exc}",
+            file=sys.stderr,
+        )
+        return False
+
+
 def add_task_to_project(task_gid: str, project_gid: str, token: str) -> None:
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.post(
@@ -685,6 +705,8 @@ def sync_handoff_to_parent(
 
         created = create_subtask(parent_gid, st["title"], handoff_subtask_notes(st), token)
         used.add(idx)
+        if st.get("department"):
+            set_assignee_type_org_ops(created.get("gid", ""), token)
         result["created"].append({"index": idx + 1, "gid": created.get("gid"), "title": st["title"]})
 
     for t in asana_tasks:

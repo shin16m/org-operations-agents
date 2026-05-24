@@ -19,6 +19,7 @@ from asana_program_common import (  # noqa: E402
     create_subtask,
     fetch_task,
     merge_notes_with_assignment,
+    set_assignee_type_org_ops,
     update_task_notes,
 )
 
@@ -86,6 +87,7 @@ def main() -> None:
         )
         update_task_notes(args.parent, notes, token)
         print(console_safe(f"Parent notes → 担当: {args.update_parent_assignee}, 状態: in_progress"))
+        set_assignee_type_org_ops(args.parent, token)
 
     out = {"parent_gid": args.parent, "created": [{"gid": t["gid"], "name": t.get("name")} for t in created]}
     print(json.dumps(out, ensure_ascii=False, indent=2))

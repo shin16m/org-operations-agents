@@ -23,7 +23,7 @@ def _summarize_plan(plan_path: Path) -> str:
     lines = ["## サブタスク一覧", ""]
     for i, item in enumerate(data.get("subtasks") or [], 1):
         assignee = item.get("assignee") or "（未設定）"
-        lines.append(f"{i}. **{item.get('title', '?')}** — 担当: `{assignee}`")
+        lines.append(f"{i}. **{item.get('name') or item.get('title', '?')}** — 担当: `{assignee}`")
         if item.get("summary"):
             lines.append(f"   - {item['summary'].strip()[:120]}")
     lines.extend(
@@ -66,7 +66,7 @@ def main() -> None:
         "--notes-file",
         str(notes_path),
     ]
-    if args.yes:
+    if args.y:
         cmd.append("-y")
     subprocess.check_call(cmd, cwd=str(ROOT))
     print("review_gate_notes", notes_path)
