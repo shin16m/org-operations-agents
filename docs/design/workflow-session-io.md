@@ -23,6 +23,24 @@
 | `review_result_path` | string? | `PlanReviewResult` JSON |
 | `workflow_id` | string | 例: `default` |
 
+## SuspendedSession（保留 · Phase 1）
+
+人間 gate（【承認】/【レビュー】）到達時、Cursor セッションを終了する前に **`output/platform/sessions/<session_id>.json`** へ保存する。  
+生成 CLI: [`tools/asana_ops_poller.py`](../../tools/asana_ops_poller.py) の `--record-wait`。確認: [`tools/check_workflow_suspend.py`](../../tools/check_workflow_suspend.py)。
+
+| フィールド | 型 | 説明 |
+|------------|-----|------|
+| `session_id` | string | UTC タイムスタンプ + UUID 短縮 |
+| `state` | enum | `suspended`（Phase 1 固定） |
+| `gate_kind` | string | 例: `planning_approval` · `pm_review_gate` |
+| `marker` | string | 承認サブのプレフィックス（例: `【承認】` · `【レビュー】`） |
+| `parent_gid` | string | gate を持つ Asana タスク GID |
+| `approval_sub_gid` | string | 承認 / レビューサブ GID |
+| `approval_url` | string? | 依頼者が complete する URL |
+| `created_at` | string | ISO8601 UTC |
+
+**再開:** `asana_ops_poller --once` が `check_approval_subtask` 経由で complete を検知すると `RESUME` 行を出力。運用者は **新規 dispatch セッション**を起動する（[`asana-driven-ops.md`](asana-driven-ops.md)）。
+
 ## orchestrator の役割（v3）
 
 | step id | 役割 | 入力 | 出力（モデル） |

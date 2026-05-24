@@ -100,6 +100,37 @@ python tools/create_retrospective_intake_tasks.py --parent <親GID> --retro outp
 
 PM 代行で本体を先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../../../docs/verification/asana-comment-detail-delivery.md)
 
+### F. Asana ドリブン運用（Phase 1 · 任意）
+
+[`docs/design/asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md) — スキャン intake · planning gate Asana 化 · 保留再開。
+
+**スキャン / 監視（運用者）:**
+
+```powershell
+python tools/asana_ops_poller.py --once --dry-run --human
+python tools/asana_ops_poller.py --watch --interval 60
+```
+
+**人間 gate 到達時（保留）:**
+
+1. planning-pm または PM が【承認】/【レビュー】サブを作成済みであること
+2. 承認サブ GID · URL を控える
+3. 保留 JSON を保存してセッションを終了:
+
+```powershell
+python tools/asana_ops_poller.py --record-wait <親GID> <承認サブGID> <承認サブURL>
+```
+
+**再開（運用者 · 新規セッション）:**
+
+```powershell
+python tools/asana_ops_poller.py --once          # RESUME 行を確認
+python tools/check_workflow_suspend.py --all --require-resumable
+# RESUME 後: handoff_to_asana / task-dispatcher / 該当 PM へ dispatch
+```
+
+**やらないこと（Phase 1）:** `--trigger-intake` から bootstrap まで無人完走 · Webhook 本番 · マルチプロジェクト横断。
+
 ## 現段階 ID（default v3）
 
 `intake` | `bootstrap` | `dispatch`（workflow YAML と同一）

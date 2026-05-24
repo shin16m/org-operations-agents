@@ -32,6 +32,7 @@
 
 | ファイル | 内容 |
 |----------|------|
+| [`asana-driven-ops-dryrun.md`](asana-driven-ops-dryrun.md) | Asana ドリブン運用 · poller / suspend CLI · development Phase 1 |
 | [`asana-pm-ops-hardening-dryrun.md`](asana-pm-ops-hardening-dryrun.md) | PM review gate · worker CF · validate 強化 |
 | [`epic-retrospective-intake-dryrun.md`](epic-retrospective-intake-dryrun.md) | エピック完了前レトロ → intake タスク化 |
 | [`subtask-review-gate-dryrun.md`](subtask-review-gate-dryrun.md) | PM 委譲品質ゲート + 企画ブラッシュアップ |
@@ -89,6 +90,8 @@
 | [`../../tools/create_retrospective_intake_gate.py`](../../tools/create_retrospective_intake_gate.py) | 【承認】レトロ改善候補サブ作成 |
 | [`../../tools/check_retrospective_intake_gate.py`](../../tools/check_retrospective_intake_gate.py) | レトロ intake 承認 gate 確認 |
 | [`../../tools/create_retrospective_intake_tasks.py`](../../tools/create_retrospective_intake_tasks.py) | レトロ候補から intake タスク起票 |
+| [`../../tools/asana_ops_poller.py`](../../tools/asana_ops_poller.py) | Asana スキャン · intake trigger · 保留監視（[`asana-driven-ops.md`](../design/asana-driven-ops.md)） |
+| [`../../tools/check_workflow_suspend.py`](../../tools/check_workflow_suspend.py) | SuspendedSession 一覧 / gate 状態確認 |
 
 ## 追加ルール（新規 dryrun / smoke 作成時）
 

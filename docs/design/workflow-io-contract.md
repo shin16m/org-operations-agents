@@ -63,6 +63,8 @@ org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.o
 
 **PM review gate（execution）:** [`pm-assign-review-gate.md`](pm-assign-review-gate.md) · planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)
 
+**Asana ドリブン運用（Phase 1）:** [`asana-driven-ops.md`](asana-driven-ops.md) — スキャン intake · planning gate Asana 化 · 保留再開（`asana_ops_poller` / `check_workflow_suspend` · [`workflow-session-io.md`](workflow-session-io.md) SuspendedSession）
+
 **タスク / エピックレトロ（親 complete 前）:** [`task-retrospective-ssot.md`](task-retrospective-ssot.md) — 各 complete 前レトロ · audit 後集約 · 依頼者承認 → intake 起票
 
 **配賦順（execution 系）:** ux → development / analysis → **`audit`（組織変更時・親 complete 直前）**。監査は他 execution 子完了後に dispatch する（[`audit-delivery-io.md`](audit-delivery-io.md)）。

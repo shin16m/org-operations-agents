@@ -1,6 +1,6 @@
 # planning gate と PM review gate — 整理 SSOT
 
-| 版 | 1.0 |
+| 版 | 1.1 |
 | 日付 | 2026-05-24 |
 | エピック | `1215086341081688` · F4 |
 
@@ -8,7 +8,7 @@
 
 | ゲート | 段階 | 担当 PM | 承認対象 | トリガー CLI | チェック CLI |
 |--------|------|---------|----------|--------------|--------------|
-| **planning gate** (`handoff_approved`) | L3 企画 | planning-pm | Handoff 要約 · execution 系子の Asana 投入 | `handoff_to_asana.py --require-review-result` | （チャット明示承認 + PlanReviewResult） |
+| **planning gate** (`handoff_approved`) | L3 企画 | planning-pm | Handoff 要約 · execution 系子の Asana 投入 | `create_approval_subtask.py`（【承認】）→ `handoff_to_asana.py --require-review-result` | チャット明示承認 **または** 【承認】サブ complete · `PlanReviewResult` |
 | **PM review gate** (`pm_review_gate`) | L3 execution 各 PM | product-manager / ux-pm / analytics-pm / governance-pm / audit-pm | **作成済み worker サブ**の構成・担当 slug | `create_pm_review_gate.py` | `check_pm_review_gate.py` exit 0 |
 
 ## 混同しやすい点
@@ -22,8 +22,20 @@
 `create_pm_review_gate.py` 実行後、各 worker サブは【レビュー】サブに **Asana dependency** を付与する（`addDependencies`）。  
 人間が review サブを complete するまで worker サブは Asana 上もブロックされる。
 
+## planning gate Asana 化（Phase 1）
+
+Asana ドリブン運用 epic より、planning gate を **【承認】サブ**で管理する手順を追加（詳細: [`asana-driven-ops.md`](asana-driven-ops.md)）。
+
+1. planning-pm: `PlanReviewResult` 通過後、`create_approval_subtask.py --title "【承認】Handoff 投入"` で要約 notes を付与
+2. orchestrator: `asana_ops_poller.py --record-wait <企画子GID> <承認サブGID> <URL>` で SuspendedSession 保存 → セッション終了
+3. 依頼者: Asana UI で【承認】complete
+4. 運用者: poller で `RESUME` 確認 → 新セッションで `handoff_to_asana.py --require-review-result`
+
+チャット「承認」は **手動 intake / レガシー運用** のフォールバック。Asana ドリブン時は【承認】complete を正とする。
+
 ## 参照
 
+- [`asana-driven-ops.md`](asana-driven-ops.md) — スキャン · 保留再開 SSOT
 - [`workflow-io-contract.md`](workflow-io-contract.md) — パイプライン全体
 - [`pm-assign-review-gate.md`](pm-assign-review-gate.md) — PM review gate 詳細
 - [`complete_task.py`](../../skills/platform/asana-buddy/optional/complete_task.py) — 【レビュー】/【承認】はエージェント complete 禁止（exit 3）
