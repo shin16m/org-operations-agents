@@ -41,7 +41,7 @@ Asana を運用ダッシュボードとして、**AI タスク検出 → intake 
 ## スキャン条件（MVP）
 
 1. `completed = false`
-2. CF 担当種別 = `AI`（[`asana-assignee-type-field.md`](asana-assignee-type-field.md)）
+2. CF Agent Type = `AI`（[`asana-assignee-type-field.md`](asana-assignee-type-field.md) · 旧称 担当種別）
 3. 同一 `ASANA_PROJECT_ID`（横断は Phase 2）
 4. intake 済みでない（source complete または epic リンク story ありは除外）
 
@@ -191,7 +191,7 @@ curl -X POST http://127.0.0.1:8766/webhook -H "Content-Type: application/json" ^
 | # | 条件 | Phase |
 |---|------|-------|
 | 1 | `completed = false` | 1 |
-| 2 | CF 担当種別 = `AI` | 1 |
+| 2 | CF Agent Type = `AI` | 1 |
 | 3 | スキャン対象プロジェクト（`ASANA_PROJECT_ID` または `--projects`） | 2 |
 | 4 | 未 intake（`INTAKE_MARKER` story なし · epic 名 `【org-ops】` 除外） | 1 |
 | 5 | **拡張フック（将来）** — タイトル prefix · セクション · 追加 CF | 4+ |
@@ -264,4 +264,4 @@ python tools/asana_ops_poller.py --once --auto-bootstrap -y
 
 - UX: `output/ux/specs/1215086510974424-ux-spec.md`
 - development dryrun: [`asana-driven-ops-dryrun.md`](../verification/asana-driven-ops-dryrun.md)
-- 担当種別 CF: [`asana-assignee-type-field.md`](asana-assignee-type-field.md)
+- Agent Type CF: [`asana-assignee-type-field.md`](asana-assignee-type-field.md)

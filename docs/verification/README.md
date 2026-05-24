@@ -62,7 +62,7 @@
 | [`org-governance-audit-team-delivery.md`](org-governance-audit-team-delivery.md) | 監査チーム追加 epic · CI + L3 監査ゲート |
 | [`asana-task-intake-dryrun.md`](asana-task-intake-dryrun.md) | Asana タスク起点 intake 窓口 · `intake_from_asana.py` |
 | [`asana-comment-human-friendly-dryrun.md`](asana-comment-human-friendly-dryrun.md) | Asana コメント v1.2 二層形式 · 表示名マップ |
-| [`asana-assignee-type-field-dryrun.md`](asana-assignee-type-field-dryrun.md) | 担当種別 CF · AI/human 自動設定 |
+| [`asana-assignee-type-field-dryrun.md`](asana-assignee-type-field-dryrun.md) | Agent Type CF（旧 担当種別）· AI/human 自動設定 |
 
 ### archive（v2 以前の履歴）
 

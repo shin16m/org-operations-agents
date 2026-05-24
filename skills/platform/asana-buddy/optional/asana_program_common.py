@@ -25,7 +25,7 @@ from agent_handler_asana import ASANA_BASE, create_task
 
 FALLBACK_PROJECT_GID = "1214771428861230"
 
-# 担当種別 enum CF（プロジェクト 1214771428861230 · override via .env）
+# Agent Type enum CF（旧称 担当種別 · プロジェクト 1214771428861230 · override via .env）
 DEFAULT_ASSIGNEE_TYPE_FIELD_GID = "1215082835199209"
 DEFAULT_ASSIGNEE_TYPE_AI_GID = "1215082835199211"
 DEFAULT_ASSIGNEE_TYPE_HUMAN_GID = "1215082835199210"
@@ -45,7 +45,7 @@ def fetch_task(task_gid: str, token: str) -> dict[str, Any]:
 
 
 def assignee_type_config() -> dict[str, str] | None:
-    """Return field + enum option GIDs for 担当種別, or None if disabled."""
+    """Return field + enum option GIDs for Agent Type CF, or None if disabled."""
     if os.getenv("ASANA_ASSIGNEE_TYPE_DISABLED", "").strip().lower() in ("1", "true", "yes"):
         return None
     field = (
@@ -66,7 +66,7 @@ def assignee_type_config() -> dict[str, str] | None:
 
 
 def set_assignee_type(task_gid: str, kind: str, token: str) -> bool:
-    """Set 担当種別 custom field to AI or human. Returns True if set."""
+    """Set Agent Type custom field to AI or human. Returns True if set."""
     cfg = assignee_type_config()
     if not cfg:
         return False
@@ -85,12 +85,12 @@ def set_assignee_type(task_gid: str, kind: str, token: str) -> bool:
 
 
 def set_assignee_type_org_ops(task_gid: str, token: str) -> bool:
-    """org-ops CLI が作成/更新するタスク → 担当種別 AI。"""
+    """org-ops CLI が作成/更新するタスク → Agent Type AI。"""
     try:
         return set_assignee_type(task_gid, "AI", token)
     except requests.HTTPError as exc:
         print(
-            f"警告: 担当種別 CF を設定できませんでした task={task_gid}: {exc}",
+            f"警告: Agent Type CF を設定できませんでした task={task_gid}: {exc}",
             file=sys.stderr,
         )
         return False
@@ -105,12 +105,12 @@ def is_human_gate_task_name(name: str) -> bool:
 
 
 def set_assignee_type_human(task_gid: str, token: str) -> bool:
-    """Human approval subtasks → 担当種別 human."""
+    """Human approval subtasks → Agent Type human."""
     try:
         return set_assignee_type(task_gid, "human", token)
     except requests.HTTPError as exc:
         print(
-            f"警告: 担当種別 human を設定できませんでした task={task_gid}: {exc}",
+            f"警告: Agent Type human を設定できませんでした task={task_gid}: {exc}",
             file=sys.stderr,
         )
         return False

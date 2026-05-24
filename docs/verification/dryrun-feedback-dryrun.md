@@ -12,7 +12,7 @@
 | ID | 対策 |
 |----|------|
 | F1 | `pm-assign-review-gate.md` v1.1 — assign **後** review を明確化。dispatch-prompt 全 PM 節に停止ステップ追加 |
-| F2 | execution PM 子・handoff department 子に担当種別 `AI`（PUT のみ）。承認サブに `human` |
+| F2 | execution PM 子・handoff department 子に Agent Type `AI`（PUT のみ）。承認サブに `human` |
 | F3 | `complete_task.py` が【レビュー】/【承認】サブで exit 3。cursor rule / PM assignment に禁止追記 |
 
 ## validate

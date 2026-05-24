@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Discover 担当種別 custom field GIDs for a project and sync to .env.
+"""Discover Agent Type (assignee type) custom field GIDs for a project and sync to .env.
+
+The Asana field was renamed from 担当種別 to Agent Type (2026-05). Lookup tries
+FIELD_NAMES in order (case-insensitive match).
 
 Usage:
   python tools/sync_assignee_type_env.py --project 1214771428861230 --dry-run
@@ -21,7 +24,9 @@ import requests  # noqa: E402
 
 from agent_handler_asana import ASANA_BASE, get_token, load_env_from_dotfile  # noqa: E402
 
-FIELD_NAME = "担当種別"
+FIELD_NAMES = ("Agent Type", "agent type", "担当種別")
+LEGACY_FIELD_NAME = "担当種別"
+DISPLAY_FIELD_NAME = "Agent Type"
 ENV_KEYS = (
     "ASANA_ASSIGNEE_TYPE_FIELD_GID",
     "ASANA_ASSIGNEE_TYPE_AI_GID",
@@ -34,6 +39,14 @@ def default_env_path() -> Path:
     return ASANA_OPT / ".env"
 
 
+def _match_field_name(name: str) -> bool:
+    n = (name or "").strip()
+    if not n:
+        return False
+    lower = n.lower()
+    return any(n == candidate or lower == candidate.lower() for candidate in FIELD_NAMES)
+
+
 def fetch_assignee_type_gids(project_gid: str, token: str) -> dict[str, str]:
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.get(
@@ -44,10 +57,13 @@ def fetch_assignee_type_gids(project_gid: str, token: str) -> dict[str, str]:
         },
     )
     r.raise_for_status()
+    matched_name = ""
     for row in r.json().get("data") or []:
         cf = row.get("custom_field") or {}
-        if (cf.get("name") or "").strip() != FIELD_NAME:
+        cf_name = (cf.get("name") or "").strip()
+        if not _match_field_name(cf_name):
             continue
+        matched_name = cf_name
         field_gid = str(cf.get("gid") or "")
         ai_gid = human_gid = ""
         for opt in cf.get("enum_options") or []:
@@ -58,13 +74,18 @@ def fetch_assignee_type_gids(project_gid: str, token: str) -> dict[str, str]:
             elif name.lower() == "human":
                 human_gid = gid
         if not field_gid or not ai_gid or not human_gid:
-            raise ValueError(f"project {project_gid}: 担当種別 field found but enum AI/human incomplete")
+            raise ValueError(
+                f"project {project_gid}: {DISPLAY_FIELD_NAME!r} field found but enum AI/human incomplete"
+            )
         return {
             "field_gid": field_gid,
             "ai_gid": ai_gid,
             "human_gid": human_gid,
+            "field_name": matched_name,
         }
-    raise ValueError(f"project {project_gid}: no custom field named {FIELD_NAME!r}")
+    raise ValueError(
+        f"project {project_gid}: no custom field named one of {FIELD_NAMES!r}"
+    )
 
 
 def read_env_lines(path: Path) -> list[str]:
@@ -92,7 +113,7 @@ def merge_env(lines: list[str], updates: dict[str, str]) -> list[str]:
 
 
 def main() -> int:
-    p = argparse.ArgumentParser(description="Sync 担当種別 CF GIDs from Asana project to .env")
+    p = argparse.ArgumentParser(description="Sync Agent Type CF GIDs from Asana project to .env")
     p.add_argument("--project", required=True, help="Asana project GID")
     p.add_argument("--env-file", type=Path, default=None, help="Target .env (default: optional/.env)")
     p.add_argument("--dry-run", action="store_true", help="Print GIDs only; do not write")
@@ -113,7 +134,7 @@ def main() -> int:
         ENV_KEYS[2]: gids["human_gid"],
     }
 
-    print(f"OK  project={args.project}  field={FIELD_NAME}")
+    print(f"OK  project={args.project}  field={gids.get('field_name', DISPLAY_FIELD_NAME)}")
     for k, v in updates.items():
         print(f"  {k}={v}")
 

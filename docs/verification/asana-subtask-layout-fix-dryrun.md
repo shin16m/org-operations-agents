@@ -10,14 +10,14 @@
 
 ## 修正
 
-- `create_subtask`: **addProject しない** / サブタスクに担当種別 CF を付けない
-- 担当種別 CF は **エピック親のみ**（`handoff_to_asana.py` create/sync）
-- SSOT: [`docs/design/asana-assignee-type-field.md`](../design/asana-assignee-type-field.md) v1.1
+- `create_subtask`: **addProject しない** / サブタスクに Agent Type CF を付けない
+- Agent Type CF（旧 担当種別）は **エピック親のみ**（`handoff_to_asana.py` create/sync）
+- SSOT: [`docs/design/asana-assignee-type-field.md`](../design/asana-assignee-type-field.md) v1.6
 
 ## 受け入れ基準
 
 1. 新規 `create_subtask` 後、サブタスクがプロジェクト一覧・セクション直下に **出ない**
-2. エピック親の担当種別 CF = `AI` は維持
+2. エピック親の Agent Type CF = `AI` は維持
 3. 既存誤配置は任意バックフィル（下記）
 
 ## 既存サブタスクのバックフィル（任意）
