@@ -31,6 +31,19 @@ def cmd_dispatch(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_complete(args: argparse.Namespace) -> int:
+    try:
+        new_state = state_machine.complete_epic(args.epic, dry_run=args.dry_run)
+        print(f"COMPLETE  epic={args.epic}  os_state={new_state}")
+        return 0
+    except (RuntimeError, ValueError) as exc:
+        if args.allow_skip:
+            print(f"WARN  complete_epic skipped  epic={args.epic}  reason={exc}", file=sys.stderr)
+            return 0
+        print(f"ERROR  {exc}", file=sys.stderr)
+        return 1
+
+
 def cmd_watch(args: argparse.Namespace) -> int:
     interval = max(5, args.interval)
 
@@ -77,6 +90,16 @@ def main(argv: list[str] | None = None) -> int:
     pd.add_argument("--epic", required=True)
     pd.add_argument("--dry-run", action="store_true")
     pd.set_defaults(func=cmd_dispatch)
+
+    pc = sub.add_parser("complete", help="Ready/Running/Waiting → Done")
+    pc.add_argument("--epic", required=True)
+    pc.add_argument("--dry-run", action="store_true")
+    pc.add_argument(
+        "--allow-skip",
+        action="store_true",
+        help="On CF missing or invalid state, warn and exit 0 (L1 epic complete hook)",
+    )
+    pc.set_defaults(func=cmd_complete)
 
     pw = sub.add_parser("watch", help="Poll project for Ready / Waiting epics")
     pw.add_argument("--project", required=True)

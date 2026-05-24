@@ -26,11 +26,15 @@ def dispatch_epic(epic_gid: str, *, dry_run: bool = False) -> str:
 
 
 def complete_epic(epic_gid: str, *, dry_run: bool = False) -> str:
-    """Running → Done."""
+    """Transition epic OS State to Done (Ready, Running, or Waiting)."""
     task = asana_client.fetch_task(epic_gid)
     current = asana_client.read_os_state(task)
-    if current not in ("Running", "Waiting"):
-        raise ValueError(f"epic {epic_gid} os_state={current!r}; complete expects Running or Waiting")
+    if current == "Done":
+        return "Done"
+    if current not in ("Ready", "Running", "Waiting"):
+        raise ValueError(
+            f"epic {epic_gid} os_state={current!r}; complete expects Ready, Running, or Waiting"
+        )
     asana_client.set_os_state(epic_gid, "Done", dry_run=dry_run)
     return "Done"
 

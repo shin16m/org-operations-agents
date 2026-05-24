@@ -96,6 +96,7 @@ sync CLI: [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_os_cf_env.py)
 |---------|------|------|
 | `org-os status --epic <GID>` | 現在 OS State を JSON 出力 | env GID 設定済み |
 | `org-os dispatch --epic <GID>` | Ready → Running | os_state=Ready |
+| `org-os complete --epic <GID> [--allow-skip]` | Ready/Running/Waiting → Done | L1 epic 完了 hook |
 | `org-os watch --project <GID> [--once]` | **Agent Type=AI · Task Type=Epic** かつ OS State Ready/Waiting を列挙 | env GID 設定済み |
 
 ### 状態遷移（プロダクト内）
@@ -116,7 +117,7 @@ Running --(complete)--> Done
 | Phase 4 auto-intake | `auto_intake_runner`（triage 統合）· poller `--auto-bootstrap` | 未使用（bootstrap 後に任意） |
 | planning gate | `--record-wait` · RESUME | — |
 | execution dispatch | task-dispatcher → 各 PM | epic Ready 時 `dispatch` フック（将来） |
-| epic 完了 | comment_epic_summary · complete | `Done` 遷移（将来連携） |
+| epic 完了 | `comment_epic_summary` → **`complete_epic_os_state.py`** → `complete_task` | OS State **Done** |
 
 参照: [`asana-driven-ops.md`](asana-driven-ops.md) Phase 4 · [`workflow-io-contract.md`](workflow-io-contract.md)
 

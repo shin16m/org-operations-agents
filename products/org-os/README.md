@@ -28,8 +28,11 @@ pip install -e .
 ```powershell
 org-os status --epic <PARENT_GID>
 org-os dispatch --epic <PARENT_GID> [--dry-run]
+org-os complete --epic <PARENT_GID> [--dry-run] [--allow-skip]
 org-os watch --project <PROJECT_GID> [--interval 60] [--once]
 ```
+
+`complete` は **Ready / Running / Waiting** から **Done** へ遷移（bootstrap 直後 Ready の epic も対象）。L1 では `tools/complete_epic_os_state.py`（デフォルト `--allow-skip`）を `comment_epic_summary` 後に実行。
 
 `watch` は **Agent Type=AI** かつ **Task Type=Epic** のタスクのみ走査し、OS State が Ready / Waiting のものを表示する。
 

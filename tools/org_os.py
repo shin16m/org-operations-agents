@@ -4,6 +4,7 @@
 Usage:
   python tools/org_os.py status --epic <GID>
   python tools/org_os.py dispatch --epic <GID> --dry-run
+  python tools/org_os.py complete --epic <GID> [--allow-skip]
   python tools/org_os.py watch --project <GID> --once
 """
 from __future__ import annotations

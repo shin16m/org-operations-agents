@@ -96,6 +96,15 @@ python tools/create_retrospective_intake_tasks.py --parent <親GID> --retro outp
   --gid <親GID> --summary "エピック完了" --body-file .\output\platform\comments\epic-summary.md -y
 ```
 
+**OS State=Done（org-os 連携 · 非ブロッキング）:**
+
+```powershell
+python tools/complete_epic_os_state.py --epic <親GID>
+# または: python tools/org_os.py complete --epic <親GID> --allow-skip
+```
+
+`comment_epic_summary` の**後** · `complete_task.py` の**前**に実行。CF 未設定等で失敗しても **警告のみ exit 0**（`--strict` で exit 1）。
+
 その後 `complete_task.py --gid <親GID> -y`。監査子未完了の親 complete は禁止。
 
 ### E. asana_execute 後（execution 系 — 必須分離）
