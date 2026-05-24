@@ -32,6 +32,7 @@
 
 | ファイル | 内容 |
 |----------|------|
+| [`governance-audit-consistency-dryrun.md`](governance-audit-consistency-dryrun.md) | governance + audit 主体の SSOT 整合性チェック |
 | [`org-improvement-governance-team-dryrun.md`](org-improvement-governance-team-dryrun.md) | 組織改善チーム governance 追加 |
 | [`project-consistency-check-dryrun.md`](project-consistency-check-dryrun.md) | 定期 SSOT 整合性チェック · validate 4 本 |
 | [`asana-intake-comments-dryrun.md`](asana-intake-comments-dryrun.md) | intake-asana snapshot v1.1 · コメント stories |
