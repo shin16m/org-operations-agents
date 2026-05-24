@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import requests
 
-from org_os.env import get_token, org_os_cf_config
+from org_os.env import assignee_type_cf_config, get_token, org_os_cf_config, task_type_cf_config
 
 ASANA_BASE = "https://app.asana.com/api/1.0"
 
@@ -24,6 +24,19 @@ def _refresh_state_maps(cfg: dict[str, str]) -> None:
         "Done": cfg["done_gid"],
     }
     STATE_BY_GID = {v: k for k, v in GIDS_BY_STATE.items() if v}
+
+
+def _read_enum_cf(task: dict, field_gid: str, *, gid_labels: dict[str, str]) -> str | None:
+    for cf in task.get("custom_fields") or []:
+        if str(cf.get("gid")) != field_gid:
+            continue
+        enum_val = cf.get("enum_value") or {}
+        gid = str(enum_val.get("gid") or "")
+        if gid in gid_labels:
+            return gid_labels[gid]
+        name = (enum_val.get("name") or "").strip()
+        return name or None
+    return None
 
 
 def fetch_task(task_gid: str, token: str | None = None) -> dict:
@@ -47,6 +60,33 @@ def read_os_state(task: dict) -> str | None:
         gid = str(enum_val.get("gid") or "")
         return STATE_BY_GID.get(gid) or enum_val.get("name")
     return None
+
+
+def read_agent_type(task: dict) -> str | None:
+    cfg = assignee_type_cf_config()
+    return _read_enum_cf(
+        task,
+        cfg["field_gid"],
+        gid_labels={cfg["ai_gid"]: "AI", cfg["human_gid"]: "human"},
+    )
+
+
+def read_task_type(task: dict) -> str | None:
+    cfg = task_type_cf_config()
+    return _read_enum_cf(
+        task,
+        cfg["field_gid"],
+        gid_labels={cfg["intake_gid"]: "Intake", cfg["epic_gid"]: "Epic"},
+    )
+
+
+def is_watch_epic(task: dict) -> bool:
+    """org-os watch target: Agent Type=AI and Task Type=Epic."""
+    if task.get("completed"):
+        return False
+    agent = read_agent_type(task)
+    task_type = read_task_type(task)
+    return agent == "AI" and task_type == "Epic"
 
 
 def read_approval_required(task: dict) -> str | None:

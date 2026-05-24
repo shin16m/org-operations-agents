@@ -11,6 +11,14 @@ from org_os import state_machine
 from org_os import asana_client
 
 
+def _safe(text: str) -> str:
+    enc = getattr(sys.stdout, "encoding", None) or "utf-8"
+    try:
+        return text.encode(enc, errors="replace").decode(enc, errors="replace")
+    except LookupError:
+        return text
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     info = state_machine.status_epic(args.epic)
     print(json.dumps(info, ensure_ascii=False, indent=2))
@@ -30,17 +38,24 @@ def cmd_watch(args: argparse.Namespace) -> int:
         tasks = asana_client.list_project_tasks(args.project)
         ready = []
         waiting = []
+        skipped = 0
         for t in tasks:
-            if t.get("completed"):
+            if not asana_client.is_watch_epic(t):
+                skipped += 1
                 continue
             st = asana_client.read_os_state(t)
             if st == "Ready":
                 ready.append(t)
             elif st == "Waiting":
                 waiting.append(t)
-        print(f"WATCH  project={args.project}  ready={len(ready)}  waiting={len(waiting)}")
+        print(
+            f"WATCH  project={args.project}  ready={len(ready)}  waiting={len(waiting)}"
+            f"  skipped={skipped}  filter=AgentType:AI+TaskType:Epic"
+        )
         for t in ready[:10]:
-            print(f"  READY  {t.get('gid')}  {(t.get('name') or '')[:60]}")
+            print(f"  READY  {t.get('gid')}  {_safe((t.get('name') or '')[:60])}")
+        for t in waiting[:10]:
+            print(f"  WAITING  {t.get('gid')}  {_safe((t.get('name') or '')[:60])}")
 
     scan_once()
     if args.once:

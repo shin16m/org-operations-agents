@@ -50,6 +50,15 @@
 4. 親 GID・企画子 GID をセッションに記録
 5. **intake-asana 時（`meta.source_task_gid` または snapshot あり）:** bootstrap 直後に `close_intake_source_task.py --source <元GID> --epic <親GID> -y` で元タスクへ新エピックリンクを comment し **complete**（エピック notes には bootstrap Handoff の `## ソース Asana タスク` 節で相互リンク済み）
 
+**Asana CF 起票ルール（SSOT: [`asana-task-type-field.md`](../../../docs/design/asana-task-type-field.md)）:**
+
+| 起票 | Task Type | Agent Type |
+|------|-----------|------------|
+| **Intake**（依頼者→和久桶入口） | **Intake** | **設定なし**（未設定） |
+| **Epic**（bootstrap 親） | **Epic** | **AI**（`handoff_to_asana` create 時に自動） |
+
+Intake タスクは Agent Type 未設定のため poller 自動スキャン対象外。Epic は org-os `watch`（Agent Type=AI · Task Type=Epic · OS State Ready/Waiting）の対象。
+
 ### C. dispatch 委譲（L1 初回 = 企画チーム）
 
 1. `DispatchRequest`（`department=planning`, `task_gid=<企画子>`）で [`task-dispatcher`](../task-dispatcher/SKILL.md) を起動

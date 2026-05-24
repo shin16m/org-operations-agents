@@ -31,6 +31,8 @@ org-os dispatch --epic <PARENT_GID> [--dry-run]
 org-os watch --project <PROJECT_GID> [--interval 60] [--once]
 ```
 
+`watch` は **Agent Type=AI** かつ **Task Type=Epic** のタスクのみ走査し、OS State が Ready / Waiting のものを表示する。
+
 ### 状態遷移
 
 ```

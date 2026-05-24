@@ -32,7 +32,7 @@
 | 側 | 担う | 担わない |
 |----|------|----------|
 | **org-ops** | triage · bootstrap · planning dispatch · `.env` GID sync · 新 epic の OS State 初期化 | 状態機械本体 · Running/Waiting 遷移の常時監視 |
-| **org-os** | epic CF read/write · Ready→Running dispatch · watch | intake · Handoff · CF フィールド作成 |
+| **org-os** | epic CF read/write · Ready→Running dispatch · watch（Agent Type=AI · Task Type=Epic フィルタ） | intake · Handoff · CF フィールド作成 |
 
 ## 3. L1 workflow（default v4）
 
@@ -81,10 +81,12 @@ sync CLI: [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_os_cf_env.py)
 
 `handoff_to_asana.py` create モード成功後:
 
+- Agent Type = **AI**
+- Task Type = **Epic**
 - OS State = **Ready**
 - Approval Required = **No**
 
-実装: `asana_program_common.init_epic_os_state`
+実装: `set_assignee_type_org_ops` · `set_task_type_epic` · `init_epic_os_state`
 
 ## 5. org-os CLI 契約
 
@@ -94,7 +96,7 @@ sync CLI: [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_os_cf_env.py)
 |---------|------|------|
 | `org-os status --epic <GID>` | 現在 OS State を JSON 出力 | env GID 設定済み |
 | `org-os dispatch --epic <GID>` | Ready → Running | os_state=Ready |
-| `org-os watch --project <GID> [--once]` | Ready/Waiting epic を列挙 | env GID 設定済み |
+| `org-os watch --project <GID> [--once]` | **Agent Type=AI · Task Type=Epic** かつ OS State Ready/Waiting を列挙 | env GID 設定済み |
 
 ### 状態遷移（プロダクト内）
 

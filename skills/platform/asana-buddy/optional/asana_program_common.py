@@ -30,6 +30,10 @@ DEFAULT_ASSIGNEE_TYPE_FIELD_GID = "1215082835199209"
 DEFAULT_ASSIGNEE_TYPE_AI_GID = "1215082835199211"
 DEFAULT_ASSIGNEE_TYPE_HUMAN_GID = "1215082835199210"
 
+DEFAULT_TASK_TYPE_FIELD_GID = "1215089213221082"
+DEFAULT_TASK_TYPE_INTAKE_GID = "1215089213221083"
+DEFAULT_TASK_TYPE_EPIC_GID = "1215089213221084"
+
 TASK_OPT_FIELDS = "name,notes,completed,permalink_url,parent.gid,parent.name"
 
 
@@ -111,6 +115,58 @@ def set_assignee_type_human(task_gid: str, token: str) -> bool:
     except requests.HTTPError as exc:
         print(
             f"警告: Agent Type human を設定できませんでした task={task_gid}: {exc}",
+            file=sys.stderr,
+        )
+        return False
+
+
+def task_type_config() -> dict[str, str] | None:
+    """Return field + enum option GIDs for Task Type CF, or None if disabled."""
+    if os.getenv("ASANA_TASK_TYPE_DISABLED", "").strip().lower() in ("1", "true", "yes"):
+        return None
+    field = (
+        os.getenv("ASANA_TASK_TYPE_FIELD_GID", "").strip()
+        or DEFAULT_TASK_TYPE_FIELD_GID
+    )
+    intake = (
+        os.getenv("ASANA_TASK_TYPE_INTAKE_GID", "").strip()
+        or DEFAULT_TASK_TYPE_INTAKE_GID
+    )
+    epic = (
+        os.getenv("ASANA_TASK_TYPE_EPIC_GID", "").strip()
+        or DEFAULT_TASK_TYPE_EPIC_GID
+    )
+    if not field:
+        return None
+    return {"field_gid": field, "intake_gid": intake, "epic_gid": epic}
+
+
+def set_task_type(task_gid: str, kind: str, token: str) -> bool:
+    """Set Task Type custom field to Intake or Epic. Returns True if set."""
+    cfg = task_type_config()
+    if not cfg:
+        return False
+    kind_norm = kind.strip()
+    if kind_norm not in ("Intake", "Epic"):
+        raise ValueError(f"task type must be 'Intake' or 'Epic', got {kind!r}")
+    opt_gid = cfg["intake_gid"] if kind_norm == "Intake" else cfg["epic_gid"]
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.put(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        json={"data": {"custom_fields": {cfg["field_gid"]: opt_gid}}},
+        headers=headers,
+    )
+    r.raise_for_status()
+    return True
+
+
+def set_task_type_epic(task_gid: str, token: str) -> bool:
+    """org-ops epic create → Task Type Epic."""
+    try:
+        return set_task_type(task_gid, "Epic", token)
+    except requests.HTTPError as exc:
+        print(
+            f"警告: Task Type Epic を設定できませんでした task={task_gid}: {exc}",
             file=sys.stderr,
         )
         return False

@@ -56,3 +56,29 @@ def org_os_cf_config() -> dict[str, str]:
         "approval_yes_gid": os.getenv("ASANA_APPROVAL_REQUIRED_YES_GID", "").strip(),
         "approval_no_gid": os.getenv("ASANA_APPROVAL_REQUIRED_NO_GID", "").strip(),
     }
+
+
+def assignee_type_cf_config() -> dict[str, str]:
+    """Agent Type CF GIDs for org-os watch filter."""
+    load_dotenv()
+    field = os.getenv("ASANA_ASSIGNEE_TYPE_FIELD_GID", "1215082835199209").strip()
+    ai = os.getenv("ASANA_ASSIGNEE_TYPE_AI_GID", "1215082835199211").strip()
+    human = os.getenv("ASANA_ASSIGNEE_TYPE_HUMAN_GID", "1215082835199210").strip()
+    if not field or not ai:
+        raise RuntimeError(
+            "Agent Type CF GIDs missing — run: python tools/sync_assignee_type_env.py --project <GID> --write -y"
+        )
+    return {"field_gid": field, "ai_gid": ai, "human_gid": human}
+
+
+def task_type_cf_config() -> dict[str, str]:
+    """Task Type CF GIDs for org-os watch filter."""
+    load_dotenv()
+    field = os.getenv("ASANA_TASK_TYPE_FIELD_GID", "1215089213221082").strip()
+    intake = os.getenv("ASANA_TASK_TYPE_INTAKE_GID", "1215089213221083").strip()
+    epic = os.getenv("ASANA_TASK_TYPE_EPIC_GID", "1215089213221084").strip()
+    if not field or not epic:
+        raise RuntimeError(
+            "Task Type CF GIDs missing — run: python tools/sync_task_type_env.py --project <GID> --write -y"
+        )
+    return {"field_gid": field, "intake_gid": intake, "epic_gid": epic}
