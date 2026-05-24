@@ -14,6 +14,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OPTIONAL = ROOT / "skills/platform/asana-buddy/optional"
+if str(OPTIONAL) not in sys.path:
+    sys.path.insert(0, str(OPTIONAL))
+
+from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
+from asana_program_common import console_safe, wire_worker_subs_to_review_gate  # noqa: E402
+
 MARKER = "【レビュー】"
 TITLE = f"{MARKER}サブ構成・担当割り当て"
 
@@ -36,6 +42,10 @@ def _summarize_plan(plan_path: Path) -> str:
             "",
             "差し戻し: 本サブを未完了のまま、親にコメントで指摘 → PM が assign plan 再作成 → **新しいレビューサブ**を追加（既存サブは undo しない）。",
             "",
+            "## Asana dependencies",
+            "",
+            "本サブ完了前、各 worker サブは Asana 上 **本サブに依存** します（`addDependencies`）。",
+            "",
             "## CLI",
             "",
             "```powershell",
@@ -50,6 +60,7 @@ def main() -> None:
     p = argparse.ArgumentParser(description="Create PM assign-review gate subtask")
     p.add_argument("--parent", required=True)
     p.add_argument("--plan", type=Path, required=True)
+    p.add_argument("--skip-dependencies", action="store_true", help="Do not wire worker deps")
     p.add_argument("-y", action="store_true")
     args = p.parse_args()
 
@@ -70,6 +81,22 @@ def main() -> None:
         cmd.append("-y")
     subprocess.check_call(cmd, cwd=str(ROOT))
     print("review_gate_notes", notes_path)
+
+    if args.skip_dependencies:
+        return
+
+    load_env_from_dotfile()
+    token = get_token()
+    result = wire_worker_subs_to_review_gate(args.parent, token, marker=MARKER)
+    if result.get("status") == "ok":
+        wired = result.get("wired") or []
+        print(
+            console_safe(
+                f"review_gate_dependencies gate={result.get('gate_gid')} wired={len(wired)}"
+            )
+        )
+    else:
+        print("review_gate_dependencies skipped (no gate subtask found)", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ workflow-orchestrator（intake → bootstrap → dispatch）
     → issue-story-planner → plan-reviewer（必須）
     → planning-pm（gate）→ asana-buddy
   → task-dispatcher（execution 系子ごと）
-  → 各 PM: pm_assign_subtasks → **pm_review_gate（人間）** → L3b worker dispatch
+  → 各 PM: pm_assign_subtasks → **pm_review_gate（人間 · Asana dependencies）** → L3b worker dispatch
   → ux-pm → ux-designer / ux-reviewer
   → product-manager → requirements-writer / …
   → analytics-pm → data-architect / …
@@ -56,10 +56,12 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 | 禁止 | 正規 |
 |------|------|
 | 同一セッションで development / ux / analysis の **成果物・doc 更新**に着手 | [`task-dispatcher`](../../skills/platform/task-dispatcher/SKILL.md) → 各 PM **intake** |
-| product-manager / ux-pm / analytics-pm が **ワーカー役を代行** | `pm_assign_subtasks` → **`pm_review_gate`（人間）** → **L3b** worker dispatch（[`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md)） |
+| product-manager / ux-pm / analytics-pm が **ワーカー役を代行** | `pm_assign_subtasks` → **`pm_review_gate`（人間 · dependencies）** → **L3b** worker dispatch（[`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md)） |
 | gate 承認を「実装開始の合図」とみなす | 企画 PM は **comment → complete → DeptWorkComplete** まで。実行系は別 dispatch |
 
 org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../skills/development/examples/assign-plan.org-meta-doc-v1.json)）。本体を PM が先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../verification/asana-comment-detail-delivery.md)。
+
+**PM review gate（execution）:** [`pm-assign-review-gate.md`](pm-assign-review-gate.md) · planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)
 
 **配賦順（execution 系）:** ux → development / analysis → **`audit`（組織変更時・親 complete 直前）**。監査は他 execution 子完了後に dispatch する（[`audit-delivery-io.md`](audit-delivery-io.md)）。
 

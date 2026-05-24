@@ -75,8 +75,15 @@ def main() -> None:
         name = item["name"]
         notes = _notes_for_item(item, args.department)
         sub = create_subtask(args.parent, name, notes, token)
-        created.append(sub)
-        print(console_safe(f"  + {sub['gid']}  {name}  → 担当: {item.get('assignee')}"))
+        sub_gid = str(sub.get("gid") or "")
+        cf_ok = set_assignee_type_org_ops(sub_gid, token) if sub_gid else False
+        created.append({**sub, "assignee_type_cf": cf_ok})
+        cf_note = " CF=AI" if cf_ok else " CF=skip"
+        print(
+            console_safe(
+                f"  + {sub['gid']}  {name}  → 担当: {item.get('assignee')}{cf_note}"
+            )
+        )
 
     if args.update_parent_assignee:
         notes = merge_notes_with_assignment(

@@ -27,6 +27,7 @@ DEPT_PM = {
     "ux": "ux-pm",
     "development": "product-manager",
     "analysis": "analytics-pm",
+    "governance": "governance-pm",
     "audit": "audit-pm",
 }
 
@@ -105,11 +106,40 @@ def main() -> int:
     load_env_from_dotfile()
     _ = get_token()
 
+    gate_cmd = [
+        str(PY),
+        str(ROOT / "tools/check_pm_review_gate.py"),
+        "--parent",
+        args.parent,
+    ]
+    import subprocess
+
+    gate_rc = subprocess.run(
+        gate_cmd,
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env={**dict(__import__("os").environ), "PYTHONIOENCODING": "utf-8"},
+    )
+    if gate_rc.returncode != 0:
+        print(
+            gate_rc.stdout or gate_rc.stderr or "PM review gate not approved.",
+            file=sys.stderr,
+        )
+        print(
+            "Worker dispatch blocked: complete 【レビュー】 subtask in Asana UI first.",
+            file=sys.stderr,
+        )
+        return 1
+
     pm_slug = DEPT_PM[args.department]
     subs = _run_fetch_list(args.parent)
     pending_workers: list[tuple[str, str, str]] = []
     for gid, name, done in subs:
         if done:
+            continue
+        if name.strip().startswith(("【レビュー】", "【承認】")):
             continue
         assignee = _run_fetch_assignee(gid)
         if not assignee or assignee == pm_slug:

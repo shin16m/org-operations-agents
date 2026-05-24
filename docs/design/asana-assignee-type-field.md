@@ -1,6 +1,6 @@
 # Asana 担当種別カスタムフィールド — 運用 SSOT
 
-| 版 | 1.2 |
+| 版 | 1.3 |
 | 日付 | 2026-05-24 |
 
 ## 目的
@@ -29,13 +29,15 @@ Asana プロジェクトの **担当種別** enum CF で、タスクが **AI エ
 | `handoff_to_asana.py` 親タスク create / sync 更新 | `AI` |
 | `handoff_to_asana.py` が新規作成する **execution 系 department 子**（エピック直下） | `AI`（addProject なし · PUT のみ） |
 | `pm_assign_subtasks.py` の **PM 進行親**（`--update-parent-assignee` 対象） | `AI` |
+| `pm_assign_subtasks.py` が作成する **worker サブ** | **`AI` を PUT で試行**（`addProject` なし · 失敗は警告のみ） |
 | `create_approval_subtask.py` / `create_pm_review_gate.py`（【レビュー】/【承認】） | **human** |
-| `create_subtask`（PM 配下の worker サブ） | **設定しない** |
+| `create_subtask`（上記以外の汎用 helper） | **設定しない** |
 
-### worker サブに CF を付けない理由
+### worker サブ CF（F2）
 
-プロジェクトスコープ CF を worker サブに付ける従来手段は `addProject` だが、**addProject したサブタスクはプロジェクト一覧・セクション直下に独立表示される**（[`asana-subtask-layout-fix-dryrun`](../verification/asana-subtask-layout-fix-dryrun.md)）。  
-worker サブは notes の `担当:` で判別する。**execution PM 子**（エピック直下の department 子）のみ PUT で `AI` を試行する。
+`pm_assign_subtasks` は各 worker サブ作成直後に `set_assignee_type_org_ops`（PUT のみ）を試行する。  
+**layout-fix:** `addProject` は使わない（サブがプロジェクト直下に浮く）。  
+API が 400 等で拒否する場合は stderr 警告 · dryrun 記録 · notes `担当:` で運用継続。
 
 ## human の設定
 

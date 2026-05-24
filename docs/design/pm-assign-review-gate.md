@@ -1,8 +1,8 @@
 # PM 委譲品質ゲート（assign review gate）— 運用 SSOT
 
-| 版 | 1.1 |
+| 版 | 1.2 |
 | 日付 | 2026-05-24 |
-| エピック | `1215086194042850` · フィードバック `1215082835252617` |
+| エピック | `1215086341081688` · F1/F3 |
 
 ## 目的
 
@@ -13,13 +13,21 @@ L3 PM が `pm_assign_subtasks` でサブを作成した**後**、**L3b worker di
 ## フロー（L3 チーム内）
 
 ```
-PM: pm_intake → pm_assign_subtasks（サブ作成・担当 notes 設定）
-  → create_pm_review_gate.py（承認サブ「【レビュー】サブ構成・担当割り当て」）
+PM: pm_intake → pm_assign_subtasks（サブ作成 · 担当 notes · worker CF 試行）
+  → create_pm_review_gate.py（承認サブ「【レビュー】サブ構成・担当割り当て」+ worker→gate dependencies）
   → 【停止】人間が Asana 上で承認サブを complete（エージェントは complete しない）
   → check_pm_review_gate.py exit 0
   → L3b: pm_emit_worker_prompt / WorkerDispatchSnippet
   → ワーカー各サブ …
 ```
+
+## Asana dependencies（F1）
+
+`create_pm_review_gate.py` は gate 作成後、`wire_worker_subs_to_review_gate` で **各 worker サブ → 【レビュー】サブ** の dependency を設定する。
+
+- API: `POST /tasks/{worker_gid}/addDependencies`
+- 【レビュー】/【承認】サブ自身には dependency を付けない
+- `pm_emit_worker_prompt` は `check_pm_review_gate` exit 0 前は **exit 1**
 
 ## 承認 = 人間による Asana complete
 
@@ -47,9 +55,13 @@ python tools/create_pm_review_gate.py --parent <PM子GID> --plan work/assign-pla
 python tools/check_pm_review_gate.py --parent <PM子GID>
 ```
 
-共通 helper: [`create_approval_subtask.py`](../../skills/platform/asana-buddy/optional/create_approval_subtask.py) · [`check_approval_subtask.py`](../../skills/platform/asana-buddy/optional/check_approval_subtask.py)
+共通 helper: [`create_approval_subtask.py`](../../skills/platform/asana-buddy/optional/create_approval_subtask.py) · [`check_approval_subtask.py`](../../skills/platform/asana-buddy/optional/check_approval_subtask.py) · [`asana_program_common.py`](../../skills/platform/asana-buddy/optional/asana_program_common.py)（`add_task_dependencies` / `wire_worker_subs_to_review_gate`）
 
 承認サブ作成時: 担当種別 CF = **human**（[`asana-assignee-type-field.md`](asana-assignee-type-field.md)）
+
+## planning gate との違い
+
+[`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)
 
 ## PM assignment doc への追記
 

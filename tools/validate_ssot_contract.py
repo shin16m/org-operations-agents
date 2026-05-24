@@ -76,6 +76,27 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["pm_review_gate"],
     },
     {
+        "name": "all pm assignment review gate",
+        "files": [
+            "docs/design/development-pm-assignment.md",
+            "docs/design/ux-pm-assignment.md",
+            "docs/design/analytics-pm-assignment.md",
+            "docs/design/governance-pm-assignment.md",
+            "docs/design/audit-pm-assignment.md",
+        ],
+        "required_any": [],
+        "required_all": ["create_pm_review_gate", "人間"],
+    },
+    {
+        "name": "pm review gate dependencies",
+        "files": [
+            "docs/design/pm-assign-review-gate.md",
+            "docs/design/planning-gate-vs-pm-review-gate.md",
+        ],
+        "required_any": [],
+        "required_all": ["addDependencies"],
+    },
+    {
         "name": "audit team dispatch",
         "files": [
             "docs/design/workflow-io-contract.md",

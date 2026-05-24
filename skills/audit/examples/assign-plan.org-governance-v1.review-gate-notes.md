@@ -1,9 +1,9 @@
 ## サブタスク一覧
 
-1. **【1/2・governance】SSOT 実装（ssot-implementer）** — 担当: `ssot-implementer`
-   - registry · skills · workflow · docs/tools を実装。validate 実行で exit 0 を確認。
-2. **【2/2・governance】実装レビュー（governance-reviewer）** — 担当: `governance-reviewer`
-   - review_kind: org_meta。GovernanceReviewResult を output/governance/reviews/ に保存。
+1. **【1/2・監査】機械検証 + ConsistencyAuditReport** — 担当: `consistency-auditor`
+   - validate_org_registry · validate_fixture_schemas · validate_ssot_contract を実行し ConsistencyAuditReport を output/audit/rep
+2. **【2/2・監査】AuditReviewResult** — 担当: `audit-reviewer`
+   - ConsistencyAuditReport を review_kind org_governance でレビュー。
 
 ## 依頼者向け
 

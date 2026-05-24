@@ -329,6 +329,70 @@ def list_subtasks(parent_gid: str, token: str) -> list[dict[str, Any]]:
     return r.json()["data"]
 
 
+def add_task_dependencies(task_gid: str, dependency_gids: list[str], token: str) -> None:
+    """Make task_gid blocked until each dependency_gid is completed."""
+    deps = [g for g in dependency_gids if g]
+    if not deps:
+        return
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.post(
+        f"{ASANA_BASE}/tasks/{task_gid}/addDependencies",
+        json={"data": {"dependencies": deps}},
+        headers=headers,
+    )
+    r.raise_for_status()
+
+
+def find_active_review_gate_subtask(
+    parent_gid: str,
+    token: str,
+    *,
+    marker: str = "【レビュー】",
+) -> dict[str, Any] | None:
+    matches = [
+        s
+        for s in list_subtasks(parent_gid, token)
+        if (s.get("name") or "").strip().startswith(marker)
+    ]
+    if not matches:
+        return None
+    incomplete = [m for m in matches if not m.get("completed")]
+    if incomplete:
+        return incomplete[-1]
+    return matches[-1]
+
+
+def wire_worker_subs_to_review_gate(
+    parent_gid: str,
+    token: str,
+    *,
+    marker: str = "【レビュー】",
+) -> dict[str, Any]:
+    """Link each non-gate worker subtask to depend on the active review gate subtask."""
+    gate = find_active_review_gate_subtask(parent_gid, token, marker=marker)
+    if gate is None:
+        return {"status": "no_gate", "wired": []}
+
+    gate_gid = str(gate.get("gid") or "")
+    wired: list[str] = []
+    for sub in list_subtasks(parent_gid, token):
+        sub_gid = str(sub.get("gid") or "")
+        if not sub_gid or sub_gid == gate_gid:
+            continue
+        name = (sub.get("name") or "").strip()
+        if is_human_gate_task_name(name):
+            continue
+        try:
+            add_task_dependencies(sub_gid, [gate_gid], token)
+            wired.append(sub_gid)
+        except requests.HTTPError as exc:
+            print(
+                f"警告: dependency 設定失敗 sub={sub_gid} gate={gate_gid}: {exc}",
+                file=sys.stderr,
+            )
+    return {"status": "ok", "gate_gid": gate_gid, "wired": wired}
+
+
 ASSIGNEE_LINE = re.compile(r"^担当:\s*(\S+)\s*$", re.MULTILINE)
 STATUS_LINE = re.compile(r"^状態:\s*(\S+)\s*$", re.MULTILINE)
 # Write `チーム:`; parse accepts legacy `課:` for backward compatibility.
