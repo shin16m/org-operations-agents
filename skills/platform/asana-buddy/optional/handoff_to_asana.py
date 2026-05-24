@@ -29,6 +29,7 @@ from asana_program_common import (  # noqa: E402
     load_review_result,
     resolve_project_with_fallback,
     resolve_section_id,
+    set_assignee_type_org_ops,
     sync_handoff_to_parent,
 )
 
@@ -139,6 +140,7 @@ def main() -> None:
 
     created = create_task(project_id, epic_title, epic["notes_markdown"], token)
     print("created_parent", created.get("gid"), created.get("permalink_url", ""))
+    set_assignee_type_org_ops(created["gid"], token)
 
     if section_id:
         add_task_to_section(section_id, created["gid"], token)

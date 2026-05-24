@@ -25,6 +25,11 @@ from agent_handler_asana import ASANA_BASE, create_task
 
 FALLBACK_PROJECT_GID = "1214771428861230"
 
+# 担当種別 enum CF（プロジェクト 1214771428861230 · override via .env）
+DEFAULT_ASSIGNEE_TYPE_FIELD_GID = "1215082835199209"
+DEFAULT_ASSIGNEE_TYPE_AI_GID = "1215082835199211"
+DEFAULT_ASSIGNEE_TYPE_HUMAN_GID = "1215082835199210"
+
 TASK_OPT_FIELDS = "name,notes,completed,permalink_url,parent.gid,parent.name"
 
 
@@ -37,6 +42,101 @@ def fetch_task(task_gid: str, token: str) -> dict[str, Any]:
     )
     r.raise_for_status()
     return r.json()["data"]
+
+
+def assignee_type_config() -> dict[str, str] | None:
+    """Return field + enum option GIDs for 担当種別, or None if disabled."""
+    if os.getenv("ASANA_ASSIGNEE_TYPE_DISABLED", "").strip().lower() in ("1", "true", "yes"):
+        return None
+    field = (
+        os.getenv("ASANA_ASSIGNEE_TYPE_FIELD_GID", "").strip()
+        or DEFAULT_ASSIGNEE_TYPE_FIELD_GID
+    )
+    ai = (
+        os.getenv("ASANA_ASSIGNEE_TYPE_AI_GID", "").strip()
+        or DEFAULT_ASSIGNEE_TYPE_AI_GID
+    )
+    human = (
+        os.getenv("ASANA_ASSIGNEE_TYPE_HUMAN_GID", "").strip()
+        or DEFAULT_ASSIGNEE_TYPE_HUMAN_GID
+    )
+    if not field:
+        return None
+    return {"field_gid": field, "ai_gid": ai, "human_gid": human}
+
+
+def set_assignee_type(task_gid: str, kind: str, token: str) -> bool:
+    """Set 担当種別 custom field to AI or human. Returns True if set."""
+    cfg = assignee_type_config()
+    if not cfg:
+        return False
+    kind_norm = kind.strip()
+    if kind_norm not in ("AI", "human"):
+        raise ValueError(f"assignee type must be 'AI' or 'human', got {kind!r}")
+    opt_gid = cfg["ai_gid"] if kind_norm == "AI" else cfg["human_gid"]
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.put(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        json={"data": {"custom_fields": {cfg["field_gid"]: opt_gid}}},
+        headers=headers,
+    )
+    r.raise_for_status()
+    return True
+
+
+def set_assignee_type_org_ops(task_gid: str, token: str) -> bool:
+    """org-ops CLI が作成/更新するタスク → 担当種別 AI。"""
+    try:
+        return set_assignee_type(task_gid, "AI", token)
+    except requests.HTTPError as exc:
+        print(
+            f"警告: 担当種別 CF を設定できませんでした task={task_gid}: {exc}",
+            file=sys.stderr,
+        )
+        return False
+
+
+def add_task_to_project(task_gid: str, project_gid: str, token: str) -> None:
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.post(
+        f"{ASANA_BASE}/tasks/{task_gid}/addProject",
+        json={"data": {"project": project_gid}},
+        headers=headers,
+    )
+    r.raise_for_status()
+
+
+def task_project_gid(task_gid: str, token: str) -> str | None:
+    """Return first project GID on task (for subtask CF inheritance)."""
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        headers=headers,
+        params={"opt_fields": "projects.gid,memberships.project.gid"},
+    )
+    r.raise_for_status()
+    data = r.json()["data"]
+    projects = data.get("projects") or []
+    if projects:
+        return projects[0].get("gid")
+    for m in data.get("memberships") or []:
+        proj = (m.get("project") or {}).get("gid")
+        if proj:
+            return proj
+    return None
+
+
+def ensure_subtask_project_membership(sub_gid: str, parent_gid: str, token: str) -> None:
+    """Subtasks need project membership before project-scoped custom fields apply."""
+    project = task_project_gid(parent_gid, token) or resolve_project_with_fallback(None)
+    if not project:
+        return
+    try:
+        add_task_to_project(sub_gid, project, token)
+    except requests.HTTPError as exc:
+        if exc.response is not None and exc.response.status_code == 400:
+            return
+        raise
 
 
 _DISPLAY_NAMES_CACHE: dict[str, str] | None = None
@@ -360,7 +460,10 @@ def create_subtask(parent_gid: str, name: str, notes: str, token: str) -> dict:
     payload = {"data": {"name": name, "notes": notes, "parent": parent_gid}}
     r = requests.post(f"{ASANA_BASE}/tasks", json=payload, headers=headers)
     r.raise_for_status()
-    return r.json()["data"]
+    data = r.json()["data"]
+    ensure_subtask_project_membership(data["gid"], parent_gid, token)
+    set_assignee_type_org_ops(data["gid"], token)
+    return data
 
 
 def create_subtasks_reversed(
