@@ -26,18 +26,16 @@
 
 ```powershell
 $env:PYTHONIOENCODING="utf-8"
-.\.venv\Scripts\python.exe -c @"
-import sys
-sys.path.insert(0, 'skills/platform/asana-buddy/optional')
-from agent_handler_asana import get_token, load_env_from_dotfile
-from asana_program_common import remove_task_from_project, resolve_project_with_fallback
-load_env_from_dotfile()
-token = get_token()
-project = resolve_project_with_fallback(None)
-for gid in ['1215085933918188']:  # 対象サブタスク GID を列挙
-    remove_task_from_project(gid, project, token)
-    print('removed', gid)
-"@
+# 一覧のみ
+.\.venv\Scripts\python.exe .\tools\backfill_subtask_project_membership.py --dry-run
+# 実行
+.\.venv\Scripts\python.exe .\tools\backfill_subtask_project_membership.py
+```
+
+特定 GID のみ:
+
+```powershell
+.\.venv\Scripts\python.exe .\tools\backfill_subtask_project_membership.py --gid 1215085933918188
 ```
 
 Asana UI で親エピック配下のみ表示されることを確認。
