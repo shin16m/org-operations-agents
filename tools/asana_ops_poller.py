@@ -6,6 +6,7 @@ Usage:
   python tools/asana_ops_poller.py --once --dry-run --human
   python tools/asana_ops_poller.py --watch --interval 60
   python tools/asana_ops_poller.py --once --trigger-intake 1215082835252575
+  python tools/asana_ops_poller.py --once --projects 1214771428861230,OTHER_ID
 
 Output lines (UX SSOT): SCAN · SKIP · INTAKE · WAIT · RESUME
 """
@@ -106,7 +107,20 @@ def is_candidate(task: dict, cfg: dict[str, str] | None) -> tuple[bool, str]:
     return True, "ok"
 
 
-def trigger_intake(gid: str, *, dry_run: bool) -> int:
+def _emit_resume_snippet(session: dict) -> None:
+    """Print Phase 2 resume snippet to stderr (--human friendly)."""
+    cmd = [
+        sys.executable,
+        str(ROOT / "tools/pm_emit_resume_prompt.py"),
+        "--session",
+        session.get("session_id") or "",
+    ]
+    r = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True, encoding="utf-8")
+    if r.returncode == 0 and r.stdout.strip():
+        print(r.stdout.strip(), file=sys.stderr)
+
+
+def trigger_intake(gid: str, *, dry_run: bool, human: bool = False) -> int:
     out = ROOT / "output/platform/intake" / f"{gid}-snapshot.json"
     cmd = [
         sys.executable,
@@ -126,6 +140,11 @@ def trigger_intake(gid: str, *, dry_run: bool) -> int:
             print(r.stderr.strip(), file=sys.stderr)
         return r.returncode
     print(f"INTAKE  source={gid}  OK  snapshot={out.as_posix()}")
+    if human:
+        print(
+            f"  → 次: 和久桶 intake-asana  Asana タスク: {gid}",
+            file=sys.stderr,
+        )
     return 0
 
 
@@ -155,44 +174,55 @@ def check_session_resume(session: dict, token: str) -> str:
     return "approved" if sub.get("completed") else "pending"
 
 
-def scan_once(
+def scan_projects(
     *,
-    project_gid: str,
+    project_gids: list[str],
     token: str,
     dry_run: bool,
     human: bool,
     trigger_gid: str | None,
 ) -> int:
-    cfg = assignee_type_config()
-    tasks = list_project_tasks(project_gid, token)
-    candidates = 0
-    skipped = 0
-    for task in tasks:
-        ok, reason = is_candidate(task, cfg)
-        if ok:
-            candidates += 1
-        else:
-            skipped += 1
-            if reason not in ("completed", "subtask"):
-                gid = task.get("gid")
-                print(f"SKIP  task={gid}  reason={reason}  name={(task.get('name') or '')[:40]!r}")
-    print(f"SCAN  project={project_gid}  candidates={candidates}  skipped={skipped}")
-
     if trigger_gid:
-        return trigger_intake(trigger_gid, dry_run=dry_run)
+        return trigger_intake(trigger_gid, dry_run=dry_run, human=human)
 
-    for task in tasks:
-        ok, reason = is_candidate(task, cfg)
-        if not ok:
-            continue
-        gid = str(task.get("gid"))
-        if already_intake_source(gid, token):
-            print(f"SKIP  duplicate intake  task={gid}")
-            continue
-        url = task.get("permalink_url") or f"https://app.asana.com/0/0/0/{gid}"
-        print(f"CANDIDATE  task={gid}  url={url}")
-        if human:
-            print(f"  → intake 候補: {(task.get('name') or '')[:60]}", file=sys.stderr)
+    cfg = assignee_type_config()
+    total_candidates = 0
+    total_skipped = 0
+    for project_gid in project_gids:
+        tasks = list_project_tasks(project_gid, token)
+        candidates = 0
+        skipped = 0
+        for task in tasks:
+            ok, reason = is_candidate(task, cfg)
+            if ok:
+                candidates += 1
+            else:
+                skipped += 1
+                if reason not in ("completed", "subtask"):
+                    gid = task.get("gid")
+                    print(
+                        f"SKIP  project={project_gid}  task={gid}  reason={reason}  "
+                        f"name={(task.get('name') or '')[:40]!r}"
+                    )
+        print(f"SCAN  project={project_gid}  candidates={candidates}  skipped={skipped}")
+        total_candidates += candidates
+        total_skipped += skipped
+
+        for task in tasks:
+            ok, reason = is_candidate(task, cfg)
+            if not ok:
+                continue
+            gid = str(task.get("gid"))
+            if already_intake_source(gid, token):
+                print(f"SKIP  duplicate intake  task={gid}")
+                continue
+            url = task.get("permalink_url") or f"https://app.asana.com/0/0/0/{gid}"
+            print(f"CANDIDATE  project={project_gid}  task={gid}  url={url}")
+            if human:
+                print(f"  → intake 候補: {(task.get('name') or '')[:60]}", file=sys.stderr)
+
+    if len(project_gids) > 1:
+        print(f"SCAN  total  projects={len(project_gids)}  candidates={total_candidates}  skipped={total_skipped}")
 
     for session in load_sessions():
         if session.get("state") != "suspended":
@@ -204,6 +234,8 @@ def scan_once(
         status = check_session_resume(session, token)
         if status == "approved":
             print(f"RESUME  session={sid}  gate={session.get('gate_kind')}  approved")
+            if human:
+                _emit_resume_snippet(session)
         else:
             print(f"WAIT  session={sid}  gate={session.get('gate_kind')}  sub={sub}")
             if url:
@@ -224,6 +256,7 @@ def save_suspend_session(
     approval_url: str,
     gate_kind: str,
     marker: str,
+    department: str | None = None,
 ) -> Path:
     SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
     sid = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
@@ -237,6 +270,8 @@ def save_suspend_session(
         "approval_url": approval_url,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
+    if department:
+        data["department"] = department
     path = SESSIONS_DIR / f"{sid}.json"
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return path
@@ -248,6 +283,11 @@ def main() -> int:
     p.add_argument("--watch", action="store_true", help="Repeat scan")
     p.add_argument("--interval", type=int, default=60, help="Watch interval seconds")
     p.add_argument("--project", default=None)
+    p.add_argument(
+        "--projects",
+        metavar="GID,GID",
+        help="Comma-separated project GIDs (Phase 2 multi-project scan)",
+    )
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("--human", action="store_true", help="Human-readable stderr hints")
     p.add_argument("--trigger-intake", metavar="GID", help="Run intake_from_asana for one task")
@@ -257,18 +297,36 @@ def main() -> int:
         metavar=("PARENT_GID", "SUB_GID", "URL"),
         help="Save suspended session JSON (orchestrator helper)",
     )
+    p.add_argument(
+        "--gate-kind",
+        default="planning_approval",
+        choices=("planning_approval", "pm_review_gate"),
+        help="With --record-wait: session gate_kind (Phase 2)",
+    )
+    p.add_argument(
+        "--marker",
+        default=None,
+        help="With --record-wait: subtask title marker (default from gate-kind)",
+    )
+    p.add_argument(
+        "--department",
+        default=None,
+        help="With --record-wait --gate-kind pm_review_gate: dispatch department hint",
+    )
     args = p.parse_args()
 
     if args.record_wait:
         parent, sub, url = args.record_wait
+        marker = args.marker or ("【レビュー】" if args.gate_kind == "pm_review_gate" else "【承認】")
         path = save_suspend_session(
             parent_gid=parent,
             approval_sub_gid=sub,
             approval_url=url,
-            gate_kind="planning_approval",
-            marker="【承認】",
+            gate_kind=args.gate_kind,
+            marker=marker,
+            department=args.department,
         )
-        print(f"WAIT  session saved  path={path}")
+        print(f"WAIT  session saved  path={path}  gate={args.gate_kind}")
         return 0
 
     if not args.once and not args.watch:
@@ -276,11 +334,14 @@ def main() -> int:
 
     load_env_from_dotfile()
     token = get_token()
-    project = resolve_project_with_fallback(args.project)
+    if args.projects:
+        project_gids = [p.strip() for p in args.projects.split(",") if p.strip()]
+    else:
+        project_gids = [resolve_project_with_fallback(args.project)]
 
     def _run() -> int:
-        return scan_once(
-            project_gid=project,
+        return scan_projects(
+            project_gids=project_gids,
             token=token,
             dry_run=args.dry_run,
             human=args.human,

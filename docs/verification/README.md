@@ -32,7 +32,9 @@
 
 | ファイル | 内容 |
 |----------|------|
-| [`asana-driven-ops-dryrun.md`](asana-driven-ops-dryrun.md) | Asana ドリブン運用 · poller / suspend CLI · development Phase 1 |
+| [`asana-driven-ops-phase3-dryrun.md`](asana-driven-ops-phase3-dryrun.md) | Asana ドリブン Phase 3 · Webhook · ダッシュボード MVP |
+| [`asana-driven-ops-phase2-dryrun.md`](asana-driven-ops-phase2-dryrun.md) | Asana ドリブン Phase 2 · gate 統合 · マルチプロジェクト · RESUME snippet |
+| [`asana-driven-ops-dryrun.md`](asana-driven-ops-dryrun.md) | Asana ドリブン運用 · poller / suspend CLI · Phase 1 |
 | [`asana-pm-ops-hardening-dryrun.md`](asana-pm-ops-hardening-dryrun.md) | PM review gate · worker CF · validate 強化 |
 | [`epic-retrospective-intake-dryrun.md`](epic-retrospective-intake-dryrun.md) | エピック完了前レトロ → intake タスク化 |
 | [`subtask-review-gate-dryrun.md`](subtask-review-gate-dryrun.md) | PM 委譲品質ゲート + 企画ブラッシュアップ |

@@ -1,0 +1,23 @@
+{
+  "parent_title": "【1/4・ux】Phase 2 保留/再開 UX 設計更新",
+  "subtasks": [
+    {
+      "name": "【1/4-1・UX】Phase 2 体験設計更新（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "Phase 1 UX spec は Phase 2 を章立てのみ。セッション永続化 · PM gate 統合 · RESUME 再開 UX を明文化する。",
+      "summary": "ux-spec · approval-ux を Phase 2 向けに更新。`output/ux/specs/1215087017928843-ux-spec.md` と HTML 可読版を作成。",
+      "done_when": "Phase 2 反映済み markdown + HTML が output/ux/specs/ に保存されている。"
+    },
+    {
+      "name": "【1/4-2・UX】Phase 2 仕様 review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "ux_spec ゲート。Phase 2 フローが Phase 1 と整合し、依頼者・運用者が RESUME 手順を追えること。",
+      "summary": "review_kind: ux_spec。`output/ux/reviews/1215087017928843-ux-spec-review.json` を出力。",
+      "done_when": "UxReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

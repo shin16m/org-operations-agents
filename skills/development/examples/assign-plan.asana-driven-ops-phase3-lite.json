@@ -1,0 +1,51 @@
+{
+  "parent_title": "【2/4・development】Phase 3 Webhook 受信 · ダッシュボード MVP",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【2/4-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "Phase 3 UX spec 準拠。Webhook · ダッシュボード MVP。",
+      "summary": "mode=requirements。`output/development/requirements/1215086999635228-requirements.md`",
+      "done_when": "要件定義書が保存され、Webhook + ダッシュボードスコープが明確。"
+    },
+    {
+      "name": "【2/4-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【2/4-3・開発】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件 · UX approval-ux-phase3。",
+      "summary": "asana_webhook_handler · asana_ops_dashboard · asana_ops_sessions · dryrun doc。",
+      "done_when": "validate 3 本 exit 0 · docs/verification/asana-driven-ops-phase3-dryrun.md。"
+    },
+    {
+      "name": "【2/4-4・開発】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "code ゲート。",
+      "summary": "review_kind: code。CodeReviewResult を出力。",
+      "done_when": "CodeReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【2/4-5・開発】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "webhook handler · dashboard dryrun。",
+      "summary": "review_kind: verification。VerificationResult を出力。",
+      "done_when": "VerificationResult status が passed。"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "parent_title": "【1/4・ux】Phase 3 Webhook · ダッシュボード UX 設計",
+  "subtasks": [
+    {
+      "name": "【1/4-1・UX】Phase 3 体験設計（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "Phase 2 UX は poller/CLI 中心。Webhook リアルタイム検知とダッシュボード IA が Phase 3 で新規。",
+      "summary": "ux-spec · approval-ux を Phase 3 向けに更新。`output/ux/specs/1215087283197185-ux-spec.md` と HTML 可読版を作成。",
+      "done_when": "Phase 3 反映済み markdown + HTML が output/ux/specs/ に保存されている。"
+    },
+    {
+      "name": "【1/4-2・UX】Phase 3 仕様 review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "ux_spec ゲート。Webhook フローとダッシュボード IA が Phase 2 と整合し、運用者が単一画面で WAIT/RESUME を追えること。",
+      "summary": "review_kind: ux_spec。`output/ux/reviews/1215087283197185-ux-spec-review.json` を出力。",
+      "done_when": "UxReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

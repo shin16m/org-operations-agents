@@ -1,0 +1,51 @@
+{
+  "parent_title": "【2/4・development】Phase 2 poller · suspend · スキャン拡張",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【2/4-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "Phase 2 UX spec 準拠。poller/check 拡張 · pm_emit_resume_prompt 新規。",
+      "summary": "mode=requirements。`output/development/requirements/1215087017888498-requirements.md` に変更範囲・受け入れ基準を記載。",
+      "done_when": "要件定義書が保存され、Phase 2 スコープ3点（gate統合·マルチプロジェクト·RESUME snippet）が明確。"
+    },
+    {
+      "name": "【2/4-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【2/4-3・開発】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件 · UX approval-ux-phase2 §2–5。",
+      "summary": "asana_ops_poller / check_workflow_suspend 拡張 · pm_emit_resume_prompt.py 新規 · dryrun doc。",
+      "done_when": "validate 3 本 exit 0 · docs/verification/asana-driven-ops-phase2-dryrun.md 記録。"
+    },
+    {
+      "name": "【2/4-4・開発】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "code ゲート。",
+      "summary": "review_kind: code。CodeReviewResult を出力。",
+      "done_when": "CodeReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【2/4-5・開発】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "poller dry-run · check_workflow_suspend。",
+      "summary": "review_kind: verification。VerificationResult を出力。",
+      "done_when": "VerificationResult status が passed。"
+    }
+  ]
+}

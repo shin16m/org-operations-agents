@@ -95,6 +95,10 @@ def main() -> int:
         pending = [r for r in results if r["status"] != "resumable"]
         if pending:
             return 1
+        for r in results:
+            if r["status"] == "resumable":
+                print(f"RESUMABLE  session={r['session_id']}  gate={r['gate_kind']}  parent={r['parent_gid']}")
+                print("  hint: python tools/pm_emit_resume_prompt.py --session", r["session_id"])
     return 0
 
 
