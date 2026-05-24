@@ -16,11 +16,11 @@
 - design: [`pm-assign-review-gate.md`](../design/pm-assign-review-gate.md)
 - workflow: execution 系 5 YAML に `pm_review_gate` 追加
 
-### 対策 2: 企画 → governance ブラッシュアップ
+### エピック内のみ: governance 計画ブラッシュアップ（組織 SSOT からは撤回）
 
-- design: [`planning-governance-brushup.md`](../design/planning-governance-brushup.md)
-- workflow: `planning-delivery.yaml` に `plan_brushup`
-- 実証: `output/governance/brushup/1215086194108092-brushup.md`
+- 本エピック子 `1215086194108092` で Handoff 精査を実証
+- 実証成果: `output/governance/brushup/1215086194108092-brushup.md`
+- **組織運用ルールとしての `plan_brushup` 常設は撤回**（必要性があれば再追加）
 
 ## validate
 

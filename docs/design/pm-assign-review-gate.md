@@ -49,4 +49,3 @@ python tools/check_pm_review_gate.py --parent <PM子GID>
 ## 参照
 
 - [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)
-- [`planning-governance-brushup.md`](planning-governance-brushup.md)

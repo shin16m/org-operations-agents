@@ -94,7 +94,7 @@ PM 代行で本体を先行完了した場合の事後補完: [`docs/verificatio
 
 `intake` | `bootstrap` | `dispatch`（workflow YAML と同一）
 
-企画チーム内の plan / review / **plan_brushup** / gate / execute は [`planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) を参照。plan_brushup SSOT: [`planning-governance-brushup.md`](../../../docs/design/planning-governance-brushup.md)。
+企画チーム内の plan / review / gate / execute は [`planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) を参照。
 
 ## registry 未登録 slug
 

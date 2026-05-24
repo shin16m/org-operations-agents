@@ -27,10 +27,6 @@ steps:
     review_kind: handoff
     gate_after: review_passed
 
-  - id: plan_brushup
-    agent: governance-pm
-    role: Handoff を governance 観点でブラッシュアップ（org 変更時必須）。`output/governance/brushup/` に改善メモ
-
   - id: pm_gate
     agent: planning-pm
     role: Handoff 要約を人間に提示し handoff_approved を得てから Asana 投入へ

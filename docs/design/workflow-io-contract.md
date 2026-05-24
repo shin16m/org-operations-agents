@@ -10,7 +10,6 @@ registry / workflow 実体は [`workflows/`](../../workflows/)。セッション
 workflow-orchestrator（intake → bootstrap → dispatch）
   → planning-pm（企画チーム / planning-delivery）
     → issue-story-planner → plan-reviewer（必須）
-    → governance-pm（plan_brushup · org 変更時）
     → planning-pm（gate）→ asana-buddy
   → task-dispatcher（execution 系子ごと）
   → 各 PM: pm_assign_subtasks → **pm_review_gate（人間）** → L3b worker dispatch
@@ -40,7 +39,6 @@ workflow-orchestrator（intake → bootstrap → dispatch）
 |---------|----------|------|------|------|
 | `handoff_plan` | dept_work | issue-story-planner | 生課題 + 子 notes | `AsanaBuddyHandoff` |
 | `plan_review` | dept_review | plan-reviewer | Handoff 案 | `PlanReviewResult` |
-| `plan_brushup` | dept_work | governance-pm | Handoff + PlanReviewResult | `output/governance/brushup/` 改善メモ |
 | `pm_gate` | dept_orchestrate | planning-pm | Handoff + PlanReviewResult | execute 可否 |
 | `asana_execute` | execute | asana-buddy | 承認済み Handoff | Asana 親更新 + 実行系子 |
 
