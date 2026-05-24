@@ -83,6 +83,7 @@ executed_at: 2026-05-24T09:00:00+09:00
 | `## 判断・理由` | 条件付き | レビュアー / PM gate / 差し戻し時は**必須** |
 | `## 成果物` | 条件付き | ファイルパス・JSON・子 GID 等（あれば） |
 | `## 次の状態` | 推奨 | 依頼者が次に見るべきタスク・待ち状態 |
+| `## レトロスペクティブ` | ワーカー complete 前 **必須** | うまくいった点 / 改善したい点 / 次エピック候補（[`task-retrospective-ssot.md`](task-retrospective-ssot.md)） |
 
 **避ける:** 「完了しました」のみ / dryrun 用の一行メモ / 内部 slug だけの羅列。
 
@@ -121,6 +122,11 @@ handoff.all-teams-dryrun.json を出力。
 
 ## 次の状態
 - {pm_slug} がサブタスクを complete し、次フェーズへ dispatch
+
+## レトロスペクティブ
+- **うまくいった点:** （1–2 項目）
+- **改善したい点:** （1–2 項目）
+- **次エピック候補:** （あれば · intake 起票候補）
 ```
 
 ### 5.2 レビュアー（plan-reviewer / dev-reviewer / ux-reviewer / analysis-reviewer）

@@ -97,6 +97,24 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["addDependencies"],
     },
     {
+        "name": "task retro comment section",
+        "files": [
+            "docs/design/task-retrospective-ssot.md",
+            "docs/design/agent-asana-comment-signature.md",
+        ],
+        "required_any": [],
+        "required_all": ["レトロスペクティブ"],
+    },
+    {
+        "name": "task retro epic aggregate",
+        "files": [
+            "docs/design/task-retrospective-ssot.md",
+            "skills/platform/workflow-orchestrator/SKILL.md",
+        ],
+        "required_any": [],
+        "required_all": ["aggregate_epic_retrospective"],
+    },
+    {
         "name": "audit team dispatch",
         "files": [
             "docs/design/workflow-io-contract.md",

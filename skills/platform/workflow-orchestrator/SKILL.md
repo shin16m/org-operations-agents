@@ -69,7 +69,17 @@
 python tools/check_epic_audit_gate.py --parent <親GID> --handoff output/planning/handoff/<handoff>.json
 ```
 
-exit 0 を確認してから **依頼者向けサマリ**を投稿:
+exit 0 を確認してから **レトロ集約 · intake 承認**（[`task-retrospective-ssot.md`](task-retrospective-ssot.md)）:
+
+```powershell
+python tools/aggregate_epic_retrospective.py --parent <親GID>
+python tools/create_retrospective_intake_gate.py --parent <親GID> --retro output/platform/retrospectives/<親GID>-epic-retro.json -y
+# 依頼者が【承認】レトロ改善候補 を Asana UI で complete
+python tools/check_retrospective_intake_gate.py --parent <親GID>
+python tools/create_retrospective_intake_tasks.py --parent <親GID> --retro output/platform/retrospectives/<親GID>-epic-retro.json -y
+```
+
+その後 **依頼者向けサマリ**を投稿:
 
 ```powershell
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_epic_summary.py `
