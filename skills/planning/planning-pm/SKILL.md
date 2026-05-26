@@ -41,6 +41,18 @@
 - **`handoff_approved` を得るまで** `handoff_to_asana.py` を実行しない
 - 差し戻し時は `handoff_plan` / `plan-reviewer` を再実行
 
+### Asana ドリブン planning gate（intake-asana · 本番運用 · 必須）
+
+**チャット「承認待ち」のみでセッションを終了してはならない。** 以下を同一セッションで実施する:
+
+1. `create_approval_subtask.py --parent <親エピックGID>` — 【承認】サブ（親 `OS State=Waiting` · `Approval Required=Yes` · 人間 assignee）
+2. `asana_ops_poller.py --record-wait <親エピックGID> <【承認】サブGID> <URL>` — SuspendedSession 保存
+3. **セッション終了** — `handoff_to_asana.py` は **RESUME 後**（依頼者が Asana UI で【承認】complete → `approval_helper` → `wakuoke_resume_scan`）
+
+チャットの「承認」「承認した」は **RESUME 後の再開合図** としては有効。**gate 到達時の代替（【承認】サブ省略）は不可。** レガシー手動 intake のみ、利用者が workflow 短絡を明示した場合に限りチャット承認可（[`planning-gate-vs-pm-review-gate.md`](../../../docs/design/planning-gate-vs-pm-review-gate.md)）。
+
+チェックリスト: [`workflow-orchestrator/SKILL.md`](../../platform/workflow-orchestrator/SKILL.md) **§H**
+
 ## やらないこと
 
 - 実行系子タスクの要件定義・実装（→ 開発チーム / UX チーム / 分析チーム）

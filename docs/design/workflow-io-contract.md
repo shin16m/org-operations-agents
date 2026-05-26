@@ -48,7 +48,7 @@ workflow-orchestrator（intake → triage → bootstrap → dispatch）
 | ゲート ID | 条件 | 未達時 |
 |-----------|------|--------|
 | `review_passed` | **`plan-reviewer` 必須。** `PlanReviewResult.status` が `passed` または `passed_with_notes` | `asana_execute` 不可。差し戻しは `handoff_plan` |
-| `handoff_approved` | `review_passed` 済みのうえ、人間が planning-pm（pm_gate）経由で **Asana タスク作成** を明示承認 | `handoff_to_asana.py` を実行しない |
+| `handoff_approved` | `review_passed` 済み。**Asana ドリブン（intake-asana）:** 【承認】サブ complete + `approval_helper` → RESUME 後に `handoff_to_asana`。`create_approval_subtask`（**親 epic**）+ `--record-wait` 必須。**チャット承認待ちのみ禁止。** レガシー短絡 intake のみチャット可 | `handoff_to_asana.py` を実行しない |
 
 ## asana_execute 後（execution 系 — 必須分離）
 
@@ -62,7 +62,7 @@ workflow-orchestrator（intake → triage → bootstrap → dispatch）
 
 org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../skills/development/examples/assign-plan.org-meta-doc-v1.json)）。本体を PM が先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../verification/asana-comment-detail-delivery.md)。
 
-**PM review gate（execution）:** [`pm-assign-review-gate.md`](pm-assign-review-gate.md) · planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)
+**PM review gate（execution）:** [`pm-assign-review-gate.md`](pm-assign-review-gate.md) · planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md) · **org-os 改修候補:** PM review gate 待ち時に親 epic CF 未更新（[`asana-driven-ops.md`](asana-driven-ops.md) §org-os）
 
 **Asana ドリブン運用（Phase 1–4）:** [`asana-driven-ops.md`](asana-driven-ops.md) — スキャン intake · planning gate Asana 化 · 保留再開 · **Phase 4:** auto-intake SSOT · `--record-wait` ダッシュボード必須（`asana_ops_poller` / `check_workflow_suspend` · [`workflow-session-io.md`](workflow-session-io.md) SuspendedSession）。**gate 到達時チェックリスト:** [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) §H
 

@@ -27,8 +27,8 @@ alwaysApply: true
 
 4. **handoff_plan** — Handoff JSON を `output/planning/handoff/*.json` に保存
 5. **plan_review** — `PlanReviewResult` を `output/planning/plan-review/*.json` に保存（省略不可）
-6. **pm_gate** — planning-pm が Handoff 要約を提示し、**Asana タスク作成の承認**を待つ
-7. **asana_execute** — 承認後のみ `asana-buddy`（`handoff_to_asana.py --require-review-result`）
+6. **pm_gate** — planning-pm: Handoff 要約提示 → **`create_approval_subtask`（親 epic）→ `asana_ops_poller --record-wait` → セッション終了**（intake-asana / Asana ドリブン時は必須。チャット「承認待ち」のみ禁止）
+7. **asana_execute** — 依頼者が Asana UI で【承認】complete → `approval_helper` → RESUME 後のみ `handoff_to_asana.py --require-review-result`
 
 **gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / governance / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → **`pm_review_gate`（人間）** → L3b worker dispatch）。**PM がワーカー役を代行しない**（実装作業は L3b ワーカーセッション。PM は委譲・集約のみ）。
 
@@ -81,6 +81,7 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 - **gate 承認直後に product-manager / ux-pm / analytics-pm / governance-pm / audit-pm として成果物を直接書く**（→ PM intake + ワーカー dispatch）
 - **PM slug でワーカー作業を comment_task する**（→ 実作業ワーカーの slug）
 - **bootstrap section 失敗後に create モードを再実行して重複親を作る**
+- **intake-asana / Asana ドリブンで planning gate をチャット「承認待ち」のみにする**（→ 【承認】+ `--record-wait` 必須 · workflow-orchestrator §H）
 
 ## 例外
 
@@ -88,8 +89,9 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 
 ## gate（人間承認）
 
-- `review_passed` 後、**Asana に親・子タスクを反映する前に** planning-pm がエピック要約・サブタスク一覧・レビュー結果を提示する。
-- 利用者が **「承認」「Asana に投入して」** 等と明示するまで `handoff_to_asana.py` を実行しない。
+- `review_passed` 後、**Asana に execution 系子を反映する前に** planning-pm が Handoff 要約を提示する。
+- **Asana ドリブン（intake-asana · 本番）:** `create_approval_subtask` + `--record-wait` 必須 → セッション終了 → 依頼者が【承認】サブを Asana UI で complete → RESUME 後に `handoff_to_asana.py`。
+- **レガシーフォールバック:** 利用者が workflow 短絡を明示しない限り、チャット「承認」「Asana に投入して」だけでは gate 到達を満たさない。
 - 差し戻しは planner / reviewer を planning-pm が再実行する。
 
 ## 開始時の一言（エージェント）

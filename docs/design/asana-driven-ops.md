@@ -1,7 +1,7 @@
 # Asana ドリブン運用 — org-ops SSOT（Phase 1–3）
 
-| 版 | 1.3 |
-| 日付 | 2026-05-24 |
+| 版 | 1.4 |
+| 日付 | 2026-05-26 |
 | Phase 1 エピック | `1215101833446108` |
 | Phase 2 エピック | `1215087157303128` |
 | Phase 3 エピック | `1215087157410286` |
@@ -96,14 +96,20 @@ planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate
 
 Asana URL/GID をチャットまたは CLI で和久桶に渡す。自動スキャンと **併存**。
 
-## planning gate Asana 化（Phase 1 手順）
+## planning gate Asana 化（Phase 1 手順 · intake-asana 必須）
 
-1. planning-pm: `plan-reviewer` 通過後、`create_approval_subtask.py` で企画子または親に **【承認】** サブを作成（notes に Handoff 要約）
-2. workflow-orchestrator: チャット承認の代わりに **`--record-wait`** で保留 JSON を保存しセッション終了
-3. 依頼者: Asana UI で【承認】サブを **complete**
-4. 運用者: `asana_ops_poller --once` で `RESUME` 確認 → 新セッションで `handoff_to_asana.py --require-review-result`
+**intake-asana（手動 URL · `auto_intake_runner` · poller `--auto-bootstrap`）では、planning gate をチャット「承認待ち」のみで終えてはならない。** 以下を必須とする（[`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) §H · epic `1215131549360577` 実演済）:
 
-**注意:** チャットの「承認」「すすめて」は planning gate の **フォールバック** として残るが、Asana ドリブン運用では【承認】サブ complete を正とする。
+1. planning-pm: `PlanReviewResult` 通過後、`create_approval_subtask.py --parent <親エピックGID>` で **【承認】** サブ（notes に Handoff 要約）
+   - 親 **`OS State=Waiting`** + **`Approval Required=Yes`** + **`OS Suspend Reason=Approval`**（`syscall.suspend`）
+   - サブ assignee = **`ASANA_DEFAULT_HUMAN_APPROVER_GID`**
+2. orchestrator / planning-pm: **`--record-wait <親エピックGID> <【承認】サブGID> <URL>`** → SuspendedSession 保存 → **セッション終了**
+3. 依頼者: Asana UI で **`Approval Result=OK/NG`** → 【承認】complete
+4. 運用者: `approval_helper`（B）→ `wakuoke_resume_scan`（C）→ `RESUME` → `handoff_to_asana.py --require-review-result`
+
+**禁止:** Handoff 要約提示後、**【承認】サブ + `--record-wait` なし**でチャット「承認待ち」のみ。
+
+**レガシー:** 利用者が workflow 短絡を明示しない限り、チャット「承認」「すすめて」は planning gate 到達の代替にならない（RESUME 後の再開合図としては可）。
 
 ## 非スコープ（Phase 1）
 
@@ -238,6 +244,15 @@ asana_ops_poller --once
 **注意:** 【承認】/【レビュー】サブ作成だけではダッシュボードに載らない。必ず `--record-wait` で `output/platform/sessions/` に保存する。
 
 **gate 到達時チェックリスト（§H）:** [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) §H — planning gate / PM review gate 到達時の必須手順。
+
+### org-os と人間 gate（既知ギャップ · 改修候補）
+
+| gate | 親 epic org-os | 現状 |
+|------|----------------|------|
+| planning 【承認】 | `Waiting` + `Approval Required=Yes` | ✅ `create_approval_subtask` → `syscall.suspend(..., Approval)` |
+| PM 【レビュー】 | 期待: `Waiting` + `Human Review` 等 | ⚠️ **未連動** — `create_pm_review_gate` は PM 子（非 epic）へ suspend 試行し失敗。親 epic は `Running` のまま · `wait_list` に載らない |
+
+**改修方向（将来）:** `--record-wait` 時に **親エピック GID** へ `syscall.suspend(..., "Human Review")` · RESUME/complete 時に `syscall.resume`。詳細: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md) §org-os。
 
 ### 安全弁
 

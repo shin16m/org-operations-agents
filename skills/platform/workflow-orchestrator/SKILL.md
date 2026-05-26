@@ -253,6 +253,12 @@ python tools/check_workflow_suspend.py --all --require-resumable
 
 **やらないこと:** gate サブ作成のみで `--record-wait` を省略してセッション終了すること。
 
+**planning gate 追加禁止（intake-asana · Asana ドリブン）:**
+
+- Handoff 要約提示後、**チャット「承認待ち」だけで止める**（【承認】サブ + `--record-wait` 未実施）
+- 利用者のチャット「承認」を **gate 到達時の代替** とみなす（RESUME 前の `handoff_to_asana` 実行）
+- planning-pm が `create_approval_subtask` / `--record-wait` を planning-pm または orchestrator いずれかが省略
+
 ## 現段階 ID（default v3）
 
 `intake` | `bootstrap` | `dispatch`（workflow YAML と同一）
