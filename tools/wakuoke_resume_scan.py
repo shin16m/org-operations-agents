@@ -36,12 +36,7 @@ import requests  # noqa: E402
 
 from agent_handler_asana import ASANA_BASE, get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import console_safe  # noqa: E402
-from org_os.asana_client import (  # noqa: E402
-    is_watch_epic,
-    list_project_tasks,
-    read_approval_required,
-    read_os_state,
-)
+from org_os import queue as org_os_queue  # noqa: E402
 
 HELPER_LOG_DIR = ROOT / "output/platform/approval-helper"
 NG_COUNTER_DIR = HELPER_LOG_DIR / "ng-counters"
@@ -169,30 +164,14 @@ def main() -> int:
     print(console_safe(f"SCAN  project={project}  max_ng={args.max_ng}  dry_run={args.dry_run}"))
 
     try:
-        tasks = list_project_tasks(project, token=token)
+        ready_rows = org_os_queue.ready_queue(project, token=token)
     except requests.HTTPError as exc:
-        print(f"error: failed to list project tasks: {exc}", file=sys.stderr)
+        print(f"error: failed to list ready queue: {exc}", file=sys.stderr)
         return 3
 
-    ready_count = 0
-    for task in tasks:
-        if not is_watch_epic(task):
-            continue
-        try:
-            os_state = read_os_state(task)
-        except Exception as exc:  # noqa: BLE001
-            print(f"warn  read_os_state failed task={task.get('gid')}: {exc}", file=sys.stderr)
-            continue
-        if os_state != "Ready":
-            continue
-        try:
-            approval_required = read_approval_required(task)
-        except Exception:  # noqa: BLE001
-            approval_required = None
-        if approval_required == "Yes":
-            continue
-        ready_count += 1
-        parent_gid = str(task.get("gid"))
+    ready_count = len(ready_rows)
+    for row in ready_rows:
+        parent_gid = str(row.get("epic_gid") or "")
 
         logs = _find_helper_logs(parent_gid)
         active_log: tuple[Path, dict] | None = None

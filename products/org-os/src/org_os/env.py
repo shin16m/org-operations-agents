@@ -82,3 +82,30 @@ def task_type_cf_config() -> dict[str, str]:
             "Task Type CF GIDs missing — run: python tools/sync_task_type_env.py --project <GID> --write -y"
         )
     return {"field_gid": field, "intake_gid": intake, "epic_gid": epic}
+
+
+def suspend_reason_cf_config() -> dict[str, str] | None:
+    """OS Suspend Reason CF GIDs from env (optional until synced)."""
+    load_dotenv()
+    field = os.getenv("ASANA_OS_SUSPEND_REASON_FIELD_GID", "").strip()
+    if not field:
+        return None
+    return {
+        "field_gid": field,
+        "approval_gid": os.getenv("ASANA_OS_SUSPEND_REASON_APPROVAL_GID", "").strip(),
+        "human_review_gid": os.getenv("ASANA_OS_SUSPEND_REASON_HUMAN_REVIEW_GID", "").strip(),
+        "external_block_gid": os.getenv("ASANA_OS_SUSPEND_REASON_EXTERNAL_BLOCK_GID", "").strip(),
+    }
+
+
+def require_agent_id(explicit: str | None = None) -> str:
+    """Return agent id for syscall.start; env ORG_OS_AGENT_ID is mandatory."""
+    if explicit and str(explicit).strip():
+        return str(explicit).strip()
+    load_dotenv()
+    val = os.getenv("ORG_OS_AGENT_ID", "").strip()
+    if not val:
+        raise RuntimeError(
+            "ORG_OS_AGENT_ID is not set — add to skills/platform/asana-buddy/optional/.env"
+        )
+    return val

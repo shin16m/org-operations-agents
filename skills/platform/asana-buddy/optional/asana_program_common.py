@@ -229,7 +229,22 @@ def set_org_os_custom_fields(
 
 
 def init_epic_os_state(task_gid: str, token: str) -> bool:
-    """New epic after bootstrap: OS State=Ready, Approval Required=No."""
+    """New epic after bootstrap: OS State=Ready, no suspend reason, Approval Required=No."""
+    root = Path(__file__).resolve().parents[4]
+    org_os_src = root / "products/org-os/src"
+    if org_os_src.is_dir():
+        try:
+            if str(org_os_src) not in sys.path:
+                sys.path.insert(0, str(org_os_src))
+            from org_os import syscall  # noqa: WPS433
+
+            syscall.init_epic(task_gid)
+            return True
+        except Exception as exc:  # noqa: BLE001
+            print(
+                f"警告: org-os syscall.init_epic 失敗 task={task_gid}: {exc}",
+                file=sys.stderr,
+            )
     try:
         return set_org_os_custom_fields(task_gid, token, os_state="Ready", approval_required="no")
     except (requests.HTTPError, ValueError) as exc:

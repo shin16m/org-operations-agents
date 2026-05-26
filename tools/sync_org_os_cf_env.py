@@ -24,9 +24,15 @@ from agent_handler_asana import ASANA_BASE, get_token, load_env_from_dotfile  # 
 OS_STATE_FIELD = "OS State"
 APPROVAL_FIELD = "Approval Required"
 APPROVAL_RESULT_FIELD = "Approval Result"
+SUSPEND_REASON_FIELD = "OS Suspend Reason"
 OS_STATE_ENUMS = ("Ready", "Running", "Waiting", "Done")
 APPROVAL_ENUMS = ("Yes", "No")
 APPROVAL_RESULT_ENUMS = ("OK", "NG")
+SUSPEND_REASON_ENV = {
+    "Approval": "ASANA_OS_SUSPEND_REASON_APPROVAL_GID",
+    "Human Review": "ASANA_OS_SUSPEND_REASON_HUMAN_REVIEW_GID",
+    "External Block": "ASANA_OS_SUSPEND_REASON_EXTERNAL_BLOCK_GID",
+}
 
 
 def default_env_path() -> Path:
@@ -47,7 +53,7 @@ def _fetch_fields(project_gid: str, token: str) -> dict[str, dict]:
     for row in r.json().get("data") or []:
         cf = row.get("custom_field") or {}
         name = (cf.get("name") or "").strip()
-        if name in (OS_STATE_FIELD, APPROVAL_FIELD, APPROVAL_RESULT_FIELD):
+        if name in (OS_STATE_FIELD, APPROVAL_FIELD, APPROVAL_RESULT_FIELD, SUSPEND_REASON_FIELD):
             opts = {
                 (o.get("name") or "").strip(): str(o.get("gid") or "")
                 for o in (cf.get("enum_options") or [])
@@ -97,6 +103,29 @@ def fetch_org_os_gids(project_gid: str, token: str) -> dict[str, str]:
             f"note  {APPROVAL_RESULT_FIELD}: not found (optional, skip env keys)",
             file=sys.stderr,
         )
+
+    if SUSPEND_REASON_FIELD in fields:
+        sr_row = fields[SUSPEND_REASON_FIELD]
+        updates["ASANA_OS_SUSPEND_REASON_FIELD_GID"] = sr_row["field_gid"]
+        for enum_label, env_key in SUSPEND_REASON_ENV.items():
+            gid = sr_row["options"].get(enum_label)
+            if not gid:
+                for opt_name, opt_gid in sr_row["options"].items():
+                    if opt_name.strip().lower() == enum_label.lower():
+                        gid = opt_gid
+                        break
+            if gid:
+                updates[env_key] = gid
+            else:
+                print(
+                    f"warn  {SUSPEND_REASON_FIELD} missing enum {enum_label!r} (skip {env_key})",
+                    file=sys.stderr,
+                )
+    else:
+        print(
+            f"note  {SUSPEND_REASON_FIELD}: not found (optional until added in Asana)",
+            file=sys.stderr,
+        )
     return updates
 
 
@@ -141,7 +170,8 @@ def main() -> int:
     updates = fetch_org_os_gids(args.project, token)
 
     print(
-        f"OK  project={args.project}  fields={OS_STATE_FIELD},{APPROVAL_FIELD},{APPROVAL_RESULT_FIELD}(optional)"
+        f"OK  project={args.project}  fields={OS_STATE_FIELD},{APPROVAL_FIELD},"
+        f"{SUSPEND_REASON_FIELD}(optional),{APPROVAL_RESULT_FIELD}(optional)"
     )
     for k, v in updates.items():
         print(f"  {k}={v}")

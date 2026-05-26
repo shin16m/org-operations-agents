@@ -2,14 +2,14 @@
 
 | 項目 | 内容 |
 |------|------|
-| 版 | 1.0 |
-| エピック | `1215088809649925` |
-| governance 子 | `1215089088552096` |
-| 参照 Handoff | `output/planning/handoff/handoff.org-os-triage.json` v3 |
+| 版 | 2.0 |
+| エピック | `1215127084158665` |
+| governance 子 | `1215127412682263` |
+| 参照 Handoff | `output/planning/handoff/handoff.os-kernelize.json` |
 
 ## 1. 目的
 
-**和久桶 L1（triage 拡張）** と **org-os 外部プロダクト** の責務境界を SSOT 化する。org-ops は org-meta / workflow / bootstrap を担い、epic 状態機械本体は org-os パッケージに集約する。
+**org-os** を epic 状態機械の **カーネル** として分離する。Asana CF が SSOT。org-ops（エージェント・skills）は **syscall / queue API のみ** 経由で epic 状態を読み書きする。
 
 ## 2. コンポーネント境界
 
@@ -17,134 +17,130 @@
 ┌─────────────────────────────────────────────────────────────┐
 │ org-operations-agents (org-ops)                              │
 │  L1: intake → triage → bootstrap → dispatch                 │
-│  asana-buddy: handoff_to_asana · init_epic_os_state          │
-│  tools: intake_triage · auto_intake_runner · sync_org_os_cf  │
+│  asana-buddy: handoff_to_asana · create_approval_subtask     │
+│  tools: approval_helper · wakuoke_resume_scan · sync CF      │
 │  tools/org_os.py  ──────────CLI ラッパー──────────────────┐ │
 └─────────────────────────────────────────────────────────────│─┘
-                                                              │
+                                                              │ syscall / queue
 ┌─────────────────────────────────────────────────────────────▼─┐
-│ products/org-os/ (外部プロダクト)                              │
-│  org-os status · dispatch · watch                             │
-│  state_machine · asana_client (CF read/write)                 │
+│ products/org-os/ (カーネル)                                    │
+│  syscall: start · suspend · resume · complete · init_epic     │
+│  queue: ready_queue · wait_list (read-only, FIFO)             │
+│  asana_client (CF read/write — 唯一の write path)             │
 └───────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+                         Asana (SSOT)
 ```
 
 | 側 | 担う | 担わない |
 |----|------|----------|
-| **org-ops** | triage · bootstrap · planning dispatch · `.env` GID sync · 新 epic の OS State 初期化 | 状態機械本体 · Running/Waiting 遷移の常時監視 |
-| **org-os** | epic CF read/write · Ready→Running dispatch · watch（Agent Type=AI · Task Type=Epic フィルタ） | intake · Handoff · CF フィールド作成 |
+| **org-ops** | triage · bootstrap · planning dispatch · `.env` GID sync · 承認サブ作成 · @mention | epic CF への直接 PUT（syscall 経由のみ） |
+| **org-os** | epic CF read/write · queue 列挙 · 状態遷移 syscall | intake · Handoff · CF フィールド作成 |
 
-## 3. L1 workflow（default v4）
+## 3. syscall API（write path）
 
-SSOT: [`workflows/default.yaml`](../../workflows/default.yaml)
+Python: [`products/org-os/src/org_os/syscall.py`](../../products/org-os/src/org_os/syscall.py)
 
-| step | agent | 出力 |
-|------|-------|------|
-| intake | workflow-orchestrator | snapshot |
-| triage | workflow-orchestrator | `output/platform/triage/<gid>-epic-input.json` |
-| bootstrap | asana-buddy | Asana 親 + 企画子 |
-| dispatch | task-dispatcher | planning-pm |
+| syscall | 遷移 | 副作用 |
+|---------|------|--------|
+| `start(epic, agent_id?)` | Ready → Running | suspend reason クリア · Approval Required=No · **ORG_OS_AGENT_ID 必須** |
+| `suspend(epic, reason, ref?)` | Ready/Running → Waiting | OS Suspend Reason 設定 · reason=`Approval` 時 Approval Required=Yes |
+| `resume(epic, ref?)` | Waiting → Ready | suspend reason クリア · Approval Required=No |
+| `complete(epic)` | Ready/Running/Waiting → Done | suspend reason クリア · Approval Required=No |
+| `init_epic(epic)` | — | Ready · suspend reason なし · Approval Required=No（bootstrap hook） |
 
-**禁止:** triage 専用の parallel epic-generator。epic 作成は **bootstrap / handoff_to_asana** のみ。
+### OS Suspend Reason（Asana enum 表示名）
 
-epic_input schema: [`schemas/platform/epic-input.v1.schema.json`](../../schemas/platform/epic-input.v1.schema.json)
+**snake_case 禁止。** コード定数は Asana UI ラベルと一致:
 
-## 4. Asana カスタムフィールド
+| 表示名 | 用途 |
+|--------|------|
+| `Approval` | 【承認】サブ待ち（`create_approval_subtask` → `syscall.suspend(..., "Approval")`） |
+| `Human Review` | 人間レビュー待ち |
+| `External Block` | 外部依存ブロック |
 
-### 4.1 フィールド（依頼者が Asana プロジェクトに追加）
+定数: [`products/org-os/src/org_os/constants.py`](../../products/org-os/src/org_os/constants.py)
+
+## 4. queue API（read-only）
+
+Python: [`products/org-os/src/org_os/queue.py`](../../products/org-os/src/org_os/queue.py)
+
+| API | 内容 |
+|-----|------|
+| `ready_queue(project)` | Agent Type=AI · Task Type=Epic · OS State=Ready · Approval Required≠Yes · **FIFO（created_at ASC）** |
+| `wait_list(project)` | 同上フィルタ · OS State=Waiting · suspend reason 付き |
+
+## 5. Asana カスタムフィールド
+
+### 5.1 フィールド
 
 | フィールド | enum | 用途 |
 |-----------|------|------|
 | **OS State** | Ready / Running / Waiting / Done | epic 状態機械 |
-| **Approval Required** | Yes / No | 人間承認要否（【承認】サブと整合） |
-| **Approval Result** | OK / NG / 未設定(pending) | 承認サブ完了時に人間が選択（B 承認ヘルパーで読取） · 詳細は [`approval-flow.md`](approval-flow.md) |
+| **OS Suspend Reason** | Approval / Human Review / External Block | Waiting 時の理由（v2.0 で追加） |
+| **Approval Required** | Yes / No | 後方互換 · `Approval` suspend 時に Yes |
+| **Approval Result** | OK / NG / 未設定 | 承認サブ完了時に人間が選択 · [`approval-flow.md`](approval-flow.md) |
 
-**開発スコープ外:** CF 作成。依頼者追加後に GID を sync する。`Approval Result` は **optional** — 未追加でも他 CF 同期と起動は継続。
-
-### 4.2 env キー命名（`.env`）
+### 5.2 env キー
 
 sync CLI: [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_os_cf_env.py)
 
 | env キー | 内容 |
 |---------|------|
-| `ASANA_OS_STATE_FIELD_GID` | OS State フィールド GID |
-| `ASANA_OS_STATE_READY_GID` | Ready enum GID |
-| `ASANA_OS_STATE_RUNNING_GID` | Running enum GID |
-| `ASANA_OS_STATE_WAITING_GID` | Waiting enum GID |
-| `ASANA_OS_STATE_DONE_GID` | Done enum GID |
-| `ASANA_APPROVAL_REQUIRED_FIELD_GID` | Approval Required フィールド GID |
-| `ASANA_APPROVAL_REQUIRED_YES_GID` | Yes enum GID |
-| `ASANA_APPROVAL_REQUIRED_NO_GID` | No enum GID |
-| `ASANA_APPROVAL_RESULT_FIELD_GID` | Approval Result フィールド GID（optional） |
-| `ASANA_APPROVAL_RESULT_OK_GID` | OK enum GID |
-| `ASANA_APPROVAL_RESULT_NG_GID` | NG enum GID |
-| `ASANA_DEFAULT_HUMAN_APPROVER_GID` | 承認サブの `assignee` に設定する Asana ユーザー GID |
+| `ORG_OS_AGENT_ID` | syscall.start のエージェント ID（**未設定時 start はエラー**） |
+| `ASANA_OS_STATE_*` | OS State フィールド + enum GID |
+| `ASANA_OS_SUSPEND_REASON_*` | OS Suspend Reason フィールド + enum GID |
+| `ASANA_APPROVAL_REQUIRED_*` | Approval Required |
+| `ASANA_APPROVAL_RESULT_*` | Approval Result（optional） |
+| `ASANA_DEFAULT_HUMAN_APPROVER_GID` | 承認サブ assignee + @mention 先 |
 
-テンプレート: [`skills/platform/asana-buddy/optional/.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
+テンプレート: [`.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
 
-### 4.3 bootstrap 時初期化
+## 6. org-os CLI 契約
 
-`handoff_to_asana.py` create モード成功後:
+wrapper: [`tools/org_os.py`](../../tools/org_os.py)
 
-- Agent Type = **AI**
-- Task Type = **Epic**
-- OS State = **Ready**
-- Approval Required = **No**
+| コマンド | 説明 |
+|---------|------|
+| `org-os status --epic <GID>` | OS State + suspend reason スナップショット |
+| `org-os dispatch --epic <GID>` | `syscall.start` エイリアス |
+| `org-os complete --epic <GID>` | `syscall.complete` |
+| `org-os queue ready\|wait --project <GID> [--json]` | read-only queue |
+| `org-os syscall start\|suspend\|resume\|complete ...` | syscall 直叩き |
+| `org-os watch --project <GID> [--once]` | ready + wait 一覧ポール |
 
-実装: `set_assignee_type_org_ops` · `set_task_type_epic` · `init_epic_os_state`
-
-## 5. org-os CLI 契約
-
-パッケージ: [`products/org-os/`](../../products/org-os/) · wrapper: [`tools/org_os.py`](../../tools/org_os.py)
-
-| コマンド | 説明 | 前提 |
-|---------|------|------|
-| `org-os status --epic <GID>` | 現在 OS State を JSON 出力 | env GID 設定済み |
-| `org-os dispatch --epic <GID>` | Ready → Running | os_state=Ready |
-| `org-os complete --epic <GID> [--allow-skip]` | Ready/Running/Waiting → Done | L1 epic 完了 hook |
-| `org-os watch --project <GID> [--once]` | **Agent Type=AI · Task Type=Epic** かつ OS State Ready/Waiting を列挙 | env GID 設定済み |
-
-### 状態遷移（プロダクト内）
+### 状態遷移
 
 ```
-Ready --(dispatch)--> Running
-Running --(need_approval)--> Waiting
-Waiting --(approval_done)--> Ready
-Running --(complete)--> Done
+Ready --(start)--> Running
+Ready/Running --(suspend)--> Waiting  (+ OS Suspend Reason)
+Waiting --(resume)--> Ready
+Ready/Running/Waiting --(complete)--> Done
 ```
 
-`need_approval` / `approval_done` / `complete` は state_machine API に存在。CLI 公開は将来拡張可。
+## 7. org-ops 連携（syscall 化済み）
 
-## 6. asana-driven-ops 役割分担
-
-| Phase | org-ops | org-os |
-|-------|---------|--------|
-| Phase 4 auto-intake | `auto_intake_runner`（triage 統合）· poller `--auto-bootstrap` | 未使用（bootstrap 後に任意） |
-| planning gate | `--record-wait` · RESUME | — |
-| execution dispatch | task-dispatcher → 各 PM | epic Ready 時 `dispatch` フック（将来） |
-| epic 完了 | `comment_epic_summary` → **`complete_epic_os_state.py`** → `complete_task` | OS State **Done** |
-
-参照: [`asana-driven-ops.md`](asana-driven-ops.md) Phase 4 · [`workflow-io-contract.md`](workflow-io-contract.md)
-
-## 7. 開発 / governance / audit 配賦
-
-| 子 | department | 成果物 |
-|----|------------|--------|
-| 【2/5】triage | development | workflow · triage CLI · sync CLI |
-| 【3/5】org-os | development | `products/org-os/` |
-| 【4/5】境界 SSOT | governance | **本ファイル** |
-| 【5/5】監査 | audit | ConsistencyAuditReport · AuditReviewResult |
+| ツール | org-os 利用 |
+|--------|-------------|
+| `handoff_to_asana` / `init_epic_os_state` | `syscall.init_epic` |
+| `create_approval_subtask` | `syscall.suspend(..., "Approval")` + subtask @mention |
+| `approval_helper` | `syscall.resume`（承認完了検知後） |
+| `wakuoke_resume_scan` | `queue.ready_queue` |
+| `complete_epic_os_state` | CLI `org-os complete` |
 
 ## 8. 検証
 
 ```powershell
-python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --dry-run
-python tools/org_os.py status --epic <PARENT_GID>
+python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --write -y
+python tools/org_os.py queue ready --project <PROJECT_GID> --json
+python tools/org_os.py queue wait --project <PROJECT_GID> --json
+python tools/org_os.py watch --project <PROJECT_GID> --once
 python tools/validate_ssot_contract.py
 ```
 
 ## 9. 関連
 
-- triage dryrun: [`../verification/org-os-triage-workflow-dryrun.md`](../verification/org-os-triage-workflow-dryrun.md)
+- approval flow: [`approval-flow.md`](approval-flow.md)
+- asana-driven-ops: [`asana-driven-ops.md`](asana-driven-ops.md)
 - org-os dryrun: [`../verification/org-os-product-dryrun.md`](../verification/org-os-product-dryrun.md)
-- dev delivery retro: [`../verification/org-os-dev-delivery-retro.md`](../verification/org-os-dev-delivery-retro.md)

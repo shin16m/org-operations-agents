@@ -31,16 +31,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ASANA_OPT = ROOT / "skills/platform/asana-buddy/optional"
-if str(ASANA_OPT) not in sys.path:
-    sys.path.insert(0, str(ASANA_OPT))
+ORG_OS_SRC = ROOT / "products/org-os/src"
+for p in (ASANA_OPT, ORG_OS_SRC):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import (  # noqa: E402
     console_safe,
     list_subtasks,
     read_approval_result,
-    set_org_os_custom_fields,
 )
+from org_os import syscall  # noqa: E402
 
 HELPER_VERSION = "1.0"
 DEFAULT_LOG_DIR = ROOT / "output/platform/approval-helper"
@@ -64,14 +66,13 @@ def _save_log(log_dir: Path, parent_gid: str, sub_gid: str, payload: dict) -> Pa
     return path
 
 
-def _restore_parent(parent_gid: str, token: str) -> bool:
+def _restore_parent(parent_gid: str, token: str, ref: str | None = None) -> bool:
     try:
-        return set_org_os_custom_fields(
-            parent_gid, token, os_state="ready", approval_required="no"
-        )
+        syscall.resume(parent_gid, ref=ref)
+        return True
     except Exception as exc:  # noqa: BLE001
         print(
-            f"警告: 親 CF 戻し失敗 parent={parent_gid}: {exc}",
+            f"警告: 親 resume 失敗 parent={parent_gid}: {exc}",
             file=sys.stderr,
         )
         return False
@@ -126,7 +127,7 @@ def main() -> int:
 
         if bool(sub.get("completed")):
             result_name = read_approval_result(args.approval_sub, token)
-            ok = _restore_parent(args.parent, token)
+            ok = _restore_parent(args.parent, token, ref=args.approval_sub)
             payload = {
                 "helper_version": HELPER_VERSION,
                 "parent_gid": args.parent,
@@ -139,6 +140,7 @@ def main() -> int:
                 "parent_state_after": {
                     "os_state": "Ready" if ok else "unchanged",
                     "approval_required": "No" if ok else "unchanged",
+                    "suspend_reason": None if ok else "unchanged",
                 },
                 "consumed": False,
             }

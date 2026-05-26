@@ -177,12 +177,16 @@ python tools/wakuoke_resume_scan.py \
 
 テンプレート: [`skills/platform/asana-buddy/optional/.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
 
-## 7. 関連実装関数（asana_program_common）
+## 7. 関連実装（org-os syscall / asana_program_common）
 
-| 関数 | 用途 |
-|------|------|
+| コンポーネント | 用途 |
+|----------------|------|
+| `org_os.syscall.suspend(parent, "Approval", ref=sub_gid)` | 親 epic → Waiting + OS Suspend Reason=**Approval**（Asana 表示名） + Approval Required=Yes |
+| `org_os.syscall.resume(parent, ref=sub_gid)` | 承認完了後 Waiting → Ready（`approval_helper`） |
+| `create_approval_subtask` | サブ作成 · human assignee · suspend · subtask へ `<@user>` mention |
 | `approval_result_config()` | Approval Result CF GID 取得（未設定時 None） |
 | `human_approver_gid()` | 人間 assignee GID 取得（未設定時 None） |
 | `assign_user(task_gid, user_gid, token)` | Asana 標準 assignee 設定 |
-| `set_org_os_custom_fields(parent, ..., os_state="waiting", approval_required="yes")` | 親 epic の OS State + Approval Required を一括設定 |
 | `set_assignee_type_human(sub_gid, token)` | 承認サブの Agent Type=human |
+
+**禁止:** org-ops から `set_org_os_custom_fields(..., os_state="waiting")` で親 epic を直接 Waiting にしない（syscall 経由のみ）。

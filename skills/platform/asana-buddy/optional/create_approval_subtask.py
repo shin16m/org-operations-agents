@@ -14,8 +14,11 @@ import sys
 from pathlib import Path
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
-if str(_SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(_SCRIPT_DIR))
+_REPO_ROOT = Path(__file__).resolve().parents[4]
+_ORG_OS_SRC = _REPO_ROOT / "products/org-os/src"
+for p in (_SCRIPT_DIR, _ORG_OS_SRC):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
 import requests  # noqa: E402
 
@@ -26,8 +29,9 @@ from asana_program_common import (  # noqa: E402
     human_approver_gid,
     list_subtasks,
     set_assignee_type_human,
-    set_org_os_custom_fields,
 )
+from org_os import syscall  # noqa: E402
+from org_os.constants import SUSPEND_REASON_APPROVAL  # noqa: E402
 
 
 def _create_subtask(parent_gid: str, title: str, notes: str, token: str) -> dict:
@@ -39,6 +43,22 @@ def _create_subtask(parent_gid: str, title: str, notes: str, token: str) -> dict
     )
     r.raise_for_status()
     return r.json()["data"]
+
+
+def _post_approval_mention(sub_gid: str, human_gid: str, title: str, token: str) -> None:
+    body = (
+        f"## 承認依頼 <@{human_gid}>\n\n"
+        f"**{title}**\n\n"
+        "内容を確認し、問題なければ **このサブタスクを完了**してください（完了 = 承認）。\n"
+        "差し戻しは本サブを未完了のまま、親タスクにコメントで指摘してください。"
+    )
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.post(
+        f"{ASANA_BASE}/tasks/{sub_gid}/stories",
+        json={"data": {"text": body}},
+        headers=headers,
+    )
+    r.raise_for_status()
 
 
 def main() -> None:
@@ -106,20 +126,30 @@ def main() -> None:
         )
 
     try:
-        if set_org_os_custom_fields(
-            args.parent, token, os_state="waiting", approval_required="yes"
-        ):
-            print(f"parent_os_state {args.parent} Waiting ApprovalRequired=Yes")
-        else:
-            print(
-                "警告: 親 epic の OS State / Approval Required 設定をスキップ（CF 未設定）。",
-                file=sys.stderr,
-            )
-    except (requests.HTTPError, ValueError) as exc:
+        result = syscall.suspend(
+            args.parent,
+            SUSPEND_REASON_APPROVAL,
+            ref=sub_gid,
+        )
         print(
-            f"警告: 親 CF 設定失敗 parent={args.parent}: {exc}",
+            f"parent_syscall_suspend {args.parent} "
+            f"os_state={result['os_state']} reason={result['suspend_reason']}"
+        )
+    except (requests.HTTPError, ValueError, RuntimeError) as exc:
+        print(
+            f"警告: 親 syscall.suspend 失敗 parent={args.parent}: {exc}",
             file=sys.stderr,
         )
+
+    if human_gid:
+        try:
+            _post_approval_mention(sub_gid, human_gid, title, token)
+            print(f"mention_posted sub={sub_gid} user={human_gid}")
+        except requests.HTTPError as exc:
+            print(
+                f"警告: @mention 投稿失敗 sub={sub_gid}: {exc}",
+                file=sys.stderr,
+            )
 
     print("created_approval_subtask", sub_gid, console_safe(title[:60]))
 

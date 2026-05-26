@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import requests
 
-from org_os.env import assignee_type_cf_config, get_token, org_os_cf_config, task_type_cf_config
+from org_os.env import assignee_type_cf_config, get_token, org_os_cf_config, suspend_reason_cf_config, task_type_cf_config
 
 ASANA_BASE = "https://app.asana.com/api/1.0"
 
@@ -102,6 +102,96 @@ def read_approval_required(task: dict) -> str | None:
     return None
 
 
+def _suspend_reason_gid_for_name(reason_name: str) -> str | None:
+    cfg = suspend_reason_cf_config()
+    if not cfg:
+        return None
+    key = (reason_name or "").strip()
+    mapping = {
+        "Approval": cfg.get("approval_gid"),
+        "Human Review": cfg.get("human_review_gid"),
+        "External Block": cfg.get("external_block_gid"),
+    }
+    if key in mapping and mapping[key]:
+        return mapping[key]
+    for label, gid in mapping.items():
+        if label.strip().lower() == key.lower() and gid:
+            return gid
+    return None
+
+
+def read_suspend_reason(task: dict) -> str | None:
+    cfg = suspend_reason_cf_config()
+    if not cfg:
+        return None
+    field_gid = cfg["field_gid"]
+    for cf in task.get("custom_fields") or []:
+        if str(cf.get("gid")) != field_gid:
+            continue
+        enum_val = cf.get("enum_value") or {}
+        name = (enum_val.get("name") or "").strip()
+        return name or None
+    return None
+
+
+def set_suspend_reason(
+    task_gid: str,
+    reason_name: str | None,
+    *,
+    token: str | None = None,
+    dry_run: bool = False,
+) -> None:
+    cfg = suspend_reason_cf_config()
+    if not cfg:
+        raise RuntimeError(
+            "OS Suspend Reason CF GIDs missing — run: python tools/sync_org_os_cf_env.py --project <GID> --write -y"
+        )
+    field_gid = cfg["field_gid"]
+    if reason_name is None or not str(reason_name).strip():
+        enum_gid = None
+    else:
+        enum_gid = _suspend_reason_gid_for_name(str(reason_name))
+        if not enum_gid:
+            raise ValueError(f"unknown OS Suspend Reason {reason_name!r}")
+    if dry_run:
+        print(f"DRY-RUN  set_suspend_reason  task={task_gid}  reason={reason_name!r}")
+        return
+    custom_fields: dict[str, str | None] = {field_gid: enum_gid}
+    r = requests.put(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        json={"data": {"custom_fields": custom_fields}},
+        headers=_headers(token),
+    )
+    r.raise_for_status()
+
+
+def set_approval_required(
+    task_gid: str,
+    value: str,
+    *,
+    token: str | None = None,
+    dry_run: bool = False,
+) -> None:
+    """Backward-compat: set Approval Required Yes/No when CF exists."""
+    cfg = org_os_cf_config()
+    ap_field = cfg.get("approval_field_gid")
+    if not ap_field:
+        return
+    yes = (value or "").strip().lower() in ("yes", "y", "true", "1")
+    ap_gid = cfg.get("approval_yes_gid") if yes else cfg.get("approval_no_gid")
+    if not ap_gid:
+        return
+    if dry_run:
+        print(f"DRY-RUN  set_approval_required  task={task_gid}  value={value!r}")
+        return
+    r = requests.put(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        json={"data": {"custom_fields": {ap_field: ap_gid}}},
+        headers=_headers(token),
+    )
+    r.raise_for_status()
+
+
 def set_os_state(task_gid: str, state: str, *, token: str | None = None, dry_run: bool = False) -> None:
     cfg = org_os_cf_config()
     _refresh_state_maps(cfg)
@@ -124,7 +214,9 @@ def list_project_tasks(project_gid: str, *, token: str | None = None) -> list[di
     r = requests.get(
         f"{ASANA_BASE}/projects/{project_gid}/tasks",
         headers=_headers(token),
-        params={"opt_fields": "name,gid,completed,custom_fields,custom_fields.enum_value.name,custom_fields.enum_value.gid"},
+        params={
+            "opt_fields": "name,gid,completed,created_at,modified_at,permalink_url,custom_fields,custom_fields.enum_value.name,custom_fields.enum_value.gid"
+        },
     )
     r.raise_for_status()
     return r.json().get("data") or []
