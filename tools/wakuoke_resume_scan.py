@@ -137,6 +137,128 @@ def _resolve_project(arg_project: str | None) -> str | None:
     return None
 
 
+def scan_ready_actions(
+    project_gid: str,
+    *,
+    token: str | None = None,
+    max_ng: int = 3,
+    dry_run: bool = False,
+    escalation_user: str | None = None,
+) -> list[dict]:
+    """Scan ready_queue and return structured actions for org-ops orchestration."""
+    load_env_from_dotfile()
+    tok = token or get_token()
+    esc = escalation_user or os.getenv("ASANA_DEFAULT_HUMAN_APPROVER_GID", "").strip() or None
+    actions: list[dict] = []
+    ready_rows = org_os_queue.ready_queue(project_gid, token=tok)
+    for row in ready_rows:
+        parent_gid = str(row.get("epic_gid") or "")
+        logs = _find_helper_logs(parent_gid)
+        active_log: tuple[Path, dict] | None = None
+        for log_path in logs:
+            payload = _load_log(log_path)
+            if payload and not payload.get("consumed", False):
+                active_log = (log_path, payload)
+                break
+        if active_log is None:
+            actions.append(
+                {
+                    "action": "READY",
+                    "parent_gid": parent_gid,
+                    "result": None,
+                    "next": "task-dispatcher",
+                }
+            )
+            continue
+        log_path, payload = active_log
+        result = payload.get("approval_result")
+        gate_kind = payload.get("gate_kind") or "planning_approval"
+        if result == "OK":
+            actions.append(
+                {
+                    "action": "RESUME",
+                    "parent_gid": parent_gid,
+                    "result": "OK",
+                    "gate_kind": gate_kind,
+                    "next": "task-dispatcher",
+                }
+            )
+            if not dry_run:
+                _mark_consumed(log_path, payload)
+            continue
+        counter = _read_ng_counter(parent_gid)
+        counter["ng_count"] = int(counter.get("ng_count", 0)) + 1
+        history = list(counter.get("history") or [])
+        history.append(
+            {
+                "sub_gid": payload.get("approval_sub_gid"),
+                "completed_at": payload.get("completed_at"),
+                "result": result,
+                "excerpt": payload.get("approval_comments_excerpt", ""),
+            }
+        )
+        counter["history"] = history[-10:]
+        if not dry_run:
+            _write_ng_counter(parent_gid, counter, max_ng)
+            _mark_consumed(log_path, payload)
+        if counter["ng_count"] >= max_ng:
+            actions.append(
+                {
+                    "action": "ESCALATE",
+                    "parent_gid": parent_gid,
+                    "result": result,
+                    "count": counter["ng_count"],
+                    "max_ng": max_ng,
+                    "next": "human",
+                }
+            )
+            if not dry_run:
+                _post_escalation_comment(parent_gid, counter, max_ng, esc, tok)
+        else:
+            actions.append(
+                {
+                    "action": "RESUME",
+                    "parent_gid": parent_gid,
+                    "result": result or "unset",
+                    "gate_kind": gate_kind,
+                    "count": counter["ng_count"],
+                    "max_ng": max_ng,
+                    "next": "task-dispatcher",
+                }
+            )
+    return actions
+
+
+def print_scan_actions(
+    project_gid: str,
+    actions: list[dict],
+    *,
+    max_ng: int,
+    dry_run: bool,
+) -> None:
+    print(console_safe(f"SCAN  project={project_gid}  max_ng={max_ng}  dry_run={dry_run}"))
+    for item in actions:
+        act = item["action"]
+        parent = item["parent_gid"]
+        if act == "READY":
+            print(console_safe(f"READY  parent={parent}  kind=fresh"))
+        elif act == "ESCALATE":
+            print(console_safe(
+                f"ESCALATE parent={parent}  count={item.get('count')}/{item.get('max_ng')}  "
+                f"result={item.get('result') or 'unset'}"
+            ))
+        elif act == "RESUME":
+            result = item.get("result")
+            if result == "OK":
+                print(console_safe(f"RESUME parent={parent}  result=OK  next=execution_dispatch"))
+            else:
+                print(console_safe(
+                    f"RESUME parent={parent}  result={result}  "
+                    f"count={item.get('count')}/{item.get('max_ng')}"
+                ))
+    print(console_safe(f"DONE  ready_total={len(actions)}"))
+
+
 def main() -> int:
     p = argparse.ArgumentParser(
         description="Scan Asana for Ready epics and reconcile with approval-helper logs."
@@ -160,64 +282,19 @@ def main() -> int:
         or None
     )
 
-    print(console_safe(f"SCAN  project={project}  max_ng={args.max_ng}  dry_run={args.dry_run}"))
-
     try:
-        ready_rows = org_os_queue.ready_queue(project, token=token)
+        actions = scan_ready_actions(
+            project,
+            token=token,
+            max_ng=args.max_ng,
+            dry_run=args.dry_run,
+            escalation_user=escalation_user,
+        )
     except requests.HTTPError as exc:
         print(f"error: failed to list ready queue: {exc}", file=sys.stderr)
         return 3
 
-    ready_count = len(ready_rows)
-    for row in ready_rows:
-        parent_gid = str(row.get("epic_gid") or "")
-
-        logs = _find_helper_logs(parent_gid)
-        active_log: tuple[Path, dict] | None = None
-        for log_path in logs:
-            payload = _load_log(log_path)
-            if payload and not payload.get("consumed", False):
-                active_log = (log_path, payload)
-                break
-
-        if active_log is None:
-            print(console_safe(f"READY  parent={parent_gid}  kind=fresh"))
-            continue
-
-        log_path, payload = active_log
-        result = payload.get("approval_result")
-        if result == "OK":
-            print(console_safe(f"RESUME parent={parent_gid}  result=OK  next=execution_dispatch"))
-            _mark_consumed(log_path, payload)
-            continue
-
-        counter = _read_ng_counter(parent_gid)
-        counter["ng_count"] = int(counter.get("ng_count", 0)) + 1
-        history = list(counter.get("history") or [])
-        history.append(
-            {
-                "sub_gid": payload.get("approval_sub_gid"),
-                "completed_at": payload.get("completed_at"),
-                "result": result,
-                "excerpt": payload.get("approval_comments_excerpt", ""),
-            }
-        )
-        counter["history"] = history[-10:]
-        _write_ng_counter(parent_gid, counter, args.max_ng)
-        _mark_consumed(log_path, payload)
-
-        if counter["ng_count"] >= args.max_ng:
-            print(console_safe(
-                f"ESCALATE parent={parent_gid}  count={counter['ng_count']}/{args.max_ng}  result={result or 'unset'}"
-            ))
-            if not args.dry_run:
-                _post_escalation_comment(parent_gid, counter, args.max_ng, escalation_user, token)
-        else:
-            print(console_safe(
-                f"RESUME parent={parent_gid}  result={result or 'unset'}  count={counter['ng_count']}/{args.max_ng}"
-            ))
-
-    print(console_safe(f"DONE  ready_total={ready_count}"))
+    print_scan_actions(project, actions, max_ng=args.max_ng, dry_run=args.dry_run)
     return 0
 
 

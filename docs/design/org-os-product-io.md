@@ -127,6 +127,7 @@ Ready/Running/Waiting --(complete)--> Done
 | `create_approval_subtask` | `syscall.suspend(..., "Approval")` + subtask @mention |
 | `approval_helper` | `syscall.resume`（承認完了検知後） |
 | `wakuoke_resume_scan` | `queue.ready_queue` |
+| `asana_ops_poller --once` | `scan_resume_and_dispatch` → `org-os dispatch` + `DISPATCH` 行（`--no-scan-resume` で無効化） |
 | `complete_epic_os_state` | CLI `org-os complete` |
 
 ## 8. 検証

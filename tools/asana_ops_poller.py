@@ -27,8 +27,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ASANA_OPT = ROOT / "skills/platform/asana-buddy/optional"
-if str(ASANA_OPT) not in sys.path:
-    sys.path.insert(0, str(ASANA_OPT))
+ORG_OS_SRC = ROOT / "products/org-os/src"
+for p in (ASANA_OPT, ROOT, ORG_OS_SRC):
+    if str(p) not in sys.path:
+        sys.path.insert(0, str(p))
 
 import requests  # noqa: E402
 
@@ -41,6 +43,8 @@ from asana_program_common import (  # noqa: E402
     resolve_project_with_fallback,
     task_type_config,
 )
+
+from wakuoke_resume_scan import print_scan_actions, scan_ready_actions  # noqa: E402
 
 SESSIONS_DIR = ROOT / "output/platform/sessions"
 INTAKE_MARKER = "intake 元タスクとして org-ops エピック"
@@ -242,6 +246,99 @@ def check_session_resume(session: dict, token: str) -> str:
     return "approved" if sub.get("completed") else "pending"
 
 
+def _org_os_start(epic_gid: str, *, dry_run: bool) -> int:
+    cmd = [sys.executable, str(ROOT / "tools/org_os.py"), "dispatch", "--epic", epic_gid]
+    if dry_run:
+        cmd.append("--dry-run")
+    r = _run_capture(cmd, label=f"org_os_start_{epic_gid}")
+    if r.returncode == 0:
+        tail = (r.stdout or "").strip().splitlines()
+        detail = tail[-1] if tail else "ok"
+        print(f"START  epic={epic_gid}  {detail}")
+    else:
+        print(f"WARN  START failed  epic={epic_gid}  exit={r.returncode}", file=sys.stderr)
+        if r.stderr:
+            print(r.stderr.strip(), file=sys.stderr)
+    return r.returncode
+
+
+def _emit_epic_dispatch_snippet(item: dict) -> None:
+    parent = item.get("parent_gid") or "?"
+    nxt = item.get("next") or "task-dispatcher"
+    gate = item.get("gate_kind") or "-"
+    result = item.get("result") or "fresh"
+    act = item.get("action") or "?"
+    print(
+        f"""【ResumeDispatch】parent={parent}  action={act}  result={result}  gate={gate}
+
+新規 Cursor セッションで execution dispatch:
+
+python tools/task_dispatcher.py --parent {parent}
+
+# DISPATCH next={nxt}
+""",
+        file=sys.stderr,
+    )
+
+
+def scan_waiting_hints(project_gid: str, token: str, *, human: bool) -> None:
+    try:
+        from org_os import queue as org_os_queue  # noqa: WPS433
+    except ImportError as exc:
+        print(f"WARN  wait_list unavailable: {exc}", file=sys.stderr)
+        return
+    for row in org_os_queue.wait_list(project_gid, token=token):
+        reason = row.get("suspend_reason") or "-"
+        parent = row.get("epic_gid")
+        print(f"HINT  parent={parent}  tool=approval_helper  reason={reason}")
+        if human and reason == "Approval":
+            print(
+                f"  → python tools/approval_helper.py --parent {parent} "
+                f"--approval-sub <SUB_GID> --gate-kind planning_approval --once",
+                file=sys.stderr,
+            )
+
+
+def scan_resume_and_dispatch(
+    *,
+    project_gids: list[str],
+    token: str,
+    dry_run: bool,
+    human: bool,
+    max_ng: int,
+) -> int:
+    for project_gid in project_gids:
+        scan_waiting_hints(project_gid, token, human=human)
+        try:
+            actions = scan_ready_actions(
+                project_gid,
+                token=token,
+                max_ng=max_ng,
+                dry_run=dry_run,
+            )
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN  resume_scan failed  project={project_gid}: {exc}", file=sys.stderr)
+            continue
+        print_scan_actions(project_gid, actions, max_ng=max_ng, dry_run=dry_run)
+        for item in actions:
+            act = item.get("action")
+            if act not in ("READY", "RESUME"):
+                continue
+            parent = str(item.get("parent_gid") or "")
+            nxt = item.get("next") or "task-dispatcher"
+            result = item.get("result")
+            gate = item.get("gate_kind") or "-"
+            if act == "RESUME":
+                _org_os_start(parent, dry_run=dry_run)
+            print(
+                f"DISPATCH  parent={parent}  action={act}  result={result or 'fresh'}  "
+                f"gate={gate}  next={nxt}"
+            )
+            if human:
+                _emit_epic_dispatch_snippet(item)
+    return 0
+
+
 def scan_projects(
     *,
     project_gids: list[str],
@@ -401,6 +498,17 @@ def main() -> int:
         default=None,
         help="With --record-wait --gate-kind pm_review_gate: dispatch department hint",
     )
+    p.add_argument(
+        "--no-scan-resume",
+        action="store_true",
+        help="Skip org-os resume scan + START/DISPATCH (default: scan enabled)",
+    )
+    p.add_argument(
+        "--max-ng",
+        type=int,
+        default=3,
+        help="NG loop limit for resume scan (default 3)",
+    )
     args = p.parse_args()
 
     if args.record_wait:
@@ -428,7 +536,7 @@ def main() -> int:
         project_gids = [resolve_project_with_fallback(args.project)]
 
     def _run() -> int:
-        return scan_projects(
+        code = scan_projects(
             project_gids=project_gids,
             token=token,
             dry_run=args.dry_run,
@@ -437,6 +545,17 @@ def main() -> int:
             auto_bootstrap=args.auto_bootstrap,
             yes=args.yes,
         )
+        if code != 0:
+            return code
+        if not args.no_scan_resume and not args.trigger_intake and not args.auto_bootstrap:
+            return scan_resume_and_dispatch(
+                project_gids=project_gids,
+                token=token,
+                dry_run=args.dry_run,
+                human=args.human,
+                max_ng=args.max_ng,
+            )
+        return 0
 
     if args.once:
         return _run()

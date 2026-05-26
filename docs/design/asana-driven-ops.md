@@ -16,7 +16,7 @@ Asana を運用ダッシュボードとして、**AI タスク検出 → intake 
 
 | コンポーネント | パス | 役割 |
 |----------------|------|------|
-| スキャン / ポーラ | [`tools/asana_ops_poller.py`](../../tools/asana_ops_poller.py) | プロジェクト走査 · intake トリガー · 保留監視 · **Phase 2:** `--projects` |
+| スキャン / ポーラ | [`tools/asana_ops_poller.py`](../../tools/asana_ops_poller.py) | プロジェクト走査 · intake · 保留監視 · **resume scan**（`scan_ready_actions` + `org-os dispatch`）· `--no-scan-resume` で無効化 |
 | 保留確認 | [`tools/check_workflow_suspend.py`](../../tools/check_workflow_suspend.py) | suspended 一覧 / gate 状態 · resumable hint |
 | RESUME snippet | [`tools/pm_emit_resume_prompt.py`](../../tools/pm_emit_resume_prompt.py) | **Phase 2** — gate complete 後の再開プロンプト |
 | sessions 共有 | [`tools/asana_ops_sessions.py`](../../tools/asana_ops_sessions.py) | **Phase 3** — session JSON · webhook ログ |
@@ -36,9 +36,11 @@ Asana を運用ダッシュボードとして、**AI タスク検出 → intake 
 | `SKIP` | 候補除外（完了済み · 重複 intake · CF 不一致等） |
 | `CANDIDATE` | intake 候補タスク |
 | `INTAKE` | snapshot / trigger 実行 |
-| `DISPATCH` | intake / bootstrap 後の次アクション hint（orchestrator / PM 起動プロンプト） |
+| `DISPATCH` | RESUME/READY 後 · `next=task-dispatcher` 等の execution 再開 hint（**自動 agent kick はしない**） |
+| `START` | `org-os dispatch`（syscall.start）成功 |
+| `HINT` | Waiting epic · `approval_helper` 起動提案 |
 | `WAIT` | 人間 gate 待ち（**`--record-wait` 保存済み** · ダッシュボード表示） |
-| `RESUME` | gate complete 検知 — dispatch 再開可 |
+| `RESUME` | gate complete / ヘルパーログ突合 — dispatch 再開可 |
 
 ## スキャン条件（MVP）
 
