@@ -294,6 +294,33 @@ def assign_user(task_gid: str, user_gid: str, token: str) -> bool:
         return False
 
 
+def html_user_mention_tag(user_gid: str) -> str:
+    """Asana rich-text @-mention (requires html_text on stories, not plain text)."""
+    gid = str(user_gid or "").strip()
+    if not gid:
+        return ""
+    return f'<a data-asana-type="user" data-asana-gid="{gid}"></a>'
+
+
+def create_task_story_html(task_gid: str, html_text: str, token: str) -> dict[str, Any]:
+    """Post a rich-text comment (story) on an Asana task.
+
+    Stories support only: body, strong, em, u, s, code, ol, ul, li, a, blockquote, pre.
+    Unsupported tags (e.g. br, p, h2) cause Asana to escape html_text and break @-mentions.
+    """
+    headers = {"Authorization": f"Bearer {token}"}
+    body = (html_text or "").strip()
+    if not body.startswith("<body"):
+        body = f"<body>{body}</body>"
+    r = requests.post(
+        f"{ASANA_BASE}/tasks/{task_gid}/stories",
+        json={"data": {"html_text": body}},
+        headers=headers,
+    )
+    r.raise_for_status()
+    return r.json()["data"]
+
+
 def get_task_custom_fields(task_gid: str, token: str) -> dict[str, dict]:
     """Return task custom_fields keyed by field_gid.
 

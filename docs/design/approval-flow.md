@@ -183,7 +183,13 @@ python tools/wakuoke_resume_scan.py \
 |----------------|------|
 | `org_os.syscall.suspend(parent, "Approval", ref=sub_gid)` | 親 epic → Waiting + OS Suspend Reason=**Approval**（Asana 表示名） + Approval Required=Yes |
 | `org_os.syscall.resume(parent, ref=sub_gid)` | 承認完了後 Waiting → Ready（`approval_helper`） |
-| `create_approval_subtask` | サブ作成 · human assignee · suspend · subtask へ `<@user>` mention |
+| `create_approval_subtask` | サブ作成 · human assignee · suspend · subtask へ **html_text** `@`-mention（`data-asana-type="user"` · **`br`/`p` 等は不可**） |
+
+**@-mention 注意（2026-05-26 検証）:**
+
+1. **plain `text` の `<@gid>` は無効** — `html_text` + `<a data-asana-type="user" data-asana-gid="..."></a>` が必須
+2. **Stories の許可タグのみ** — `body`, `strong`, `em`, `a`, `ul`, `li` 等。**`<br/>` を入れると HTML 全体がエスケープされメンションが壊れる**
+3. **通知** — assignee / follower 設定後に mention。さらに **PAT ユーザーと承認者が同一 GID の場合、自分自身への通知は Asana 側で飛ばない**（別ユーザー GID を `ASANA_DEFAULT_HUMAN_APPROVER_GID` に設定すること）
 | `approval_result_config()` | Approval Result CF GID 取得（未設定時 None） |
 | `human_approver_gid()` | 人間 assignee GID 取得（未設定時 None） |
 | `assign_user(task_gid, user_gid, token)` | Asana 標準 assignee 設定 |

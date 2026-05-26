@@ -34,8 +34,8 @@ for p in (ASANA_OPT, ORG_OS_SRC):
 
 import requests  # noqa: E402
 
-from agent_handler_asana import ASANA_BASE, get_token, load_env_from_dotfile  # noqa: E402
-from asana_program_common import console_safe  # noqa: E402
+from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
+from asana_program_common import console_safe, create_task_story_html, html_user_mention_tag  # noqa: E402
 from org_os import queue as org_os_queue  # noqa: E402
 
 HELPER_LOG_DIR = ROOT / "output/platform/approval-helper"
@@ -109,21 +109,20 @@ def _post_escalation_comment(
     escalation_user: str | None,
     token: str,
 ) -> None:
-    mention = f" <@{escalation_user}>" if escalation_user else ""
-    body = (
-        f"## NG ループ上限到達{mention}\n\n"
-        f"承認サブで `Approval Result=NG`（または未設定で完了）が **{counter['ng_count']}/{max_ng}** 回連続しました。"
-        f"和久桶セッションでの自動再開は停止します。本エピックは依頼者の判断で next action を決定してください。\n\n"
-        f"history: 直近 {len(counter.get('history') or [])} 件をログに記録（output/platform/approval-helper/ng-counters/{parent_gid}.json）。"
+    mention_html = html_user_mention_tag(escalation_user) if escalation_user else ""
+    html_body = (
+        "<body>"
+        "<strong>NG ループ上限到達</strong>"
+        f"{(' ' + mention_html) if mention_html else ''} "
+        f"承認サブで <code>Approval Result=NG</code>（または未設定で完了）が "
+        f"<strong>{counter['ng_count']}/{max_ng}</strong> 回連続しました。"
+        "和久桶セッションでの自動再開は停止します。本エピックは依頼者の判断で next action を決定してください。 "
+        f"history: 直近 {len(counter.get('history') or [])} 件をログに記録"
+        f"（output/platform/approval-helper/ng-counters/{parent_gid}.json）。"
+        "</body>"
     )
-    headers = {"Authorization": f"Bearer {token}"}
     try:
-        r = requests.post(
-            f"{ASANA_BASE}/tasks/{parent_gid}/stories",
-            json={"data": {"text": body}},
-            headers=headers,
-        )
-        r.raise_for_status()
+        create_task_story_html(parent_gid, html_body, token)
     except requests.HTTPError as exc:
         print(f"warn  escalation comment failed parent={parent_gid}: {exc}", file=sys.stderr)
 

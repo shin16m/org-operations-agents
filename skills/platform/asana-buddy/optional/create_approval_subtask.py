@@ -10,6 +10,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import html
 import sys
 from pathlib import Path
 
@@ -26,6 +27,8 @@ from agent_handler_asana import ASANA_BASE, get_token, load_env_from_dotfile  # 
 from asana_program_common import (  # noqa: E402
     assign_user,
     console_safe,
+    create_task_story_html,
+    html_user_mention_tag,
     human_approver_gid,
     list_subtasks,
     set_assignee_type_human,
@@ -46,19 +49,20 @@ def _create_subtask(parent_gid: str, title: str, notes: str, token: str) -> dict
 
 
 def _post_approval_mention(sub_gid: str, human_gid: str, title: str, token: str) -> None:
-    body = (
-        f"## 承認依頼 <@{human_gid}>\n\n"
-        f"**{title}**\n\n"
-        "内容を確認し、問題なければ **このサブタスクを完了**してください（完了 = 承認）。\n"
+    """Post @-mention via html_text (plain text `<@gid>` does not notify)."""
+    mention = html_user_mention_tag(human_gid)
+    safe_title = html.escape(title)
+    # Stories allow: body, strong, em, u, s, code, ol, ul, li, a, blockquote, pre — NOT br/p/h*.
+    html_body = (
+        "<body>"
+        "<strong>承認依頼</strong> "
+        f"{mention} "
+        f"<strong>{safe_title}</strong> "
+        "内容を確認し、問題なければ <strong>このサブタスクを完了</strong>してください（完了 = 承認）。 "
         "差し戻しは本サブを未完了のまま、親タスクにコメントで指摘してください。"
+        "</body>"
     )
-    headers = {"Authorization": f"Bearer {token}"}
-    r = requests.post(
-        f"{ASANA_BASE}/tasks/{sub_gid}/stories",
-        json={"data": {"text": body}},
-        headers=headers,
-    )
-    r.raise_for_status()
+    create_task_story_html(sub_gid, html_body, token)
 
 
 def main() -> None:
