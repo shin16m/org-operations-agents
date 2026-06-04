@@ -172,6 +172,43 @@ def set_task_type_epic(task_gid: str, token: str) -> bool:
         return False
 
 
+def read_task_type(task_gid: str, token: str) -> str | None:
+    """Return Task Type enum name ('Intake' / 'Epic'), or None if unset/disabled."""
+    cfg = task_type_config()
+    if not cfg:
+        return None
+    try:
+        cfs = get_task_custom_fields(task_gid, token)
+    except requests.HTTPError as exc:
+        print(
+            f"警告: Task Type 読取失敗 task={task_gid}: {exc}",
+            file=sys.stderr,
+        )
+        return None
+    cf = cfs.get(cfg["field_gid"])
+    if not cf:
+        return None
+    enum_value = cf.get("enum_value")
+    if not enum_value:
+        return None
+    gid = str(enum_value.get("gid") or "")
+    if gid == cfg["epic_gid"]:
+        return "Epic"
+    if gid == cfg["intake_gid"]:
+        return "Intake"
+    return (enum_value.get("name") or "").strip() or None
+
+
+def is_epic_task(task_gid: str, token: str, *, task: dict[str, Any] | None = None) -> bool:
+    """True when Task Type=Epic, or parent-less task with at least one subtask."""
+    if read_task_type(task_gid, token) == "Epic":
+        return True
+    data = task if task is not None else fetch_task(task_gid, token)
+    if (data.get("parent") or {}).get("gid"):
+        return False
+    return bool(list_subtasks(task_gid, token))
+
+
 def org_os_cf_config() -> dict[str, str] | None:
     """Return OS State + Approval Required CF GIDs from env, or None if unset."""
     field = os.getenv("ASANA_OS_STATE_FIELD_GID", "").strip()
