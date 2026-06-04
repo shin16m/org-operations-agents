@@ -125,6 +125,23 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["audit"],
     },
     {
+        "name": "comment readability v1.3 SSOT",
+        "files": [
+            "docs/design/agent-asana-comment-signature.md",
+        ],
+        "required_any": [],
+        "required_all": ["build_human_comment_body", "4.4", "禁止表現"],
+    },
+    {
+        "name": "comment readability dispatch refs",
+        "files": [
+            "docs/design/dispatch-prompt-ssot.md",
+            "skills/platform/asana-buddy/SKILL.md",
+        ],
+        "required_any": [],
+        "required_all": ["build_human_comment_body", "です・ます"],
+    },
+    {
         "name": "record-wait orchestrator checklist",
         "files": [
             "skills/platform/workflow-orchestrator/SKILL.md",

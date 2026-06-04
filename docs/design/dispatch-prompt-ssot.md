@@ -34,7 +34,7 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 3. **必ず含める:** 厳密アサイン（該当チーム）· 禁止事項 · `comment_task` → `complete_task` 順 · **コメント本文ガイド**（下記）
 4. **含めない:** 「workflow の全 step を PM が順に実行」等の曖昧指示
 
-**コメント本文（全 department 共通）:** 完了前の `comment_task.py` は [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md) §4–5 に従う。`--summary` 一行だけにせず、**実施内容（箇条書き）· 成果物 · 次の状態**を `--body` に書く（目安 150–350 字）。レビュアー / PM は **判断・理由** を必須。
+**コメント本文（全 department 共通）:** 完了前の `comment_task.py` は [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md) §4–5 に従う。`--summary` 一行だけにせず、**実施内容（箇条書き）· 成果物 · 次の状態**を `--body` に書く（目安 150–350 字）。**です・ます調の自然な日本語**（§4.4–4.5 NG/OK 参照）。レビュアー / PM は **判断・理由** を必須。`--action` を繰り返すと [`build_human_comment_body`](../../skills/platform/asana-buddy/optional/asana_program_common.py) が §4 構造を自動生成。
 
 プレースホルダ:
 

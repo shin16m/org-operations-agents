@@ -222,6 +222,11 @@ def main() -> int:
         run_close_intake_source(source_gid, parent, dry_run=False, yes=True)
     if parent and planning:
         emit_dispatch(parent, planning)
+    print(
+        "AUTO_BOOTSTRAP  NOTE  bootstrap only — no 【承認】 yet. "
+        "Next: PLANNING_DISPATCH / planning-pm → Handoff → plan-review → create_approval_subtask",
+        file=sys.stderr,
+    )
     print(f"AUTO_BOOTSTRAP  OK  at={datetime.now(timezone.utc).isoformat()}")
     return 0
 

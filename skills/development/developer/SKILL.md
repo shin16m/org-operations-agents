@@ -18,6 +18,8 @@ workflow: [`development-delivery.yaml`](../../../workflows/development-delivery.
 5. PM から **[fix] 修正サブ**（review `failed` / mismatch 等）に対応 — notes の `## 修正依頼` と [`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)
 6. 完了前に `comment_task.py`（`--agent developer`）
 
+**コメント本文:** [`agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md) §4–5。`--summary` だけにせず `--body` または `--action`（繰り返し）で **実施内容 · 成果物 · 次の状態** を書く。**です・ます調**（slug 羅列・一行メモ禁止）。ワーカー complete 前は **レトロスペクティブ** 節を含める。
+
 ## やらないこと
 
 - 要件・設計・事後仕様の主作成（→ requirements-writer / tech-designer）

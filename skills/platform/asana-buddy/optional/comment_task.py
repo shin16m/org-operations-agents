@@ -13,6 +13,7 @@ if str(_SCRIPT_DIR) not in sys.path:
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import (  # noqa: E402
     agent_work_comment_to_text,
+    build_human_comment_body,
     console_safe,
     create_task_story,
     format_signed_comment,
@@ -31,6 +32,9 @@ def main() -> None:
     p.add_argument("--phase", default="complete", choices=("start", "complete"))
     p.add_argument("--model", default=None, help="Optional LLM name")
     p.add_argument("--artifact", action="append", default=[], help="Artifact path (repeatable)")
+    p.add_argument("--action", action="append", default=[], help="実施内容 bullet (repeatable; builds --body)")
+    p.add_argument("--reason", default=None, help="判断・理由（レビュアー/PM 向け）")
+    p.add_argument("--next-state", default=None, help="次の状態（1 段落）")
     p.add_argument("--from-json", metavar="PATH", help="AgentWorkComment v1.0 JSON")
     p.add_argument("--dry-run", action="store_true", help="Print comment only")
     p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
@@ -46,8 +50,15 @@ def main() -> None:
         body = args.body or ""
         if args.body_file:
             body = Path(args.body_file).read_text(encoding="utf-8")
+        if not body.strip() and args.action:
+            body = build_human_comment_body(
+                actions=args.action,
+                reason=args.reason,
+                artifacts=args.artifact or None,
+                next_state=args.next_state,
+            )
         if not (body.strip() or (args.summary or "").strip()):
-            p.error("--body, --body-file, or --summary is required")
+            p.error("--body, --body-file, --summary, or --action is required")
         task_gid = args.gid
         text = format_signed_comment(
             args.agent,

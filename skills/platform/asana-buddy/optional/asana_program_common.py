@@ -423,6 +423,67 @@ def agent_display_name(slug: str) -> str:
     return load_agent_display_names().get(slug.strip(), slug.strip())
 
 
+_SECTION_HEADING_RE = re.compile(r"^##\s+(\S+)", re.MULTILINE)
+
+
+def build_human_comment_body(
+    *,
+    actions: Sequence[str],
+    reason: str | None = None,
+    artifacts: Sequence[str] | None = None,
+    next_state: str | None = None,
+    retrospective: dict[str, str] | None = None,
+) -> str:
+    """Build markdown body per agent-asana-comment-signature §4–5."""
+    parts: list[str] = ["## 実施内容", "\n".join(f"- {a.strip()}" for a in actions if a and str(a).strip())]
+    if reason and reason.strip():
+        parts.extend(["## 判断・理由", reason.strip()])
+    if artifacts:
+        artifact_lines = "\n".join(f"- {a}" for a in artifacts if a and str(a).strip())
+        if artifact_lines:
+            parts.extend(["## 成果物", artifact_lines])
+    if next_state and next_state.strip():
+        parts.extend(["## 次の状態", next_state.strip()])
+    if retrospective:
+        retro_lines: list[str] = []
+        for key, label in (
+            ("went_well", "うまくいった点"),
+            ("improve", "改善したい点"),
+            ("next_epic", "次エピック候補"),
+        ):
+            val = (retrospective.get(key) or "").strip()
+            if val:
+                retro_lines.append(f"- **{label}:** {val}")
+        if retro_lines:
+            parts.extend(["## レトロスペクティブ", "\n".join(retro_lines)])
+    return "\n\n".join(parts)
+
+
+def _normalize_comment_body(body: str) -> str:
+    """Wrap plain one-liners into ## 実施内容; leave structured markdown unchanged."""
+    text = (body or "").strip()
+    if not text:
+        return ""
+    if _SECTION_HEADING_RE.search(text):
+        return text
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    if not lines:
+        return ""
+    if len(lines) == 1:
+        line = lines[0]
+        if not line.startswith("- "):
+            line = f"- {line}"
+        return f"## 実施内容\n\n{line}"
+    bullet_block = "\n".join(
+        ln if ln.startswith("- ") else f"- {ln}" for ln in lines
+    )
+    return f"## 実施内容\n\n{bullet_block}"
+
+
+def _body_has_section(body: str, heading: str) -> bool:
+    return f"## {heading}" in (body or "")
+
+
 def _signature_block(
     agent: str,
     skill_path: str,
@@ -457,18 +518,21 @@ def format_signed_comment(
     summary: str | None = None,
     artifacts: Sequence[str] | None = None,
 ) -> str:
-    """Build Asana story: v1.2 — human block first, agent-work-record signature last."""
+    """Build Asana story: v1.2+ — human block first, agent-work-record signature last."""
     display = agent_display_name(agent)
     human_lines = ["## 依頼者向け", "", f"**担当:** {display}"]
-    if summary and summary.strip():
-        human_lines.append(f"**要約:** {summary.strip()}")
+    summary_text = (summary or "").strip()
+    if summary_text:
+        human_lines.append(f"**要約:** {summary_text}")
     human_lines.append("")
-    main = (body or "").strip()
+    main = _normalize_comment_body(body or "")
     if main:
         human_lines.append(main)
-    elif not (summary and summary.strip()):
-        human_lines.append("作業が完了しました。")
-    if artifacts:
+    elif summary_text:
+        human_lines.append(f"## 実施内容\n\n- {summary_text}")
+    else:
+        human_lines.append("## 実施内容\n\n- 作業が完了しました。")
+    if artifacts and not _body_has_section(main, "成果物"):
         artifact_lines = "\n".join(f"- {a}" for a in artifacts if a and str(a).strip())
         if artifact_lines:
             human_lines.extend(["", "## 成果物", artifact_lines])

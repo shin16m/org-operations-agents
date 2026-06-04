@@ -40,7 +40,7 @@
 
 ## Asana 記録（任意）
 
-レビュー対象タスクの GID が分かる場合、結果提出前に `comment_task.py --agent plan-reviewer` で要約を残してよい。
+レビュー対象タスクの GID が分かる場合、結果提出前に `comment_task.py --agent plan-reviewer` で要約を残してよい。**判断・理由** と判定（passed / failed）を `--body` に書く（§4.4–4.5 · です・ます調）。
 
 ## 安全
 

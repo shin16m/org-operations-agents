@@ -335,6 +335,30 @@ python tools/asana_webhook_handler.py --port 8766 --require-secret
 curl http://127.0.0.1:8766/metrics
 ```
 
+### バッチスクリプト（Windows · .cmd）
+
+[`scripts/org-ops/`](../../scripts/org-ops/) — **PowerShell 不要** · venv · `PYTHONIOENCODING` 共通化（[`_common.cmd`](../../scripts/org-ops/_common.cmd)）。
+
+| ファイル | 用途 |
+|----------|------|
+| [`org-ops-start.cmd`](../../org-ops-start.cmd) | リポジトリ直下 · メニュー起動（ダブルクリック可） |
+| `org-ops-once-dryrun.cmd` | 1 サイクル dry-run |
+| `org-ops-watch.cmd` | watch（ヒントのみ · `-y` なし） |
+| `org-ops-watch-yes.cmd` | 本番 watch（`-y`） |
+| `org-ops-watch-auto.cmd` | 本番 + `ORG_OPS_AUTO_KICK=1`（`CURSOR_API_KEY` 未設定時は Python 側 SKIP） |
+| `org-ops-webhook.cmd` | Webhook 常駐 |
+| `org-ops-dispatch.cmd` | `task_dispatcher`（`list` / `dryrun` / `kick`） |
+
+```cmd
+org-ops-start.cmd
+scripts\org-ops\org-ops-once-dryrun.cmd
+scripts\org-ops\org-ops-watch-yes.cmd
+scripts\org-ops\org-ops-dispatch.cmd 1215412762687733 list
+scripts\org-ops\org-ops-webhook.cmd --require-secret
+```
+
+高度な引数は同ディレクトリの `.ps1` も利用可。
+
 ### 非スコープ（Phase 6）
 
 - PM / planning 人間 gate 自動 complete

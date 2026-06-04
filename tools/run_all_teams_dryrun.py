@@ -105,14 +105,14 @@ def agent_comment_body(
     next_state: str | None = None,
 ) -> str:
     """Build --body text per agent-asana-comment-signature §4–5."""
-    parts: list[str] = ["## 実施内容", "\n".join(f"- {a}" for a in actions)]
-    if reason:
-        parts.extend(["## 判断・理由", reason])
-    if artifacts:
-        parts.extend(["## 成果物", "\n".join(f"- {a}" for a in artifacts)])
-    if next_state:
-        parts.extend(["## 次の状態", next_state])
-    return "\n\n".join(parts)
+    from asana_program_common import build_human_comment_body
+
+    return build_human_comment_body(
+        actions=actions,
+        reason=reason,
+        artifacts=artifacts,
+        next_state=next_state,
+    )
 
 
 def comment_and_complete(gid: str, agent: str, summary: str, body: str) -> None:

@@ -2,8 +2,8 @@
 
 | 項目 | 内容 |
 |------|------|
-| 版 | 1.2 |
-| 日付 | 2026-05-24 |
+| 版 | 1.3 |
+| 日付 | 2026-06-04 |
 
 ## 1. 目的
 
@@ -64,7 +64,7 @@ executed_at: 2026-05-24T09:00:00+09:00
 
 ## 4. 依頼者向け本文ガイド（必須）
 
-署名ブロックの下（`--body` / `body_markdown`）は、**依頼者がタスク一覧から開いて理解できる**ことを優先する。
+署名ブロックの**上**（`--body` / `body_markdown`）は、**依頼者がタスク一覧から開いて理解できる**ことを優先する。日本人向けに **自然な敬体（です・ます）** で書く。
 
 ### 4.1 分量
 
@@ -108,6 +108,38 @@ handoff.all-teams-dryrun.json を出力。
 ## 次の状態
 - plan-reviewer の PlanReviewResult 待ち（同一企画子 GID）
 ```
+
+### 4.4 文体・トーン
+
+| 観点 | 推奨 |
+|------|------|
+| 文体 | **です・ます調**（依頼者向け）。箇条書きの述語も「〜しました」「〜です」で揃える |
+| 主語 | 「担当エージェント」ではなく **作業内容** を主語に（例: 「Handoff JSON を作成しました」） |
+| 専門語 | slug / GID / schema_version は **括弧で補足** するか成果物パスへ委譲 |
+| 長さ | 1 項目 1 行〜2 行。英文直訳・機械ログ調（`created_subtask 3 ...`）は避ける |
+
+**CLI テンプレ:** [`build_human_comment_body`](../../skills/platform/asana-buddy/optional/asana_program_common.py) — `comment_task.py` の `--action` / `--next-state` / `--reason` でも同形を生成。
+
+### 4.5 禁止表現と推奨表現（NG / OK）
+
+| NG（避ける） | OK（推奨） |
+|--------------|------------|
+| `handoff.xxx.json を出力。`（一行のみ） | `Handoff JSON（handoff.xxx.json）を output/planning/handoff/ に作成しました` |
+| `done` / `OK` / `complete` のみ | `サブタスクの done_when を満たし、署名コメントを投稿しました` |
+| `developer が実装`（slug 羅列） | `API ヘルパを実装し、dev-reviewer へ code review を依頼します` |
+| `created_subtask 3 1215...`（ログそのまま） | `Asana に execution 系子タスク 3 件を追加しました（Handoff sync 済）` |
+| `作業が完了しました。` のみ | **要約 + 実施内容 2 項目以上**（`--summary` と `--body` を併用） |
+| 英語見出しのみ（`## Summary`） | 日本語見出し（`## 実施内容` · `## 次の状態`） |
+
+### 4.6 epic-summary との整合
+
+[`comment_epic_summary.py`](../../skills/platform/asana-buddy/optional/comment_epic_summary.py) も **同一の二層形式**（`format_signed_comment`）を使う。
+
+| 観点 | 子タスク comment | 親 epic summary |
+|------|------------------|-----------------|
+| 担当表示 | 各ワーカーの日本語表示名 | `workflow-orchestrator` → 統括表示名 |
+| 必須節 | §4.2 に従う | `## 実施内容` + `## 次の状態`（全子の要約） |
+| 文体 | §4.4–4.5 と同じ | 依頼者がエピック全体を追える要約 |
 
 ## 5. ロール別テンプレ
 
