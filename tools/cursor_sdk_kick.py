@@ -27,6 +27,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 KICK_WORKER_ENV = "ORG_OPS_KICK_WORKER"
 DEFAULT_MODEL = "composer-2.5"
+SUBPROCESS_TEXT_ENCODING = "utf-8"
+
+
+def _kick_subprocess_env(base: dict[str, str] | None = None) -> dict[str, str]:
+    env = dict(base or os.environ)
+    env.setdefault("PYTHONIOENCODING", SUBPROCESS_TEXT_ENCODING)
+    return env
+
+
+def _configure_stdio_utf8() -> None:
+    if sys.platform != "win32":
+        return
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding=SUBPROCESS_TEXT_ENCODING, errors="replace")
 
 
 def kick_runtime_mode() -> str:
@@ -57,6 +73,8 @@ def resolve_repo_url() -> str | None:
             cwd=str(ROOT),
             capture_output=True,
             text=True,
+            encoding=SUBPROCESS_TEXT_ENCODING,
+            errors="replace",
             check=False,
         )
         url = (r.stdout or "").strip()
@@ -130,7 +148,7 @@ def _kick_isolated_subprocess(prompt: str, *, cwd: Path, label: str) -> int:
         fh.write(prompt)
         prompt_path = fh.name
 
-    env = os.environ.copy()
+    env = _kick_subprocess_env()
     env[KICK_WORKER_ENV] = "1"
     cmd = [
         sys.executable,
@@ -151,6 +169,8 @@ def _kick_isolated_subprocess(prompt: str, *, cwd: Path, label: str) -> int:
             env=env,
             capture_output=True,
             text=True,
+            encoding=SUBPROCESS_TEXT_ENCODING,
+            errors="replace",
             creationflags=_windows_creationflags(),
         )
     finally:
@@ -231,6 +251,7 @@ def kick_prompt(
 
 
 def _worker_main(args: argparse.Namespace) -> int:
+    _configure_stdio_utf8()
     prompt = Path(args.prompt_file).read_text(encoding="utf-8")
     cwd = Path(args.cwd)
     label = args.label or "KICK"

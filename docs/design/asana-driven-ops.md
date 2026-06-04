@@ -396,6 +396,19 @@ delivery: [`watch-auto-planning-gate-delivery.md`](../verification/watch-auto-pl
 
 delivery: [`winerror-10038-kick-fix-delivery.md`](../verification/winerror-10038-kick-fix-delivery.md)
 
+### Windows 文字コード（隔離 kick · UnicodeDecodeError · 2026-06-04）
+
+| 層 | 対策 |
+|----|------|
+| `.cmd` / `_common.cmd` | `PYTHONIOENCODING=utf-8` |
+| `cursor_sdk_kick --worker` | 子 stdout/stderr を UTF-8 に `reconfigure` |
+| 隔離 kick **親** | `subprocess.run(..., encoding=utf-8, errors=replace)` + 子 env に `PYTHONIOENCODING=utf-8` |
+| poller / runner | `_run_capture` 同等（既存） |
+
+**UnicodeDecodeError（cp932）再発時:** 隔離 kick 親の `subprocess.run` に `encoding` 未指定が典型。`tools/test_cursor_sdk_kick.py` の `test_isolated_subprocess_uses_utf8_decode` で回帰確認。
+
+delivery: [`kick-subprocess-unicode-delivery.md`](../verification/kick-subprocess-unicode-delivery.md)
+
 ### 非スコープ（Phase 6）
 
 - PM / planning 人間 gate 自動 complete

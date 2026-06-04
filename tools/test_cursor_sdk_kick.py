@@ -7,6 +7,7 @@ import os
 import sys
 import unittest
 from pathlib import Path
+from subprocess import CompletedProcess
 from unittest import mock
 
 TOOLS = Path(__file__).resolve().parent
@@ -53,6 +54,30 @@ class KickIsolationTests(unittest.TestCase):
             os.environ.pop("CURSOR_API_KEY", None)
             code = kick.kick_prompt("test", label="TEST", no_api_key_exit=2)
             self.assertEqual(code, 2)
+
+    def test_kick_subprocess_env_sets_pythonioencoding(self) -> None:
+        env = kick._kick_subprocess_env({})
+        self.assertEqual(env.get("PYTHONIOENCODING"), "utf-8")
+
+    def test_isolated_subprocess_uses_utf8_decode(self) -> None:
+        fake_result = CompletedProcess(
+            args=[],
+            returncode=0,
+            stdout="KICK  日本語\n",
+            stderr="",
+        )
+        with mock.patch.object(kick.subprocess, "run", return_value=fake_result) as run_mock:
+            with mock.patch.object(kick, "_windows_creationflags", return_value=0):
+                code = kick._kick_isolated_subprocess(
+                    "planning-pm テスト",
+                    cwd=Path("."),
+                    label="KICK",
+                )
+        self.assertEqual(code, 0)
+        kwargs = run_mock.call_args.kwargs
+        self.assertEqual(kwargs.get("encoding"), "utf-8")
+        self.assertEqual(kwargs.get("errors"), "replace")
+        self.assertEqual(run_mock.call_args.kwargs["env"].get("PYTHONIOENCODING"), "utf-8")
 
 
 if __name__ == "__main__":
