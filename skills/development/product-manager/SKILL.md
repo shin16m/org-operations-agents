@@ -67,12 +67,11 @@ SSOT: [`pm-worker-dispatch-ssot.md`](../../../docs/design/pm-worker-dispatch-sso
 
 | フェーズ | 添付対象 | 確認 |
 |----------|----------|------|
-| requirements | `output/development/requirements/<worker_sub_gid>-requirements.md` | worker サブに attach 済み |
-| as-built-spec | `output/development/specs/<worker_sub_gid>-spec.md` | worker サブに attach 済み（workflow に spec がある profile） |
+| requirements | `output/development/requirements/<PM子GID>-requirements.md` | **worker サブ** + **要件 review サブ**の両方に attach 済み |
+| as-built-spec | `output/development/specs/<PM子GID>-spec.md` | **worker サブ** + **mismatch review サブ**の両方に attach 済み（workflow に spec がある profile） |
 
-- worker 完了前: `attach_task_files.py --gid <worker_sub> --file <md> -y` を requirements-writer が実行
-- PM が worker サブを **complete する前**に `attach_task_files.py --gid <worker_sub> --list` でファイル名一致を確認
-- **lite** で spec フェーズ skip 時は requirements md のみ
+- worker 完了前: requirements-writer が `attach_task_files.py --gid <worker> --also-gid <review_sub> --skip-if-present` を実行
+- PM が worker サブを **complete する前**に worker / review 各 `--list` でファイル名一致を確認
 
 ## Asana 記録（必須・順序）
 

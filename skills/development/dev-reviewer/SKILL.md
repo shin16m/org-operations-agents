@@ -22,15 +22,16 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 
 ## Asana 添付の確認（requirements / mismatch）
 
-`review_kind` が `requirements` または `mismatch` のとき、レビュー開始前に対象 md が **当該 worker サブに attach 済み**であることを確認する。
+`review_kind` が `requirements` または `mismatch` のとき、レビュー開始前に対象 md が **当該 dev-reviewer review サブ**（assign plan 上の review サブタスク）に attach 済みであることを確認する。
 
 ```powershell
-.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\attach_task_files.py --gid <worker_sub_gid> --list
+# 本サブ（review サブ）で確認 — 原則こちらを正とする
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\attach_task_files.py --gid <review_sub_gid> --list
 ```
 
-- `requirements`: `<gid>-requirements.md` が一覧に無ければ **failed**（attach 欠落）
-- `mismatch`: `<gid>-spec.md` が無ければ **failed**
-- attach 欠落時は PM へ差し戻し（worker 再 dispatch）。レビュー JSON は `status: failed` + finding に `category: io_contract`
+- `requirements`: `*-requirements.md` が **review サブ**一覧に無ければ **failed**（attach 欠落）
+- `mismatch`: `*-spec.md` が **review サブ**一覧に無ければ **failed**
+- attach 欠落時は PM へ差し戻し（requirements-writer の review サブ伝播手順の欠落修正）。レビュー JSON は `status: failed` + finding に `category: io_contract`
 
 ## MismatchReviewResult
 

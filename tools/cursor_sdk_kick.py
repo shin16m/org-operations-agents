@@ -34,6 +34,19 @@ DEFAULT_MODEL = "composer-2.5"
 SUBPROCESS_TEXT_ENCODING = "utf-8"
 
 
+def _load_dotenv_if_needed() -> None:
+    """Load skills/platform/asana-buddy/optional/.env (CURSOR_API_KEY, etc.)."""
+    asana_opt = ROOT / "skills/platform/asana-buddy/optional"
+    if str(asana_opt) not in sys.path:
+        sys.path.insert(0, str(asana_opt))
+    try:
+        from agent_handler_asana import load_env_from_dotfile  # noqa: WPS433
+
+        load_env_from_dotfile()
+    except ImportError:
+        pass
+
+
 def _kick_subprocess_env(base: dict[str, str] | None = None) -> dict[str, str]:
     env = dict(base or os.environ)
     env.setdefault("PYTHONIOENCODING", SUBPROCESS_TEXT_ENCODING)
@@ -291,6 +304,7 @@ def kick_prompt(
     bridge is unreliable — WinError 10038).
     """
     work_cwd = cwd or ROOT
+    _load_dotenv_if_needed()
     api_key = os.environ.get("CURSOR_API_KEY", "").strip()
     if not api_key:
         print(f"SKIP  {skip_no_key}", file=sys.stderr)

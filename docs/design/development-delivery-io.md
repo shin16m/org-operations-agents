@@ -117,7 +117,7 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 | 入力源 | 子 notes のみ |
 | PM アサイン | **フェーズをサブタスク分解**し各 notes に `担当:`（[`development-pm-assignment.md`](development-pm-assignment.md)） |
 | 成果物命名 | `<task_gid>` をファイル名に含める |
-| Asana md 添付 | requirements / as-built-spec の worker サブ完了前に `attach_task_files.py` で md を upload（[`attach_task_files.py`](../../skills/platform/asana-buddy/optional/attach_task_files.py)） |
+| Asana md 添付 | requirements / as-built-spec: worker サブ + **対応 dev-reviewer review サブ**へ同一 md（`attach_task_files.py --also-gid` · [`resolve_dev_review_sub.py`](../../tools/resolve_dev_review_sub.py)） |
 | Asana | 委譲ロール `comment_task` → PM がサブ `complete_task` → 全サブ完了後に親 complete |
 | 検証独立性 | 動作検証は **qa-verifier のみ** |
 | UX consume | full-ui は UX artifact を read-only。変更は UX チーム子タスクで |
@@ -133,7 +133,7 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 | 技術設計 | tech-designer | 設計書 | `output/development/design/<task_gid>-design.md` |
 | 実装 | developer | コード | 別リポジトリまたは本リポジトリ |
 | 事後仕様 | requirements-writer | 詳細仕様書 | `output/development/specs/<task_gid>-spec.md` |
-| Asana 添付 | requirements-writer | 要件 / 仕様 md | worker サブ attachment（`attach_task_files.py`） |
+| Asana 添付 | requirements-writer | 要件 / 仕様 md | worker + review サブ attachment（`attach_task_files.py --also-gid`） |
 | レビュー | dev-reviewer / qa-verifier / ux-reviewer | 各 Result JSON | `output/development/reviews/` · `output/ux/reviews/` |
 
 チーム内レビュー契約: [`dept-work-io.md`](dept-work-io.md)
