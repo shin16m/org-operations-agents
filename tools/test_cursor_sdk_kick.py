@@ -104,6 +104,37 @@ class KickIsolationTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(attempt_mock.call_count, 1)
 
+    def test_async_kick_default_on_win32(self) -> None:
+        with mock.patch.object(kick.sys, "platform", "win32"):
+            with mock.patch.dict(os.environ, {}, clear=False):
+                os.environ.pop("ORG_OPS_KICK_ASYNC", None)
+                self.assertTrue(kick._use_async_kick())
+
+    def test_async_kick_off_on_linux(self) -> None:
+        with mock.patch.object(kick.sys, "platform", "linux"):
+            with mock.patch.dict(os.environ, {}, clear=False):
+                os.environ.pop("ORG_OPS_KICK_ASYNC", None)
+                self.assertFalse(kick._use_async_kick())
+
+    def test_async_kick_forced_via_env(self) -> None:
+        with mock.patch.object(kick.sys, "platform", "linux"):
+            with mock.patch.dict(os.environ, {"ORG_OPS_KICK_ASYNC": "1"}, clear=False):
+                self.assertTrue(kick._use_async_kick())
+
+    def test_kick_in_process_uses_async_on_win32(self) -> None:
+        fake_result = mock.Mock(status="completed", result="")
+        with mock.patch.dict(os.environ, {"CURSOR_API_KEY": "test-key"}, clear=False):
+            with mock.patch.object(kick, "_build_agent_options", return_value=object()):
+                with mock.patch.object(kick, "_use_async_kick", return_value=True):
+                    with mock.patch.object(
+                        kick, "_run_async_prompt", return_value=fake_result
+                    ) as async_mock:
+                        code = kick._kick_in_process(
+                            "planning-pm テスト", cwd=Path("."), label="KICK"
+                        )
+        self.assertEqual(code, 0)
+        async_mock.assert_called_once()
+
     def test_isolated_subprocess_uses_utf8_decode(self) -> None:
         fake_result = CompletedProcess(
             args=[],

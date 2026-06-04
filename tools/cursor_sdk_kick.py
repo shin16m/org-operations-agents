@@ -11,6 +11,10 @@ Usage (worker child — internal):
 Environment:
   ORG_OPS_KICK_RUNTIME   local | cloud | auto (default auto: cloud if ORG_OPS_REPO_URL set else local)
   ORG_OPS_KICK_ISOLATE   1 (default) | 0 — Windows subprocess isolation
+  ORG_OPS_KICK_ASYNC     1 | 0 — use async SDK surface (default 1 on win32)
+                          Required on Windows: the sync bridge uses select()
+                          on a pipe fd → WinError 10038. The async surface
+                          reads the pipe via ProactorEventLoop (IOCP).
   ORG_OPS_KICK_WORKER    1 — set in worker child; skips re-isolation
   ORG_OPS_REPO_URL       git remote URL for cloud runtime (optional; auto from origin)
   ORG_OPS_REPO_REF       branch/ref for cloud (default main)
@@ -121,15 +125,59 @@ def _build_agent_options(*, api_key: str, cwd: Path):
     )
 
 
+def _use_async_kick() -> bool:
+    """Whether to drive the kick through the async SDK surface.
+
+    Required on Windows: the sync bridge (`cursor_sdk._bridge`) reads the
+    bridge subprocess's stderr pipe with `selectors.DefaultSelector()`
+    (`select()`), which on Windows only accepts sockets — a pipe fd raises
+    OSError WinError 10038. The async surface reads the pipe through the
+    ProactorEventLoop (IOCP/overlapped IO), avoiding `select()` entirely.
+    Overridable via ORG_OPS_KICK_ASYNC (1/0).
+    """
+    raw = os.environ.get("ORG_OPS_KICK_ASYNC", "").strip().lower()
+    if raw in ("1", "true", "yes"):
+        return True
+    if raw in ("0", "false", "no"):
+        return False
+    return sys.platform == "win32"
+
+
+async def _async_prompt(prompt: str, options, *, cwd: Path):
+    from cursor_sdk.asyncio import AsyncAgent, AsyncClient  # type: ignore
+
+    async with await AsyncClient.launch_bridge(workspace=str(cwd)) as client:
+        return await AsyncAgent.prompt(prompt, options, client=client)
+
+
+def _run_async_prompt(prompt: str, options, *, cwd: Path):
+    import asyncio
+
+    if sys.platform == "win32":
+        # Proactor loop reads the bridge stderr pipe via IOCP rather than
+        # select(), sidestepping the sync bridge's WinError 10038.
+        policy = getattr(asyncio, "WindowsProactorEventLoopPolicy", None)
+        if policy is not None and not isinstance(
+            asyncio.get_event_loop_policy(), policy
+        ):
+            asyncio.set_event_loop_policy(policy())
+    return asyncio.run(_async_prompt(prompt, options, cwd=cwd))
+
+
 def _kick_in_process(prompt: str, *, cwd: Path, label: str) -> int:
     api_key = os.environ.get("CURSOR_API_KEY", "").strip()
     if not api_key:
         return -1
-    from cursor_sdk import Agent  # type: ignore
 
-    print(f"{label}  cursor_sdk Agent.prompt starting…")
     options = _build_agent_options(api_key=api_key, cwd=cwd)
-    result = Agent.prompt(prompt, options)
+    if _use_async_kick():
+        print(f"{label}  cursor_sdk AsyncAgent.prompt starting…")
+        result = _run_async_prompt(prompt, options, cwd=cwd)
+    else:
+        from cursor_sdk import Agent  # type: ignore
+
+        print(f"{label}  cursor_sdk Agent.prompt starting…")
+        result = Agent.prompt(prompt, options)
     print(f"{label}  cursor_sdk status={result.status}")
     if getattr(result, "result", None):
         text = str(result.result)

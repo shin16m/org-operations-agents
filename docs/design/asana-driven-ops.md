@@ -390,11 +390,25 @@ delivery: [`watch-auto-planning-gate-delivery.md`](../verification/watch-auto-pl
 **WinError 10038 再発時:**
 
 1. `python tools/cursor_sdk_kick.py --dry-run-isolation` — `enabled=True` か確認
-2. `ORG_OPS_KICK_ISOLATE=0` で in-process に戻す（デバッグのみ）
-3. `ORG_OPS_KICK_RUNTIME=cloud` + `ORG_OPS_REPO_URL` で local bridge 回避
+2. `ORG_OPS_KICK_ASYNC=1`（既定 on/win32）で **非同期 SDK** 経由か確認（下記「確定原因と非同期修正」参照）
+3. `ORG_OPS_KICK_ISOLATE=0` で in-process に戻す（デバッグのみ）
 4. 上記でも失敗 → **手動 planning-pm / dispatch snippet**（watch-auto § と同じ正規ルート）
 
 delivery: [`winerror-10038-kick-fix-delivery.md`](../verification/winerror-10038-kick-fix-delivery.md)
+
+### WinError 10038 確定原因と非同期修正（2026-06-05）
+
+**確定原因（SDK バグ）:** `cursor-sdk 0.1.6` の **同期** bridge（`_bridge._read_discovery`）が、bridge subprocess の stderr **パイプ fd** を `selectors.DefaultSelector()`（Windows では `select()`）で待つ。**Windows の `select()` はソケット専用**でパイプ不可 → `OSError WinError 10038`。隔離・UTF-8 化・cloud 切替では直らない（bridge 起動は runtime 判定より前）。
+
+**修正:** `cursor_sdk_kick._kick_in_process` は Windows で **非同期 SDK**（`AsyncClient.launch_bridge` + `AsyncAgent.prompt`）を使う。Windows の asyncio は **ProactorEventLoop（IOCP/overlapped IO）** でパイプを読むため `select()` を経由せず 10038 を回避。
+
+| 環境変数 | 既定 | 意味 |
+|----------|------|------|
+| `ORG_OPS_KICK_ASYNC` | `1`（win32）/ `0`（他） | `1`=非同期 SDK 経由（10038 回避）。`0`=従来の同期 `Agent.prompt` |
+
+**実機検証:** 同期 `Bridge.launch(workspace='.')` → `WinError 10038`。非同期 `AsyncClient.launch_bridge(workspace='.')` → bridge 正常起動（`http://127.0.0.1:PORT`）。回帰: `test_cursor_sdk_kick.py::test_kick_in_process_uses_async_on_win32`。
+
+これにより **local kick がそのまま成功**し、planning【承認】が自動作成される。cloud フォールバックは安全網として残すが、通常運用では不要。
 
 ### Windows 文字コード（隔離 kick · UnicodeDecodeError · 2026-06-04）
 
@@ -411,7 +425,7 @@ delivery: [`kick-subprocess-unicode-delivery.md`](../verification/kick-subproces
 
 ### local bridge 不可環境の正規運用（cloud kick · 2026-06-04）
 
-**前提:** 子プロセス隔離後も worker 子内で `WinError 10038` が再発する環境がある（ローカル SDK bridge 不可）。この場合 **local kick では planning 【承認】が自動作成されない**。
+**前提:** WinError 10038 の確定原因は同期 bridge の `select()`（上記「確定原因と非同期修正」）。**非同期化（`ORG_OPS_KICK_ASYNC=1`、既定）で local kick は成功する**ため、通常はこのセクションの cloud フォールバックは不要。以下は API key 不在や repo 未 clone など local 不可な残ケースの安全網。
 
 | ルート | 条件 | 動作 |
 |--------|------|------|
@@ -428,6 +442,20 @@ delivery: [`kick-subprocess-unicode-delivery.md`](../verification/kick-subproces
 **stuck 検知:** bootstrap のみで【承認】が無い epic は poller/runner が毎サイクル `WARN planning_stuck` を再出力する。**承認到達まで epic を Done 化しない。** 承認未作成が続く場合は cloud kick 設定または手動 planning-pm へ切替える。
 
 delivery: [`auto-kick-approval-not-created-delivery.md`](../verification/auto-kick-approval-not-created-delivery.md)
+
+### planning 承認後の execution 子 materialize（auto-kick 経路 · 2026-06-05）
+
+**症状:** planning【承認】complete → RESUME 後、auto-kick が `task_dispatcher` を直叩きして `DISPATCH no target` を返し前に進まない。
+
+**原因:** execution 系子は **承認後に `handoff_to_asana` が作る**。RESUME 時点ではまだ存在しないのに、`asana_ops_poller._cursor_kick_hint` が `gate=planning_approval` の RESUME を `else → task_dispatcher --kick` に流していた（材料となる execution 子が無いため `no target`）。
+
+**修正:** `_cursor_kick_hint` に `gate=="planning_approval"` 分岐を追加し、`cursor_epic_dispatch.py --mode execution --gate-kind planning_approval` を kick する。これは workflow-orchestrator agent を起動し **(1) Handoff 特定 → handoff_to_asana `--if-not-exists` で execution 子作成 → (2) task_dispatcher** を実行する。回帰: `test_planning_stuck.py::CursorKickRoutingTests`。
+
+**既に stuck した epic（session archive 済）の手動 unblock:**
+
+```powershell
+python tools/cursor_epic_dispatch.py --epic <EPIC_GID> --mode execution --gate-kind planning_approval -y
+```
 
 ### 非スコープ（Phase 6）
 

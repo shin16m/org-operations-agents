@@ -6,7 +6,7 @@ from __future__ import annotations
 import io
 import sys
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -40,6 +40,39 @@ class PlanningStuckTests(unittest.TestCase):
         # Completed approval = gate passed → not stuck (Done guard not triggered here).
         out = self._run({"gid": "1", "completed": True})
         self.assertEqual(out, "")
+
+
+class CursorKickRoutingTests(unittest.TestCase):
+    """_cursor_kick_hint must route by gate/phase (dry-run prints the cmd)."""
+
+    def _hint_cmd(self, item: dict) -> str:
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            poller._cursor_kick_hint(item, execute=False, dry_run=True, token=None)
+        return buf.getvalue()
+
+    def test_planning_approval_routes_to_execution_agent(self) -> None:
+        # Post-approval RESUME must materialize execution children via the
+        # workflow-orchestrator agent, not task_dispatcher (which has no target).
+        out = self._hint_cmd(
+            {"parent_gid": "EPIC", "phase": "execution", "gate_kind": "planning_approval"}
+        )
+        self.assertIn("cursor_epic_dispatch.py", out)
+        self.assertIn("--mode execution", out)
+        self.assertIn("--gate-kind planning_approval", out)
+        self.assertNotIn("task_dispatcher.py", out)
+
+    def test_plain_execution_routes_to_task_dispatcher(self) -> None:
+        out = self._hint_cmd({"parent_gid": "EPIC", "phase": "execution", "gate_kind": "-"})
+        self.assertIn("task_dispatcher.py", out)
+        self.assertNotIn("cursor_epic_dispatch.py", out)
+
+    def test_planning_phase_routes_to_planning_dispatch(self) -> None:
+        out = self._hint_cmd(
+            {"parent_gid": "EPIC", "phase": "planning", "planning_child_gid": "CHILD"}
+        )
+        self.assertIn("cursor_epic_dispatch.py", out)
+        self.assertIn("--mode planning", out)
 
 
 if __name__ == "__main__":

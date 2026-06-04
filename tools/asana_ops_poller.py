@@ -369,6 +369,23 @@ def _cursor_kick_hint(item: dict, *, execute: bool, dry_run: bool, token: str | 
         if child:
             cmd.extend(["--planning-child", child])
         label = f"cursor_kick_{parent}"
+    elif gate == "planning_approval":
+        # Post-approval RESUME: execution children do not exist yet —
+        # handoff_to_asana must materialize them from the approved Handoff
+        # before task_dispatcher has any target. Kick the workflow-orchestrator
+        # agent (handoff_to_asana → task_dispatcher) instead of dispatching
+        # directly, which would just print "DISPATCH no target".
+        cmd = [
+            sys.executable,
+            str(ROOT / "tools/cursor_epic_dispatch.py"),
+            "--epic",
+            parent,
+            "--mode",
+            "execution",
+            "--gate-kind",
+            "planning_approval",
+        ]
+        label = f"cursor_exec_{parent}"
     else:
         cmd = [
             sys.executable,

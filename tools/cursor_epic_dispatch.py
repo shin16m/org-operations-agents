@@ -34,12 +34,21 @@ def build_planning_prompt(epic_gid: str, planning_child: str) -> str:
 def build_execution_prompt(epic_gid: str, gate_kind: str | None) -> str:
     gate = gate_kind or "planning_approval"
     return (
-        "あなたは workflow-orchestrator スキルです（post-approval RESUME）。\n"
+        "あなたは workflow-orchestrator スキルです（planning gate 承認後の RESUME）。\n"
         f"親エピック GID: {epic_gid}\n"
         f"gate_kind: {gate}\n\n"
-        "1. handoff_to_asana.py --require-review-result（未投入なら）\n"
-        f"2. python tools/task_dispatcher.py --parent {epic_gid}\n"
-        "3. PM 自身はワーカー役を代行しない\n"
+        "この時点で execution 系子タスクはまだ Asana に存在しない。承認済み Handoff を"
+        " Asana に sync して execution 子を作ってから dispatch すること。\n\n"
+        "手順:\n"
+        f"1. 親 {epic_gid} の epic 名に対応する Handoff を `output/planning/handoff/*.json` から特定する"
+        "（`epic.title` が一致するもの。対の review は `output/planning/plan-review/<同名>.json`）。\n"
+        "2. handoff_to_asana で execution 子を投入（冪等・重複親を作らない）:\n"
+        "   python skills/platform/asana-buddy/optional/handoff_to_asana.py \\\n"
+        "     --handoff output/planning/handoff/<theme>.json \\\n"
+        "     --require-review-result output/planning/plan-review/<theme>.json \\\n"
+        f"     --parent {epic_gid} -y --if-not-exists\n"
+        f"3. python tools/task_dispatcher.py --parent {epic_gid}\n"
+        "4. PM 自身はワーカー役を代行しない（task-dispatcher → 各 PM intake へ委譲）。\n"
     )
 
 
