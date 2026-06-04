@@ -409,6 +409,26 @@ delivery: [`winerror-10038-kick-fix-delivery.md`](../verification/winerror-10038
 
 delivery: [`kick-subprocess-unicode-delivery.md`](../verification/kick-subprocess-unicode-delivery.md)
 
+### local bridge 不可環境の正規運用（cloud kick · 2026-06-04）
+
+**前提:** 子プロセス隔離後も worker 子内で `WinError 10038` が再発する環境がある（ローカル SDK bridge 不可）。この場合 **local kick では planning 【承認】が自動作成されない**。
+
+| ルート | 条件 | 動作 |
+|--------|------|------|
+| local kick | 既定（bridge 正常時） | 隔離 subprocess で `Agent.prompt` |
+| **cloud フォールバック** | local 失敗 + `ORG_OPS_KICK_FALLBACK_CLOUD`（既定 on/win32）+ repo URL 解決可 | **1 回 cloud runtime でリトライ**（`cursor_sdk_kick`） |
+| 手動 planning-pm | cloud も不可 / API key なし | poller `--human` の PLANNING_DISPATCH snippet を Cursor へ貼付 |
+
+**cloud kick の前提（重要）:**
+
+- cloud runtime は **push 済みブランチを clone** する。**未コミット/未 push の変更は反映されない。**
+- `ORG_OPS_REPO_URL`（未設定時 `git remote get-url origin`）と `ORG_OPS_REPO_REF`（既定 `main`）が必要。
+- 運用前に対象ブランチを push しておくこと。
+
+**stuck 検知:** bootstrap のみで【承認】が無い epic は poller/runner が毎サイクル `WARN planning_stuck` を再出力する。**承認到達まで epic を Done 化しない。** 承認未作成が続く場合は cloud kick 設定または手動 planning-pm へ切替える。
+
+delivery: [`auto-kick-approval-not-created-delivery.md`](../verification/auto-kick-approval-not-created-delivery.md)
+
 ### 非スコープ（Phase 6）
 
 - PM / planning 人間 gate 自動 complete

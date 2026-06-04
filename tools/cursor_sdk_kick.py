@@ -63,6 +63,20 @@ def isolation_enabled() -> bool:
     return flag not in ("0", "false", "no")
 
 
+def cloud_fallback_enabled() -> bool:
+    """Whether a local kick failure should retry once on cloud runtime.
+
+    Default on for win32 (local SDK bridge is unreliable — WinError 10038),
+    off elsewhere. Override with ORG_OPS_KICK_FALLBACK_CLOUD.
+    """
+    raw = os.environ.get("ORG_OPS_KICK_FALLBACK_CLOUD", "").strip().lower()
+    if raw in ("1", "true", "yes"):
+        return True
+    if raw in ("0", "false", "no"):
+        return False
+    return sys.platform == "win32"
+
+
 def resolve_repo_url() -> str | None:
     explicit = os.environ.get("ORG_OPS_REPO_URL", "").strip()
     if explicit:
@@ -190,6 +204,27 @@ def _kick_isolated_subprocess(prompt: str, *, cwd: Path, label: str) -> int:
     return r.returncode
 
 
+def _attempt_kick(prompt: str, *, cwd: Path, label: str) -> int:
+    """Single kick attempt. Returns exit code (non-zero = failure)."""
+    if isolation_enabled():
+        try:
+            return _kick_isolated_subprocess(prompt, cwd=cwd, label=label)
+        except OSError as exc:
+            print(f"{label}  FAILED  isolated_subprocess OSError={exc}", file=sys.stderr)
+            return 1
+    try:
+        return _kick_in_process(prompt, cwd=cwd, label=label)
+    except OSError as exc:
+        print(f"{label}  FAILED  OSError={exc}", file=sys.stderr)
+        return 1
+    except ValueError as exc:
+        print(f"{label}  FAILED  config={exc}", file=sys.stderr)
+        return 1
+    except Exception as exc:  # noqa: BLE001 — kick boundary
+        print(f"{label}  FAILED  {type(exc).__name__}={exc}", file=sys.stderr)
+        return 1
+
+
 def kick_prompt(
     prompt: str,
     *,
@@ -201,7 +236,12 @@ def kick_prompt(
     skip_no_sdk: str = "cursor_sdk not installed",
     hint_manual: str | None = None,
 ) -> int:
-    """Run Cursor SDK kick. Returns process exit code."""
+    """Run Cursor SDK kick. Returns process exit code.
+
+    On a failed local-runtime attempt, retries once on cloud runtime when
+    cloud_fallback_enabled() and a repo URL is resolvable (Windows local
+    bridge is unreliable — WinError 10038).
+    """
     work_cwd = cwd or ROOT
     api_key = os.environ.get("CURSOR_API_KEY", "").strip()
     if not api_key:
@@ -218,35 +258,33 @@ def kick_prompt(
             print(f"HINT  pip install cursor-sdk · {hint_manual}", file=sys.stderr)
         return no_sdk_exit
 
-    if isolation_enabled():
-        try:
-            code = _kick_isolated_subprocess(prompt, cwd=work_cwd, label=label)
-        except OSError as exc:
-            print(f"{label}  FAILED  isolated_subprocess OSError={exc}", file=sys.stderr)
-            if hint_manual:
-                print(f"HINT  {hint_manual}", file=sys.stderr)
-            return 1
-        if code != 0 and hint_manual:
-            print(f"HINT  {hint_manual}", file=sys.stderr)
-        return code
+    code = _attempt_kick(prompt, cwd=work_cwd, label=label)
 
-    try:
-        code = _kick_in_process(prompt, cwd=work_cwd, label=label)
-    except OSError as exc:
-        print(f"{label}  FAILED  OSError={exc}", file=sys.stderr)
-        if hint_manual:
-            print(f"HINT  {hint_manual}", file=sys.stderr)
-        return 1
-    except ValueError as exc:
-        print(f"{label}  FAILED  config={exc}", file=sys.stderr)
-        if hint_manual:
-            print(f"HINT  {hint_manual}", file=sys.stderr)
-        return 1
-    except Exception as exc:  # noqa: BLE001 — kick boundary
-        print(f"{label}  FAILED  {type(exc).__name__}={exc}", file=sys.stderr)
-        if hint_manual:
-            print(f"HINT  {hint_manual}", file=sys.stderr)
-        return 1
+    if code != 0 and kick_runtime_mode() == "local" and cloud_fallback_enabled():
+        repo_url = resolve_repo_url()
+        if repo_url:
+            print(
+                f"{label}  fallback_cloud  local kick failed — retrying on cloud "
+                f"repo={repo_url}",
+                file=sys.stderr,
+            )
+            prev = os.environ.get("ORG_OPS_KICK_RUNTIME")
+            os.environ["ORG_OPS_KICK_RUNTIME"] = "cloud"
+            try:
+                code = _attempt_kick(prompt, cwd=work_cwd, label=f"{label}-cloud")
+            finally:
+                if prev is None:
+                    os.environ.pop("ORG_OPS_KICK_RUNTIME", None)
+                else:
+                    os.environ["ORG_OPS_KICK_RUNTIME"] = prev
+        else:
+            print(
+                f"{label}  fallback_cloud  unavailable — no ORG_OPS_REPO_URL / git origin",
+                file=sys.stderr,
+            )
+
+    if code != 0 and hint_manual:
+        print(f"HINT  {hint_manual}", file=sys.stderr)
     return code
 
 

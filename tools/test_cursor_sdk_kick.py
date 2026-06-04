@@ -59,6 +59,51 @@ class KickIsolationTests(unittest.TestCase):
         env = kick._kick_subprocess_env({})
         self.assertEqual(env.get("PYTHONIOENCODING"), "utf-8")
 
+    def test_cloud_fallback_default_on_win32(self) -> None:
+        with mock.patch.object(kick.sys, "platform", "win32"):
+            with mock.patch.dict(os.environ, {}, clear=False):
+                os.environ.pop("ORG_OPS_KICK_FALLBACK_CLOUD", None)
+                self.assertTrue(kick.cloud_fallback_enabled())
+
+    def test_cloud_fallback_off_via_env(self) -> None:
+        with mock.patch.object(kick.sys, "platform", "win32"):
+            with mock.patch.dict(os.environ, {"ORG_OPS_KICK_FALLBACK_CLOUD": "0"}, clear=False):
+                self.assertFalse(kick.cloud_fallback_enabled())
+
+    def test_kick_prompt_retries_cloud_on_local_failure(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {"CURSOR_API_KEY": "test-key", "ORG_OPS_KICK_FALLBACK_CLOUD": "1"},
+            clear=False,
+        ):
+            os.environ.pop("ORG_OPS_KICK_RUNTIME", None)
+            os.environ.pop("ORG_OPS_REPO_URL", None)
+            attempts: list[str] = []
+
+            def fake_attempt(prompt: str, *, cwd, label: str) -> int:
+                attempts.append(label)
+                return 1 if "cloud" not in label else 0
+
+            with mock.patch.object(kick, "_attempt_kick", side_effect=fake_attempt):
+                with mock.patch.object(kick, "resolve_repo_url", return_value="https://git/repo.git"):
+                    code = kick.kick_prompt("planning-pm テスト", label="KICK")
+        self.assertEqual(code, 0)
+        self.assertEqual(attempts, ["KICK", "KICK-cloud"])
+
+    def test_kick_prompt_no_cloud_retry_without_repo_url(self) -> None:
+        with mock.patch.dict(
+            os.environ,
+            {"CURSOR_API_KEY": "test-key", "ORG_OPS_KICK_FALLBACK_CLOUD": "1"},
+            clear=False,
+        ):
+            os.environ.pop("ORG_OPS_KICK_RUNTIME", None)
+            os.environ.pop("ORG_OPS_REPO_URL", None)
+            with mock.patch.object(kick, "_attempt_kick", return_value=1) as attempt_mock:
+                with mock.patch.object(kick, "resolve_repo_url", return_value=None):
+                    code = kick.kick_prompt("x", label="KICK", hint_manual="manual")
+        self.assertEqual(code, 1)
+        self.assertEqual(attempt_mock.call_count, 1)
+
     def test_isolated_subprocess_uses_utf8_decode(self) -> None:
         fake_result = CompletedProcess(
             args=[],
