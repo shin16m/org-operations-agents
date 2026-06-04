@@ -139,7 +139,7 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 | PM 委譲 | notes に `担当:`。nested サブタスク + `pm_assign_subtasks.py`（`--department development`） |
 | やらないこと | 体験設計の主作成、Handoff 作成、dispatch、**ワーカー成果物の PM 代行** |
 
-→ 詳細: [`development-delivery-io.md`](development-delivery-io.md) · dispatch: [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md#development)
+→ 詳細: [`development-delivery-io.md`](development-delivery-io.md) · dispatch: [`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md#development) · **profile 選定:** [`development-pm-assignment.md`](development-pm-assignment.md) § profile 選定ガイド
 
 ---
 

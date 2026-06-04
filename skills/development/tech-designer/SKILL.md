@@ -14,9 +14,17 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 1. 承認済み要件定義書を読む
 2. **`profile: full-ui` 時:** notes の `## 依存` から UX 仕様・Design System を読み、設計書に引用する
 3. 技術設計書を作成（API・モジュール構成・FE 構成・非機能・依存関係）
-3. パス: `output/development/design/<task_gid>-design.md`
-4. 完了後 **dev-reviewer**（`review_kind: design`）へレビュー依頼
-5. `comment_task.py`（署名）→ PM へ報告
+4. パス: `output/development/design/<task_gid>-design.md`
+5. 完了後 **dev-reviewer**（`review_kind: design`）へレビュー依頼
+6. 完了前に **Asana 記録**（下記 §）→ PM へ報告
+
+## Asana 記録
+
+完了前に `comment_task.py`（`--agent tech-designer`）。[`agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md) §4–5 — **実施内容 · 成果物パス · 次の状態**（です・ます調）。`--action` 繰り返し可。
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent tech-designer --skill skills/development/tech-designer/SKILL.md --summary "..." -y
+```
 
 ## 設計書に含める項目（最低限）
 

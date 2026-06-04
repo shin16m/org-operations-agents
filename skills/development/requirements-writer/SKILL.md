@@ -34,6 +34,8 @@ PM の依頼または workflow 段階で mode を確定する。
 
 ## Asana 記録
 
+完了前に `comment_task.py`（`--agent requirements-writer`）。[`agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md) §4–5 — **実施内容 · 成果物パス · 次の状態**（です・ます調）。`--action` 繰り返し可。
+
 ```powershell
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent requirements-writer --skill skills/development/requirements-writer/SKILL.md --summary "..." -y
 ```

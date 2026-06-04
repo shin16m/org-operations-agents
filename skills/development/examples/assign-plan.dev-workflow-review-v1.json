@@ -1,0 +1,43 @@
+{
+  "parent_title": "【2/4・開発】development ワークフロー・スキル見直し",
+  "profile": "doc-only",
+  "description": "開発チーム L3 workflow / SKILL / registry の棚卸しと org-meta 更新。製品コードは対象外。",
+  "subtasks": [
+    {
+      "name": "【1/4】現状棚卸し・改善要件（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "doc-only。development-delivery v3 と registry のギャップ整理。",
+      "summary": "現状 workflow ステップ · 各 slug 責務 · PM/L3b 分離 · 改善案を requirements に記載。",
+      "done_when": "output/development/requirements/1215421282432324-requirements.md が存在する。"
+    },
+    {
+      "name": "【2/4】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を reviews 配下に出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【3/4】SSOT・SKILL 更新（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件に沿い doc 更新。新規 slug は agent-creater 委任を明記。",
+      "summary": "development-pm-assignment · delivery-io · 代表 SKILL · assign-plan 例を更新。as-built spec 作成。",
+      "done_when": "output/development/specs/1215421282432324-spec.md が存在し、要件の Must が反映されている。"
+    },
+    {
+      "name": "【4/4】mismatch review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "要件 vs 事後仕様の整合。",
+      "summary": "review_kind: mismatch。MismatchReviewResult を出力。",
+      "done_when": "MismatchReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

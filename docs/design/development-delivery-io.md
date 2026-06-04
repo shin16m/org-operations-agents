@@ -52,6 +52,15 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 
 ---
 
+## doc-only 経路（サマリ）
+
+```
+product-manager → pm_assign（要件 + review + 事後仕様 + mismatch）→ 【レビュー】人間
+  → requirements-writer（要件）→ dev-reviewer → requirements-writer（spec）→ dev-reviewer
+```
+
+設計・developer・qa-verifier は workflow 上 skip。詳細: [`development-pm-assignment.md`](development-pm-assignment.md) profile 選定ガイド。
+
 ## チーム内 workflow（v3）
 
 ```

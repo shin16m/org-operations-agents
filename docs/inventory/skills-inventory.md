@@ -73,6 +73,7 @@
 | `handoff.analysis-delivery.json` | 分析チーム delivery |
 | `handoff.ux-web-app.json` | UX + full-ui 開発（Web Epic） |
 | `handoff.org-governance-audit-team.json` | 監査チーム追加・組織統制 Epic |
+| `handoff.dev-workflow-review.json` | 開発チーム workflow / SKILL 見直し（doc-only） |
 
 ## レガシー
 
