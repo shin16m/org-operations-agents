@@ -20,6 +20,18 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 | `code` | コード変更 | CodeReviewResult |
 | `mismatch` | 要件定義 + 事後詳細仕様 | MismatchReviewResult |
 
+## Asana 添付の確認（requirements / mismatch）
+
+`review_kind` が `requirements` または `mismatch` のとき、レビュー開始前に対象 md が **当該 worker サブに attach 済み**であることを確認する。
+
+```powershell
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\attach_task_files.py --gid <worker_sub_gid> --list
+```
+
+- `requirements`: `<gid>-requirements.md` が一覧に無ければ **failed**（attach 欠落）
+- `mismatch`: `<gid>-spec.md` が無ければ **failed**
+- attach 欠落時は PM へ差し戻し（worker 再 dispatch）。レビュー JSON は `status: failed` + finding に `category: io_contract`
+
 ## MismatchReviewResult
 
 - `fix_target: document` → PM が **requirements-writer 向け修正サブ**を新規作成

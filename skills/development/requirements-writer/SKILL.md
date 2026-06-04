@@ -24,19 +24,24 @@ PM の依頼または workflow 段階で mode を確定する。
 
 - 子タスク notes と親エピック notes から要件定義書を作成
 - パス: `output/development/requirements/<task_gid>-requirements.md`
+- **Asana 添付（必須）** — `comment_task` の前に `attach_task_files.py --gid <子GID> --file <上記パス> -y`
 - 完了後 **dev-reviewer** へレビュー依頼
 
 ### mode=as-built-spec
 
 - 実装済み成果を反映した詳細仕様書を作成
 - パス: `output/development/specs/<task_gid>-spec.md`
+- **Asana 添付（必須）** — `attach_task_files.py --gid <子GID> --file <上記パス> -y`（profile で spec フェーズがある場合）
 - 完了後 **dev-reviewer**（mismatch）へ依頼
 
 ## Asana 記録
 
-完了前に `comment_task.py`（`--agent requirements-writer`）。[`agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md) §4–5 — **実施内容 · 成果物パス · 次の状態**（です・ます調）。`--action` 繰り返し可。
+1. **添付** — mode ごとの md を `attach_task_files.py` で当該 **worker サブ**に upload（必須）
+2. **コメント** — `comment_task.py`（`--agent requirements-writer`）。[`agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md) §4–5 — **実施内容 · 成果物パス · 次の状態**（です・ます調）。`--action` 繰り返し可。
 
 ```powershell
+.\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\attach_task_files.py `
+  --gid <子GID> --file output/development/requirements/<子GID>-requirements.md -y
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\comment_task.py --gid <子GID> --agent requirements-writer --skill skills/development/requirements-writer/SKILL.md --summary "..." -y
 ```
 

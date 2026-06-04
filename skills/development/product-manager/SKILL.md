@@ -63,6 +63,17 @@ SSOT: [`pm-worker-dispatch-ssot.md`](../../../docs/design/pm-worker-dispatch-sso
 7. 各 review / verification で `failed`: **修正サブ** → 修正後 **再 review サブ**を新規追加（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）
 8. 子の `done_when` を満たしたら **comment_task → complete_task -y → DeptWorkComplete**
 
+### md 成果物の Asana 添付（必須）
+
+| フェーズ | 添付対象 | 確認 |
+|----------|----------|------|
+| requirements | `output/development/requirements/<worker_sub_gid>-requirements.md` | worker サブに attach 済み |
+| as-built-spec | `output/development/specs/<worker_sub_gid>-spec.md` | worker サブに attach 済み（workflow に spec がある profile） |
+
+- worker 完了前: `attach_task_files.py --gid <worker_sub> --file <md> -y` を requirements-writer が実行
+- PM が worker サブを **complete する前**に `attach_task_files.py --gid <worker_sub> --list` でファイル名一致を確認
+- **lite** で spec フェーズ skip 時は requirements md のみ
+
 ## Asana 記録（必須・順序）
 
 ```powershell
@@ -99,6 +110,7 @@ intake 完了前チェック:
 | 設計 | `output/development/design/<task_gid>-design.md` |
 | 事後仕様 | `output/development/specs/<task_gid>-spec.md` |
 | レビュー | `output/development/reviews/` |
+| Asana 添付 | [`attach_task_files.py`](../../platform/asana-buddy/optional/attach_task_files.py) — requirements / spec md を worker サブへ |
 
 ## 起動例
 
