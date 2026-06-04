@@ -359,6 +359,22 @@ scripts\org-ops\org-ops-webhook.cmd --require-secret
 
 高度な引数は同ディレクトリの `.ps1` も利用可。
 
+### bootstrap と planning gate（混同防止 · 2026-06-04）
+
+| 段階 | ツール | 作成される Asana | 【承認】 |
+|------|--------|------------------|----------|
+| L1 bootstrap | `auto_intake_runner` / poller `--auto-bootstrap` | 親 Epic + **企画子 1 件** | **作られない** |
+| L3 planning-pm | Handoff → plan-reviewer → `create_approval_subtask` | execution 系子（gate 後） | **ここで初めて作成** |
+| watch-auto kick | `PLANNING_DISPATCH` → `cursor_epic_dispatch --mode planning` | （kick 成功時）上記 L3 | kick 成功 + gate 完走時のみ |
+
+**watch-auto で stuck したとき:**
+
+1. poller / runner の **`WARN planning_stuck`** — bootstrap 直後で【承認】が無い正常状態か、kick 失敗かを確認
+2. **`KICK stderr`** — Windows ローカル SDK 落ち（`OSError`）時は **手動 planning-pm が正規**
+3. Cursor チャット: `planning-pm として子タスク GID <企画子> を進めてください`（poller `--human` の PLANNING_DISPATCH snippet と同じ）
+
+delivery: [`watch-auto-planning-gate-delivery.md`](../verification/watch-auto-planning-gate-delivery.md)
+
 ### 非スコープ（Phase 6）
 
 - PM / planning 人間 gate 自動 complete

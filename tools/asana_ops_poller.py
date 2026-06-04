@@ -284,6 +284,59 @@ def _infer_department_for_task(task_gid: str, token: str) -> str | None:
     )
 
 
+def _log_kick_subprocess(
+    r: subprocess.CompletedProcess[str],
+    *,
+    parent: str,
+    gate: str,
+    label: str,
+) -> None:
+    print(f"KICK  parent={parent}  gate={gate}  exit={r.returncode}")
+    stdout = (r.stdout or "").strip()
+    stderr = (r.stderr or "").strip()
+    if stdout:
+        for line in stdout.splitlines()[-10:]:
+            print(f"KICK  stdout  {line}")
+    if stderr:
+        for line in stderr.splitlines()[-10:]:
+            print(f"KICK  stderr  {line}", file=sys.stderr)
+    if r.returncode != 0:
+        print(f"WARN  kick_failed  parent={parent}  label={label}", file=sys.stderr)
+
+
+def _epic_has_open_planning_approval(parent: str, token: str) -> bool:
+    """True when an incomplete 【承認】 sub exists under the epic."""
+    from check_approval_subtask import _find_subtask  # noqa: WPS433
+
+    sub = _find_subtask(parent, "【承認】", token)
+    return sub is not None and not sub.get("completed")
+
+
+def _warn_planning_stuck_without_approval(
+    parent: str,
+    planning_child: str | None,
+    token: str,
+) -> None:
+    """Epic in planning phase but no 【承認】 gate sub yet (bootstrap-only stuck)."""
+    if _epic_has_open_planning_approval(parent, token):
+        return
+    from check_approval_subtask import _find_subtask  # noqa: WPS433
+
+    any_approval = _find_subtask(parent, "【承認】", token)
+    if any_approval and any_approval.get("completed"):
+        return
+    child = planning_child or "-"
+    print(
+        f"WARN  planning_stuck  parent={parent}  planning_child={child}  "
+        f"reason=no_open_approval_sub  bootstrap_only_until_planning_pm_gate",
+        file=sys.stderr,
+    )
+    print(
+        "WARN  planning_stuck  next=planning-pm Handoff → plan-review → create_approval_subtask",
+        file=sys.stderr,
+    )
+
+
 def _cursor_kick_hint(item: dict, *, execute: bool, dry_run: bool, token: str | None = None) -> None:
     parent = str(item.get("parent_gid") or "")
     phase = item.get("phase") or "execution"
@@ -329,9 +382,14 @@ def _cursor_kick_hint(item: dict, *, execute: bool, dry_run: bool, token: str | 
     if execute and os.environ.get("CURSOR_API_KEY", "").strip() and not dry_run:
         cmd.append("-y")
         r = _run_capture(cmd, label=label)
-        print(f"KICK  parent={parent}  gate={gate}  exit={r.returncode}")
+        _log_kick_subprocess(r, parent=parent, gate=gate, label=label)
+        if r.returncode != 0 and phase == "planning":
+            _emit_planning_dispatch_snippet(parent, child or None)
     else:
-        print(f"HINT  kick  parent={parent}  gate={gate}  cmd={' '.join(cmd)} -y")
+        reason = "dry_run" if dry_run else "CURSOR_API_KEY unset"
+        print(f"HINT  kick  parent={parent}  gate={gate}  reason={reason}  cmd={' '.join(cmd)} -y")
+        if phase == "planning":
+            _emit_planning_dispatch_snippet(parent, child or None)
 
 
 def _session_auto_kick(session: dict, *, execute: bool, dry_run: bool, token: str) -> None:
@@ -434,6 +492,8 @@ def scan_resume_and_dispatch(
                     f"PLANNING_DISPATCH  parent={parent}  planning_child={child or '-'}  "
                     f"next=planning-pm"
                 )
+                if token:
+                    _warn_planning_stuck_without_approval(parent, child, token)
                 if human:
                     _emit_planning_dispatch_snippet(parent, child)
                 if auto_kick or human:
