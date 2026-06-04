@@ -86,6 +86,36 @@ def read_webhook_log(limit: int = 20) -> list[dict[str, Any]]:
     return out
 
 
+ARCHIVE_DIR = SESSIONS_DIR / "archive"
+
+
+def archive_resumable_sessions(token: str, *, dry_run: bool = False) -> int:
+    """Move gate-complete suspended sessions to archive/ (reduces poller WAIT noise)."""
+    moved = 0
+    for session in load_suspended_sessions():
+        status = check_session_status(session, token)
+        if status.get("status") != "resumable":
+            continue
+        sid = session.get("session_id") or "?"
+        path = Path(session["_path"]) if session.get("_path") else None
+        if dry_run:
+            print(f"ARCHIVE  dry-run  session={sid}  parent={session.get('parent_gid')}")
+            moved += 1
+            continue
+        if path is None or not path.is_file():
+            continue
+        session["state"] = "archived"
+        session["archived_at"] = datetime.now(timezone.utc).isoformat()
+        payload = {k: v for k, v in session.items() if not k.startswith("_")}
+        ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+        dest = ARCHIVE_DIR / path.name
+        dest.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        path.unlink(missing_ok=True)
+        print(f"ARCHIVE  session={sid}  parent={session.get('parent_gid')}  path={dest}")
+        moved += 1
+    return moved
+
+
 def handle_task_completed(task_gid: str) -> dict[str, Any] | None:
     """Mark matching suspended session when webhook reports task completion."""
     for session in load_suspended_sessions():

@@ -267,11 +267,44 @@ asana_ops_poller --once
 ### 非スコープ（Phase 4 · SSOT 段階）
 
 - ~~`--auto-bootstrap` / `auto_intake_runner.py` 実装~~ → **実装済**
-- ~~Cursor SDK PoC~~ → **`cursor_epic_dispatch.py` + `--cursor-kick`（opt-in · `CURSOR_API_KEY` 要）** — delivery: [`wakuoke-auto-kick-delivery.md`](../verification/wakuoke-auto-kick-delivery.md)
-- Webhook 本番 SLA
-- poller 常時デーモン（`--watch` + 無条件 SDK kick）は運用者起動前提
+- ~~Cursor SDK PoC~~ → **実装済** — delivery: [`wakuoke-auto-kick-delivery.md`](../verification/wakuoke-auto-kick-delivery.md)
 
-### CLI（子【2/5】）
+## Phase 5 追記（2026-06-04 · エピック `1215423734965978`）
+
+### 理想フロー（運用目標）
+
+```
+asana_ops_runner --watch
+  → auto-bootstrap（Intake 候補）
+  → PLANNING_DISPATCH / cursor kick（ORG_OPS_AUTO_KICK + CURSOR_API_KEY）
+  → gate（人 · Asana UI）
+  → approval_helper → RESUME → DISPATCH / kick
+  → session archive
+```
+
+### 追加 CLI
+
+| ツール | 役割 |
+|--------|------|
+| [`tools/asana_ops_runner.py`](../../tools/asana_ops_runner.py) | watch ループ: bootstrap + helper + resume + archive |
+| `ORG_OPS_AUTO_KICK=1` | `CURSOR_API_KEY` あり時、`--cursor-kick` なしで kick 実行 |
+| [`asana_ops_sessions.archive_resumable_sessions`](../../tools/asana_ops_sessions.py) | gate complete 済み session → `sessions/archive/` |
+
+```powershell
+python tools/asana_ops_runner.py --once --dry-run --human
+ORG_OPS_AUTO_KICK=1 python tools/asana_ops_runner.py --watch --interval 60 -y --human
+python tools/asana_webhook_handler.py --port 8766   # 本番は reverse proxy 手順: delivery doc
+```
+
+### 非スコープ（Phase 5）
+
+- L3b ワーカー無人完走 · `task_dispatcher.py` 自動実行
+- Webhook **SLA** · マルチリージョン
+- approval_helper 常時デーモン（runner は `--once` パス per cycle のみ）
+
+delivery: [`orchestration-phase5-delivery.md`](../verification/orchestration-phase5-delivery.md)
+
+### CLI（Phase 4 legacy）
 
 ```powershell
 python tools/auto_intake_runner.py --task <SOURCE_GID> --dry-run

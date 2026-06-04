@@ -264,6 +264,12 @@ def _org_os_start(epic_gid: str, *, dry_run: bool) -> int:
     return r.returncode
 
 
+def _auto_kick_enabled(cursor_kick_flag: bool) -> bool:
+    if cursor_kick_flag:
+        return True
+    return os.environ.get("ORG_OPS_AUTO_KICK", "").strip().lower() in ("1", "true", "yes")
+
+
 def _cursor_kick_hint(item: dict, *, execute: bool, dry_run: bool) -> None:
     parent = str(item.get("parent_gid") or "")
     phase = item.get("phase") or "execution"
@@ -353,6 +359,7 @@ def scan_resume_and_dispatch(
     max_ng: int,
     cursor_kick: bool = False,
 ) -> int:
+    auto_kick = _auto_kick_enabled(cursor_kick)
     for project_gid in project_gids:
         scan_waiting_hints(project_gid, token, human=human)
         try:
@@ -380,8 +387,8 @@ def scan_resume_and_dispatch(
                 )
                 if human:
                     _emit_planning_dispatch_snippet(parent, child)
-                if cursor_kick or human:
-                    _cursor_kick_hint(item, execute=cursor_kick, dry_run=dry_run)
+                if auto_kick or human:
+                    _cursor_kick_hint(item, execute=auto_kick, dry_run=dry_run)
                 continue
             nxt = item.get("next") or "task-dispatcher"
             result = item.get("result")
@@ -394,8 +401,8 @@ def scan_resume_and_dispatch(
             )
             if human:
                 _emit_epic_dispatch_snippet(item)
-            if cursor_kick or human:
-                _cursor_kick_hint(item, execute=cursor_kick, dry_run=dry_run)
+            if auto_kick or human:
+                _cursor_kick_hint(item, execute=auto_kick, dry_run=dry_run)
     return 0
 
 
