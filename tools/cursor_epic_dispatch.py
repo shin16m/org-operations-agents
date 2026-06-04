@@ -47,7 +47,7 @@ def build_execution_prompt(epic_gid: str, gate_kind: str | None) -> str:
         "     --handoff output/planning/handoff/<theme>.json \\\n"
         "     --require-review-result output/planning/plan-review/<theme>.json \\\n"
         f"     --parent {epic_gid} -y --if-not-exists\n"
-        f"3. python tools/task_dispatcher.py --parent {epic_gid}\n"
+        f"3. python tools/task_dispatcher.py --parent {epic_gid} --kick -y\n"
         "4. PM 自身はワーカー役を代行しない（task-dispatcher → 各 PM intake へ委譲）。\n"
     )
 

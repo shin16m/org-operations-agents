@@ -465,6 +465,60 @@ python tools/cursor_epic_dispatch.py --epic <EPIC_GID> --mode execution --gate-k
 
 delivery: [`orchestration-phase6-delivery.md`](../verification/orchestration-phase6-delivery.md)
 
+## Phase 7 — Running epic L3b チェーン（2026-06-05 · エピック `1215436815983476`）
+
+Phase 5「L3b 非スコープ」を **Running epic scan + PM bridge** で解消。人間 gate（planning 【承認】· PM 【レビュー】）は維持。
+
+### 理想フロー（execution L3b 自動化）
+
+```
+asana_ops_runner --watch  (ORG_OPS_AUTO_KICK=1)
+  → Phase 5–6 パス（intake · planning RESUME · pm_review_gate RESUME）
+  → EXECUTION_SCAN（OS State=Running epic）
+      needs_pm_kick      → task_dispatcher --kick -y
+      wait_pm_review     → WAIT（人 · Asana UI）
+      needs_worker_kick  → cursor_worker_dispatch -y
+      needs_pm_complete  → pm_worker_complete_bridge -y
+      idle               → 出力のみ
+  → 次 execution 子（governance / audit）も needs_pm_kick 経路
+```
+
+**`ready_total=0` でも Running epic を scan する**（Phase 5 の ready_queue 限定を補完）。
+
+### 追加 CLI
+
+| ツール | 役割 |
+|--------|------|
+| [`tools/execution_resume_scan.py`](../../tools/execution_resume_scan.py) | Running epic · 状態機械 · `EXECUTION_SCAN` 行 |
+| [`tools/pm_worker_complete_bridge.py`](../../tools/pm_worker_complete_bridge.py) | worker 署名 comment 後の PM `complete_task` kick |
+| [`tools/cursor_epic_dispatch.py`](../../tools/cursor_epic_dispatch.py) | Phase A: execution prompt step 3 に `--kick -y` |
+
+### 環境変数
+
+| 変数 | 既定 | 意味 |
+|------|------|------|
+| `ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` | `1` | runner 1 サイクルあたり execution kick 上限 |
+
+### 状態表（SSOT）
+
+| state | 検知 | auto-kick |
+|-------|------|-----------|
+| `needs_pm_kick` | execution 子あり · PM 子下 worker サブ 0 | `task_dispatcher --kick -y` |
+| `wait_pm_review` | 【レビュー】未 complete | WAIT + approval_helper（既存） |
+| `needs_worker_kick` | review complete · worker 未 comment | `cursor_worker_dispatch -y` |
+| `needs_pm_complete` | worker 署名 comment 済 · 未 complete | `pm_worker_complete_bridge -y` |
+| `idle` | 人間 gate / 全 execution 子 complete | なし |
+
+`needs_next_dept`（次 execution 子）は **`needs_pm_kick` と同一 dispatcher 経路**（`pick_target` が次 dept 子を選ぶ）。
+
+### 非スコープ（Phase 7）
+
+- 【承認】/【レビュー】の agent complete
+- L3b 成果物の無人 merge
+- 和久桶による L3 実装作業
+
+delivery: [`watch-auto-l3b-execution-chain-delivery.md`](../verification/watch-auto-l3b-execution-chain-delivery.md)
+
 ### CLI（Phase 4 legacy）
 
 ```powershell

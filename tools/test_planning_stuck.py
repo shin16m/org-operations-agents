@@ -75,5 +75,13 @@ class CursorKickRoutingTests(unittest.TestCase):
         self.assertIn("--mode planning", out)
 
 
+class ExecutionPromptKickTests(unittest.TestCase):
+    def test_build_execution_prompt_includes_kick(self) -> None:
+        from cursor_epic_dispatch import build_execution_prompt  # noqa: WPS433
+
+        prompt = build_execution_prompt("1215436815983476", "planning_approval")
+        self.assertIn("--kick -y", prompt)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -120,6 +120,15 @@ def run_cycle(
     if code != 0:
         return code
 
+    from execution_resume_scan import scan_execution_and_kick  # noqa: WPS433
+
+    scan_execution_and_kick(
+        project_gids=project_gids,
+        token=token,
+        dry_run=dry_run,
+        cursor_kick=cursor_kick,
+    )
+
     archived = asana_ops_sessions.archive_resumable_sessions(token, dry_run=dry_run)
     print(f"RUNNER  archive  count={archived}")
     print("RUNNER  cycle  done")
