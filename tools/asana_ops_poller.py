@@ -270,33 +270,82 @@ def _auto_kick_enabled(cursor_kick_flag: bool) -> bool:
     return os.environ.get("ORG_OPS_AUTO_KICK", "").strip().lower() in ("1", "true", "yes")
 
 
-def _cursor_kick_hint(item: dict, *, execute: bool, dry_run: bool) -> None:
+def _infer_department_for_task(task_gid: str, token: str) -> str | None:
+    from dispatch_prompt_util import infer_department, load_organizations  # noqa: WPS433
+
+    from asana_program_common import fetch_task  # noqa: WPS433
+
+    data = fetch_task(task_gid, token)
+    org = load_organizations()
+    return infer_department(
+        notes=str(data.get("notes") or ""),
+        title=str(data.get("name") or ""),
+        pillar_defaults=org.get("pillar_defaults"),
+    )
+
+
+def _cursor_kick_hint(item: dict, *, execute: bool, dry_run: bool, token: str | None = None) -> None:
     parent = str(item.get("parent_gid") or "")
     phase = item.get("phase") or "execution"
-    mode = "planning" if phase == "planning" else "execution"
-    child = item.get("planning_child_gid") or ""
     gate = item.get("gate_kind") or "-"
-    cmd = [
-        sys.executable,
-        str(ROOT / "tools/cursor_epic_dispatch.py"),
-        "--epic",
-        parent,
-        "--mode",
-        mode,
-    ]
-    if mode == "planning" and child:
-        cmd.extend(["--planning-child", child])
-    if mode == "execution" and gate != "-":
-        cmd.extend(["--gate-kind", gate])
+    child = item.get("planning_child_gid") or ""
+
+    if gate == "pm_review_gate":
+        dept = item.get("department")
+        if not dept and token:
+            dept = _infer_department_for_task(parent, token)
+        dept = dept or "development"
+        cmd = [
+            sys.executable,
+            str(ROOT / "tools/cursor_worker_dispatch.py"),
+            "--parent",
+            parent,
+            "--department",
+            dept,
+        ]
+        label = f"cursor_worker_{parent}"
+    elif phase == "planning":
+        cmd = [
+            sys.executable,
+            str(ROOT / "tools/cursor_epic_dispatch.py"),
+            "--epic",
+            parent,
+            "--mode",
+            "planning",
+        ]
+        if child:
+            cmd.extend(["--planning-child", child])
+        label = f"cursor_kick_{parent}"
+    else:
+        cmd = [
+            sys.executable,
+            str(ROOT / "tools/task_dispatcher.py"),
+            "--parent",
+            parent,
+            "--kick",
+        ]
+        label = f"task_dispatcher_{parent}"
+
     if execute and os.environ.get("CURSOR_API_KEY", "").strip() and not dry_run:
         cmd.append("-y")
-        r = _run_capture(cmd, label=f"cursor_kick_{parent}")
-        print(f"KICK  epic={parent}  mode={mode}  exit={r.returncode}")
+        r = _run_capture(cmd, label=label)
+        print(f"KICK  parent={parent}  gate={gate}  exit={r.returncode}")
     else:
-        print(
-            f"HINT  cursor_kick  epic={parent}  mode={mode}  "
-            f"cmd={' '.join(cmd)} --dry-run"
-        )
+        print(f"HINT  kick  parent={parent}  gate={gate}  cmd={' '.join(cmd)} -y")
+
+
+def _session_auto_kick(session: dict, *, execute: bool, dry_run: bool, token: str) -> None:
+    gate = session.get("gate_kind") or "planning_approval"
+    parent = str(session.get("parent_gid") or "")
+    item = {
+        "parent_gid": parent,
+        "gate_kind": gate,
+        "phase": "execution" if gate != "planning_approval" else "execution",
+        "department": session.get("department"),
+    }
+    if gate == "planning_approval":
+        item["phase"] = "execution"
+    _cursor_kick_hint(item, execute=execute, dry_run=dry_run, token=token)
 
 
 def _emit_planning_dispatch_snippet(parent: str, planning_child: str | None) -> None:
@@ -388,7 +437,7 @@ def scan_resume_and_dispatch(
                 if human:
                     _emit_planning_dispatch_snippet(parent, child)
                 if auto_kick or human:
-                    _cursor_kick_hint(item, execute=auto_kick, dry_run=dry_run)
+                    _cursor_kick_hint(item, execute=auto_kick, dry_run=dry_run, token=token)
                 continue
             nxt = item.get("next") or "task-dispatcher"
             result = item.get("result")
@@ -402,7 +451,7 @@ def scan_resume_and_dispatch(
             if human:
                 _emit_epic_dispatch_snippet(item)
             if auto_kick or human:
-                _cursor_kick_hint(item, execute=auto_kick, dry_run=dry_run)
+                _cursor_kick_hint(item, execute=auto_kick, dry_run=dry_run, token=token)
     return 0
 
 
@@ -477,6 +526,9 @@ def scan_projects(
             print(f"RESUME  session={sid}  gate={session.get('gate_kind')}  approved")
             if human:
                 _emit_resume_snippet(session)
+            auto_kick = _auto_kick_enabled(False)
+            if auto_kick:
+                _session_auto_kick(session, execute=auto_kick, dry_run=dry_run, token=token)
         else:
             print(f"WAIT  session={sid}  gate={session.get('gate_kind')}  sub={sub}")
             if url:

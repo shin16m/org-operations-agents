@@ -34,7 +34,7 @@ def build_execution_prompt(epic_gid: str, gate_kind: str | None) -> str:
         f"親エピック GID: {epic_gid}\n"
         f"gate_kind: {gate}\n\n"
         "1. handoff_to_asana.py --require-review-result（未投入なら）\n"
-        "2. task-dispatcher で未完了 execution 系子を各 PM に dispatch\n"
+        f"2. python tools/task_dispatcher.py --parent {epic_gid}\n"
         "3. PM 自身はワーカー役を代行しない\n"
     )
 

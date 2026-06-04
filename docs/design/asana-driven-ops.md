@@ -304,6 +304,45 @@ python tools/asana_webhook_handler.py --port 8766   # 本番は reverse proxy �
 
 delivery: [`orchestration-phase5-delivery.md`](../verification/orchestration-phase5-delivery.md)
 
+## Phase 6 追記（2026-06-04 · エピック `1215412762687733`）
+
+### 理想フロー（execution 自動化）
+
+```
+asana_ops_runner --watch
+  → Phase 5 パス
+  → RESUME planning_approval → task_dispatcher.py --kick
+  → PM assign → 【レビュー】（人 · 変更なし）
+  → RESUME pm_review_gate → cursor_worker_dispatch -y
+  → webhook POST → WEBHOOK_SLA latency · /metrics
+```
+
+### 追加 CLI
+
+| ツール | 役割 |
+|--------|------|
+| [`tools/task_dispatcher.py`](../../tools/task_dispatcher.py) | 未完了 execution 子 → dispatch-prompt-ssot 出力 · `--kick -y` |
+| [`tools/cursor_worker_dispatch.py`](../../tools/cursor_worker_dispatch.py) | PM review gate 後 L3b SDK kick |
+| [`tools/dispatch_prompt_util.py`](../../tools/dispatch_prompt_util.py) | SSOT prompt 読込共有 |
+| [`asana_webhook_handler.py`](../../tools/asana_webhook_handler.py) | `/metrics` · `WEBHOOK_SLA` · `--require-secret` |
+
+```powershell
+python tools/task_dispatcher.py --parent <EPIC> --list
+python tools/task_dispatcher.py --parent <EPIC> --dry-run
+ORG_OPS_AUTO_KICK=1 python tools/task_dispatcher.py --parent <EPIC> --kick -y
+python tools/cursor_worker_dispatch.py --parent <PM子> --department development --dry-run
+python tools/asana_webhook_handler.py --port 8766 --require-secret
+curl http://127.0.0.1:8766/metrics
+```
+
+### 非スコープ（Phase 6）
+
+- PM / planning 人間 gate 自動 complete
+- ワーカー成果物の無人 epic 完走
+- Webhook 常駐を runner に内包
+
+delivery: [`orchestration-phase6-delivery.md`](../verification/orchestration-phase6-delivery.md)
+
 ### CLI（Phase 4 legacy）
 
 ```powershell
