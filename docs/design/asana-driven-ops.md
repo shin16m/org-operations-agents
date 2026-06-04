@@ -36,7 +36,10 @@ Asana を運用ダッシュボードとして、**AI タスク検出 → intake 
 | `SKIP` | 候補除外（完了済み · 重複 intake · CF 不一致等） |
 | `CANDIDATE` | intake 候補タスク |
 | `INTAKE` | snapshot / trigger 実行 |
-| `DISPATCH` | RESUME/READY 後 · `next=task-dispatcher` 等の execution 再開 hint（**自動 agent kick はしない**） |
+| `DISPATCH` | RESUME 後 · `phase=execution` · `next=task-dispatcher` 等の execution 再開 hint（**自動 agent kick はしない**） |
+| `PLANNING_DISPATCH` | READY · `phase=planning`（approval ログなし = bootstrap 直後等）· **execution DISPATCH 禁止** · `next=planning-pm` |
+| `HINT` | `cursor_kick` CLI 提案（`--human` / `--cursor-kick` 時） |
+| `KICK` | `CURSOR_API_KEY` + `--cursor-kick -y` で `cursor_epic_dispatch.py` 実行 |
 | `START` | `org-os dispatch`（syscall.start）成功 |
 | `HINT` | Waiting epic · `approval_helper` 起動提案 |
 | `WAIT` | 人間 gate 待ち（**`--record-wait` 保存済み** · ダッシュボード表示） |
@@ -245,14 +248,14 @@ asana_ops_poller --once
 
 **gate 到達時チェックリスト（§H）:** [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) §H — planning gate / PM review gate 到達時の必須手順。
 
-### org-os と人間 gate（既知ギャップ · 改修候補）
+### org-os と人間 gate
 
-| gate | 親 epic org-os | 現状 |
+| gate | 親 epic org-os | 実装 |
 |------|----------------|------|
-| planning 【承認】 | `Waiting` + `Approval Required=Yes` | ✅ `create_approval_subtask` → `syscall.suspend(..., Approval)` |
-| PM 【レビュー】 | 期待: `Waiting` + `Human Review` 等 | ⚠️ **未連動** — `create_pm_review_gate` は PM 子（非 epic）へ suspend 試行し失敗。親 epic は `Running` のまま · `wait_list` に載らない |
+| planning 【承認】 | `Waiting` + `Approval Required=Yes` | ✅ `create_approval_subtask` → `resolve_epic_gid` → `syscall.suspend(..., Approval)` |
+| PM 【レビュー】 | `Waiting` + `Human Review` | ✅ PM 子 GID から親 epic 解決 · `create_approval_subtask` / `--record-wait`（`pm_review_gate`）→ epic `Human Review` · `approval_helper` → `resume` |
 
-**改修方向（将来）:** `--record-wait` 時に **親エピック GID** へ `syscall.suspend(..., "Human Review")` · RESUME/complete 時に `syscall.resume`。詳細: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md) §org-os。
+詳細: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md) §org-os · delivery: [`human-review-suspend-delivery.md`](../verification/human-review-suspend-delivery.md)
 
 ### 安全弁
 
@@ -263,9 +266,10 @@ asana_ops_poller --once
 
 ### 非スコープ（Phase 4 · SSOT 段階）
 
-- ~~`--auto-bootstrap` / `auto_intake_runner.py` 実装~~ → **子【2/5】で実装**
-- Cursor SDK PoC 実装（子【3/5】）
+- ~~`--auto-bootstrap` / `auto_intake_runner.py` 実装~~ → **実装済**
+- ~~Cursor SDK PoC~~ → **`cursor_epic_dispatch.py` + `--cursor-kick`（opt-in · `CURSOR_API_KEY` 要）** — delivery: [`wakuoke-auto-kick-delivery.md`](../verification/wakuoke-auto-kick-delivery.md)
 - Webhook 本番 SLA
+- poller 常時デーモン（`--watch` + 無条件 SDK kick）は運用者起動前提
 
 ### CLI（子【2/5】）
 

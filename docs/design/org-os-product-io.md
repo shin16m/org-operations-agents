@@ -124,10 +124,11 @@ Ready/Running/Waiting --(complete)--> Done
 | ツール | org-os 利用 |
 |--------|-------------|
 | `handoff_to_asana` / `init_epic_os_state` | `syscall.init_epic` |
-| `create_approval_subtask` | `syscall.suspend(..., "Approval")` + subtask @mention |
-| `approval_helper` | `syscall.resume`（承認完了検知後） |
-| `wakuoke_resume_scan` | `queue.ready_queue` |
-| `asana_ops_poller --once` | `scan_resume_and_dispatch` → `org-os dispatch` + `DISPATCH` 行（`--no-scan-resume` で無効化） |
+| `create_approval_subtask` | `syscall.suspend` on **resolved epic** — 親=epic → `"Approval"` · PM 子等 → epic に `"Human Review"` |
+| `approval_helper` | `resolve_epic_gid` → `syscall.resume`（承認完了検知後） |
+| `asana_ops_poller --record-wait` | PM 子 GID 時 epic 解決 + `pm_review_gate` で epic `"Human Review"` suspend |
+| `wakuoke_resume_scan` | `queue.ready_queue` · READY=`phase=planning` · RESUME OK=`phase=execution` |
+| `asana_ops_poller --once` | `PLANNING_DISPATCH`（planning phase READY）または `DISPATCH`（execution RESUME） |
 | `complete_epic_os_state` | CLI `org-os complete` |
 
 ## 8. 検証

@@ -38,6 +38,8 @@ from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import console_safe, create_task_story_html, html_user_mention_tag  # noqa: E402
 from org_os import queue as org_os_queue  # noqa: E402
 
+from epic_resolve import find_open_planning_child  # noqa: E402
+
 HELPER_LOG_DIR = ROOT / "output/platform/approval-helper"
 NG_COUNTER_DIR = HELPER_LOG_DIR / "ng-counters"
 
@@ -161,12 +163,15 @@ def scan_ready_actions(
                 active_log = (log_path, payload)
                 break
         if active_log is None:
+            planning_child = find_open_planning_child(parent_gid, tok)
             actions.append(
                 {
                     "action": "READY",
                     "parent_gid": parent_gid,
                     "result": None,
-                    "next": "task-dispatcher",
+                    "phase": "planning",
+                    "planning_child_gid": planning_child,
+                    "next": "planning-pm",
                 }
             )
             continue
@@ -180,6 +185,7 @@ def scan_ready_actions(
                     "parent_gid": parent_gid,
                     "result": "OK",
                     "gate_kind": gate_kind,
+                    "phase": "execution",
                     "next": "task-dispatcher",
                 }
             )
@@ -241,7 +247,13 @@ def print_scan_actions(
         act = item["action"]
         parent = item["parent_gid"]
         if act == "READY":
-            print(console_safe(f"READY  parent={parent}  kind=fresh"))
+            phase = item.get("phase") or "planning"
+            child = item.get("planning_child_gid") or "-"
+            print(
+                console_safe(
+                    f"READY  parent={parent}  phase={phase}  planning_child={child}"
+                )
+            )
         elif act == "ESCALATE":
             print(console_safe(
                 f"ESCALATE parent={parent}  count={item.get('count')}/{item.get('max_ng')}  "

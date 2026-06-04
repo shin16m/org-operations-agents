@@ -34,6 +34,7 @@ from asana_program_common import (  # noqa: E402
     set_assignee_type_human,
 )
 from org_os import syscall  # noqa: E402
+from org_os.asana_client import resolve_epic_gid  # noqa: E402
 from org_os.constants import SUSPEND_REASON_APPROVAL  # noqa: E402
 
 
@@ -130,13 +131,19 @@ def main() -> None:
         )
 
     try:
+        epic_gid = resolve_epic_gid(args.parent, token)
+        suspend_reason = (
+            SUSPEND_REASON_APPROVAL
+            if epic_gid == str(args.parent)
+            else "Human Review"
+        )
         result = syscall.suspend(
-            args.parent,
-            SUSPEND_REASON_APPROVAL,
+            epic_gid,
+            suspend_reason,
             ref=sub_gid,
         )
         print(
-            f"parent_syscall_suspend {args.parent} "
+            f"parent_syscall_suspend epic={epic_gid} wait_target={args.parent} "
             f"os_state={result['os_state']} reason={result['suspend_reason']}"
         )
     except (requests.HTTPError, ValueError, RuntimeError) as exc:

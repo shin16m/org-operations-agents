@@ -43,6 +43,7 @@ from asana_program_common import (  # noqa: E402
     read_approval_result,
 )
 from org_os import syscall  # noqa: E402
+from org_os.asana_client import resolve_epic_gid  # noqa: E402
 
 HELPER_VERSION = "1.0"
 DEFAULT_LOG_DIR = ROOT / "output/platform/approval-helper"
@@ -127,10 +128,12 @@ def main() -> int:
 
         if bool(sub.get("completed")):
             result_name = read_approval_result(args.approval_sub, token)
-            ok = _restore_parent(args.parent, token, ref=args.approval_sub)
+            epic_gid = resolve_epic_gid(args.parent, token)
+            ok = _restore_parent(epic_gid, token, ref=args.approval_sub)
             payload = {
                 "helper_version": HELPER_VERSION,
-                "parent_gid": args.parent,
+                "parent_gid": epic_gid,
+                "wait_target_gid": args.parent,
                 "approval_sub_gid": args.approval_sub,
                 "gate_kind": args.gate_kind,
                 "started_at": started_at,

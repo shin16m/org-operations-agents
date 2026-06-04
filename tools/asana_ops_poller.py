@@ -45,6 +45,8 @@ from asana_program_common import (  # noqa: E402
 )
 
 from wakuoke_resume_scan import print_scan_actions, scan_ready_actions  # noqa: E402
+from org_os.asana_client import resolve_epic_gid  # noqa: E402
+from org_os import syscall  # noqa: E402
 
 SESSIONS_DIR = ROOT / "output/platform/sessions"
 INTAKE_MARKER = "intake 元タスクとして org-ops エピック"
@@ -262,6 +264,49 @@ def _org_os_start(epic_gid: str, *, dry_run: bool) -> int:
     return r.returncode
 
 
+def _cursor_kick_hint(item: dict, *, execute: bool, dry_run: bool) -> None:
+    parent = str(item.get("parent_gid") or "")
+    phase = item.get("phase") or "execution"
+    mode = "planning" if phase == "planning" else "execution"
+    child = item.get("planning_child_gid") or ""
+    gate = item.get("gate_kind") or "-"
+    cmd = [
+        sys.executable,
+        str(ROOT / "tools/cursor_epic_dispatch.py"),
+        "--epic",
+        parent,
+        "--mode",
+        mode,
+    ]
+    if mode == "planning" and child:
+        cmd.extend(["--planning-child", child])
+    if mode == "execution" and gate != "-":
+        cmd.extend(["--gate-kind", gate])
+    if execute and os.environ.get("CURSOR_API_KEY", "").strip() and not dry_run:
+        cmd.append("-y")
+        r = _run_capture(cmd, label=f"cursor_kick_{parent}")
+        print(f"KICK  epic={parent}  mode={mode}  exit={r.returncode}")
+    else:
+        print(
+            f"HINT  cursor_kick  epic={parent}  mode={mode}  "
+            f"cmd={' '.join(cmd)} --dry-run"
+        )
+
+
+def _emit_planning_dispatch_snippet(parent: str, planning_child: str | None) -> None:
+    child = planning_child or "<planning-child-gid>"
+    print(
+        f"""【PlanningDispatch】parent={parent}  planning_child={child}
+
+新規 Cursor セッションで planning-pm dispatch:
+
+planning-pm として子タスク GID {child} を進めてください。
+planning-delivery workflow に従い、Handoff 作成から Asana タスク化まで実行します。
+""",
+        file=sys.stderr,
+    )
+
+
 def _emit_epic_dispatch_snippet(item: dict) -> None:
     parent = item.get("parent_gid") or "?"
     nxt = item.get("next") or "task-dispatcher"
@@ -306,6 +351,7 @@ def scan_resume_and_dispatch(
     dry_run: bool,
     human: bool,
     max_ng: int,
+    cursor_kick: bool = False,
 ) -> int:
     for project_gid in project_gids:
         scan_waiting_hints(project_gid, token, human=human)
@@ -325,6 +371,18 @@ def scan_resume_and_dispatch(
             if act not in ("READY", "RESUME"):
                 continue
             parent = str(item.get("parent_gid") or "")
+            phase = item.get("phase") or "execution"
+            if act == "READY" and phase == "planning":
+                child = item.get("planning_child_gid")
+                print(
+                    f"PLANNING_DISPATCH  parent={parent}  planning_child={child or '-'}  "
+                    f"next=planning-pm"
+                )
+                if human:
+                    _emit_planning_dispatch_snippet(parent, child)
+                if cursor_kick or human:
+                    _cursor_kick_hint(item, execute=cursor_kick, dry_run=dry_run)
+                continue
             nxt = item.get("next") or "task-dispatcher"
             result = item.get("result")
             gate = item.get("gate_kind") or "-"
@@ -332,10 +390,12 @@ def scan_resume_and_dispatch(
                 _org_os_start(parent, dry_run=dry_run)
             print(
                 f"DISPATCH  parent={parent}  action={act}  result={result or 'fresh'}  "
-                f"gate={gate}  next={nxt}"
+                f"gate={gate}  phase={phase}  next={nxt}"
             )
             if human:
                 _emit_epic_dispatch_snippet(item)
+            if cursor_kick or human:
+                _cursor_kick_hint(item, execute=cursor_kick, dry_run=dry_run)
     return 0
 
 
@@ -431,6 +491,7 @@ def save_suspend_session(
     gate_kind: str,
     marker: str,
     department: str | None = None,
+    epic_gid: str | None = None,
 ) -> Path:
     SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
     sid = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
@@ -440,6 +501,7 @@ def save_suspend_session(
         "gate_kind": gate_kind,
         "marker": marker,
         "parent_gid": parent_gid,
+        "epic_gid": epic_gid or parent_gid,
         "approval_sub_gid": approval_sub_gid,
         "approval_url": approval_url,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -509,11 +571,31 @@ def main() -> int:
         default=3,
         help="NG loop limit for resume scan (default 3)",
     )
+    p.add_argument(
+        "--cursor-kick",
+        action="store_true",
+        help="When CURSOR_API_KEY set, invoke cursor_epic_dispatch after PLANNING/DISPATCH hints",
+    )
     args = p.parse_args()
 
     if args.record_wait:
         parent, sub, url = args.record_wait
         marker = args.marker or ("【レビュー】" if args.gate_kind == "pm_review_gate" else "【承認】")
+        load_env_from_dotfile()
+        tok = get_token()
+        epic_gid = resolve_epic_gid(parent, tok)
+        if args.gate_kind == "pm_review_gate" and epic_gid != parent:
+            try:
+                result = syscall.suspend(epic_gid, "Human Review", ref=sub)
+                print(
+                    f"SUSPEND  epic={epic_gid}  os_state={result['os_state']}  "
+                    f"reason={result['suspend_reason']}  wait_target={parent}"
+                )
+            except Exception as exc:  # noqa: BLE001
+                print(
+                    f"WARN  epic suspend failed epic={epic_gid}: {exc}",
+                    file=sys.stderr,
+                )
         path = save_suspend_session(
             parent_gid=parent,
             approval_sub_gid=sub,
@@ -521,8 +603,9 @@ def main() -> int:
             gate_kind=args.gate_kind,
             marker=marker,
             department=args.department,
+            epic_gid=epic_gid,
         )
-        print(f"WAIT  session saved  path={path}  gate={args.gate_kind}")
+        print(f"WAIT  session saved  path={path}  gate={args.gate_kind}  epic={epic_gid}")
         return 0
 
     if not args.once and not args.watch:
@@ -554,6 +637,7 @@ def main() -> int:
                 dry_run=args.dry_run,
                 human=args.human,
                 max_ng=args.max_ng,
+                cursor_kick=args.cursor_kick,
             )
         return 0
 

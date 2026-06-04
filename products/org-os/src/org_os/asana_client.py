@@ -43,10 +43,33 @@ def fetch_task(task_gid: str, token: str | None = None) -> dict:
     r = requests.get(
         f"{ASANA_BASE}/tasks/{task_gid}",
         headers=_headers(token),
-        params={"opt_fields": "name,gid,completed,custom_fields,custom_fields.enum_value.name,custom_fields.enum_value.gid"},
+        params={
+            "opt_fields": (
+                "name,gid,completed,parent.gid,parent.name,"
+                "custom_fields,custom_fields.enum_value.name,custom_fields.enum_value.gid"
+            ),
+        },
     )
     r.raise_for_status()
     return r.json().get("data") or {}
+
+
+def resolve_epic_gid(task_gid: str, token: str | None = None, *, max_depth: int = 8) -> str:
+    """Walk parent chain to Task Type=Epic; fallback to task_gid."""
+    current = str(task_gid)
+    seen: set[str] = set()
+    for _ in range(max_depth):
+        if current in seen:
+            break
+        seen.add(current)
+        task = fetch_task(current, token)
+        if is_watch_epic(task) or read_task_type(task) == "Epic":
+            return current
+        parent = (task.get("parent") or {}).get("gid")
+        if not parent:
+            break
+        current = str(parent)
+    return str(task_gid)
 
 
 def read_os_state(task: dict) -> str | None:
