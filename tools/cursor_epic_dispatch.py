@@ -10,11 +10,15 @@ Requires CURSOR_API_KEY for -y. Without it: SKIP exit 0.
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
+
+from cursor_sdk_kick import kick_prompt  # noqa: E402
 
 
 def build_planning_prompt(epic_gid: str, planning_child: str) -> str:
@@ -40,46 +44,17 @@ def build_execution_prompt(epic_gid: str, gate_kind: str | None) -> str:
 
 
 def dispatch_cursor(prompt: str) -> int:
-    api_key = os.environ.get("CURSOR_API_KEY", "").strip()
-    if not api_key:
-        print("SKIP  CURSOR_API_KEY unset — use poller --human snippet", file=sys.stderr)
-        print(
-            "HINT  manual planning-pm — Cursor で planning-pm として企画子 GID を dispatch",
-            file=sys.stderr,
-        )
-        return 2
-    try:
-        from cursor_sdk import Agent, AgentOptions, LocalAgentOptions  # type: ignore
-    except ImportError:
-        print("SKIP  cursor_sdk not installed", file=sys.stderr)
-        print(
-            "HINT  pip install cursor-sdk · または手動 planning-pm（poller --human PLANNING_DISPATCH）",
-            file=sys.stderr,
-        )
-        return 2
-    print("KICK  cursor_sdk Agent.prompt starting…")
-    try:
-        result = Agent.prompt(
-            prompt,
-            AgentOptions(
-                api_key=api_key,
-                model="composer-2.5",
-                local=LocalAgentOptions(cwd=str(ROOT)),
-            ),
-        )
-    except OSError as exc:
-        print(f"KICK  FAILED  OSError={exc}", file=sys.stderr)
-        print(
-            "HINT  Windows ローカル bridge 不安定 — 手動 planning-pm を正規ルートとして起動",
-            file=sys.stderr,
-        )
-        return 1
-    except Exception as exc:  # noqa: BLE001 — kick boundary
-        print(f"KICK  FAILED  {type(exc).__name__}={exc}", file=sys.stderr)
-        print("HINT  kick 失敗 — poller --human の PLANNING_DISPATCH snippet を使用", file=sys.stderr)
-        return 1
-    print(f"KICK  cursor_sdk status={result.status}")
-    return 0
+    return kick_prompt(
+        prompt,
+        cwd=ROOT,
+        label="KICK",
+        no_api_key_exit=2,
+        no_sdk_exit=2,
+        hint_manual=(
+            "手動 planning-pm — Cursor で planning-pm として企画子 GID を dispatch"
+            "（poller --human PLANNING_DISPATCH）"
+        ),
+    )
 
 
 def main() -> int:

@@ -21,6 +21,7 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 from pm_emit_worker_prompt import DEPT_PM, emit_snippet, _run_fetch_assignee, _run_fetch_list  # noqa: E402
+from cursor_sdk_kick import kick_prompt  # noqa: E402
 
 
 def _first_worker_sub(parent: str, department: str) -> tuple[str, str, str] | None:
@@ -51,26 +52,14 @@ def build_worker_prompt(*, parent: str, department: str) -> str | None:
 
 
 def dispatch_cursor(prompt: str) -> int:
-    api_key = os.environ.get("CURSOR_API_KEY", "").strip()
-    if not api_key:
-        print("SKIP  CURSOR_API_KEY unset — use pm_emit_worker_prompt snippet")
-        return 0
-    try:
-        from cursor_sdk import Agent, AgentOptions, LocalAgentOptions  # type: ignore
-    except ImportError:
-        print("SKIP  cursor_sdk not installed")
-        return 0
-    print("KICK  cursor_worker_dispatch starting…")
-    result = Agent.prompt(
+    return kick_prompt(
         prompt,
-        AgentOptions(
-            api_key=api_key,
-            model="composer-2.5",
-            local=LocalAgentOptions(cwd=str(ROOT)),
-        ),
+        cwd=ROOT,
+        label="KICK",
+        no_api_key_exit=0,
+        no_sdk_exit=0,
+        hint_manual="use pm_emit_worker_prompt snippet",
     )
-    print(f"KICK  cursor_worker status={result.status}")
-    return 0
 
 
 def main() -> int:

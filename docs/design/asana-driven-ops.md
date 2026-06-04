@@ -375,6 +375,27 @@ scripts\org-ops\org-ops-webhook.cmd --require-secret
 
 delivery: [`watch-auto-planning-gate-delivery.md`](../verification/watch-auto-planning-gate-delivery.md)
 
+### Windows kick 隔離（WinError 10038 対策 · 2026-06-04）
+
+| 環境変数 | 既定 | 意味 |
+|----------|------|------|
+| `ORG_OPS_KICK_ISOLATE` | `1` | Windows では `Agent.prompt` を **別 Python 子プロセス**（`cursor_sdk_kick --worker`）で実行 |
+| `ORG_OPS_KICK_WORKER` | （内部） | 子プロセス側。再隔離を防ぐ |
+| `ORG_OPS_KICK_RUNTIME` | `auto` | `local` · `cloud` · `auto`（`ORG_OPS_REPO_URL` あり時 cloud） |
+| `ORG_OPS_REPO_URL` | — | cloud kick 用 git URL（未設定時 `git remote get-url origin`） |
+| `ORG_OPS_REPO_REF` | `main` | cloud clone ref |
+
+**共有モジュール:** [`tools/cursor_sdk_kick.py`](../../tools/cursor_sdk_kick.py) — `cursor_epic_dispatch` · `cursor_worker_dispatch` · `cursor_intake_dispatch` · `task_dispatcher` から利用。
+
+**WinError 10038 再発時:**
+
+1. `python tools/cursor_sdk_kick.py --dry-run-isolation` — `enabled=True` か確認
+2. `ORG_OPS_KICK_ISOLATE=0` で in-process に戻す（デバッグのみ）
+3. `ORG_OPS_KICK_RUNTIME=cloud` + `ORG_OPS_REPO_URL` で local bridge 回避
+4. 上記でも失敗 → **手動 planning-pm / dispatch snippet**（watch-auto § と同じ正規ルート）
+
+delivery: [`winerror-10038-kick-fix-delivery.md`](../verification/winerror-10038-kick-fix-delivery.md)
+
 ### 非スコープ（Phase 6）
 
 - PM / planning 人間 gate 自動 complete

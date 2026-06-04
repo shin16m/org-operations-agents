@@ -10,13 +10,17 @@ Requires CURSOR_API_KEY for -y execution. Without it, prints SKIP and exit 0.
 from __future__ import annotations
 
 import argparse
-import os
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 INTAKE_DIR = ROOT / "output/platform/intake"
+TOOLS = ROOT / "tools"
+if str(TOOLS) not in sys.path:
+    sys.path.insert(0, str(TOOLS))
+
+from cursor_sdk_kick import kick_prompt  # noqa: E402
 
 
 def build_prompt(task_gid: str, snapshot_path: Path) -> str:
@@ -51,28 +55,16 @@ def ensure_snapshot(task_gid: str, *, dry_run: bool) -> Path:
 
 
 def dispatch_cursor(prompt: str) -> int:
-    api_key = os.environ.get("CURSOR_API_KEY", "").strip()
-    if not api_key:
-        print("SKIP  CURSOR_API_KEY unset — use CLI baseline (auto_intake_runner.py)")
-        return 0
-    try:
-        from cursor_sdk import Agent, AgentOptions, LocalAgentOptions  # type: ignore
-    except ImportError:
-        print("SKIP  cursor_sdk not installed — pip install cursor-sdk")
-        return 0
-    print("DISPATCH  cursor_sdk Agent.prompt starting…")
-    result = Agent.prompt(
+    return kick_prompt(
         prompt,
-        AgentOptions(
-            api_key=api_key,
-            model="composer-2.5",
-            local=LocalAgentOptions(cwd=str(ROOT)),
-        ),
+        cwd=ROOT,
+        label="DISPATCH",
+        no_api_key_exit=0,
+        no_sdk_exit=0,
+        skip_no_key="CURSOR_API_KEY unset — use CLI baseline (auto_intake_runner.py)",
+        skip_no_sdk="cursor_sdk not installed — pip install cursor-sdk",
+        hint_manual="use CLI baseline (auto_intake_runner.py)",
     )
-    print(f"DISPATCH  cursor_sdk status={result.status}")
-    if getattr(result, "result", None):
-        print(str(result.result)[:500])
-    return 0
 
 
 def main() -> int:

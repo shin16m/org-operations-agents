@@ -12,7 +12,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from pathlib import Path
 
@@ -32,6 +31,7 @@ from dispatch_prompt_util import (  # noqa: E402
     render_dispatch_prompt,
     resolve_entry_agent,
 )
+from cursor_sdk_kick import kick_prompt  # noqa: E402
 
 
 def _epic_children(epic_gid: str, token: str) -> list[dict]:
@@ -92,26 +92,15 @@ def pick_target(
 
 
 def dispatch_cursor(prompt: str) -> int:
-    api_key = os.environ.get("CURSOR_API_KEY", "").strip()
-    if not api_key:
-        print("SKIP  CURSOR_API_KEY unset — print prompt only")
-        return 0
-    try:
-        from cursor_sdk import Agent, AgentOptions, LocalAgentOptions  # type: ignore
-    except ImportError:
-        print("SKIP  cursor_sdk not installed")
-        return 0
-    print("KICK  cursor_sdk Agent.prompt starting…")
-    result = Agent.prompt(
+    return kick_prompt(
         prompt,
-        AgentOptions(
-            api_key=api_key,
-            model="composer-2.5",
-            local=LocalAgentOptions(cwd=str(ROOT)),
-        ),
+        cwd=ROOT,
+        label="KICK",
+        no_api_key_exit=0,
+        no_sdk_exit=0,
+        skip_no_key="CURSOR_API_KEY unset — print prompt only",
+        hint_manual="print prompt only",
     )
-    print(f"KICK  cursor_sdk status={result.status}")
-    return 0
 
 
 def run_dispatch(
