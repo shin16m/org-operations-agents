@@ -70,7 +70,7 @@ def fetch_assignee_type_gids(
     5. When debug=True (e.g. dry-run), warn-print the kept/skipped candidates so
        callers can diagnose silent collisions where another field shares the name
        (this was the failure mode that motivated the rewrite — see
-       docs/verification/approval-flow-e2e-dryrun.md §6).
+       docs/verification/platform/approval-flow-e2e-dryrun.md §6).
     """
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.get(

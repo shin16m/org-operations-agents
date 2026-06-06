@@ -51,10 +51,10 @@ PM intake → pm_assign_subtasks → check_pm_review_gate
 
 ## 事後補完（Plan B）
 
-[`asana-comment-detail-delivery.md`](../verification/asana-comment-detail-delivery.md) 型の **監査証跡事後スタンプ** は、利用者が **「workflow 省略」** と明示した場合のみ。通常 epic では CLI ガードにより **一括 stamp は失敗**する。
+[`asana-comment-detail-delivery.md`](../verification/platform/asana-comment-detail-delivery.md) 型の **監査証跡事後スタンプ** は、利用者が **「workflow 省略」** と明示した場合のみ。通常 epic では CLI ガードにより **一括 stamp は失敗**する。
 
 ## 関連
 
-- delivery: [`pm-worker-separation-delivery.md`](../verification/pm-worker-separation-delivery.md)
+- delivery: [`pm-worker-separation-delivery.md`](../verification/platform/pm-worker-separation-delivery.md)
 - attach: [`development-delivery-io.md`](development-delivery-io.md)
 - 署名: [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md) §8

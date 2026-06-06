@@ -6,7 +6,7 @@
   },
   "epic": {
     "title": "【UX→dev dryrun】Figma 依存転記 + full-ui 着手（2026-06-06）",
-    "notes_markdown": "## 目的\n\nUX 子完了 → product-manager が `## 依存（読み取り専用）` に Figma URL を転記 → development `profile: full-ui` が着手できる継ぎ目を Asana 上で確認する。\n\n## 配賦順序\n\n**ux**（blocking）→ **development**（full-ui）\n\n## 記録\n\n`docs/verification/ux-to-dev-full-ui-dryrun.md`"
+    "notes_markdown": "## 目的\n\nUX 子完了 → product-manager が `## 依存（読み取り専用）` に Figma URL を転記 → development `profile: full-ui` が着手できる継ぎ目を Asana 上で確認する。\n\n## 配賦順序\n\n**ux**（blocking）→ **development**（full-ui）\n\n## 記録\n\n`docs/verification/cross-team/ux-to-dev-full-ui-dryrun.md`"
   },
   "subtasks": [
     {

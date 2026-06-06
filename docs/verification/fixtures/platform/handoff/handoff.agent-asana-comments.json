@@ -38,7 +38,7 @@
       "pillar": "検証",
       "department": "development",
       "background": "利用者が再現手順なしでは導入できない。",
-      "summary": "`docs/verification/agent-comment-smoke.md` を追加。`agent-registry.yaml` の asana-buddy に `comment_task_script` を登録。asana-buddy README にコマンド例を追記。",
+      "summary": "`docs/verification/platform/agent-comment-smoke.md` を追加。`agent-registry.yaml` の asana-buddy に `comment_task_script` を登録。asana-buddy README にコマンド例を追記。",
       "done_when": "検証手順が存在し、registry が comment スクリプトを参照している。"
     }
   ]

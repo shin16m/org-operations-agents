@@ -69,7 +69,7 @@ def main() -> None:
     parent = fetch_task(args.parent, token)
 
     if args.department == "development" and not args.skip_intake_gate:
-        repo_root = _SCRIPT_DIR.parents[4]
+        repo_root = _SCRIPT_DIR.parents[3]
         tools_dir = str(repo_root / "tools")
         if tools_dir not in sys.path:
             sys.path.insert(0, tools_dir)

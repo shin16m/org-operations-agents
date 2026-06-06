@@ -1,6 +1,6 @@
 # E2E ドライラン記録 — default v2（履歴）
 
-> **現行:** v3 は [`../e2e-dryrun.md`](../e2e-dryrun.md) · 手順 [`../../e2e/default-workflow.md`](../../e2e/default-workflow.md)
+> **現行:** v3 は [`../cross-team/e2e-dryrun.md`](../cross-team/e2e-dryrun.md) · 手順 [`../../e2e/default-workflow.md`](../../e2e/default-workflow.md)
 
 ## 実施日
 

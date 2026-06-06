@@ -50,7 +50,6 @@ from org_os import syscall  # noqa: E402
 
 SESSIONS_DIR = ROOT / "output/platform/sessions"
 INTAKE_MARKER = "intake 元タスクとして org-ops エピック"
-EPIC_PREFIX = "【org-ops】"
 OPT_FIELDS = "name,gid,completed,parent,permalink_url,custom_fields,custom_fields.enum_value,custom_fields.enum_value.gid"
 
 
@@ -154,9 +153,6 @@ def is_candidate(
         return False, "completed"
     if task.get("parent"):
         return False, "subtask"
-    name = (task.get("name") or "").strip()
-    if name.startswith(EPIC_PREFIX):
-        return False, "epic"
     agent = _assignee_kind(task, at_cfg)
     if agent != "AI":
         return False, "no_cf" if agent is None else f"agent_type={agent}"
@@ -321,10 +317,10 @@ def _log_kick_subprocess(
     stderr = (r.stderr or "").strip()
     if stdout:
         for line in stdout.splitlines()[-10:]:
-            print(f"KICK  stdout  {line}")
+            print(console_safe(f"KICK  stdout  {line}"))
     if stderr:
         for line in stderr.splitlines()[-10:]:
-            print(f"KICK  stderr  {line}", file=sys.stderr)
+            print(console_safe(f"KICK  stderr  {line}"), file=sys.stderr)
     if r.returncode != 0:
         print(f"WARN  kick_failed  parent={parent}  label={label}", file=sys.stderr)
 

@@ -60,7 +60,7 @@ workflow-orchestrator（intake → triage → bootstrap → dispatch）
 | product-manager / ux-pm / analytics-pm が **ワーカー役を代行** | `pm_assign_subtasks` → **`pm_review_gate`（人間 · dependencies）** → **L3b** worker dispatch（[`dispatch-prompt-ssot.md`](dispatch-prompt-ssot.md)） |
 | gate 承認を「実装開始の合図」とみなす | 企画 PM は **comment → complete → DeptWorkComplete** まで。実行系は別 dispatch |
 
-org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../skills/development/examples/assign-plan.org-meta-doc-v1.json)）。本体を PM が先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../verification/asana-comment-detail-delivery.md)。
+org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../skills/development/examples/assign-plan.org-meta-doc-v1.json)）。本体を PM が先行完了した場合の事後補完: [`docs/verification/platform/asana-comment-detail-delivery.md`](../verification/platform/asana-comment-detail-delivery.md)。
 
 **PM review gate（execution）:** [`pm-assign-review-gate.md`](pm-assign-review-gate.md) · planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md) · **org-os 改修候補:** PM review gate 待ち時に親 epic CF 未更新（[`asana-driven-ops.md`](asana-driven-ops.md) §org-os）
 

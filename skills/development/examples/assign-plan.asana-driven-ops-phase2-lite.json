@@ -27,7 +27,7 @@
       "status": "assigned",
       "background": "承認済み要件 · UX approval-ux-phase2 §2–5。",
       "summary": "asana_ops_poller / check_workflow_suspend 拡張 · pm_emit_resume_prompt.py 新規 · dryrun doc。",
-      "done_when": "validate 3 本 exit 0 · docs/verification/asana-driven-ops-phase2-dryrun.md 記録。"
+      "done_when": "validate 3 本 exit 0 · docs/verification/platform/asana-driven-ops-phase2-dryrun.md 記録。"
     },
     {
       "name": "【2/4-4・開発】code review（dev-reviewer）",

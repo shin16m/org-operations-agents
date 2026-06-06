@@ -49,6 +49,6 @@ $env:PYTHONIOENCODING='utf-8'
 
 - [`cross-team-artifact-bridge.md`](../design/cross-team-artifact-bridge.md)
 - [`handoff.analysis-model-serve.json`](../../skills/planning/issue-story-planner/examples/handoff.analysis-model-serve.json)
-- [`analysis-profile-dryrun.md`](analysis-profile-dryrun.md)
+- [`analysis-profile-dryrun.md`](../analysis/analysis-profile-dryrun.md)
 - [`ux-to-dev-full-ui-dryrun.md`](ux-to-dev-full-ui-dryrun.md)
 - [`run_analysis_to_dev_dryrun.py`](../../tools/run_analysis_to_dev_dryrun.py)

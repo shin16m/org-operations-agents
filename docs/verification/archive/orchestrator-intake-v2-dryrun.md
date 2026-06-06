@@ -1,6 +1,6 @@
 # オーケストレーター入口 workflow — v2 dryrun（履歴）
 
-> **現行 v3:** [`../orchestrator-intake-dryrun.md`](../orchestrator-intake-dryrun.md) · [`../../e2e/default-workflow.md`](../../e2e/default-workflow.md)
+> **現行 v3:** [`../platform/orchestrator-intake-dryrun.md`](../platform/orchestrator-intake-dryrun.md) · [`../../e2e/default-workflow.md`](../../e2e/default-workflow.md)
 
 ## workflow v2
 

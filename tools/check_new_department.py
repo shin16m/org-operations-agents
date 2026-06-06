@@ -80,9 +80,10 @@ def _schema_enum(schema_path: Path) -> set[str]:
 def _has_dryrun_artifact(did: str) -> bool:
     ver_dir = ROOT / "docs/verification"
     if ver_dir.is_dir():
-        for path in ver_dir.glob("*dryrun*.md"):
-            if did in path.read_text(encoding="utf-8"):
-                return True
+        for pattern in ("*dryrun*.md", "*delivery*.md", "*smoke*.md"):
+            for path in ver_dir.rglob(pattern):
+                if path.is_file() and did in path.read_text(encoding="utf-8"):
+                    return True
     tools_dir = ROOT / "tools"
     if tools_dir.is_dir():
         for path in tools_dir.glob("run_*dryrun*.py"):
@@ -206,8 +207,8 @@ def _check_dept(did: str, orgs: list[dict[str, str]]) -> list[str]:
         # D6 dryrun doc or script referencing department
         if not _has_dryrun_artifact(did):
             failures.append(
-                f"D6 missing dryrun: docs/verification/*dryrun*.md or tools/run_*dryrun*.py "
-                f"must mention department '{did}'"
+                f"D6 missing dryrun: docs/verification/<dept>/*dryrun*.md (or *delivery*.md / *smoke*.md) "
+                f"or tools/run_*dryrun*.py must mention department '{did}'"
             )
 
         # I1 delivery-strength / team-conventions cross-link

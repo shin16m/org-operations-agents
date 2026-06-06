@@ -27,7 +27,7 @@
       "status": "assigned",
       "background": "承認済み要件 · UX approval-ux-phase3。",
       "summary": "asana_webhook_handler · asana_ops_dashboard · asana_ops_sessions · dryrun doc。",
-      "done_when": "validate 3 本 exit 0 · docs/verification/asana-driven-ops-phase3-dryrun.md。"
+      "done_when": "validate 3 本 exit 0 · docs/verification/platform/asana-driven-ops-phase3-dryrun.md。"
     },
     {
       "name": "【2/4-4・開発】code review（dev-reviewer）",

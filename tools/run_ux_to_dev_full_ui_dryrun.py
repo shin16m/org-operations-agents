@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """UX → development full-ui seam dryrun: UX v2 complete → ## 依存 transfer → dev full-ui.
 
-Record: docs/verification/ux-to-dev-full-ui-dryrun.md
+Record: docs/verification/cross-team/ux-to-dev-full-ui-dryrun.md
 
 Usage (repo root):
   python tools/run_ux_to_dev_full_ui_dryrun.py
@@ -393,11 +393,11 @@ def write_report(
         "## 関連",
         "",
         "- [`cross-team-artifact-bridge.md`](../design/cross-team-artifact-bridge.md)",
-        "- [`ux-delivery-v2-dryrun.md`](ux-delivery-v2-dryrun.md)",
+        "- [`ux-delivery-v2-dryrun.md`](../ux/ux-delivery-v2-dryrun.md)",
         "- [`run_ux_to_dev_full_ui_dryrun.py`](../../tools/run_ux_to_dev_full_ui_dryrun.py)",
         "",
     ]
-    out = ROOT / "docs/verification/ux-to-dev-full-ui-dryrun.md"
+    out = ROOT / "docs/verification/cross-team/ux-to-dev-full-ui-dryrun.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     log(f"\nReport: {out}")
 

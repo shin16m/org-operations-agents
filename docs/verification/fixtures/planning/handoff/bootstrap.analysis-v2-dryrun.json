@@ -6,7 +6,7 @@
   },
   "epic": {
     "title": "【分析 v2 dryrun】profile · analytics-requirements-writer · 全ロール（2026-06-06）",
-    "notes_markdown": "## 目的\n\n`analysis-delivery` v2 の PM サブタスク分解・profile: full · **analytics-requirements-writer** 含む全 enabled ロールが `comment_task` → `complete_task` まで到達することを確認する。\n\n## 記録\n\n`docs/verification/analysis-delivery-v2-dryrun.md`"
+    "notes_markdown": "## 目的\n\n`analysis-delivery` v2 の PM サブタスク分解・profile: full · **analytics-requirements-writer** 含む全 enabled ロールが `comment_task` → `complete_task` まで到達することを確認する。\n\n## 記録\n\n`docs/verification/analysis/analysis-delivery-v2-dryrun.md`"
   },
   "subtasks": [
     {

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Analysis → development seam dryrun: model-serve complete → ## 依存 transfer → dev full.
 
-Record: docs/verification/analysis-to-dev-dryrun.md
+Record: docs/verification/cross-team/analysis-to-dev-dryrun.md
 
 Usage (repo root):
   python tools/run_analysis_to_dev_dryrun.py
@@ -411,12 +411,12 @@ def write_report(
         "",
         "- [`cross-team-artifact-bridge.md`](../design/cross-team-artifact-bridge.md)",
         "- [`handoff.analysis-model-serve.json`](../../skills/planning/issue-story-planner/examples/handoff.analysis-model-serve.json)",
-        "- [`analysis-profile-dryrun.md`](analysis-profile-dryrun.md)",
-        "- [`ux-to-dev-full-ui-dryrun.md`](ux-to-dev-full-ui-dryrun.md)",
+        "- [`analysis-profile-dryrun.md`](../analysis/analysis-profile-dryrun.md)",
+        "- [`ux-to-dev-full-ui-dryrun.md`](../cross-team/ux-to-dev-full-ui-dryrun.md)",
         "- [`run_analysis_to_dev_dryrun.py`](../../tools/run_analysis_to_dev_dryrun.py)",
         "",
     ]
-    out = ROOT / "docs/verification/analysis-to-dev-dryrun.md"
+    out = ROOT / "docs/verification/cross-team/analysis-to-dev-dryrun.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     log(f"\nReport: {out}")
 

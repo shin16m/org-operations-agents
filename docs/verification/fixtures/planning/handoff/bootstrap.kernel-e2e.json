@@ -6,7 +6,7 @@
   },
   "epic": {
     "title": "【org-ops】org-os kernel E2E 再検証（syscall + OS Suspend Reason）",
-    "notes_markdown": "## 目的\n\nカーネル化後の A+B+C（create_approval_subtask → approval_helper → wakuoke_resume_scan）を本番プロジェクトで再実行し、`OS Suspend Reason=Approval` と `@mention` を確認する。\n\n## スコープ\n\n- doc-only / 検証用エピック\n- 実装変更なし\n- 検証記録: docs/verification/org-os-kernel-e2e-dryrun.md"
+    "notes_markdown": "## 目的\n\nカーネル化後の A+B+C（create_approval_subtask → approval_helper → wakuoke_resume_scan）を本番プロジェクトで再実行し、`OS Suspend Reason=Approval` と `@mention` を確認する。\n\n## スコープ\n\n- doc-only / 検証用エピック\n- 実装変更なし\n- 検証記録: docs/verification/platform/org-os-kernel-e2e-dryrun.md"
   },
   "subtasks": [
     {

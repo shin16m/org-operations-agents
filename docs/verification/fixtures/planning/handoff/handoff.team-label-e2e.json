@@ -21,7 +21,7 @@
       "department": "development",
       "pillar": "検証",
       "background": "新規エピックでの v3 + チーム表記 E2E。Asana GID と段階結果を残す。",
-      "summary": "`docs/verification/team-label-e2e-dryrun.md` に bootstrap〜開発 complete まで記録する。",
+      "summary": "`docs/verification/planning/team-label-e2e-dryrun.md` に bootstrap〜開発 complete まで記録する。",
       "done_when": "検証記録に親・子 GID、各段階の CLI 結果、`チーム:` notes 確認が書かれている。"
     }
   ]

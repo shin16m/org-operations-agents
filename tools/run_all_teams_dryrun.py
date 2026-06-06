@@ -2,7 +2,7 @@
 """Run all-teams dryrun: bootstrap → planning sync → UX / analysis / development PM subtasks.
 
 Each enabled worker posts comment_task + complete_task on their subtask.
-Record: docs/verification/all-teams-dryrun.md
+Record: docs/verification/cross-team/all-teams-dryrun.md
 
 Usage (repo root):
   python tools/run_all_teams_dryrun.py
@@ -468,7 +468,7 @@ def write_report(
             "",
         ]
     )
-    out = ROOT / "docs/verification/all-teams-dryrun.md"
+    out = ROOT / "docs/verification/cross-team/all-teams-dryrun.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     log(f"\nReport: {out}")
 
@@ -557,7 +557,7 @@ def main() -> int:
         agent_comment_body(
             actions=[
                 "planning / ux / analysis / development 全チームの comment → complete を確認",
-                "docs/verification/all-teams-dryrun.md に記録",
+                "docs/verification/cross-team/all-teams-dryrun.md に記録",
             ],
             next_state="依頼者へエピック完了報告",
         ),

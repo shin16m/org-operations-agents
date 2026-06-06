@@ -145,4 +145,4 @@ python tools/validate_ssot_contract.py
 
 - approval flow: [`approval-flow.md`](approval-flow.md)
 - asana-driven-ops: [`asana-driven-ops.md`](asana-driven-ops.md)
-- org-os dryrun: [`../verification/org-os-product-dryrun.md`](../verification/org-os-product-dryrun.md)
+- org-os dryrun: [`../verification/platform/org-os-product-dryrun.md`](../verification/platform/org-os-product-dryrun.md)

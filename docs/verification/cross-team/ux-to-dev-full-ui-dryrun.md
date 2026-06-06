@@ -45,5 +45,5 @@ $env:PYTHONIOENCODING='utf-8'
 ## 関連
 
 - [`cross-team-artifact-bridge.md`](../design/cross-team-artifact-bridge.md)
-- [`ux-delivery-v2-dryrun.md`](ux-delivery-v2-dryrun.md)
+- [`ux-delivery-v2-dryrun.md`](../ux/ux-delivery-v2-dryrun.md)
 - [`run_ux_to_dev_full_ui_dryrun.py`](../../tools/run_ux_to_dev_full_ui_dryrun.py)

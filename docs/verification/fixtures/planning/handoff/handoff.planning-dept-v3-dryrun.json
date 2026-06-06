@@ -21,7 +21,7 @@
       "department": "development",
       "pillar": "検証",
       "background": "組織変更後の初回ドライラン。再現手順とスキップ理由（Asana 未設定等）を残す必要がある。",
-      "summary": "`docs/verification/planning-dept-v3-dryrun.md` に段階ごとの結果を記録し、smoke チェックリストを更新する。",
+      "summary": "`docs/verification/planning/planning-dept-v3-dryrun.md` に段階ごとの結果を記録し、smoke チェックリストを更新する。",
       "done_when": "ドライラン記録に intake〜planning-pm gate までの手順と成果物パスが書かれ、planning-dept-v3-smoke の該当項目がチェック済み。"
     }
   ]

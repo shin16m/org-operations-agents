@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Analysis delivery v2 profile dryrun: insights / catalog / model-serve.
 
-Record: docs/verification/analysis-profile-dryrun.md
+Record: docs/verification/analysis/analysis-profile-dryrun.md
 
 Usage (repo root):
   python tools/run_analysis_profile_dryrun.py --profile catalog
@@ -286,13 +286,13 @@ def write_report(results: list[dict], command: str) -> None:
         [
             "## 関連",
             "",
-            "- [`analysis-delivery-v2-dryrun.md`](analysis-delivery-v2-dryrun.md)（full profile）",
+            "- [`analysis-delivery-v2-dryrun.md`](../analysis/analysis-delivery-v2-dryrun.md)（full profile）",
             "- [`analytics-pm-assignment.md`](../design/analytics-pm-assignment.md)",
             "- [`run_analysis_profile_dryrun.py`](../../tools/run_analysis_profile_dryrun.py)",
             "",
         ]
     )
-    out = ROOT / "docs/verification/analysis-profile-dryrun.md"
+    out = ROOT / "docs/verification/analysis/analysis-profile-dryrun.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     log(f"\nReport: {out}")
 

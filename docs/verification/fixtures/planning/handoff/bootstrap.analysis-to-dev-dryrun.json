@@ -6,7 +6,7 @@
   },
   "epic": {
     "title": "【分析→dev dryrun】model-serve API · 開発 consume（2026-06-06）",
-    "notes_markdown": "## 目的\n\n分析子（profile: model-serve）完了 → product-manager が `## 依存（読み取り専用）` に catalog / model / API URL を転記 → development `profile: full` が着手できる継ぎ目を確認する。\n\n## 配賦順序\n\n**analysis**（blocking）→ **development**（full）\n\n## Handoff 例\n\n[`handoff.analysis-model-serve.json`](../../../../skills/planning/issue-story-planner/examples/handoff.analysis-model-serve.json)\n\n## 記録\n\n`docs/verification/analysis-to-dev-dryrun.md`"
+    "notes_markdown": "## 目的\n\n分析子（profile: model-serve）完了 → product-manager が `## 依存（読み取り専用）` に catalog / model / API URL を転記 → development `profile: full` が着手できる継ぎ目を確認する。\n\n## 配賦順序\n\n**analysis**（blocking）→ **development**（full）\n\n## Handoff 例\n\n[`handoff.analysis-model-serve.json`](../../../../skills/planning/issue-story-planner/examples/handoff.analysis-model-serve.json)\n\n## 記録\n\n`docs/verification/cross-team/analysis-to-dev-dryrun.md`"
   },
   "subtasks": [
     {

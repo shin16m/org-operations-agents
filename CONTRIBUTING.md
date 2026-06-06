@@ -50,7 +50,7 @@ PR では [`.github/workflows/validate.yml`](.github/workflows/validate.yml) が
 
 - `docs/design/<dept>-pm-assignment.md`（profile · `human_review_gate` opt-in · pm_assign 必須）
 - `skills/<dept>/examples/assign-plan*.json`
-- `docs/verification/*<dept>*dryrun*.md` または `tools/run_*dryrun*.py`
+- `docs/verification/<dept>/` 配下の dryrun 記録、または `tools/run_*dryrun*.py`
 - 下流がある場合: [`cross-team-artifact-bridge.md`](docs/design/cross-team-artifact-bridge.md) + Handoff 例
 
 ## スキル変更

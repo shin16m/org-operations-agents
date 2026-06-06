@@ -145,7 +145,7 @@ v2 手順の記録: [`docs/verification/archive/`](../verification/archive/READM
 
 ## 検証記録
 
-- v3 dryrun: [`docs/verification/planning-dept-v3-dryrun.md`](../verification/planning-dept-v3-dryrun.md) · [`all-teams-dryrun.md`](../verification/all-teams-dryrun.md)
+- v3 dryrun: [`docs/verification/planning/planning-dept-v3-dryrun.md`](../verification/planning/planning-dept-v3-dryrun.md) · [`all-teams-dryrun.md`](../verification/cross-team/all-teams-dryrun.md)
 - v2 履歴: [`docs/verification/archive/default-v2-dryrun.md`](../verification/archive/default-v2-dryrun.md) · [`archive/orchestrator-intake-v2-dryrun.md`](../verification/archive/orchestrator-intake-v2-dryrun.md)
 - v3 組織変更: 本ドキュメント · [`docs/design/planning-delivery-io.md`](../design/planning-delivery-io.md)
-- PM 代行事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../verification/asana-comment-detail-delivery.md)
+- PM 代行事後補完: [`docs/verification/platform/asana-comment-detail-delivery.md`](../verification/platform/asana-comment-detail-delivery.md)

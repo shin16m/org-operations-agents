@@ -41,7 +41,7 @@
       "title": "【5/6・整備】asana-buddy README と e2e 検証記録",
       "pillar": "整備",
       "background": "asana-buddy README が旧フロー（planner 直）のまま。e2e-dryrun が v2 未反映。",
-      "summary": "asana-buddy README に標準パイプラインと --require-review-result を追記。docs/verification/e2e-dryrun.md に intake 追記。",
+      "summary": "asana-buddy README に標準パイプラインと --require-review-result を追記。docs/verification/cross-team/e2e-dryrun.md に intake 追記。",
       "done_when": "README と e2e-dryrun が workflow v2 と一致。"
     },
     {

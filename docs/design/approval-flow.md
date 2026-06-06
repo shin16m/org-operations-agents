@@ -107,7 +107,7 @@ CF / env 未設定の場合は `parent_state_after` が `unchanged` となり、
 
 ### 5.2 runner サイクル内の B→C 順序（`asana_ops_runner`）
 
-watch-auto / [`tools/asana_ops_runner.py`](../../tools/asana_ops_runner.py) は **1 サイクル**で次の順序を守る（delivery: [`runner-resume-approval-helper-delivery.md`](../verification/runner-resume-approval-helper-delivery.md)）:
+watch-auto / [`tools/asana_ops_runner.py`](../../tools/asana_ops_runner.py) は **1 サイクル**で次の順序を守る（delivery: [`runner-resume-approval-helper-delivery.md`](../verification/platform/runner-resume-approval-helper-delivery.md)）:
 
 ```
 run_approval_helper_pass   # suspended · approval_sub_gid complete → helper (--parent=wait_target)

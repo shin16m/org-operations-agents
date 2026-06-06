@@ -85,4 +85,4 @@
 
 ## 移行（v2 → v3）
 
-v2 の `plan` / `review` / `gate` / `execute` は L1 から削除し、planning-delivery（L3）へ移管。履歴: [`docs/verification/e2e-dryrun.md`](../verification/e2e-dryrun.md)
+v2 の `plan` / `review` / `gate` / `execute` は L1 から削除し、planning-delivery（L3）へ移管。履歴: [`docs/verification/cross-team/e2e-dryrun.md`](../verification/cross-team/e2e-dryrun.md)

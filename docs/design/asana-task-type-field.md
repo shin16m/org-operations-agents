@@ -27,8 +27,8 @@ Asana プロジェクトの **Task Type** enum CF で、タスクが **Intake（
 
 **poller intake 候補（`asana_ops_poller` · `--auto-bootstrap`）:**
 
-- 未完了 · トップレベル · `【org-ops】` 以外
-- **Agent Type = AI** かつ **Task Type = Intake**
+- 未完了 · トップレベル
+- **Agent Type = AI** かつ **Task Type = Intake**（Epic 除外は Task Type CF が担う。タスク名プレフィックス不要）
 
 **Epic タスク作成（和久桶 bootstrap）:**
 

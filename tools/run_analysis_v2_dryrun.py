@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Analysis delivery v2 dryrun: bootstrap → analytics-pm assign → all workers comment+complete.
 
-Record: docs/verification/analysis-delivery-v2-dryrun.md
+Record: docs/verification/analysis/analysis-delivery-v2-dryrun.md
 
 Usage (repo root):
   python tools/run_analysis_v2_dryrun.py
@@ -347,7 +347,7 @@ def write_report(
             "",
         ]
     )
-    out = ROOT / "docs/verification/analysis-delivery-v2-dryrun.md"
+    out = ROOT / "docs/verification/analysis/analysis-delivery-v2-dryrun.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     log(f"\nReport: {out}")
 

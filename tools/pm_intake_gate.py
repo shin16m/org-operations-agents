@@ -57,7 +57,7 @@ def check_full_ui_dependency(notes: str) -> list[str]:
         return failures
 
     dep = _dependency_section(notes)
-    if not re.search(r"output/ux/", dep, re.IGNORECASE):
+    if not re.search(r"output/(?:dryrun/)?ux/", dep, re.IGNORECASE):
         failures.append("## 依存 must reference output/ux/ artifact path")
     if not re.search(r"figma\.com", dep, re.IGNORECASE):
         failures.append("## 依存 must include Figma URL (figma.com)")

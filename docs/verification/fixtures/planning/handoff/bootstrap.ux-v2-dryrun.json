@@ -6,7 +6,7 @@
   },
   "epic": {
     "title": "【UX v2 dryrun】Figma-first · design-system-owner · design_quality（2026-06-06）",
-    "notes_markdown": "## 目的\n\n`ux-delivery` v2 の PM サブタスク分解・4 ロール（ux-designer / design-system-owner / ux-reviewer ×2）が Asana 上で `comment_task` → `complete_task` まで到達することを確認する。\n\n## profile\n\n`flagship`\n\n## 記録\n\n`docs/verification/ux-delivery-v2-dryrun.md`"
+    "notes_markdown": "## 目的\n\n`ux-delivery` v2 の PM サブタスク分解・4 ロール（ux-designer / design-system-owner / ux-reviewer ×2）が Asana 上で `comment_task` → `complete_task` まで到達することを確認する。\n\n## profile\n\n`flagship`\n\n## 記録\n\n`docs/verification/ux/ux-delivery-v2-dryrun.md`"
   },
   "subtasks": [
     {

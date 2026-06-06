@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """UX delivery v2 dryrun: bootstrap → ux-pm assign (v2 plan) → all workers comment+complete.
 
-Record: docs/verification/ux-delivery-v2-dryrun.md
+Record: docs/verification/ux/ux-delivery-v2-dryrun.md
 
 Usage (repo root):
   python tools/run_ux_v2_dryrun.py
@@ -315,7 +315,7 @@ def write_report(
             "",
         ]
     )
-    out = ROOT / "docs/verification/ux-delivery-v2-dryrun.md"
+    out = ROOT / "docs/verification/ux/ux-delivery-v2-dryrun.md"
     out.write_text("\n".join(lines), encoding="utf-8")
     log(f"\nReport: {out}")
 

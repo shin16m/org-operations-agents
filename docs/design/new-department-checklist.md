@@ -71,7 +71,7 @@ python tools/check_new_skill.py --all-enabled             # 全 enabled slug
 | D3 | ワーカー SKILL — 着手前 `fetch_task --show-assignee` |
 | D4 | `skills/<dept>/examples/assign-plan.*.json` — サブタスクプラン例 |
 | D5 | [`pm_assign_subtasks.py`](../../skills/platform/asana-buddy/optional/pm_assign_subtasks.py) — `--department` 対応確認 |
-| D6 | `docs/verification/<id>-delivery-dryrun.md` |
+| D6 | `docs/verification/<id>/<id>-delivery-dryrun.md`（または `tools/run_*_<id>_dryrun.py`）
 
 ---
 

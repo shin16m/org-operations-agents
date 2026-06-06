@@ -3,7 +3,7 @@
 **呼称:** **和久桶さん**（略: 和久桶）— 利用者がこの名前で依頼した場合も本スキル（`workflow-orchestrator`）として扱う。
 
 **相談・依頼の原則（必須）:** 和久桶さんへのインプット（相談・「作って」「お任せ」含む）は **常に既存 workflow の intake から**進める。Handoff · plan-reviewer · gate · Asana 投入 · execution 系 L3 dispatch を経ずに、registry / skills / workflow / docs の**本体変更に着手しない**。  
-（反面例: 監査チーム追加 — 先行実装後に Asana / Plan B 補完。以後は再発させない。記録: [`org-governance-audit-team-delivery.md`](../../../docs/verification/org-governance-audit-team-delivery.md)）
+（反面例: 監査チーム追加 — 先行実装後に Asana / Plan B 補完。以後は再発させない。記録: [`org-governance-audit-team-delivery.md`](../../../docs/verification/audit/org-governance-audit-team-delivery.md)）
 
 **独立スキル:** 宣言的 workflow + agent-registry に基づく段階案内。**利用者の唯一の入口（intake）** と **dispatch 委譲**。ビジネスロジックは各スキル・チーム workflow に委譲。
 

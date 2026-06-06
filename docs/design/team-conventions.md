@@ -14,6 +14,26 @@
 | チーム別 | `*-delivery-io.md` | チーム内 workflow・成果物・ゲート・禁止事項 |
 | workflow 定義 | `workflows/*-delivery.yaml` | 段階・agent・gate（機械可読） |
 | 登録 | [`workflows/organizations.yaml`](../../workflows/organizations.yaml) | id → workflow / PM / 成果物ルート |
+| 検証記録 | [`docs/verification/`](../verification/README.md) | チーム別 dryrun / smoke / delivery |
+
+---
+
+## チーム別ファイルマップ
+
+`organizations.yaml` の `departments[]` 1 行と対応するパス一覧。新規チーム追加時は [`new-department-checklist.md`](new-department-checklist.md) と合わせて更新する。
+
+| id | スキル | workflow | 設計 I/O | PM 配賦 | 成果物 | 検証 | assign plan 例 |
+|----|--------|----------|----------|---------|--------|------|----------------|
+| `planning` | [`skills/planning/`](../../skills/planning/) | [`planning-delivery.yaml`](../../workflows/planning-delivery.yaml) | [`planning-delivery-io.md`](planning-delivery-io.md) | — | `output/planning/` | [`verification/planning/`](../verification/planning/) | [`skills/planning/examples/`](../../skills/planning/) |
+| `ux` | [`skills/ux/`](../../skills/ux/) | [`ux-delivery.yaml`](../../workflows/ux-delivery.yaml) | [`ux-delivery-io.md`](ux-delivery-io.md) | [`ux-pm-assignment.md`](ux-pm-assignment.md) | `output/ux/` | [`verification/ux/`](../verification/ux/) | [`skills/ux/examples/`](../../skills/ux/examples/) |
+| `development` | [`skills/development/`](../../skills/development/) | [`development-delivery.yaml`](../../workflows/development-delivery.yaml) | [`development-delivery-io.md`](development-delivery-io.md) | [`development-pm-assignment.md`](development-pm-assignment.md) | `output/development/` | [`verification/development/`](../verification/development/) | [`skills/development/examples/`](../../skills/development/examples/) |
+| `analysis` | [`skills/analysis/`](../../skills/analysis/) | [`analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) | [`analysis-delivery-io.md`](analysis-delivery-io.md) | [`analytics-pm-assignment.md`](analytics-pm-assignment.md) | `output/analysis/` | [`verification/analysis/`](../verification/analysis/) | [`skills/analysis/examples/`](../../skills/analysis/examples/) |
+| `governance` | [`skills/governance/`](../../skills/governance/) | [`governance-delivery.yaml`](../../workflows/governance-delivery.yaml) | [`governance-delivery-io.md`](governance-delivery-io.md) | [`governance-pm-assignment.md`](governance-pm-assignment.md) | `output/governance/` | [`verification/governance/`](../verification/governance/) | [`skills/governance/examples/`](../../skills/governance/examples/) |
+| `audit` | [`skills/audit/`](../../skills/audit/) | [`audit-delivery.yaml`](../../workflows/audit-delivery.yaml) | [`audit-delivery-io.md`](audit-delivery-io.md) | [`audit-pm-assignment.md`](audit-pm-assignment.md) | `output/audit/` | [`verification/audit/`](../verification/audit/) | [`skills/audit/examples/`](../../skills/audit/examples/) |
+
+**統括グループ（dispatch 対象外）:** [`skills/platform/`](../../skills/platform/) · 横断 workflow [`default.yaml`](../../workflows/default.yaml) / [`with-dispatch.yaml`](../../workflows/with-dispatch.yaml) · 検証 [`verification/platform/`](../verification/platform/)
+
+**チーム横断 E2E:** [`verification/cross-team/`](../verification/cross-team/)（例: [`all-teams-dryrun.md`](../verification/cross-team/all-teams-dryrun.md)）
 
 ---
 
@@ -199,4 +219,4 @@ dispatch 対象外。チーム内 delivery は持たない。
 
 - 配賦モデル: [`department-model.md`](department-model.md)
 - E2E: [`default-workflow.md`](../e2e/default-workflow.md) · [`dispatch-workflow.md`](../e2e/dispatch-workflow.md)
-- 検証: [`ux-delivery-v2-dryrun.md`](../verification/ux-delivery-v2-dryrun.md) · [`ux-delivery-v1-dryrun.md`](../verification/ux-delivery-v1-dryrun.md)（legacy）
+- 検証: [`verification/README.md`](../verification/README.md) · UX: [`ux-delivery-v2-dryrun.md`](../verification/ux/ux-delivery-v2-dryrun.md)

@@ -57,7 +57,7 @@ product-manager が full-ui 子 intake 前に追記する。
 | 3 | developer | Figma / Code Connect を read-only で実装 |
 | 4 | ux-reviewer | `ux_implementation` でビジュアル一致を検証 |
 
-**dryrun 記録:** [`ux-to-dev-full-ui-dryrun.md`](../verification/ux-to-dev-full-ui-dryrun.md) · Handoff 例: [`handoff.ux-web-app.json`](../../skills/planning/issue-story-planner/examples/handoff.ux-web-app.json)
+**dryrun 記録:** [`ux-to-dev-full-ui-dryrun.md`](../verification/cross-team/ux-to-dev-full-ui-dryrun.md) · Handoff 例: [`handoff.ux-web-app.json`](../../skills/planning/issue-story-planner/examples/handoff.ux-web-app.json)
 
 ## 分析 → 開発
 
@@ -90,7 +90,7 @@ product-manager が development 子 intake 前に追記する（`profile: full` 
 
 詳細: [`analysis-delivery-io.md`](analysis-delivery-io.md) · [`analytics-pm-assignment.md`](analytics-pm-assignment.md)
 
-**dryrun 記録:** [`analysis-to-dev-dryrun.md`](../verification/analysis-to-dev-dryrun.md) · Handoff 例: [`handoff.analysis-model-serve.json`](../../skills/planning/issue-story-planner/examples/handoff.analysis-model-serve.json)
+**dryrun 記録:** [`analysis-to-dev-dryrun.md`](../verification/cross-team/analysis-to-dev-dryrun.md) · Handoff 例: [`handoff.analysis-model-serve.json`](../../skills/planning/issue-story-planner/examples/handoff.analysis-model-serve.json)
 
 ---
 
