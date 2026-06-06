@@ -1,5 +1,7 @@
 # ssot-implementer SKILL
 
+人間向け: [`README.md`](README.md) · persona: [`personas/ssot_implementer.md`](personas/ssot_implementer.md)
+
 **独立スキル:** governance-pm から委譲された **org-meta / SSOT 実装**。
 
 人間向け: [`README.md`](README.md) · PM 委譲: [`docs/design/governance-pm-assignment.md`](../../../docs/design/governance-pm-assignment.md)

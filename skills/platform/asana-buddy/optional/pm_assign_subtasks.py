@@ -51,6 +51,11 @@ def main() -> None:
         help="Set parent 担当 after creating children (e.g. ux-pm, analytics-pm)",
     )
     p.add_argument("-y", action="store_true")
+    p.add_argument(
+        "--skip-intake-gate",
+        action="store_true",
+        help="Skip development full-ui ## 依存 check (emergency only)",
+    )
     args = p.parse_args()
 
     plan = json.loads(args.plan.read_text(encoding="utf-8"))
@@ -62,6 +67,39 @@ def main() -> None:
     load_env_from_dotfile()
     token = get_token()
     parent = fetch_task(args.parent, token)
+
+    if args.department == "development" and not args.skip_intake_gate:
+        repo_root = _SCRIPT_DIR.parents[4]
+        tools_dir = str(repo_root / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        from pm_intake_gate import (  # noqa: WPS433
+            check_development_intake,
+            format_blocked,
+        )
+
+        notes = str(parent.get("notes") or "")
+        ok, failures = check_development_intake(
+            notes,
+            plan_profile=plan.get("profile"),
+        )
+        if not ok:
+            print(
+                format_blocked(
+                    gid=args.parent,
+                    tool="pm_assign_subtasks.py",
+                    failures=failures,
+                ),
+                file=sys.stderr,
+            )
+            for item in failures:
+                print(f"  - {item}", file=sys.stderr)
+            print(
+                "HINT  python tools/pm_intake_gate.py --gid "
+                f"{args.parent} --plan {args.plan}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
     if not args.y:
         print(console_safe(f"Parent: {parent.get('name')} ({args.parent})"))

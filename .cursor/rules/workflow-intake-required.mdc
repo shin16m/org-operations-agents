@@ -34,7 +34,9 @@ alwaysApply: true
 
 **bootstrap 部分失敗:** `handoff_to_asana.py` が `warn_section_add_failed` を出したら、出力の `created_parent` GID を控え **`--parent <GID>` で再実行**する（create モードの再実行で重複親を作らない）。
 
-**comment_task の `--agent`:** 実装作業の署名は **実作業ワーカーの slug**（notes の `担当:` と一致）。PM slug は DeptWorkComplete・委譲集約・gate のみ。
+**comment_task の `--agent`:** 実装作業の署名は **実作業ワーカーの slug**（notes の `担当:` と一致）。PM slug は DeptWorkComplete・委譲集約・gate のみ。CLI が不一致を **exit 4**（[`pm-worker-separation-enforcement.md`](docs/design/pm-worker-separation-enforcement.md)）。
+
+**L3b 強制:** `ORG_OPS_ENFORCE_L3B=1`（既定）で `cursor_worker_dispatch -y` は API key 必須。PM が複数 worker を同一セッションで完走しない。
 
 **人間ゲート（【レビュー】/【承認】）:** エージェントは `complete_task.py` でこれらのサブを **完了してはならない**（利用者が Asana UI で complete）。チャットの「すすめて」「承認」は planning gate のみ有効で、PM assign review gate の代行にならない。
 

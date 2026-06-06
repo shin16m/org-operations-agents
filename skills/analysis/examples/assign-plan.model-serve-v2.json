@@ -1,0 +1,132 @@
+{
+  "parent_title": "【分析】推論 API / モデル提供（model-serve）",
+  "profile": "model-serve",
+  "subtasks": [
+    {
+      "name": "【1】分析要件（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "mode=requirements。開発 consume 契約を含める。",
+      "summary": "`output/analysis/requirements/<parent_gid>-requirements.md`",
+      "done_when": "KPI・API/モデル期待が記載されている。"
+    },
+    {
+      "name": "【2】要件 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: analytics_requirements",
+      "summary": "AnalysisDocReviewResult を reviews 配下に出力。",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【3】データ設計（data-architect）",
+      "assignee": "data-architect",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "SLA 必須。",
+      "summary": "`output/analysis/data-model/<parent_gid>.md`",
+      "done_when": "更新頻度・遅延許容・可用性・鮮度が記載されている。"
+    },
+    {
+      "name": "【4】設計 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: data_model",
+      "summary": "SLA 未記載は failed。",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【5】ETL（data-engineer）",
+      "assignee": "data-engineer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "学習/推論用パイプライン。",
+      "summary": "パイプライン実体は別リポジトリ。設計書 stub を output に。",
+      "done_when": "パイプライン設計・CI 方針が文書化されている。"
+    },
+    {
+      "name": "【6】パイプライン review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: pipeline",
+      "summary": "AnalysisDocReviewResult",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【7】品質（data-steward）",
+      "assignee": "data-steward",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "カタログ・品質ルール。",
+      "summary": "`output/analysis/catalog/<parent_gid>.md`",
+      "done_when": "カタログが保存されている。"
+    },
+    {
+      "name": "【8】品質 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: data_quality",
+      "summary": "AnalysisDocReviewResult",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【9】モデル（data-scientist）",
+      "assignee": "data-scientist",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "モデルカード含む。",
+      "summary": "`output/analysis/models/<parent_gid>/`",
+      "done_when": "モデルカード・評価指標が保存されている。"
+    },
+    {
+      "name": "【10】モデル review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: model_eval",
+      "summary": "AnalysisDocReviewResult",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【11】本番ゲート（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: production_deploy_gate",
+      "summary": "DeployGateResult — ml-engineer 前必須。",
+      "done_when": "quality_approved & security_approved"
+    },
+    {
+      "name": "【12】デプロイ（ml-engineer）",
+      "assignee": "ml-engineer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "gate 通過後のみ。",
+      "summary": "推論 API URL / デプロイ手順を artifacts に含める。",
+      "done_when": "デプロイ記録が保存されている。"
+    },
+    {
+      "name": "【13】デプロイ検証（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: deploy_verification",
+      "summary": "VerificationResult",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【14】リリース（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "mode=release",
+      "summary": "`output/analysis/releases/<parent_gid>-release.md`",
+      "done_when": "KPI・API 参照が記載されている。"
+    }
+  ]
+}

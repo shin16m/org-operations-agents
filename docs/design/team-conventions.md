@@ -5,6 +5,9 @@
 | レイヤー | 文書 | 内容 |
 |----------|------|------|
 | 組織全体 | [`department-model.md`](department-model.md) | チーム vs 統括グループ、チーム間 I/O 原則 |
+| スキル・ペルソナ | [`skill-persona-principles.md`](skill-persona-principles.md) | SKILL vs persona · 粒度 · 志向テンプレ |
+| 共通パターン | [`delivery-strength-pattern.md`](delivery-strength-pattern.md) | 開発基準の profile / ゲート / PM 分離 |
+| チーム間 bridge | [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md) | UX→開発の Figma / Code Connect |
 | チーム間共通 | [`dept-work-io.md`](dept-work-io.md) | `DispatchRequest` / `DeptWorkComplete` / Asana 署名 / レビュー Result |
 | レビュー NG | [`pm-review-rework-ssot.md`](pm-review-rework-ssot.md) | PM へ提出 · OK 進行 · NG は修正サブ追加（`--undo` 禁止） |
 | 成果物ポリシー | [`artifact-policy.md`](artifact-policy.md) | テンプレ vs `output/` 実行時 |
@@ -20,9 +23,10 @@
 |------|------|-----|------|------|----------|------|
 | id | `planning` | `ux` | `development` | `analysis` | `governance` | `audit` |
 | PM | planning-pm | ux-pm | product-manager | analytics-pm | governance-pm | audit-pm |
-| ミッション | Handoff → gate → Asana | UX 設計 → artifact | 製品要件→実装 | データ→本番ゲート | **org-meta SSOT 実装** | 整合性検証 |
-| workflow | planning-delivery | ux-delivery | development-delivery | analysis-delivery | governance-delivery | audit-delivery |
-| 成果物 | `output/planning/` | `output/ux/` | `output/development/` | `output/analysis/` | `output/governance/` | `output/audit/` |
+| ミッション | Handoff → gate → Asana | **Figma UI** → artifact | 製品要件→実装 | データ→本番ゲート | **org-meta SSOT 実装** | 整合性検証 |
+| workflow | planning-delivery | ux-delivery **v2** | development-delivery **v3** | analysis-delivery | governance-delivery | audit-delivery |
+| profile | — | flagship / standard / lite | full / full-ui / lite / doc-only | full / model-serve / insights / catalog / lite | — | — |
+| 成果物 | `output/planning/` | `output/ux/` + **Figma** | `output/development/` | `output/analysis/` | `output/governance/` | `output/audit/` |
 
 ### チーム間 I/O（全チーム共通）
 
@@ -108,16 +112,17 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 
 ## UX チーム
 
-**単位:** 子タスク 1 件 = `ux-delivery` 1 インスタンス。**Web アプリ Epic では UI 系 development 子より先に完了。**
+**単位:** 子タスク 1 件 = `ux-delivery` v2 1 インスタンス。**Web アプリ Epic では UI 系 development 子より先に完了。**
 
 | 区分 | 取り決め |
 |------|----------|
-| 入力 | 子 notes、任意の `## 依存`（分析データ契約等） |
-| PM 必須 | **必要タスクをサブタスク化**しメンバーへ `担当:` アサイン（[`ux-pm-assignment.md`](ux-pm-assignment.md)） |
-| チーム内フロー | 体験設計 → ux-reviewer（ux_spec）→ artifact 公開 |
-| 必須ゲート | `ux_review_passed` |
-| PM 委譲 | notes に `担当:`。必要なら nested サブタスク + `pm_assign_subtasks.py` |
-| 下流 | development `profile: full-ui` が `## 依存` で consume |
+| 入力 | 子 notes（`profile:`）、任意の `## 依存`（分析データ契約等） |
+| PM 必須 | **profile 選定** + **フェーズをサブタスク化**しメンバーへ `担当:` アサイン（[`ux-pm-assignment.md`](ux-pm-assignment.md)） |
+| チーム内フロー | Figma UI → design_quality → Design System → ux_spec → artifact 公開 |
+| profile | `flagship` / `standard` / `lite` |
+| 必須ゲート | `design_quality_passed`（lite 除く）· `ux_spec_passed` |
+| 成果物 | **Figma URL** + ux-spec.md + design-system.md |
+| 下流 | development `profile: full-ui` が `## 依存`（Figma 含む）で consume — [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md) |
 | 横断 review | ux-reviewer（`ux_implementation`）— development PM から委譲 |
 | やらないこと | 実装、Handoff 作成、dispatch |
 
@@ -145,21 +150,20 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 
 ## 分析チーム
 
-**単位:** 子タスク 1 件 = `analysis-delivery` 1 インスタンス。
+**単位:** 子タスク 1 件 = `analysis-delivery` v2 1 インスタンス。
 
 | 区分 | 取り決め |
 |------|----------|
-| 入力 | 子 notes のみ |
-| チーム内フロー | 要求 → データ設計（**SLA 必須**）→ ETL → 品質 → 探索 → モデル → **production_gate** → デプロイ → 価値検証 |
-| 必須ゲート | 各フェーズ review + **`production_deploy_gate`**（ml-engineer 前） |
-| SLA | 更新頻度・遅延許容・可用性・鮮度 — data_model review で未記載は failed |
-| PM 必須 | **workflow フェーズをサブタスク化**（[`analytics-pm-assignment.md`](analytics-pm-assignment.md)） |
-| PM 委譲 | nested サブタスク + `pm_assign_subtasks.py`（`--department analysis`） |
-| 成果物 | `output/analysis/` 配下（パイプライン・モデル実体は別リポジトリ） |
-| RBAC / 監査 | data-architect 設計、data-steward 確認、本番データ直接アクセス禁止 |
+| 入力 | 子 notes（`profile:`） |
+| profile | `full` / `model-serve` / `insights` / `catalog` / `lite` |
+| チーム内フロー | 要件（**analytics-requirements-writer**）→ 設計（SLA）→ … → release（writer） |
+| 必須ゲート | 各フェーズ review + **`production_deploy_gate`**（ml-engineer 前 · 該当 profile のみ） |
+| PM 分離 | analytics-pm はワーカー成果物を書かない |
+| 下流 | 開発は `## 依存` でモデル/API/カタログを consume — [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md) |
+| 成果物 | `output/analysis/`（実体は別リポジトリ） |
 | やらないこと | Handoff 作成、dispatch、他チーム成果物編集 |
 
-→ 詳細: [`analysis-delivery-io.md`](analysis-delivery-io.md) · PM 委譲: [`analytics-pm-assignment.md`](analytics-pm-assignment.md)
+→ 詳細: [`analysis-delivery-io.md`](analysis-delivery-io.md) · PM: [`analytics-pm-assignment.md`](analytics-pm-assignment.md) § profile 選定
 
 ---
 
@@ -195,4 +199,4 @@ dispatch 対象外。チーム内 delivery は持たない。
 
 - 配賦モデル: [`department-model.md`](department-model.md)
 - E2E: [`default-workflow.md`](../e2e/default-workflow.md) · [`dispatch-workflow.md`](../e2e/dispatch-workflow.md)
-- 検証: [`planning-dept-v3-dryrun.md`](../verification/planning-dept-v3-dryrun.md) · [`ux-delivery-v1-dryrun.md`](../verification/ux-delivery-v1-dryrun.md)
+- 検証: [`ux-delivery-v2-dryrun.md`](../verification/ux-delivery-v2-dryrun.md) · [`ux-delivery-v1-dryrun.md`](../verification/ux-delivery-v1-dryrun.md)（legacy）

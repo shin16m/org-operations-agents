@@ -16,7 +16,7 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 | [`workflows/`](workflows/) | 宣言的 workflow |
 | [`docs/`](docs/) | 設計・E2E・検証（契約文書） |
 
-組織モデル: [`docs/design/department-model.md`](docs/design/department-model.md)
+組織モデル: [`docs/design/department-model.md`](docs/design/department-model.md) · スキル・ペルソナ: [`docs/design/skill-persona-principles.md`](docs/design/skill-persona-principles.md)
 
 ## スキル一覧
 
@@ -31,10 +31,10 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 | [`task-dispatcher`](skills/platform/task-dispatcher/SKILL.md) | 子タスクをチームへ配賦（dispatch） |
 | [`product-manager`](skills/development/product-manager/SKILL.md) | 開発チーム PM（子 1 件のハブ） |
 | [`ux-pm`](skills/ux/ux-pm/SKILL.md) | UX チーム PM |
-| [`ux-designer`](skills/ux/ux-designer/SKILL.md) / [`ux-reviewer`](skills/ux/ux-reviewer/SKILL.md) | UX チーム委譲ロール |
+| [`ux-designer`](skills/ux/ux-designer/SKILL.md) / [`design-system-owner`](skills/ux/design-system-owner/SKILL.md) / [`ux-reviewer`](skills/ux/ux-reviewer/SKILL.md) | UX チーム委譲ロール（Figma-first v2） |
 | [`requirements-writer`](skills/development/requirements-writer/SKILL.md) / [`tech-designer`](skills/development/tech-designer/SKILL.md) / [`developer`](skills/development/developer/SKILL.md) / [`dev-reviewer`](skills/development/dev-reviewer/SKILL.md) / [`qa-verifier`](skills/development/qa-verifier/SKILL.md) | 開発チーム委譲ロール |
-| [`analytics-pm`](skills/analysis/analytics-pm/SKILL.md) | 分析チーム PM（子 1 件のハブ） |
-| [`data-architect`](skills/analysis/data-architect/SKILL.md) / [`data-engineer`](skills/analysis/data-engineer/SKILL.md) / [`data-steward`](skills/analysis/data-steward/SKILL.md) / [`data-analyst`](skills/analysis/data-analyst/SKILL.md) / [`data-scientist`](skills/analysis/data-scientist/SKILL.md) / [`ml-engineer`](skills/analysis/ml-engineer/SKILL.md) / [`analysis-reviewer`](skills/analysis/analysis-reviewer/SKILL.md) | 分析チームの委譲ロール |
+| [`analytics-pm`](skills/analysis/analytics-pm/SKILL.md) | 分析チーム PM（profile · 子 1 件のハブ） |
+| [`analytics-requirements-writer`](skills/analysis/analytics-requirements-writer/SKILL.md) / [`data-architect`](skills/analysis/data-architect/SKILL.md) / [`data-engineer`](skills/analysis/data-engineer/SKILL.md) / [`data-steward`](skills/analysis/data-steward/SKILL.md) / [`data-analyst`](skills/analysis/data-analyst/SKILL.md) / [`data-scientist`](skills/analysis/data-scientist/SKILL.md) / [`ml-engineer`](skills/analysis/ml-engineer/SKILL.md) / [`analysis-reviewer`](skills/analysis/analysis-reviewer/SKILL.md) | 分析チームの委譲ロール（v2） |
 | [`audit-pm`](skills/audit/audit-pm/SKILL.md) | 監査チーム PM（組織変更エピックの L3 統制） |
 | [`consistency-auditor`](skills/audit/consistency-auditor/SKILL.md) / [`audit-reviewer`](skills/audit/audit-reviewer/SKILL.md) | 監査チーム委譲ロール |
 | [`governance-pm`](skills/governance/governance-pm/SKILL.md) | 組織改善チーム PM（org-meta SSOT 変更） |
@@ -93,7 +93,7 @@ Copy-Item .\skills\platform\asana-buddy\optional\.env.example .\skills\platform\
 
 ```
 dispatch → planning-pm → issue-story-planner / plan-reviewer → asana-buddy（Handoff タスク化）
-dispatch → ux-pm → ux-designer / ux-reviewer
+dispatch → ux-pm → ux-designer / design-system-owner / ux-reviewer
 dispatch → product-manager → requirements-writer / tech-designer / developer / dev-reviewer / qa-verifier（full-ui 時 ux-reviewer も）
 dispatch → analytics-pm → data-architect / … / analysis-reviewer
 dispatch → governance-pm → ssot-implementer / governance-reviewer（org-meta）

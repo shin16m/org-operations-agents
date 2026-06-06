@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "推論 API — 分析 model-serve + 開発連携",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【分析+開発】釣果予測 API 提供",
+    "notes_markdown": "## 課題\n\n- 釣果予測モデルを本番 API として提供し、Web アプリから呼び出す必要がある。\n- データ契約（カタログ・SLA・API URL）を分析チームが先に固め、開発が read-only で consume する。\n\n## 解決\n\n1. **分析チーム** — `profile: model-serve` で要件→設計→モデル→本番ゲート→デプロイ（blocking）\n2. **開発チーム** — `profile: full` で API クライアント・統合実装（分析子完了後）\n\n## 配賦順序\n\nplanning → **analysis**（model-serve）→ **development**（full）\n\n## チーム間 I/O\n\n開発 PM は分析子完了後、notes `## 依存（読み取り専用）` にカタログ・モデル・推論 API URL を転記してから着手する。\n\n## 参照\n\n- [`analysis-delivery-io.md`](../../../../docs/design/analysis-delivery-io.md)\n- [`cross-team-artifact-bridge.md`](../../../../docs/design/cross-team-artifact-bridge.md)\n- assign plan: [`assign-plan.model-serve-v2.json`](../../../../skills/analysis/examples/assign-plan.model-serve-v2.json)"
+  },
+  "subtasks": [
+    {
+      "title": "【1/2・分析】推論モデル・API（model-serve）",
+      "pillar": "分析",
+      "department": "analysis",
+      "background": "KPI・API 契約を analytics-requirements-writer が作成。production_deploy_gate 後に ml-engineer がデプロイ。",
+      "summary": "analysis-delivery v2 · profile=model-serve。analytics-pm が assign-plan.model-serve-v2.json でフェーズ分解。",
+      "done_when": "DeployGateResult 通過 · 推論 API URL · カタログ・モデルパスが DeptWorkComplete.artifacts[] に含まれる。"
+    },
+    {
+      "title": "【2/2・開発】予測 API クライアント統合（full）",
+      "pillar": "実装・開発チーム",
+      "department": "development",
+      "background": "【1/2・分析】完了後。notes ## 依存 に分析 artifact（catalog / model / API URL）を転記してから着手。",
+      "summary": "development-delivery v3 · profile=full。要件→設計→実装→code review→QA。",
+      "done_when": "code_review_passed · verification_passed · 分析 API を read-only で呼び出し可能。"
+    }
+  ]
+}

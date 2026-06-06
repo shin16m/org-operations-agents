@@ -30,10 +30,12 @@
 | `developer` | 業務 | 開発チーム | 実装済 | 実装・修正 |
 | `dev-reviewer` | 業務 | 開発チーム | 実装済 | 文書・コード・整合レビュー |
 | `qa-verifier` | 業務 | 開発チーム | 実装済 | 動作検証 |
-| `ux-pm` | 業務 | UX チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
-| `ux-designer` | 業務 | UX チーム | 実装済 | 体験設計・Design System |
-| `ux-reviewer` | 業務 | UX チーム | 実装済 | ux_spec / ux_implementation |
-| `analytics-pm` | 業務 | 分析チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
+| `ux-pm` | 業務 | UX チームハブ | 実装済 | profile · 子 1 件 → `DeptWorkComplete` |
+| `ux-designer` | 業務 | UX チーム | 実装済 | Figma UI · ux-spec companion |
+| `design-system-owner` | 業務 | UX チーム | 実装済 | Figma DS · design-system.md |
+| `ux-reviewer` | 業務 | UX チーム | 実装済 | design_quality / ux_spec / ux_implementation |
+| `analytics-pm` | 業務 | 分析チームハブ | 実装済 | profile · 子 1 件 → `DeptWorkComplete` |
+| `analytics-requirements-writer` | 業務 | 分析チーム | 実装済 | 分析要件 · リリース/KPI |
 | `data-architect` | 業務 | 分析チーム | 実装済 | データモデル・SLA |
 | `data-engineer` | 業務 | 分析チーム | 実装済 | ETL/ELT パイプライン |
 | `data-steward` | 業務 | 分析チーム | 実装済 | 品質・ガバナンス |
@@ -48,6 +50,10 @@
 | `consistency-auditor` | 業務 | 監査チーム | 実装済 | 機械検証 → `ConsistencyAuditReport` |
 | `audit-reviewer` | 業務 | 監査チーム | 実装済 | org_governance → `AuditReviewResult` |
 | `agent-creater` | メタ | — | 実装済 | 要件 → `skills/<organization>/<slug>/` 雛形 |
+
+## スキル × ペルソナ
+
+全 slug の SKILL · persona 対応: [`skill-persona-matrix.md`](skill-persona-matrix.md)
 
 ## 機械検証
 
@@ -70,8 +76,9 @@
 |----------|------|
 | `handoff.org-dispatch-pm-workflow.json` | 組織配賦・PM ワークフロー |
 | `handoff.agent-workflow-orchestration.json` | 基盤エピック |
-| `handoff.analysis-delivery.json` | 分析チーム delivery |
-| `handoff.ux-web-app.json` | UX + full-ui 開発（Web Epic） |
+| `handoff.analysis-delivery.json` | 分析チーム delivery v2（profile: full） |
+| `handoff.analysis-model-serve.json` | 分析 model-serve → 開発 API 連携 |
+| `handoff.ux-web-app.json` | UX v2 + full-ui 開発（Web Epic） |
 | `handoff.org-governance-audit-team.json` | 監査チーム追加・組織統制 Epic |
 | `handoff.dev-workflow-review.json` | 開発チーム workflow / SKILL 見直し（doc-only） |
 

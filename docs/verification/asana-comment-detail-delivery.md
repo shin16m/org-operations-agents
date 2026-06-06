@@ -3,7 +3,7 @@
 | 項目 | 内容 |
 |------|------|
 | 実施 | 2026-05-23 |
-| 方針 | **B（監査証跡の事後補完）** |
+| 方針 | **B（監査証跡の事後補完）** — **レガシー例外**。2026-06-06 以降の通常 epic では [`pm-worker-separation-enforcement.md`](../design/pm-worker-separation-enforcement.md) により一括 stamp は CLI で拒否される |
 | 親エピック GID | `1215083271430850` |
 | 開発子 GID | `1215083271788346` |
 | 本体 commit | `78829c2` |

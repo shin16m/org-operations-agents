@@ -146,6 +146,12 @@ def run_dispatch(
     if dry_run and not kick:
         return 0
     if kick and not dry_run:
+        from execution_kick_guard import execution_kick_allowed, log_blocked  # noqa: WPS433
+
+        ok, reason = execution_kick_allowed(epic_gid, token)
+        if not ok:
+            log_blocked(epic_gid=epic_gid, tool="task_dispatcher", reason=reason)
+            return 0
         wrapper = (
             f"あなたは {entry} スキルです（task_dispatcher kick）。\n"
             f"親エピック GID: {epic_gid}\n"

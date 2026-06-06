@@ -16,8 +16,10 @@ display_names:
   qa-verifier: 動作検証担当
   ux-pm: UX PM
   ux-designer: UX 設計担当
+  design-system-owner: Design System 担当
   ux-reviewer: UX レビュアー
   analytics-pm: 分析 PM
+  analytics-requirements-writer: 分析要件担当
   data-architect: データアーキテクト
   data-engineer: データエンジニア
   data-steward: データスチュワード

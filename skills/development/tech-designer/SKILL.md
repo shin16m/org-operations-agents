@@ -12,7 +12,7 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 ## 責務
 
 1. 承認済み要件定義書を読む
-2. **`profile: full-ui` 時:** notes の `## 依存` から UX 仕様・Design System を読み、設計書に引用する
+2. **`profile: full-ui` 時:** notes の `## 依存` から UX 仕様・**Figma URL**・Design System を読み、設計書に画面対応表として引用する
 3. 技術設計書を作成（API・モジュール構成・FE 構成・非機能・依存関係）
 4. パス: `output/development/design/<task_gid>-design.md`
 5. 完了後 **dev-reviewer**（`review_kind: design`）へレビュー依頼
@@ -31,7 +31,7 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 | 項目 | 説明 |
 |------|------|
 | スコープ | 実装範囲・スコープ外 |
-| 構成 | モジュール / ファイル / コンポーネント（full-ui は UX 画面対応表） |
+| 構成 | モジュール / ファイル / コンポーネント（full-ui は UX 画面対応表 + Figma node-id） |
 | インターフェース | API・公開関数・データ契約 |
 | 非機能 | 性能・エラー処理・テスト方針 |
 | リスク | 技術的未知点 |

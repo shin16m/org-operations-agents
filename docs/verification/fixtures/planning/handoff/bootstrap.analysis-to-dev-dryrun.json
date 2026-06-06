@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "分析 → development — bootstrap（model-serve → full）",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【分析→dev dryrun】model-serve API · 開発 consume（2026-06-06）",
+    "notes_markdown": "## 目的\n\n分析子（profile: model-serve）完了 → product-manager が `## 依存（読み取り専用）` に catalog / model / API URL を転記 → development `profile: full` が着手できる継ぎ目を確認する。\n\n## 配賦順序\n\n**analysis**（blocking）→ **development**（full）\n\n## Handoff 例\n\n[`handoff.analysis-model-serve.json`](../../../../skills/planning/issue-story-planner/examples/handoff.analysis-model-serve.json)\n\n## 記録\n\n`docs/verification/analysis-to-dev-dryrun.md`"
+  },
+  "subtasks": [
+    {
+      "title": "【1/2・分析】推論 API dryrun（model-serve）",
+      "department": "analysis",
+      "background": "analysis-delivery v2 · profile: model-serve。開発の blocking 前提。",
+      "summary": "analytics-pm が assign-plan.model-serve-v2.json で分解。DeptWorkComplete に API URL + catalog + model パス。",
+      "done_when": "production_deploy_gate 通過 · artifacts 公開。"
+    },
+    {
+      "title": "【2/2・開発】API クライアント dryrun（full）",
+      "department": "development",
+      "background": "【1/2・分析】完了後。product-manager が ## 依存 転記してから pm_assign。",
+      "summary": "development-delivery v3 · profile=full。分析 API を read-only で consume。",
+      "done_when": "verification_passed · DeptWorkComplete。"
+    }
+  ]
+}

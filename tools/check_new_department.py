@@ -77,6 +77,20 @@ def _schema_enum(schema_path: Path) -> set[str]:
     return set()
 
 
+def _has_dryrun_artifact(did: str) -> bool:
+    ver_dir = ROOT / "docs/verification"
+    if ver_dir.is_dir():
+        for path in ver_dir.glob("*dryrun*.md"):
+            if did in path.read_text(encoding="utf-8"):
+                return True
+    tools_dir = ROOT / "tools"
+    if tools_dir.is_dir():
+        for path in tools_dir.glob("run_*dryrun*.py"):
+            if f'"{did}"' in path.read_text(encoding="utf-8"):
+                return True
+    return False
+
+
 def _entry_agent(orgs: list[dict[str, str]], did: str) -> str:
     for d in orgs:
         if d["id"] == did:
@@ -167,10 +181,50 @@ def _check_dept(did: str, orgs: list[dict[str, str]]) -> list[str]:
             "development": "development-pm-assignment.md",
             "analysis": "analytics-pm-assignment.md",
             "audit": "audit-pm-assignment.md",
+            "governance": "governance-pm-assignment.md",
         }
         fname = assign_map.get(did, f"{did}-pm-assignment.md")
-        if not (ROOT / f"docs/design/{fname}").is_file():
+        assign_path = ROOT / f"docs/design/{fname}"
+        if not assign_path.is_file():
             failures.append(f"D1 missing: docs/design/{fname}")
+        else:
+            assign_body = assign_path.read_text(encoding="utf-8")
+            for token in ("human_review_gate", "opt-in", "pm-review-rework-ssot"):
+                if token not in assign_body:
+                    failures.append(f"D1 {fname}: missing '{token}'")
+            if "pm_assign_subtasks" not in assign_body:
+                failures.append(f"D1 {fname}: missing pm_assign_subtasks")
+
+        # D4 assign plan examples
+        examples = ROOT / f"skills/{did}/examples"
+        if not examples.is_dir() or not list(examples.glob("assign-plan*.json")):
+            failures.append(
+                f"D4 missing: skills/{did}/examples/assign-plan*.json "
+                "(add at least one assign plan example)"
+            )
+
+        # D6 dryrun doc or script referencing department
+        if not _has_dryrun_artifact(did):
+            failures.append(
+                f"D6 missing dryrun: docs/verification/*dryrun*.md or tools/run_*dryrun*.py "
+                f"must mention department '{did}'"
+            )
+
+        # I1 delivery-strength / team-conventions cross-link
+        dsp = ROOT / "docs/design/delivery-strength-pattern.md"
+        if dsp.is_file() and f"`{did}`" not in dsp.read_text(encoding="utf-8"):
+            if did in ("ux", "development", "analysis"):
+                failures.append(
+                    f"I1 delivery-strength-pattern.md: missing `{did}` in application matrix"
+                )
+
+        # J1 skill-persona-matrix lists department PM
+        if entry:
+            matrix = ROOT / "docs/inventory/skill-persona-matrix.md"
+            if matrix.is_file() and f"`{entry}`" not in matrix.read_text(encoding="utf-8"):
+                failures.append(
+                    f"J1 skill-persona-matrix.md: missing PM slug `{entry}`"
+                )
 
     # E1 handoff example referencing department
     examples_dir = ROOT / "skills/planning/issue-story-planner/examples"

@@ -14,8 +14,8 @@
       "pillar": "UX",
       "department": "ux",
       "background": "開発 full-ui の前提となる UX SSOT。ux-pm がサブタスクに分解してアサインする。",
-      "summary": "ux-delivery に従い体験設計書・Design System を作成し ux_review_passed 後 DeptWorkComplete（artifacts 公開）。",
-      "done_when": "UxReviewResult（ux_spec）が passed*、DeptWorkComplete.artifacts[] に output/ux/ 配下パスが含まれる。"
+      "summary": "ux-delivery v2（profile: flagship 推奨）。Figma UI → design_quality → Design System → ux_spec_passed 後 DeptWorkComplete（Figma URL + artifacts 公開）。",
+      "done_when": "design_quality_passed・ux_spec_passed。DeptWorkComplete.artifacts[] に output/ux/ パスと Figma URL が含まれる。"
     },
     {
       "title": "【2/3・開発】ダッシュボード UI 実装（full-ui）",

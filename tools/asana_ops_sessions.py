@@ -40,24 +40,37 @@ def save_session(session: dict[str, Any]) -> None:
     session["_path"] = str(path)
 
 
-def check_session_status(session: dict[str, Any], token: str) -> dict[str, Any]:
-    from check_approval_subtask import _find_subtask  # noqa: WPS433
+def approval_sub_resume_status(session: dict[str, Any], token: str) -> str:
+    """Return resumable | wait | missing_gate using session.approval_sub_gid."""
+    from asana_program_common import fetch_task  # noqa: WPS433
 
+    sub_gid = session.get("approval_sub_gid")
+    if not sub_gid:
+        return "missing_gate"
+    try:
+        task = fetch_task(str(sub_gid), token)
+    except Exception:  # noqa: BLE001
+        return "missing_gate"
+    if task.get("completed"):
+        return "resumable"
+    return "wait"
+
+
+def check_session_status(session: dict[str, Any], token: str) -> dict[str, Any]:
     parent = session.get("parent_gid") or ""
-    marker = session.get("marker") or "【承認】"
-    sub = _find_subtask(parent, marker, token)
-    if sub is None:
-        status = "missing_gate"
-    elif sub.get("completed"):
-        status = "resumable"
+    sub_gid = session.get("approval_sub_gid")
+    status = approval_sub_resume_status(session, token)
+    if status == "resumable":
+        gate_status = "resumable"
+    elif status == "wait":
+        gate_status = "wait"
     else:
-        status = "wait"
-    sub_gid = str(sub.get("gid")) if sub else session.get("approval_sub_gid")
+        gate_status = "missing_gate"
     return {
         "session_id": session.get("session_id"),
-        "status": status,
+        "status": gate_status,
         "parent_gid": parent,
-        "approval_sub_gid": sub_gid,
+        "approval_sub_gid": str(sub_gid) if sub_gid else None,
         "gate_kind": session.get("gate_kind"),
         "approval_url": session.get("approval_url"),
         "department": session.get("department"),

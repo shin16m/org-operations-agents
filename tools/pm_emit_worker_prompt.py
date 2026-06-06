@@ -79,14 +79,23 @@ def emit_snippet(
     worker_slug: str,
 ) -> str:
     skill_md = skill_md_for_slug(worker_slug)
+    attach_block = ""
+    if department == "development" and worker_slug == "requirements-writer":
+        attach_block = f"""
+3. attach_task_files.py --gid {sub_gid} --also-gid <review_sub> --file output/development/...md --skip-if-present -y
+   （comment 前 · 必須。review_sub は resolve_dev_review_sub.py --parent {parent_gid}）
+4. comment_task.py --agent {worker_slug} --skill {skill_md} -y
+5. PM へ完了報告（PM が complete_task.py --gid {sub_gid} -y）"""
+    else:
+        attach_block = f"""
+3. comment_task.py --agent {worker_slug} --skill {skill_md} -y
+4. PM へ完了報告（PM が complete_task.py --gid {sub_gid} -y）"""
     return f"""【WorkerDispatch】department={department} parent={parent_gid} sub={sub_gid} worker={worker_slug}
 
 あなたは {worker_slug} スキルです。Asana サブタスク GID {sub_gid} のみを実行してください。
 
 1. fetch_task.py --gid {sub_gid} --show-assignee で 担当: {worker_slug} を確認（不一致なら PM へ）
-2. サブ notes の done_when に従い成果物を作成
-3. comment_task.py --agent {worker_slug} --skill {skill_md} -y
-4. PM へ完了報告（PM が complete_task.py --gid {sub_gid} -y）
+2. サブ notes の done_when に従い成果物を作成（PM 代行禁止 · 他サブ着手禁止）{attach_block}
 
 親タスク {parent_gid} の workflow 全体・他サブタスクは実行しないこと。
 """

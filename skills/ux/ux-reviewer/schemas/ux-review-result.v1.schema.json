@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "status", "summary", "review_kind"],
   "properties": {
-    "schema_version": { "type": "string", "const": "1.0" },
+    "schema_version": { "type": "string", "const": "1.1" },
     "status": {
       "type": "string",
       "enum": ["passed", "passed_with_notes", "failed"]
@@ -14,12 +14,21 @@
     "summary": { "type": "string", "minLength": 1 },
     "review_kind": {
       "type": "string",
-      "enum": ["ux_spec", "ux_implementation"]
+      "enum": ["design_quality", "ux_spec", "ux_implementation"]
     },
     "fix_target": {
       "type": "string",
-      "enum": ["ux_spec", "implementation"],
-      "description": "failed 時の差し戻し先（ux_implementation のみ必須推奨）"
+      "enum": ["ux_spec", "design_system", "implementation"],
+      "description": "failed 時の差し戻し先"
+    },
+    "quality_scores": {
+      "type": "object",
+      "description": "design_quality 時の任意スコア（1-5）",
+      "properties": {
+        "appeal": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "consistency": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "clarity": { "type": "integer", "minimum": 1, "maximum": 5 }
+      }
     },
     "findings": {
       "type": "array",

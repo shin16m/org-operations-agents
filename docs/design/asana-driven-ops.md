@@ -271,16 +271,19 @@ asana_ops_poller --once
 
 ## Phase 5 追記（2026-06-04 · エピック `1215423734965978`）
 
-### 理想フロー（運用目標）
+### 理想フロー（運用目標 · 2026-06-05 更新）
 
 ```
 asana_ops_runner --watch
   → auto-bootstrap（Intake 候補）
   → PLANNING_DISPATCH / cursor kick（ORG_OPS_AUTO_KICK + CURSOR_API_KEY）
   → gate（人 · Asana UI）
-  → approval_helper → RESUME → DISPATCH / kick
+  → run_cycle 1 回:
+       approval_helper_pass → scan_projects(HELPER on RESUME) → resume scan START/DISPATCH
   → session archive
 ```
+
+**B→C 順序 SSOT:** [`approval-flow.md`](approval-flow.md) §5.2 · epic `1215464614582253` delivery: [`runner-resume-approval-helper-delivery.md`](../verification/runner-resume-approval-helper-delivery.md)
 
 ### 追加 CLI
 
@@ -452,6 +455,42 @@ delivery: [`auto-kick-approval-not-created-delivery.md`](../verification/auto-ki
 **修正:** `_cursor_kick_hint` に `gate=="planning_approval"` 分岐を追加し、`cursor_epic_dispatch.py --mode execution --gate-kind planning_approval` を kick する。これは workflow-orchestrator agent を起動し **(1) Handoff 特定 → handoff_to_asana `--if-not-exists` で execution 子作成 → (2) task_dispatcher** を実行する。回帰: `test_planning_stuck.py::CursorKickRoutingTests`。
 
 **既に stuck した epic（session archive 済）の手動 unblock:**
+
+```powershell
+python tools/approval_helper.py --parent <wait_target> --approval-sub <gate_sub> --gate-kind planning_approval --once
+python tools/asana_ops_runner.py --once -y --cursor-kick
+```
+
+`wait_target` は planning gate では **親 epic GID** · PM review gate では **PM 子 GID**（`approval_helper` が epic を resume）。
+
+### gate complete 後 stuck（helper 未実行 · execution 前走り · 2026-06-05）
+
+**症状:** planning 【承認】/ PM 【レビュー】を UI complete したが epic が **Waiting** のまま · `ready_queue=0` · 開発 PM 子だけ先に動いている。
+
+**主因:** runner 1 サイクル内で `approval_helper` が走らない B→C gap（[`runner-resume-approval-helper-delivery.md`](../verification/runner-resume-approval-helper-delivery.md)）。
+
+**副因:** epic `os_state != Running` または企画子未 complete 中に `task_dispatcher` / `cursor_worker_dispatch` / `execution_resume_scan` が kick する。
+
+**コードガード（`tools/execution_kick_guard.py`）:**
+
+| 条件 | 動作 |
+|------|------|
+| epic `os_state != Running` | `BLOCKED execution_kick epic=<gid> reason=epic_state=Waiting` |
+| 企画子（`department=planning`）未 complete | `BLOCKED … reason=planning_child_open=<gid>` |
+| 上記 OK | kick 継続 |
+
+**手動 unblock（1 行 + runner）:**
+
+```powershell
+python tools/approval_helper.py --parent <wait_target> --approval-sub <gate_sub> --gate-kind <planning_approval|pm_review_gate> --once
+python tools/asana_ops_runner.py --once -y --cursor-kick
+```
+
+**watch-auto コード更新後:** プロセス再起動必須（`org-ops-watch-auto.cmd`）。
+
+delivery: [`watch-auto-stuck-unblock-delivery.md`](../verification/watch-auto-stuck-unblock-delivery.md)
+
+**既に stuck した epic（session archive 済）の execution materialize 手動:**
 
 ```powershell
 python tools/cursor_epic_dispatch.py --epic <EPIC_GID> --mode execution --gate-kind planning_approval -y

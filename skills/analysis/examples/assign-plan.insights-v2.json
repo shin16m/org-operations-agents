@@ -1,0 +1,94 @@
+{
+  "parent_title": "【分析】ダッシュボード・探索（insights）",
+  "profile": "insights",
+  "subtasks": [
+    {
+      "name": "【1】分析要件（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/requirements/<parent_gid>-requirements.md`",
+      "done_when": "KPI・ダッシュボード要件が記載されている。"
+    },
+    {
+      "name": "【2】要件 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: analytics_requirements",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【3】データ設計（data-architect）",
+      "assignee": "data-architect",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/data-model/<parent_gid>.md`（SLA 必須）",
+      "done_when": "SLA 4 項目記載。"
+    },
+    {
+      "name": "【4】設計 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: data_model",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【5】ETL（data-engineer）",
+      "assignee": "data-engineer",
+      "department": "analysis",
+      "status": "assigned",
+      "done_when": "パイプライン方針文書化。"
+    },
+    {
+      "name": "【6】パイプライン review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: pipeline",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【7】品質（data-steward）",
+      "assignee": "data-steward",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/catalog/<parent_gid>.md`",
+      "done_when": "カタログ保存。"
+    },
+    {
+      "name": "【8】品質 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: data_quality",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【9】探索（data-analyst）",
+      "assignee": "data-analyst",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/insights/<parent_gid>.md`",
+      "done_when": "インサイト・ダッシュボード参照が記載されている。"
+    },
+    {
+      "name": "【10】探索 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: analysis_insights",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【11】リリース（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "mode=release",
+      "summary": "`output/analysis/releases/<parent_gid>-release.md`",
+      "done_when": "KPI レポート保存。"
+    }
+  ]
+}

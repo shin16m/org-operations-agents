@@ -36,7 +36,7 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 | task-dispatcher | `DispatchRequest` | `task_gid`, `department: development` |
 | Asana | 子タスク **notes** | 背景・概要・完了条件（`## 背景` 等） |
 | Asana（任意） | 親エピック notes | エピック全体の文脈 |
-| UX チーム（full-ui） | notes **`## 依存（読み取り専用）`** | UX 仕様・Design System への参照 |
+| UX チーム（full-ui） | notes **`## 依存（読み取り専用）`** | UX 仕様 · **Figma URL** · Design System への参照 |
 
 **読まないもの:** Handoff JSON、PlanReviewResult、企画チーム `output/planning/`（workflow 入力として）
 
@@ -92,7 +92,7 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 ### full-ui 前提（Epic 内）
 
 1. 同一 Epic の **UX 子タスクが完了**していること
-2. notes に `## 依存（読み取り専用）` で UX artifact が記載されていること
+2. notes に `## 依存（読み取り専用）` で UX artifact（**Figma URL 含む**）が記載されていること
 3. 未充足時 PM は着手せず、ux-pm または企画経由で差し戻し
 
 ---
@@ -118,10 +118,12 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 | PM アサイン | **フェーズをサブタスク分解**し各 notes に `担当:`（[`development-pm-assignment.md`](development-pm-assignment.md)） |
 | 成果物命名 | `<task_gid>` をファイル名に含める |
 | Asana md 添付 | requirements / as-built-spec: worker サブ + **対応 dev-reviewer review サブ**へ同一 md（`attach_task_files.py --also-gid` · [`resolve_dev_review_sub.py`](../../tools/resolve_dev_review_sub.py)） |
+| PM/ワーカー分離 | `comment_task` / `complete_task` が assignee · attach を検証 — [`pm-worker-separation-enforcement.md`](pm-worker-separation-enforcement.md) |
 | Asana | 委譲ロール `comment_task` → PM がサブ `complete_task` → 全サブ完了後に親 complete |
 | 検証独立性 | 動作検証は **qa-verifier のみ** |
-| UX consume | full-ui は UX artifact を read-only。変更は UX チーム子タスクで |
-| tech-designer | full-ui 時は UX 仕様を設計書に引用 |
+| UX consume | full-ui は UX artifact（Figma 含む）を read-only。変更は UX チーム子タスクで |
+| tech-designer | full-ui 時は UX 仕様・Figma node を設計書に引用 |
+| artifact bridge | UX/分析→開発: [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md) |
 
 ---
 

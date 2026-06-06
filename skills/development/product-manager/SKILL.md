@@ -13,6 +13,10 @@
 5. 委譲先が **comment_task** → PM が当該サブを **complete** → 全サブ完了後に親を **comment → complete → DeptWorkComplete**。
 
 ```powershell
+# full-ui: ## 依存 転記後に gate（pm_assign 内でも自動チェック）
+python tools/pm_intake_gate.py --gid <親GID> `
+  --plan .\skills\development\examples\assign-plan.full-ui-v1.json
+
 # チーム内サブタスク作成（プラン JSON）
 .\.venv\Scripts\python.exe .\skills\platform\asana-buddy\optional\pm_assign_subtasks.py `
   --parent <親GID> --plan .\skills\development\examples\assign-plan.full-ui-v1.json `

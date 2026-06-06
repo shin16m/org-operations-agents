@@ -1,0 +1,56 @@
+{
+  "parent_title": "【開発】分析 API クライアント統合 dryrun",
+  "profile": "full",
+  "subtasks": [
+    {
+      "name": "【1】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "分析子完了済み。notes ## 依存 の catalog / API URL を読み取り専用で参照。",
+      "summary": "`output/dryrun/development/<parent_gid>-requirements.md` に API 連携要件を記載。",
+      "done_when": "推論 API エンドポイント・SLA 参照が要件に含まれる。"
+    },
+    {
+      "name": "【2】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: requirements",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【3】技術設計（tech-designer）",
+      "assignee": "tech-designer",
+      "department": "development",
+      "status": "assigned",
+      "background": "## 依存 のモデル・カタログを設計書に引用。",
+      "summary": "`output/dryrun/development/<parent_gid>-design.md`",
+      "done_when": "API クライアント契約が設計書に記載されている。"
+    },
+    {
+      "name": "【4】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "分析 API stub を呼び出すクライアント実装 dryrun。",
+      "done_when": "実装 stub 完了。"
+    },
+    {
+      "name": "【5】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: code",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【6】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: verification",
+      "done_when": "passed"
+    }
+  ]
+}

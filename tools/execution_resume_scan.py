@@ -27,18 +27,17 @@ from asana_program_common import (  # noqa: E402
     console_safe,
     fetch_task,
     list_subtasks,
-    list_task_comment_stories,
     parse_task_assignment,
 )
 from dispatch_prompt_util import infer_department, load_organizations  # noqa: E402
 from org_os import asana_client  # noqa: E402
 from org_os.queue import list_project_tasks  # noqa: E402
+from agent_comment_guard import has_agent_comment  # noqa: E402
 from pm_emit_worker_prompt import DEPT_PM, _run_fetch_assignee  # noqa: E402
 from task_dispatcher import _epic_children, _sort_execution  # noqa: E402
 
 REVIEW_MARKER = "【レビュー】"
 APPROVAL_MARKER = "【承認】"
-AGENT_RECORD = "agent-work-record"
 
 
 def _resolve_project(arg_project: str | None) -> str | None:
@@ -93,21 +92,11 @@ def _worker_subs(pm_child_gid: str, department: str, token: str) -> list[dict]:
     return rows
 
 
+from pm_review_gate_util import find_pm_assign_review_gate_sub  # noqa: E402
+
+
 def _find_review_sub(pm_child_gid: str, token: str) -> dict | None:
-    for sub in list_subtasks(pm_child_gid, token):
-        name = str(sub.get("name") or "")
-        if name.strip().startswith(REVIEW_MARKER):
-            return sub
-    return None
-
-
-def has_agent_comment(task_gid: str, agent_slug: str, token: str) -> bool:
-    needle = f"agent: {agent_slug.strip()}"
-    for story in list_task_comment_stories(task_gid, token):
-        text = story.get("text") or ""
-        if AGENT_RECORD in text and needle in text:
-            return True
-    return False
+    return find_pm_assign_review_gate_sub(pm_child_gid, token)
 
 
 def classify_pm_child(
@@ -265,12 +254,21 @@ def _kick_cmd_for_action(item: dict) -> list[str] | None:
     return None
 
 
-def kick_execution_action(item: dict, *, execute: bool, dry_run: bool) -> int:
+def kick_execution_action(item: dict, *, execute: bool, dry_run: bool, token: str | None = None) -> int:
     cmd = _kick_cmd_for_action(item)
     if cmd is None:
         return 0
     state = item.get("state") or "?"
     epic = item.get("epic_gid") or "?"
+    if execute and not dry_run and epic:
+        from execution_kick_guard import execution_kick_allowed, log_blocked  # noqa: WPS433
+
+        load_env_from_dotfile()
+        tok = token or get_token()
+        ok, reason = execution_kick_allowed(str(epic), tok)
+        if not ok:
+            log_blocked(epic_gid=str(epic), tool="execution_resume_scan", reason=reason)
+            return 0
     if not execute or dry_run:
         print(f"HINT  execution_kick  epic={epic}  state={state}  cmd={' '.join(cmd)}")
         return 0
@@ -302,7 +300,7 @@ def scan_execution_and_kick(
             if kicks >= max_kicks:
                 print(f"EXECUTION  defer  reason=max_kicks_per_cycle={max_kicks}")
                 break
-            kick_execution_action(item, execute=auto_kick, dry_run=dry_run)
+            kick_execution_action(item, execute=auto_kick, dry_run=dry_run, token=token)
             if auto_kick and not dry_run:
                 kicks += 1
     return 0

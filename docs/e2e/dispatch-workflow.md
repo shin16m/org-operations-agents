@@ -44,9 +44,9 @@ Handoff → review → gate → Asana タスク化 → `DeptWorkComplete`
 
 ## 4. UX チーム — ux-pm
 
-[`workflows/ux-delivery.yaml`](../../workflows/ux-delivery.yaml) v1:
+[`workflows/ux-delivery.yaml`](../../workflows/ux-delivery.yaml) v2:
 
-体験設計（ux-designer）→ 仕様 review（ux-reviewer）→ `DeptWorkComplete`（artifacts 公開）
+Figma UI（ux-designer）→ design_quality（ux-reviewer）→ Design System（design-system-owner）→ ux_spec（ux-reviewer）→ `DeptWorkComplete`（Figma URL + artifacts 公開）
 
 Web Epic では **UI 系 development 子より先**に完了させる。
 
@@ -93,7 +93,7 @@ PM（profile 決定・サブタスク分解）→ 各 worker サブ → … → 
 
 ## 分析チーム
 
-`department=analysis` の子は [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) へルーティング（entry: **analytics-pm**）。
+`department=analysis` の子は [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) v2 へルーティング（entry: **analytics-pm**）。
 
 自然言語例:
 
@@ -101,7 +101,7 @@ PM（profile 決定・サブタスク分解）→ 各 worker サブ → … → 
 子タスク GID <CHILD_GID> を analysis に配賦し、分析チーム workflow を起動してください。
 ```
 
-フェーズ概要: 要求定義 → データ設計 → ETL → 品質 → 探索 → モデル → **本番ゲート** → デプロイ → 価値検証。
+フェーズ概要（profile により出し分け）: analytics-requirements-writer（要件）→ データ設計 → ETL → 品質 → 探索 → モデル → **本番ゲート** → デプロイ → release。`model-serve` / `insights` / `catalog` / `lite` は [`analytics-pm-assignment.md`](../design/analytics-pm-assignment.md) 参照。
 
 運用ルール: [`docs/design/analysis-delivery-io.md`](../design/analysis-delivery-io.md)
 

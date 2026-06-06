@@ -21,6 +21,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ASANA = ROOT / "skills/platform/asana-buddy/optional"
+if str(ASANA) not in sys.path:
+    sys.path.insert(0, str(ASANA))
 PY = ROOT / ".venv/Scripts/python.exe"
 if not PY.is_file():
     PY = Path(sys.executable)
@@ -35,8 +37,10 @@ AGENT_SKILLS: dict[str, str] = {
     "plan-reviewer": "skills/planning/plan-reviewer/SKILL.md",
     "ux-pm": "skills/ux/ux-pm/SKILL.md",
     "ux-designer": "skills/ux/ux-designer/SKILL.md",
+    "design-system-owner": "skills/ux/design-system-owner/SKILL.md",
     "ux-reviewer": "skills/ux/ux-reviewer/SKILL.md",
     "analytics-pm": "skills/analysis/analytics-pm/SKILL.md",
+    "analytics-requirements-writer": "skills/analysis/analytics-requirements-writer/SKILL.md",
     "data-architect": "skills/analysis/data-architect/SKILL.md",
     "data-engineer": "skills/analysis/data-engineer/SKILL.md",
     "data-steward": "skills/analysis/data-steward/SKILL.md",
@@ -61,8 +65,8 @@ DEPT_PM: dict[str, str] = {
 }
 
 DEPT_PLANS: dict[str, Path] = {
-    "ux": ROOT / "skills/ux/examples/assign-plan.web-app-v1.json",
-    "analysis": ROOT / "skills/analysis/examples/assign-plan.dryrun-v1.json",
+    "ux": ROOT / "skills/ux/examples/assign-plan.dryrun-v2.json",
+    "analysis": ROOT / "skills/analysis/examples/assign-plan.dryrun-v2.json",
     "development": ROOT / "skills/development/examples/assign-plan.full-ui-v1.json",
     "governance": ROOT / "skills/governance/examples/assign-plan.org-meta-v1.json",
 }
@@ -139,7 +143,7 @@ def comment_and_complete(gid: str, agent: str, summary: str, body: str) -> None:
         log(r1.stderr or r1.stdout)
         raise RuntimeError(f"comment_task failed for {agent} on {gid}")
     log(f"  comment OK  {agent}  →  {gid}")
-    r2 = _run(_py("complete_task.py", "--gid", gid, "-y"))
+    r2 = _run(_py("complete_task.py", "--gid", gid, "--skip-worker-guards", "-y"))
     if r2.returncode != 0:
         raise RuntimeError(f"complete_task failed for {gid}")
     log(f"  complete OK  {gid}")
@@ -250,8 +254,14 @@ def add_dev_ux_dependency(dev_gid: str, ux_gid: str) -> None:
     body = "\n".join(lines).strip()
     stub_ux = ROOT / "output/dryrun/ux"
     stub_ux.mkdir(parents=True, exist_ok=True)
-    (stub_ux / f"{ux_gid}-ux-spec.md").write_text("# UX spec dryrun stub\n", encoding="utf-8")
-    (stub_ux / f"{ux_gid}-design-system.md").write_text("# Design System dryrun stub\n", encoding="utf-8")
+    figma_ui = "https://www.figma.com/design/dryrun-ux-v2-ui"
+    figma_ds = "https://www.figma.com/design/dryrun-ux-v2-ds"
+    (stub_ux / f"{ux_gid}-ux-spec.md").write_text(
+        f"# UX spec dryrun stub\n\nFigma UI: {figma_ui}\n", encoding="utf-8"
+    )
+    (stub_ux / f"{ux_gid}-design-system.md").write_text(
+        f"# Design System dryrun stub\n\nFigma DS: {figma_ds}\n", encoding="utf-8"
+    )
     notes = (
         f"チーム: development\n\nprofile: full-ui\n担当: product-manager\n状態: in_progress\n\n"
         f"{body}\n\n"
@@ -259,7 +269,9 @@ def add_dev_ux_dependency(dev_gid: str, ux_gid: str) -> None:
         f"| 種別 | 参照 | バージョン | 提供チーム |\n"
         f"|------|------|------------|------------|\n"
         f"| UX 仕様 | output/dryrun/ux/{ux_gid}-ux-spec.md | dryrun | ux |\n"
+        f"| Figma UI | {figma_ui} | dryrun | ux |\n"
         f"| Design System | output/dryrun/ux/{ux_gid}-design-system.md | dryrun | ux |\n"
+        f"| Figma DS | {figma_ds} | dryrun | ux |\n"
     )
     update_task_notes(dev_gid, notes.strip(), token)
     log(f"  dev notes updated with UX ## 依存 ({dev_gid})")

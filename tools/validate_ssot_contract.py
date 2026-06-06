@@ -57,6 +57,18 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["実作業ワーカーの slug"],
     },
     {
+        "name": "pm worker separation guard module",
+        "files": ["skills/platform/asana-buddy/optional/agent_comment_guard.py"],
+        "required_any": [],
+        "required_all": ["validate_comment_agent", "validate_worker_sub_complete"],
+    },
+    {
+        "name": "pm worker separation enforcement doc",
+        "files": ["docs/design/pm-worker-separation-enforcement.md"],
+        "required_any": [],
+        "required_all": ["ORG_OPS_ENFORCE_L3B", "agent_comment_guard.py"],
+    },
+    {
         "name": "epic completion summary",
         "files": [
             "skills/platform/workflow-orchestrator/SKILL.md",
@@ -85,7 +97,7 @@ CROSS_FILE_CONTRACTS: list[dict] = [
             "docs/design/audit-pm-assignment.md",
         ],
         "required_any": [],
-        "required_all": ["create_pm_review_gate", "人間"],
+        "required_all": ["human_review_gate", "opt-in"],
     },
     {
         "name": "pm review gate dependencies",

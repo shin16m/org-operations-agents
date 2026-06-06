@@ -1,21 +1,21 @@
 {
   "schema_version": "1.2",
   "meta": {
-    "title": "分析チーム delivery — データ分析パイプライン",
+    "title": "分析チーム delivery v2 — full profile",
     "locale": "ja-JP"
   },
   "epic": {
     "title": "【分析】データ分析パイプライン（要求定義〜価値検証）",
-    "notes_markdown": "## 課題\n\n- 分析 initiative の各フェーズ（データ設計・ETL・品質・探索・モデル・デプロイ）に役割分担と承認ゲートがないと、本番リスクが高い。\n\n## 解決\n\n[`workflows/analysis-delivery.yaml`](../../../../workflows/analysis-delivery.yaml) に沿い **analytics-pm** が子 1 件を最後までハブする。\n\n## 必須運用\n\n- **SLA** を data-architect 成果物に明文化\n- **production_deploy_gate** を ml-engineer 着手前に必須\n- **RBAC・監査ログ** — [`docs/design/analysis-delivery-io.md`](../../../../docs/design/analysis-delivery-io.md)\n\n## 成果物\n\n別リポジトリ想定。本リポジトリは workflow・スキル定義のみ。"
+    "notes_markdown": "## 課題\n\n- 分析 initiative の各フェーズに役割分担と承認ゲートがないと、本番リスクが高い。\n\n## 解決\n\n[`workflows/analysis-delivery.yaml`](../../../../workflows/analysis-delivery.yaml) v2 に沿い **analytics-pm** が子 1 件をハブする。要件・リリースは **analytics-requirements-writer** が担当（PM 分離）。\n\n## profile 選定\n\n| profile | 用途 | Handoff 例 |\n|---------|------|------------|\n| `full` | 要件→本番デプロイ一気通貫 | 本 Epic |\n| `model-serve` | 推論 API / モデル提供 | [`handoff.analysis-model-serve.json`](handoff.analysis-model-serve.json) |\n| `insights` | 探索・ダッシュボード | assign-plan.insights-v2.json |\n| `catalog` | カタログ・SLA | assign-plan.catalog-v2.json |\n\n## 必須運用\n\n- **SLA** を data-architect 成果物に明文化\n- **production_deploy_gate** を ml-engineer 着手前に必須\n- 下流開発: [`cross-team-artifact-bridge.md`](../../../../docs/design/cross-team-artifact-bridge.md)\n\n## 成果物\n\n別リポジトリ想定。本リポジトリは workflow・スキル定義のみ。"
   },
   "subtasks": [
     {
-      "title": "【1/1・分析】データ分析パイプライン一式（要求定義〜ROI）",
+      "title": "【1/1・分析】データ分析パイプライン一式（full）",
       "pillar": "分析",
       "department": "analysis",
-      "background": "KPI 達成のための end-to-end 分析 delivery が必要。各ロールとレビューゲートを通す。",
-      "summary": "analysis-delivery workflow に従い、要求定義→データ設計→ETL→品質→探索→モデル→本番ゲート→デプロイ→価値検証まで実施。",
-      "done_when": "DeployGateResult 通過後のデプロイ検証が passed、analytics-pm がリリースノート・KPI レポートを提出し DeptWorkComplete（department=analysis）を出力している。"
+      "background": "KPI 達成のための end-to-end 分析 delivery。analytics-pm が profile=full でサブタスク分解。",
+      "summary": "analysis-delivery v2 · assign-plan.dryrun-v2.json 相当の全フェーズ。analytics-requirements-writer が要件+リリース。",
+      "done_when": "DeployGateResult 通過 · analytics-requirements-writer がリリースノート提出 · DeptWorkComplete（department=analysis）。"
     }
   ]
 }

@@ -7,10 +7,10 @@
 | [`platform/`](platform/) | **統括グループ** | workflow-orchestrator, asana-buddy, task-dispatcher, agent-creater |
 | [`planning/`](planning/) | 企画チーム | planning-pm, issue-story-planner, plan-reviewer |
 | [`development/`](development/) | 開発チーム | product-manager, requirements-writer, tech-designer, developer, dev-reviewer, qa-verifier |
-| [`ux/`](ux/) | UX チーム | ux-pm, ux-designer, ux-reviewer |
-| [`analysis/`](analysis/) | 分析チーム | analytics-pm, data-*, ml-engineer, analysis-reviewer |
+| [`ux/`](ux/) | UX チーム | ux-pm, ux-designer, design-system-owner, ux-reviewer |
+| [`analysis/`](analysis/) | 分析チーム | analytics-pm, analytics-requirements-writer, data-*, ml-engineer, analysis-reviewer |
 
-組織モデル: [`docs/design/department-model.md`](../docs/design/department-model.md)
+組織モデル: [`docs/design/department-model.md`](../docs/design/department-model.md) · スキル・ペルソナ: [`docs/design/skill-persona-principles.md`](../docs/design/skill-persona-principles.md)
 
 成果物は [`output/`](../output/) を組織別に参照する。
 

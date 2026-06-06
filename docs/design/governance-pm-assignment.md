@@ -15,8 +15,9 @@
   --department governance --update-parent-assignee governance-pm -y
 ```
 
-5. **create_pm_review_gate.py** → **人間が Asana UI で complete**（エージェント禁止）→ **check_pm_review_gate.py exit 0**
-6. `python tools/pm_emit_worker_prompt.py --parent <子GID> --department governance`
+5. **デフォルト:** **check_pm_review_gate.py** exit 0（gate 無し）→ L3b  
+   **opt-in**（`human_review_gate: true` / `--require-human-review` / `ORG_OPS_PM_REVIEW_GATE=1`）: **create_pm_review_gate.py** → 人間 complete → check exit 0
+6. **L3b:** [`pm_emit_worker_prompt.py`](../../tools/pm_emit_worker_prompt.py) でワーカーへ別セッション委譲（[`pm-worker-dispatch-ssot.md`](pm-worker-dispatch-ssot.md)）
 7. サブ完了ごとに complete → 親 comment → 親 complete → `DeptWorkComplete`
 
 ## 禁止

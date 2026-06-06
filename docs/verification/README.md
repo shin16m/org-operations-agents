@@ -32,6 +32,7 @@
 
 | ファイル | 内容 |
 |----------|------|
+| [`pm-worker-separation-delivery.md`](pm-worker-separation-delivery.md) | PM/ワーカー分離 CLI ガード · L3b 強制 |
 | [`org-os-epic-retrospective-dryrun.md`](org-os-epic-retrospective-dryrun.md) | org-os エピック · レトロ集約 · intake gate |
 | [`org-os-governance-audit-delivery.md`](org-os-governance-audit-delivery.md) | org-os + triage エピック · governance SSOT · audit · epic complete |
 | [`org-os-dev-delivery-retro.md`](org-os-dev-delivery-retro.md) | 【2/5】【3/5】development lite 正規ルート事後補完 |
@@ -54,7 +55,12 @@
 | [`asana-subtask-layout-fix-dryrun.md`](asana-subtask-layout-fix-dryrun.md) | サブタスク addProject 撤回 |
 | [`all-teams-dryrun.md`](all-teams-dryrun.md) | 全チーム E2E（6 チーム × enabled slug · `audit` は組織変更時のみ） |
 | [`planning-dept-v3-dryrun.md`](planning-dept-v3-dryrun.md) | default v3 ドライラン（企画チーム L3 化 + 開発 dispatch） |
-| [`ux-delivery-v1-dryrun.md`](ux-delivery-v1-dryrun.md) | UX チーム + development full-ui |
+| [`ux-delivery-v1-dryrun.md`](ux-delivery-v1-dryrun.md) | UX チーム v1 dryrun（legacy） |
+| [`ux-delivery-v2-dryrun.md`](ux-delivery-v2-dryrun.md) | UX v2 flagship · design-system-owner · design_quality |
+| [`analysis-delivery-v2-dryrun.md`](analysis-delivery-v2-dryrun.md) | 分析 v2 full · analytics-requirements-writer · 全ロール |
+| [`analysis-profile-dryrun.md`](analysis-profile-dryrun.md) | 分析 v2 profile 別（insights / catalog / model-serve） |
+| [`ux-to-dev-full-ui-dryrun.md`](ux-to-dev-full-ui-dryrun.md) | UX v2 → `## 依存` 転記 → development full-ui 継ぎ目 |
+| [`analysis-to-dev-dryrun.md`](analysis-to-dev-dryrun.md) | 分析 model-serve → `## 依存` 転記 → development full 継ぎ目 |
 | [`team-label-e2e-dryrun.md`](team-label-e2e-dryrun.md) | `チーム:` 表記移行検証 |
 | [`e2e-dryrun.md`](e2e-dryrun.md) | E2E 基盤（v3 スコープ） |
 | [`orchestrator-intake-dryrun.md`](orchestrator-intake-dryrun.md) | intake 入口化（v3） |
@@ -94,7 +100,15 @@
 | [`../../skills/platform/asana-buddy/optional/close_intake_source_task.py`](../../skills/platform/asana-buddy/optional/close_intake_source_task.py) | intake 元タスククローズ |
 | [`../../skills/platform/asana-buddy/optional/comment_epic_summary.py`](../../skills/platform/asana-buddy/optional/comment_epic_summary.py) | エピック complete 前サマリ |
 | [`../../tools/backfill_subtask_project_membership.py`](../../tools/backfill_subtask_project_membership.py) | 誤配置サブタスク removeProject |
+| [`../../tools/run_ux_v2_dryrun.py`](../../tools/run_ux_v2_dryrun.py) | UX v2 単体 dryrun |
+| [`../../tools/run_analysis_v2_dryrun.py`](../../tools/run_analysis_v2_dryrun.py) | 分析 v2 full 単体 dryrun |
 | [`../../tools/run_all_teams_dryrun.py`](../../tools/run_all_teams_dryrun.py) | 全チーム E2E dryrun（`all-teams-dryrun.md` を上書き生成） |
+| [`../../tools/run_ux_to_dev_full_ui_dryrun.py`](../../tools/run_ux_to_dev_full_ui_dryrun.py) | UX → dev full-ui 継ぎ目 dryrun |
+| [`../../tools/run_analysis_profile_dryrun.py`](../../tools/run_analysis_profile_dryrun.py) | 分析 profile 別 dryrun（`--profile catalog\|insights\|model-serve`） |
+| [`../../tools/run_analysis_to_dev_dryrun.py`](../../tools/run_analysis_to_dev_dryrun.py) | 分析 → dev 継ぎ目 dryrun（model-serve → full consume） |
+| [`../../tools/pm_intake_gate.py`](../../tools/pm_intake_gate.py) | development full-ui intake 前の `## 依存` fail-fast |
+| [`../../tools/check_new_skill.py`](../../tools/check_new_skill.py) | 新規 slug 配線チェック（registry · persona · matrix · assign plan） |
+| [`../../tools/check_new_department.py`](../../tools/check_new_department.py) | 新チーム checklist A〜J 機械検証 |
 | [`../../tools/aggregate_epic_retrospective.py`](../../tools/aggregate_epic_retrospective.py) | エピック単位レトロ候補の集約 |
 | [`../../tools/create_retrospective_intake_gate.py`](../../tools/create_retrospective_intake_gate.py) | 【承認】レトロ改善候補サブ作成 |
 | [`../../tools/check_retrospective_intake_gate.py`](../../tools/check_retrospective_intake_gate.py) | レトロ intake 承認 gate 確認 |

@@ -198,7 +198,7 @@ UX チーム完了
 | **task-dispatcher** | 統括グループ | チームへルーティング | チーム内作業 |
 | **asana-buddy** | 統括グループ | Asana CRUD | 作業本体 |
 | **planning-pm** | 企画チーム | Handoff → review → Asana タスク化 | 他チーム実装 |
-| **ux-pm** | UX チーム | タスク分解・アサイン・UX delivery | 実装 |
+| **ux-pm** | UX チーム | profile・タスク分解・アサイン・Figma artifact 公開 | 実装 |
 | **product-manager** | 開発チーム | 開発 delivery | Handoff 作成 |
 | **analytics-pm** | 分析チーム | 分析 delivery | Handoff 作成 |
 | **governance-pm** | 組織改善チーム | org-meta SSOT 実装 delivery | Handoff 作成・製品コード |

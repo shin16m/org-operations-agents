@@ -103,14 +103,34 @@ python tools/approval_helper.py \
 
 CF / env 未設定の場合は `parent_state_after` が `unchanged` となり、`approval_result` が `null` になる（A の警告のみで継続するエラーモデル踏襲）。
 
-### 5.2 関連実装関数（B 追加分）
+**`--parent` の意味:** 承認サブがぶら下がる **wait_target**（planning gate では親 epic GID · PM review gate では **PM 子 GID**）。`approval_helper` は内部で `resolve_epic_gid` により epic に `syscall.resume` する。
+
+### 5.2 runner サイクル内の B→C 順序（`asana_ops_runner`）
+
+watch-auto / [`tools/asana_ops_runner.py`](../../tools/asana_ops_runner.py) は **1 サイクル**で次の順序を守る（delivery: [`runner-resume-approval-helper-delivery.md`](../verification/runner-resume-approval-helper-delivery.md)）:
+
+```
+run_approval_helper_pass   # suspended · approval_sub_gid complete → helper (--parent=wait_target)
+scan_projects              # RESUME approved → run_session_approval_helper（kick しない）
+scan_resume_and_dispatch   # Ready queue → org_os START → DISPATCH / kick
+scan_execution_and_kick    # Running epic L3b bridge
+archive_resumable_sessions
+```
+
+| ルール | 内容 |
+|--------|------|
+| resumable 判定 | `session.approval_sub_gid` の `completed` を正とする（marker 曖昧一致禁止） |
+| 二重 kick 禁止 | `scan_projects` から `_session_auto_kick` を呼ばない（後段 resume scan に委譲） |
+| 期待ログ | `HELPER`/`APPROVED` → `RESUME` → `START` → `DISPATCH` |
+
+### 5.3 関連実装関数（B 追加分）
 
 | 関数 | 用途 |
 |------|------|
 | `get_task_custom_fields(task_gid, token)` | 単発タスクの custom_fields を `{field_gid: {name, enum_value}}` で取得 |
 | `read_approval_result(task_gid, token)` | Approval Result enum option 名（OK / NG / None）を返す |
 
-### 5.3 C resume scanner CLI 仕様
+### 5.4 C resume scanner CLI 仕様
 
 実装: [`tools/wakuoke_resume_scan.py`](../../tools/wakuoke_resume_scan.py)
 

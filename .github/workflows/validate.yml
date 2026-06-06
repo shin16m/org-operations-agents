@@ -43,3 +43,8 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: python tools/check_new_department.py --all
+
+      - name: Run check_new_skill.py --all-enabled
+        env:
+          PYTHONIOENCODING: utf-8
+        run: python tools/check_new_skill.py --all-enabled

@@ -237,15 +237,40 @@ def load_sessions() -> list[dict]:
 
 
 def check_session_resume(session: dict, token: str) -> str:
-    """Return 'approved' | 'pending' | 'missing'."""
-    from check_approval_subtask import _find_subtask  # noqa: WPS433
+    """Return 'approved' | 'pending' | 'missing' (uses session.approval_sub_gid)."""
+    import asana_ops_sessions  # noqa: WPS433
 
-    parent = session.get("parent_gid") or ""
-    marker = session.get("marker") or "【承認】"
-    sub = _find_subtask(parent, marker, token)
-    if sub is None:
-        return "missing"
-    return "approved" if sub.get("completed") else "pending"
+    status = asana_ops_sessions.approval_sub_resume_status(session, token)
+    if status == "resumable":
+        return "approved"
+    if status == "wait":
+        return "pending"
+    return "missing"
+
+
+def run_session_approval_helper(session: dict, *, dry_run: bool) -> int:
+    """Invoke approval_helper --once for a suspended session (wait_target parent)."""
+    parent = str(session.get("parent_gid") or "")
+    sub = str(session.get("approval_sub_gid") or "")
+    gate = str(session.get("gate_kind") or "planning_approval")
+    if not parent or not sub:
+        return 2
+    cmd = [
+        sys.executable,
+        str(ROOT / "tools/approval_helper.py"),
+        "--parent",
+        parent,
+        "--approval-sub",
+        sub,
+        "--gate-kind",
+        gate,
+        "--once",
+    ]
+    if dry_run:
+        print(f"HELPER  dry-run  parent={parent}  sub={sub}  gate={gate}")
+        return 0
+    r = subprocess.run(cmd, cwd=str(ROOT), env=_subprocess_env())
+    return r.returncode
 
 
 def _org_os_start(epic_gid: str, *, dry_run: bool) -> int:
@@ -603,9 +628,14 @@ def scan_projects(
             print(f"RESUME  session={sid}  gate={session.get('gate_kind')}  approved")
             if human:
                 _emit_resume_snippet(session)
-            auto_kick = _auto_kick_enabled(False)
-            if auto_kick:
-                _session_auto_kick(session, execute=auto_kick, dry_run=dry_run, token=token)
+            helper_rc = run_session_approval_helper(session, dry_run=dry_run)
+            if helper_rc == 0:
+                print(f"HELPER  session={sid}  parent={parent}  sub={sub}  ok")
+            elif helper_rc == 1:
+                print(f"HELPER  session={sid}  pending  (skipped kick)")
+            else:
+                print(f"WARN  HELPER  session={sid}  exit={helper_rc}", file=sys.stderr)
+            # Kick/START is owned by scan_resume_and_dispatch (runner) — no _session_auto_kick here.
         else:
             print(f"WAIT  session={sid}  gate={session.get('gate_kind')}  sub={sub}")
             if url:

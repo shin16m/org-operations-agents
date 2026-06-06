@@ -59,8 +59,9 @@ def _post_approval_mention(sub_gid: str, human_gid: str, title: str, token: str)
         "<strong>承認依頼</strong> "
         f"{mention} "
         f"<strong>{safe_title}</strong> "
-        "内容を確認し、問題なければ <strong>このサブタスクを完了</strong>してください（完了 = 承認）。 "
-        "差し戻しは本サブを未完了のまま、親タスクにコメントで指摘してください。"
+        "内容を確認し、問題なければ <strong>Approval Result=OK</strong> を選択してから "
+        "<strong>このサブタスクを完了</strong>してください。 "
+        "差し戻しは <strong>Approval Result=NG</strong> を選択し、コメントで指摘してから完了してください。"
         "</body>"
     )
     create_task_story_html(sub_gid, html_body, token)
@@ -94,8 +95,9 @@ def main() -> None:
     if not notes.strip():
         notes = (
             "## 依頼者向け\n\n"
-            "内容を確認し、問題なければ **このサブタスクを完了**してください（完了 = 承認）。\n\n"
-            "差し戻しは本サブを未完了のまま、親タスクにコメントで指摘してください。\n"
+            "内容を確認し、問題なければ **Approval Result=OK** を選択してから "
+            "**このサブタスクを完了**してください。\n\n"
+            "差し戻しは **Approval Result=NG** を選択し、コメントで指摘してから完了してください。\n"
         )
 
     if args.dry_run:

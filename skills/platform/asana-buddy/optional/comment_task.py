@@ -10,6 +10,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
+from agent_comment_guard import validate_comment_agent  # noqa: E402
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import (  # noqa: E402
     agent_work_comment_to_text,
@@ -37,6 +38,11 @@ def main() -> None:
     p.add_argument("--next-state", default=None, help="次の状態（1 段落）")
     p.add_argument("--from-json", metavar="PATH", help="AgentWorkComment v1.0 JSON")
     p.add_argument("--dry-run", action="store_true", help="Print comment only")
+    p.add_argument(
+        "--skip-assignee-check",
+        action="store_true",
+        help="Skip notes 担当: vs --agent validation (dryrun teardown only)",
+    )
     p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
     args = p.parse_args()
 
@@ -74,14 +80,26 @@ def main() -> None:
         print(console_safe(text))
         return
 
+    load_env_from_dotfile()
+    token = get_token()
+
+    if not args.from_json and not args.skip_assignee_check:
+        err = validate_comment_agent(
+            task_gid=task_gid,
+            agent=str(args.agent),
+            skill=str(args.skill),
+            token=token,
+        )
+        if err:
+            print(f"ERROR: {err}", file=sys.stderr)
+            sys.exit(4)
+
     if not args.yes:
         print(console_safe(f"タスク {task_gid} にコメントを投稿しますか? (y/N): "), end="")
         if input().strip().lower() != "y":
             print("abort")
             sys.exit(0)
 
-    load_env_from_dotfile()
-    token = get_token()
     story = create_task_story(task_gid, text, token)
     print("posted_story", story.get("gid"), "task", task_gid)
 

@@ -1,0 +1,42 @@
+{
+  "parent_title": "【1/1・UX】flagship 体験設計 dryrun",
+  "profile": "flagship",
+  "subtasks": [
+    {
+      "name": "【1/1-1・UX】Figma UI dryrun（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "ux-delivery v2 dryrun。Figma URL stub。",
+      "summary": "dryrun: `output/dryrun/ux/<parent_gid>-ux-spec.md` と Figma URL `https://www.figma.com/design/dryrun-ui` を記録。",
+      "done_when": "ux-spec stub 保存・comment_task 完了。"
+    },
+    {
+      "name": "【1/1-2・UX】design quality dryrun（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "design_quality ゲート dryrun。",
+      "summary": "review_kind: design_quality。`output/ux/reviews/<parent_gid>-design-quality-review.json` stub。",
+      "done_when": "UxReviewResult passed* · comment_task 完了。"
+    },
+    {
+      "name": "【1/1-3・UX】Design System dryrun（design-system-owner）",
+      "assignee": "design-system-owner",
+      "department": "ux",
+      "status": "assigned",
+      "background": "design-system-owner ロール到達確認。",
+      "summary": "dryrun: `output/dryrun/ux/<parent_gid>-design-system.md` と Figma DS URL stub。",
+      "done_when": "design-system stub 保存・comment_task 完了。"
+    },
+    {
+      "name": "【1/1-4・UX】ux_spec dryrun（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "ux_spec ゲート dryrun。",
+      "summary": "review_kind: ux_spec。`output/ux/reviews/<parent_gid>-ux-spec-review.json` stub。",
+      "done_when": "UxReviewResult passed* · comment_task 完了。"
+    }
+  ]
+}

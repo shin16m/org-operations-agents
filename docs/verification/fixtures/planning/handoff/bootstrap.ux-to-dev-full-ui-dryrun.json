@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "UX → development full-ui — bootstrap",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【UX→dev dryrun】Figma 依存転記 + full-ui 着手（2026-06-06）",
+    "notes_markdown": "## 目的\n\nUX 子完了 → product-manager が `## 依存（読み取り専用）` に Figma URL を転記 → development `profile: full-ui` が着手できる継ぎ目を Asana 上で確認する。\n\n## 配賦順序\n\n**ux**（blocking）→ **development**（full-ui）\n\n## 記録\n\n`docs/verification/ux-to-dev-full-ui-dryrun.md`"
+  },
+  "subtasks": [
+    {
+      "title": "【1/2・UX】体験設計 dryrun（blocking）",
+      "department": "ux",
+      "background": "ux-delivery v2 · profile: flagship。開発 full-ui の前提。",
+      "summary": "ux-pm が assign-plan.dryrun-v2.json で分解。DeptWorkComplete に Figma URL + stub パス。",
+      "done_when": "design_quality_passed · ux_spec_passed · artifacts 公開。"
+    },
+    {
+      "title": "【2/2・開発】full-ui dryrun",
+      "department": "development",
+      "background": "【1/2・UX】完了後。product-manager が ## 依存 転記してから pm_assign。",
+      "summary": "development-delivery v3 · profile=full-ui。要件→設計→実装→ux_implementation→QA。",
+      "done_when": "ux_implementation_review_passed · verification_passed · DeptWorkComplete。"
+    }
+  ]
+}

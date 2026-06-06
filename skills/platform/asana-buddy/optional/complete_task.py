@@ -12,6 +12,7 @@ _REPO_ROOT = _SCRIPT_DIR.parents[3]
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
+from agent_comment_guard import validate_worker_sub_complete  # noqa: E402
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import (  # noqa: E402
     console_safe,
@@ -59,6 +60,11 @@ def main() -> None:
         action="store_true",
         help="Do not call org-os complete even for epics (dryrun/teardown)",
     )
+    p.add_argument(
+        "--skip-worker-guards",
+        action="store_true",
+        help="Skip worker signed-comment / md-attach checks (dryrun teardown only)",
+    )
     args = p.parse_args()
 
     load_env_from_dotfile()
@@ -76,6 +82,12 @@ def main() -> None:
                 file=sys.stderr,
             )
             sys.exit(3)
+
+    if completed and not args.skip_worker_guards:
+        err = validate_worker_sub_complete(task_gid=args.gid, token=token)
+        if err:
+            print(f"ERROR: {err}", file=sys.stderr)
+            sys.exit(4)
 
     if completed and not args.skip_org_os and is_epic_task(args.gid, token, task=task):
         rc = _org_os_complete_epic(args.gid, dry_run=False, strict=args.strict_os)

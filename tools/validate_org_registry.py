@@ -19,10 +19,13 @@ if str(ROOT / "tools") not in sys.path:
 
 from agent_registry_util import (  # noqa: E402
     CROSS_DEPT_WORKERS,
+    PERSONA_EXEMPT_SLUGS,
     assign_plan_slugs,
     enabled_skill_paths,
     load_agents,
+    persona_md_for_slug,
     skill_md_for_slug,
+    slugs_in_skill_persona_matrix,
     worker_team_slug,
     workflow_agents_from_yaml,
 )
@@ -212,10 +215,13 @@ def main() -> int:
             errors.append("product-manager SKILL must reference L3b worker dispatch")
         if "pm-review-rework-ssot" not in pm_text:
             errors.append("product-manager SKILL must reference pm-review-rework-ssot")
+        if "pm_intake_gate" not in pm_text:
+            errors.append("product-manager SKILL must reference pm_intake_gate (full-ui ## 依存)")
 
     for pm_path in (
         ROOT / "skills/ux/ux-pm/SKILL.md",
         ROOT / "skills/analysis/analytics-pm/SKILL.md",
+        ROOT / "skills/governance/governance-pm/SKILL.md",
         ROOT / "skills/audit/audit-pm/SKILL.md",
     ):
         if pm_path.is_file():
@@ -227,6 +233,7 @@ def main() -> int:
         "development-pm-assignment.md",
         "ux-pm-assignment.md",
         "analytics-pm-assignment.md",
+        "governance-pm-assignment.md",
         "audit-pm-assignment.md",
     ):
         assign_path = ROOT / "docs/design" / assign_name
@@ -234,8 +241,15 @@ def main() -> int:
             assign_text = assign_path.read_text(encoding="utf-8")
             if "pm-review-rework-ssot" not in assign_text:
                 errors.append(f"{assign_name} must reference pm-review-rework-ssot")
+            if "human_review_gate" not in assign_text or "opt-in" not in assign_text:
+                errors.append(f"{assign_name} must document human_review_gate opt-in (see development-pm-assignment.md)")
             if assign_name != "development-pm-assignment.md" and "pm-worker-dispatch-ssot" not in assign_text:
-                if assign_name in ("ux-pm-assignment.md", "analytics-pm-assignment.md", "audit-pm-assignment.md"):
+                if assign_name in (
+                    "ux-pm-assignment.md",
+                    "analytics-pm-assignment.md",
+                    "governance-pm-assignment.md",
+                    "audit-pm-assignment.md",
+                ):
                     errors.append(f"{assign_name} must reference pm-worker-dispatch-ssot")
             if "complete_task.py --undo" in assign_text and "使わない" not in assign_text:
                 errors.append(f"{assign_name} must not document --undo for PM rework")
@@ -272,7 +286,14 @@ def main() -> int:
     enabled_paths = enabled_skill_paths()
     agents_meta = load_agents()
 
-    for wf_name in ("planning-delivery", "ux-delivery", "development-delivery", "analysis-delivery", "audit-delivery"):
+    for wf_name in (
+        "planning-delivery",
+        "ux-delivery",
+        "development-delivery",
+        "analysis-delivery",
+        "governance-delivery",
+        "audit-delivery",
+    ):
         wf_path = ROOT / f"workflows/{wf_name}.yaml"
         if not wf_path.is_file():
             continue
@@ -308,6 +329,7 @@ def main() -> int:
         (ROOT / "skills/development/examples", "assign-plan*.json"),
         (ROOT / "skills/ux/examples", "assign-plan*.json"),
         (ROOT / "skills/analysis/examples", "assign-plan*.json"),
+        (ROOT / "skills/governance/examples", "assign-plan*.json"),
         (ROOT / "skills/audit/examples", "assign-plan*.json"),
         (ROOT / "work/assign-plans", "*.json"),
     ]
@@ -414,6 +436,36 @@ def main() -> int:
                 )
     else:
         errors.append("workflows/agent-display-names.yaml is missing")
+
+    # skill-persona-matrix.md — every enabled slug (except exempt meta)
+    matrix_path = ROOT / "docs/inventory/skill-persona-matrix.md"
+    matrix_slugs = slugs_in_skill_persona_matrix(matrix_path)
+    if not matrix_path.is_file():
+        errors.append("missing docs/inventory/skill-persona-matrix.md")
+    else:
+        for slug, meta in agents_meta.items():
+            if not meta.get("enabled"):
+                continue
+            if slug in PERSONA_EXEMPT_SLUGS:
+                continue
+            if slug not in matrix_slugs:
+                errors.append(
+                    f"skill-persona-matrix.md missing row for enabled slug '{slug}'"
+                )
+
+    # persona.md for enabled agents
+    for slug, meta in agents_meta.items():
+        if not meta.get("enabled") or slug in PERSONA_EXEMPT_SLUGS:
+            continue
+        if persona_md_for_slug(slug) is None:
+            errors.append(
+                f"missing persona for enabled slug '{slug}' "
+                f"(skills/.../personas/{slug.replace('-', '_')}.md)"
+            )
+        else:
+            persona_body = persona_md_for_slug(slug).read_text(encoding="utf-8")
+            if "**志向:**" not in persona_body and "志向:" not in persona_body:
+                errors.append(f"persona for '{slug}' missing 志向 line")
 
     if errors:
         print("\nVALIDATION FAILED:", file=sys.stderr)

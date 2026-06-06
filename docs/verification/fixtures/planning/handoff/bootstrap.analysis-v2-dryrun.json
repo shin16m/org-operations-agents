@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "Analysis delivery v2 dryrun — bootstrap",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【分析 v2 dryrun】profile · analytics-requirements-writer · 全ロール（2026-06-06）",
+    "notes_markdown": "## 目的\n\n`analysis-delivery` v2 の PM サブタスク分解・profile: full · **analytics-requirements-writer** 含む全 enabled ロールが `comment_task` → `complete_task` まで到達することを確認する。\n\n## 記録\n\n`docs/verification/analysis-delivery-v2-dryrun.md`"
+  },
+  "subtasks": [
+    {
+      "title": "【1/1・分析】full dryrun",
+      "department": "analysis",
+      "background": "analysis-delivery v2 · profile: full",
+      "summary": "analytics-pm が assign-plan.dryrun-v2.json で分解。analytics-requirements-writer 含む。",
+      "done_when": "全ワーカー complete · DeptWorkComplete.artifacts[] に下流参照 stub。"
+    }
+  ]
+}

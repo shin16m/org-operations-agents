@@ -47,7 +47,7 @@ def run_approval_helper_pass(*, dry_run: bool) -> int:
         status = asana_ops_sessions.check_session_status(session, token)
         if status.get("status") != "resumable":
             continue
-        parent = str(session.get("epic_gid") or session.get("parent_gid") or "")
+        parent = str(session.get("parent_gid") or session.get("epic_gid") or "")
         sub = str(session.get("approval_sub_gid") or "")
         gate = str(session.get("gate_kind") or "planning_approval")
         if not parent or not sub:

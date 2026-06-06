@@ -14,6 +14,7 @@ for p in (str(TOOLS), str(ASANA_OPT)):
     if p not in sys.path:
         sys.path.insert(0, p)
 
+import agent_comment_guard as guard  # noqa: E402
 import execution_resume_scan as scan  # noqa: E402
 
 
@@ -23,13 +24,19 @@ class HasAgentCommentTests(unittest.TestCase):
             {"text": "hello"},
             {"text": "---\n🤖 agent-work-record\nagent: dev-reviewer\n---"},
         ]
-        with mock.patch.object(scan, "list_task_comment_stories", return_value=stories):
-            self.assertTrue(scan.has_agent_comment("SUB", "dev-reviewer", "tok"))
+        with mock.patch(
+            "asana_program_common.list_task_comment_stories",
+            return_value=stories,
+        ):
+            self.assertTrue(guard.has_agent_comment("SUB", "dev-reviewer", "tok"))
 
     def test_rejects_other_agent(self) -> None:
         stories = [{"text": "agent-work-record\nagent: developer\n"}]
-        with mock.patch.object(scan, "list_task_comment_stories", return_value=stories):
-            self.assertFalse(scan.has_agent_comment("SUB", "dev-reviewer", "tok"))
+        with mock.patch(
+            "asana_program_common.list_task_comment_stories",
+            return_value=stories,
+        ):
+            self.assertFalse(guard.has_agent_comment("SUB", "dev-reviewer", "tok"))
 
 
 class ClassifyPmChildTests(unittest.TestCase):

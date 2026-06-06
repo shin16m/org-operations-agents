@@ -6,11 +6,14 @@
 
 ```powershell
 python tools/validate_org_registry.py
+python tools/validate_ssot_contract.py
 python tools/check_new_department.py --department <id>   # 個別
 python tools/check_new_department.py --all                # 全 enabled
+python tools/check_new_skill.py --slug <新slug> --department <id>   # ロール追加時
+python tools/check_new_skill.py --all-enabled             # 全 enabled slug
 ```
 
-`check_new_department.py` は **本チェックリスト A〜E の必須行**を機械チェックし、未該当箇所を列挙する（実装: [`tools/check_new_department.py`](../../tools/check_new_department.py)）。手動チェックの前に必ず実行。
+`check_new_department.py` は **A〜J の必須行**を機械チェックする。`check_new_skill.py` は **単一 slug の配線**を検証する。手動チェックの前に必ず実行。
 
 ---
 
@@ -111,16 +114,40 @@ python tools/check_new_department.py --all                # 全 enabled
 
 ---
 
+## I. delivery 強みの型（L3 · 開発 v3 同等を目指す場合）
+
+| # | 成果物 |
+|---|--------|
+| I1 | [`delivery-strength-pattern.md`](delivery-strength-pattern.md) — 適用マトリクスに 1 行 |
+| I2 | profile 選定（必要なら）· PM/worker 分離 · 多段ゲート |
+| I3 | 下流 consume がある場合 [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md) |
+
+---
+
+## J. スキル × ペルソナ
+
+| # | 成果物 |
+|---|--------|
+| J1 | [`skill-persona-principles.md`](skill-persona-principles.md) — SKILL / persona 分離 |
+| J2 | [`docs/inventory/skill-persona-matrix.md`](../inventory/skill-persona-matrix.md) — 全 slug 行追加 |
+| J3 | 各 `personas/*.md` に **志向** 行 |
+
+---
+
 ## 完了条件
 
 - [ ] `python tools/validate_org_registry.py` が exit 0
-- [ ] 本チェックリスト A〜H の該当行にチェック
-- [ ] dry-run 文書またはスモーク 1 本
+- [ ] `python tools/check_new_department.py --department <id>` が exit 0
+- [ ] 新規 slug 追加時 `python tools/check_new_skill.py --slug <slug>` が exit 0
+- [ ] 本チェックリスト A〜J の該当行にチェック
+- [ ] dry-run 文書または `tools/run_*dryrun*.py` 1 本
 
 ---
 
 ## 参照
 
 - 4 点セット: [`department-model.md`](department-model.md)
+- 強みの型: [`delivery-strength-pattern.md`](delivery-strength-pattern.md)
 - 分析 PM 厳密運用の参照実装: [`analytics-pm-assignment.md`](analytics-pm-assignment.md)
 - UX PM 厳密運用: [`ux-pm-assignment.md`](ux-pm-assignment.md)
+- ロール追加: [`CONTRIBUTING.md`](../../CONTRIBUTING.md)

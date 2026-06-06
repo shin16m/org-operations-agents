@@ -6,7 +6,7 @@
   },
   "epic": {
     "title": "【agent-create-supporter】全チーム・全メンバー dryrun（2026-05-23）",
-    "notes_markdown": "## 解決ストーリー\n\n1. **企画** — Handoff sync\n2. **UX** — ux-pm サブタスク分解 → ux-designer / ux-reviewer\n3. **分析** — analytics-pm サブタスク → 全分析ワーカー\n4. **開発** — product-manager サブタスク（full-ui）→ 全開発ワーカー + ux-reviewer\n\n## 検証\n\n各 slug が `fetch_task --show-assignee` 確認後に comment + complete。"
+    "notes_markdown": "## 解決ストーリー\n\n1. **企画** — Handoff sync\n2. **UX** — ux-pm サブタスク分解 → ux-designer / design-system-owner / ux-reviewer（v2）\n3. **分析** — analytics-pm サブタスク → 全分析ワーカー（analytics-requirements-writer 含む）\n4. **開発** — product-manager サブタスク（full-ui）→ 全開発ワーカー + ux-reviewer · UX ## 依存 転記\n\n## 検証\n\n各 slug が `fetch_task --show-assignee` 確認後に comment + complete。"
   },
   "subtasks": [
     {
@@ -20,14 +20,14 @@
       "title": "【2/4・UX】体験設計 dryrun",
       "department": "ux",
       "background": "development full-ui の blocking 前提。",
-      "summary": "ux-delivery v1。ux-pm がサブタスク分解し ux-designer / ux-reviewer が dryrun 成果物を作成。",
-      "done_when": "UxReviewResult passed* · DeptWorkComplete.artifacts[] 公開。"
+      "summary": "ux-delivery v2（flagship）。ux-pm が dryrun-v2 plan で ux-designer / design-system-owner / ux-reviewer を分解。",
+      "done_when": "design_quality_passed · ux_spec_passed · DeptWorkComplete.artifacts[]（Figma URL 含む）。"
     },
     {
       "title": "【3/4・分析】全ロール dryrun",
       "department": "analysis",
       "background": "分析チーム全 enabled ワーカーの comment 到達確認。",
-      "summary": "analytics-pm が assign-plan.dryrun-v1 でサブタスク作成。各 data-* / analysis-reviewer が stub 成果物。",
+      "summary": "analysis-delivery v2。analytics-pm が assign-plan.dryrun-v2 で分解（analytics-requirements-writer 含む）。",
       "done_when": "全サブ complete · analytics-pm が DeptWorkComplete。"
     },
     {

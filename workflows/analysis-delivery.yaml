@@ -1,8 +1,8 @@
-# Analysis department workflow — one instance per Asana subtask.
-# analytics-pm is the hub; invoked after task-dispatcher routes department=analysis.
+# Analysis department workflow v2 — one instance per Asana subtask.
+# analytics-pm hub; profile-driven phase selection; PM does not write worker artifacts.
 id: analysis-delivery
-version: "1"
-description: PM-led analytics delivery (requirements → data → pipeline → quality → insights → model → deploy → value)
+version: "2"
+description: PM-led analytics delivery with profiles (requirements → data → pipeline → quality → insights → model → deploy → value)
 
 policy:
   scope: single_subtask
@@ -12,21 +12,25 @@ policy:
   assignment_doc: docs/design/analytics-pm-assignment.md
   dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#analysis
   review_rework_ssot: docs/design/pm-review-rework-ssot.md
+  artifact_bridge_doc: docs/design/cross-team-artifact-bridge.md
   pm_role: orchestrate_only
 
 steps:
   - id: pm_intake
     agent: analytics-pm
-    role: 子 notes を読み、pm_assign_subtasks でサブタスク分解。**PM は data-* 実装を実行しない**
+    role: 子 notes を読み、delivery profile を決定し、pm_assign_subtasks でサブタスク分解
 
   - id: pm_review_gate
-    agent: analytics-pm
-    role: create_pm_review_gate → 人間 complete → check_pm_review_gate exit 0 まで L3b dispatch 禁止
+    agent: "{department}-pm"
+    role: "opt-in のみ create_pm_review_gate → 人間 complete → check exit 0"
+    optional: true
+    when: human_review_gate
 
   - id: requirements
-    agent: analytics-pm
-    role: ビジネスゴール・KPI・成功基準・受け入れ基準を定義
+    agent: analytics-requirements-writer
+    role: 分析要件書（KPI・受け入れ基準）
     artifact: analytics-requirements-doc
+    writer_mode: requirements
 
   - id: requirements_review
     agent: analysis-reviewer
@@ -34,132 +38,123 @@ steps:
     review_kind: analytics_requirements
     gate_after: requirements_review_passed
 
-  - id: pm_handoff_architect
-    agent: analytics-pm
-    role: データ設計フェーズへ委譲
-
   - id: data_design
     agent: data-architect
-    role: 必要データ・スキーマ・SLA（更新頻度・遅延許容）を設計
+    role: データモデル・SLA（更新頻度・遅延許容）設計
     artifact: data-model-doc
+    skip_when_profile: lite
 
   - id: data_design_review
     agent: analysis-reviewer
     role: データモデル・SLA レビュー
     review_kind: data_model
     gate_after: data_model_review_passed
-
-  - id: pm_handoff_engineer
-    agent: analytics-pm
-    role: ETL/ELT フェーズへ委譲
+    skip_when_profile: lite
 
   - id: etl_pipeline
     agent: data-engineer
-    role: パイプライン構築・テスト・自動化
+    role: パイプライン構築・テスト
     artifact: pipeline-code
+    skip_when_profile: [insights, catalog, lite]
 
   - id: pipeline_review
     agent: analysis-reviewer
-    role: パイプライン・CI テストレビュー
+    role: パイプライン review
     review_kind: pipeline
     gate_after: pipeline_review_passed
-
-  - id: pm_handoff_steward
-    agent: analytics-pm
-    role: 品質・ガバナンスフェーズへ委譲
+    skip_when_profile: [insights, catalog, lite]
 
   - id: quality_governance
     agent: data-steward
-    role: データ品質ルール・メタデータ・コンプライアンス
+    role: 品質ルール・カタログ・コンプライアンス
     artifact: data-catalog-quality-report
+    skip_when_profile: lite
 
   - id: quality_review
     agent: analysis-reviewer
-    role: 品質レポート・カタログレビュー
+    role: 品質 review
     review_kind: data_quality
     gate_after: quality_review_passed
-
-  - id: pm_handoff_analyst
-    agent: analytics-pm
-    role: 探索・分析フェーズへ委譲
+    skip_when_profile: lite
 
   - id: exploration
     agent: data-analyst
-    role: 仮説検証・ダッシュボード・インサイト
+    role: 探索・ダッシュボード・インサイト
     artifact: analysis-notes-dashboard
+    skip_when_profile: [model-serve, catalog, lite]
 
   - id: exploration_review
     agent: analysis-reviewer
-    role: 分析成果レビュー
+    role: 分析成果 review
     review_kind: analysis_insights
     gate_after: exploration_review_passed
-
-  - id: pm_handoff_scientist
-    agent: analytics-pm
-    role: モデル開発フェーズへ委譲
+    skip_when_profile: [model-serve, catalog, lite]
 
   - id: model_development
     agent: data-scientist
-    role: 特徴量設計・モデル試作・評価
+    role: モデル試作・評価・モデルカード
     artifact: model-eval-report
+    skip_when_profile: [insights, catalog, lite]
 
   - id: model_review
     agent: analysis-reviewer
-    role: モデル評価・モデルカードレビュー
+    role: モデル review
     review_kind: model_eval
     gate_after: model_review_passed
+    skip_when_profile: [insights, catalog, lite]
 
   - id: production_gate
     agent: analysis-reviewer
-    role: 本番デプロイ前の品質・セキュリティ承認（必須ゲート）
+    role: 本番デプロイ前ゲート（ml-engineer 前必須）
     review_kind: production_deploy_gate
     gate_after: production_gate_passed
-
-  - id: pm_handoff_ml_engineer
-    agent: analytics-pm
-    role: デプロイ・運用フェーズへ委譲（production_gate 通過後のみ）
+    skip_when_profile: [insights, catalog, lite]
 
   - id: deploy_ops
     agent: ml-engineer
-    role: コンテナ化・CI/CD・モニタリング・再学習パイプライン
+    role: デプロイ・監視・再学習パイプライン
     artifact: deployed-model-monitoring
+    skip_when_profile: [insights, catalog, lite]
 
   - id: deploy_verification
     agent: analysis-reviewer
-    role: デプロイ・監視ダッシュボード検証
+    role: デプロイ検証
     review_kind: deploy_verification
     gate_after: deploy_verification_passed
+    skip_when_profile: [insights, catalog, lite]
 
-  - id: pm_value_validation
-    agent: analytics-pm
-    role: リリース判定・ROI 評価・次フェーズ計画
+  - id: release_report
+    agent: analytics-requirements-writer
+    role: リリースノート・KPI レポート
     artifact: release-notes-kpi-report
+    writer_mode: release
+    skip_when_profile: lite
 
   - id: pm_complete
     agent: analytics-pm
-    role: DeptWorkComplete 出力・comment_task → complete_task -y・オーケストレーターへ報告
+    role: DeptWorkComplete · comment_task → complete_task -y
 
 gates:
   requirements_review_passed:
-    description: AnalysisDocReviewResult status passed*（analytics_requirements）
+    description: AnalysisDocReviewResult passed*（analytics_requirements）
   data_model_review_passed:
-    description: AnalysisDocReviewResult status passed*（data_model）。SLA 明文化必須
+    description: AnalysisDocReviewResult passed*（data_model）。SLA 明文化必須
   pipeline_review_passed:
-    description: AnalysisDocReviewResult status passed*（pipeline）
+    description: AnalysisDocReviewResult passed*（pipeline）
   quality_review_passed:
-    description: AnalysisDocReviewResult status passed*（data_quality）
+    description: AnalysisDocReviewResult passed*（data_quality）
   exploration_review_passed:
-    description: AnalysisDocReviewResult status passed*（analysis_insights）
+    description: AnalysisDocReviewResult passed*（analysis_insights）
   model_review_passed:
-    description: AnalysisDocReviewResult status passed*（model_eval）
+    description: AnalysisDocReviewResult passed*（model_eval）
   production_gate_passed:
     description: DeployGateResult。quality_approved かつ security_approved 必須
   deploy_verification_passed:
-    description: VerificationResult status passed（deploy_verification）
+    description: VerificationResult passed（deploy_verification）
 
 branches:
   production_gate_blocked:
     from: production_gate
     when: status == failed
-    to: pm_handoff_scientist
-    note: モデルまたはデータ品質の failed。PM が修正サブを新規作成
+    to: model_development
+    note: PM が修正サブを新規作成

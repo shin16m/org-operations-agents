@@ -113,11 +113,11 @@ python tools/complete_epic_os_state.py --epic <親GID>
 
 1. **同一セッションで development / ux / analysis / governance / audit の成果物を書かない**
 2. 未完了 execution 系子ごとに [`task-dispatcher`](../task-dispatcher/SKILL.md) で PM へ dispatch
-3. 各 PM は `pm_assign_subtasks` → **`pm_review_gate`（人間承認サブ）** → **L3b** でワーカーへ委譲（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md) · [`pm-assign-review-gate.md`](../../../docs/design/pm-assign-review-gate.md)）
+3. 各 PM は `pm_assign_subtasks` → **デフォルト gate 省略**（`check_pm_review_gate` exit 0）→ **L3b** でワーカーへ委譲。**opt-in 時のみ** `pm_review_gate`（人間【レビュー】）（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md) · [`pm-assign-review-gate.md`](../../../docs/design/pm-assign-review-gate.md)）
 4. **PM がワーカー役を代行しない** — 実装作業の `comment_task --agent` は **実作業ワーカーの slug**（PM slug は DeptWorkComplete・委譲集約のみ）
 5. org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../development/examples/assign-plan.org-meta-doc-v1.json) 参照）
 
-PM 代行で本体を先行完了した場合の事後補完: [`docs/verification/asana-comment-detail-delivery.md`](../../../docs/verification/asana-comment-detail-delivery.md)
+PM 代行の事後補完（Plan B）は **利用者が workflow 省略を明示した場合のみ**。通常は [`pm-worker-separation-enforcement.md`](../../../docs/design/pm-worker-separation-enforcement.md) の CLI ガード + L3b kick を使用する。
 
 ### F. Asana ドリブン運用（Phase 1 · 任意）
 

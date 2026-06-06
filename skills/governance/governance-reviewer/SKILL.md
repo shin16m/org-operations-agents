@@ -1,6 +1,8 @@
 # governance-reviewer SKILL
 
-**独立スキル:** ssot-implementer 成果の **Handoff 整合レビュー**。
+人間向け: [`README.md`](README.md) · persona: [`personas/governance_reviewer.md`](personas/governance_reviewer.md)
+
+**独立スキル:** ssot-implementer 成果の **org-meta レビュー**。
 
 スキーマ: [`schemas/governance-review-result.v1.schema.json`](schemas/governance-review-result.v1.schema.json)
 

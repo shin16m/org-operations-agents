@@ -23,8 +23,10 @@ steps:
     role: pm_assign_subtasks — ssot-implementer / governance-reviewer
 
   - id: pm_review_gate
-    agent: governance-pm
-    role: create_pm_review_gate → 人間 complete → check_pm_review_gate exit 0 まで L3b dispatch 禁止
+    agent: "{department}-pm"
+    role: "opt-in のみ create_pm_review_gate → 人間 complete → check exit 0。デフォルトは省略して L3b へ"
+    optional: true
+    when: human_review_gate
 
   - id: ssot_implementation
     agent: ssot-implementer

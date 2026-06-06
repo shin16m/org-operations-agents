@@ -173,7 +173,19 @@ agents:
     slot: dept_work
     skill_path: skills/ux/ux-designer
     enabled: true
-    note: ux-delivery v1 — 体験設計・Design System
+    note: ux-delivery v2 — Figma UI + ux-spec companion
+    io:
+      input_kind: asana_subtask_notes
+      schema_doc: docs/design/ux-delivery-io.md
+      artifact_root: output/ux/
+      reads:
+        - workflows/ux-delivery.yaml
+
+  - slug: design-system-owner
+    slot: dept_work
+    skill_path: skills/ux/design-system-owner
+    enabled: true
+    note: ux-delivery v2 — Figma DS + design-system.md + optional Code Connect
     io:
       input_kind: asana_subtask_notes
       schema_doc: docs/design/ux-delivery-io.md
@@ -185,7 +197,7 @@ agents:
     slot: dept_review
     skill_path: skills/ux/ux-reviewer
     enabled: true
-    note: ux_spec + development full-ui ux_implementation
+    note: design_quality + ux_spec + development full-ui ux_implementation
     io:
       output_schemas:
         - skills/ux/ux-reviewer/schemas/ux-review-result.v1.schema.json
@@ -194,12 +206,25 @@ agents:
     slot: dept_orchestrate
     skill_path: skills/analysis/analytics-pm
     enabled: true
+    note: analysis-delivery v2 — profile · PM 分離
     workflow_steps: []
     io:
       input_kind: DispatchRequest
       output_kind: DeptWorkComplete
       output_schema: skills/development/product-manager/schemas/dept-work-complete.v1.schema.json
       schema_doc: docs/design/analysis-delivery-io.md
+      reads:
+        - workflows/analysis-delivery.yaml
+
+  - slug: analytics-requirements-writer
+    slot: dept_work
+    skill_path: skills/analysis/analytics-requirements-writer
+    enabled: true
+    note: analysis-delivery v2 — 分析要件 · リリース/KPI
+    io:
+      input_kind: asana_subtask_notes
+      schema_doc: docs/design/analysis-delivery-io.md
+      artifact_root: output/analysis/
       reads:
         - workflows/analysis-delivery.yaml
 

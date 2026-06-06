@@ -1,0 +1,89 @@
+{
+  "parent_title": "【3/4・分析】全ロール dryrun v2",
+  "profile": "full",
+  "subtasks": [
+    {
+      "name": "【3/4-0・分析】要件（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "v2 PM 分離 — 要件はワーカー担当。",
+      "summary": "stub `output/dryrun/analysis/<parent_gid>-requirements.md`",
+      "done_when": "要件 stub 保存。"
+    },
+    {
+      "name": "【3/4-1・分析】データ設計（data-architect）",
+      "assignee": "data-architect",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "stub `output/dryrun/analysis/data-model-stub.md`",
+      "done_when": "設計 stub 保存（SLA 行含む）。"
+    },
+    {
+      "name": "【3/4-2・分析】設計 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: data_model",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【3/4-3・分析】ETL（data-engineer）",
+      "assignee": "data-engineer",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/dryrun/analysis/etl-stub.md`",
+      "done_when": "ETL stub 保存。"
+    },
+    {
+      "name": "【3/4-4・分析】品質（data-steward）",
+      "assignee": "data-steward",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/dryrun/analysis/quality-stub.md`",
+      "done_when": "品質 stub 保存。"
+    },
+    {
+      "name": "【3/4-5・分析】探索（data-analyst）",
+      "assignee": "data-analyst",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/dryrun/analysis/exploration-stub.md`",
+      "done_when": "探索 stub 保存。"
+    },
+    {
+      "name": "【3/4-6・分析】モデル（data-scientist）",
+      "assignee": "data-scientist",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/dryrun/analysis/model-stub.md`",
+      "done_when": "モデル stub 保存。"
+    },
+    {
+      "name": "【3/4-7・分析】デプロイ（ml-engineer）",
+      "assignee": "ml-engineer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "dryrun — gate は reviewer サブで stub",
+      "summary": "`output/dryrun/analysis/deploy-stub.md`",
+      "done_when": "デプロイ stub 保存。"
+    },
+    {
+      "name": "【3/4-8・分析】最終 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "dryrun 集約 review stub",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【3/4-9・分析】リリース（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "mode=release",
+      "summary": "`output/dryrun/analysis/<parent_gid>-release.md`",
+      "done_when": "リリース stub 保存。"
+    }
+  ]
+}

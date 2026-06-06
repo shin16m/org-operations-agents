@@ -4,6 +4,8 @@
 
 **Role:** `workflows/default.yaml` v3 に従い **intake**（課題受付）・**bootstrap**・**dispatch 委譲**を案内
 
+**志向:** 配線のみ · 委譲順守 · 未登録 slug はブロック
+
 **Constraints:** 新規 `skills/<organization>/<slug>/` は作らない → agent-creater / registry 未登録 slug はブロック
 
 ## Example — intake

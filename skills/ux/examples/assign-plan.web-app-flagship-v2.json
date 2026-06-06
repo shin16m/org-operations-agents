@@ -1,0 +1,42 @@
+{
+  "parent_title": "【2/4・UX】Web アプリ体験設計（flagship）",
+  "profile": "flagship",
+  "subtasks": [
+    {
+      "name": "【2/4-1・UX】Figma UI — 複数案（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "Epic 全体のビジュアル方向。flagship は探索を厚くする。",
+      "summary": "Figma で主要画面を **2 案以上** 作成し、選定案を明示。companion: `output/ux/specs/<parent_gid>-ux-spec.md`（Figma URL・IA・フロー・a11y）。",
+      "done_when": "Figma に 2 案以上のフレームがあり、選定理由が ux-spec に記載されている。"
+    },
+    {
+      "name": "【2/4-2・UX】design quality review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "魅力・一貫性の批評ゲート。",
+      "summary": "review_kind: design_quality。Figma UI を評価し `output/ux/reviews/<parent_gid>-design-quality-review.json` を出力。",
+      "done_when": "UxReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【2/4-3・UX】Design System（design-system-owner）",
+      "assignee": "design-system-owner",
+      "department": "ux",
+      "status": "assigned",
+      "background": "開発 full-ui が consume するトークン・コンポーネント。",
+      "summary": "Figma で変数・コンポーネントを構築。companion: `output/ux/design-system/<parent_gid>-design-system.md`。任意: `output/ux/code-connect/<parent_gid>/`。",
+      "done_when": "Figma DS URL と design-system.md が保存されている。"
+    },
+    {
+      "name": "【2/4-4・UX】仕様 review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "ux_spec ゲート。IA・a11y・DS 整合。",
+      "summary": "review_kind: ux_spec。ux-spec・DS を検証し `output/ux/reviews/<parent_gid>-ux-spec-review.json` を出力。",
+      "done_when": "UxReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

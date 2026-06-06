@@ -1,24 +1,41 @@
 # PM 委譲品質ゲート（assign review gate）— 運用 SSOT
 
-| 版 | 1.2 |
-| 日付 | 2026-05-24 |
-| エピック | `1215086341081688` · F1/F3 |
+| 版 | 1.3 |
+| 日付 | 2026-06-05 |
+| エピック | `1215086341081688` · F1/F3 · **`1215465361526049`**（opt-in 化） |
 
 ## 目的
 
-L3 PM が `pm_assign_subtasks` でサブを作成した**後**、**L3b worker dispatch 前**に人間がサブ構成・担当割り当てをレビューする。
+L3 PM が `pm_assign_subtasks` 後、**必要なときだけ**人間がサブ構成・担当割り当てをレビューする（**エージェント評価・監査用 opt-in**）。
 
-**サブ作成前の人間承認は不要。** 利用者が確認したいのは **作成済みサブの一覧と担当 slug** である。
+**通常運用（デフォルト）:** assign 後 **すぐ L3b**（【レビュー】サブ構成・担当割り当て **を作らない**）。
 
 ## フロー（L3 チーム内）
 
+### デフォルト（通常）
+
 ```
-PM: pm_intake → pm_assign_subtasks（サブ作成 · 担当 notes · worker CF 試行）
-  → create_pm_review_gate.py（承認サブ「【レビュー】サブ構成・担当割り当て」+ worker→gate dependencies）
-  → 【停止】人間が Asana 上で承認サブを complete（エージェントは complete しない）
+PM: pm_intake → pm_assign_subtasks
+  → create_pm_review_gate.py（no-op · SKIP）
+  → check_pm_review_gate.py exit 0（gate 無し）
+  → L3b: pm_emit_worker_prompt
+```
+
+### opt-in（評価・監査）
+
+トリガー（いずれか）:
+
+- assign plan `"human_review_gate": true`
+- `create_pm_review_gate.py --require-human-review`
+- env `ORG_OPS_PM_REVIEW_GATE=1`
+- PM 子 notes `human_review_gate: yes`
+
+```
+PM: pm_assign_subtasks
+  → create_pm_review_gate.py（【レビュー】サブ構成・担当割り当て + dependencies）
+  → 人間 complete（エージェント禁止）
   → check_pm_review_gate.py exit 0
-  → L3b: pm_emit_worker_prompt / WorkerDispatchSnippet
-  → ワーカー各サブ …
+  → L3b
 ```
 
 ## Asana dependencies（F1）
@@ -48,10 +65,11 @@ PM: pm_intake → pm_assign_subtasks（サブ作成 · 担当 notes · worker CF
 ## CLI
 
 ```powershell
-# assign plan 作成後
+# assign plan 作成後（opt-in 時のみ gate 作成）
 python tools/create_pm_review_gate.py --parent <PM子GID> --plan work/assign-plans/<plan>.json -y
+python tools/create_pm_review_gate.py --parent <PM子GID> --plan <plan>.json --require-human-review -y
 
-# dispatch 前（人間が Asana UI で complete した後のみ）
+# dispatch 前（gate 無し → exit 0 / gate pending → exit 1）
 python tools/check_pm_review_gate.py --parent <PM子GID>
 ```
 

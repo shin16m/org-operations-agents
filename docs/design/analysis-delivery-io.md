@@ -1,6 +1,6 @@
 # 分析チーム delivery I/O
 
-workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) · 組織: [`department-model.md`](department-model.md)
+workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery.yaml) v2 · 組織: [`department-model.md`](department-model.md) · 強みの型: [`delivery-strength-pattern.md`](delivery-strength-pattern.md)
 
 ## 組織
 
@@ -10,6 +10,35 @@ workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery
 | ラベル | 分析チーム |
 | PM ハブ | analytics-pm |
 | スコープ | Asana 子タスク 1 件 = workflow インスタンス 1 本 |
+| PM 委譲 | [`analytics-pm-assignment.md`](analytics-pm-assignment.md) |
+
+### メンバー（v2）
+
+| slug | slot | 役割 |
+|------|------|------|
+| analytics-pm | dept_orchestrate | profile・分解・アサイン・完了（**実装・要件の主作成なし**） |
+| analytics-requirements-writer | dept_work | 分析要件書 · リリース/KPI レポート |
+| data-architect | dept_work | データモデル · SLA |
+| data-engineer | dept_work | ETL/ELT パイプライン |
+| data-steward | dept_work | 品質 · カタログ · コンプライアンス |
+| data-analyst | dept_work | 探索 · BI · インサイト |
+| data-scientist | dept_work | モデル開発 · モデルカード |
+| ml-engineer | dept_work | デプロイ · 監視（**production_gate 後**） |
+| analysis-reviewer | dept_review | 各フェーズ review · 本番ゲート |
+
+---
+
+## delivery profile
+
+| profile | 用途 |
+|---------|------|
+| **`full`** | 要件 → 本番デプロイまで（既定） |
+| **`model-serve`** | 推論 API/モデル — 開発が consume |
+| **`insights`** | ダッシュボード・探索のみ |
+| **`catalog`** | カタログ · SLA · ガバナンス |
+| **`lite`** | 小さなカタログ/ルール更新 |
+
+選定ガイド: [`analytics-pm-assignment.md`](analytics-pm-assignment.md) § profile 選定ガイド
 
 ---
 
@@ -20,121 +49,116 @@ workflow: [`workflows/analysis-delivery.yaml`](../../workflows/analysis-delivery
 | 来源 | 形式 |
 |------|------|
 | task-dispatcher | `DispatchRequest`（`department: analysis`） |
-| Asana | 子タスク **notes**（背景・概要・完了条件） |
+| Asana | 子タスク **notes** |
 | Asana（任意） | 親エピック notes |
 
-**読まないもの:** Handoff JSON、PlanReviewResult（チーム間 I/O として禁止）
+**読まないもの:** Handoff JSON、PlanReviewResult
 
 ### 出力
 
 | 形式 | 説明 |
 |------|------|
-| `DeptWorkComplete` | `department: analysis` |
-| Asana | 署名付きコメント + 子タスク完了 |
+| `DeptWorkComplete` | `department: analysis`, `status`, `summary`, **`artifacts[]`** |
+| Asana | `comment_task` → `complete_task` |
 | チーム内成果物 | 下表 |
 
-### 下流チーム向け公開（成果物共有）
+### 下流（開発チーム）向け公開
 
-分析完了時、開発等が **読み取り専用**で利用できるよう以下を残す。
+`model-serve` / `full` で開発がモデル・API を使う場合、完了後に notes へ転記。
 
-| 項目 | 内容 |
-|------|------|
-| `DeptWorkComplete.artifacts[]` | モデルパス・API URL・カタログ・設計書への安定参照 |
-| カタログ / モデルカード | スキーマ・入出力・バージョン・SLA |
-| 変更依頼 | 下流からの変更は **分析チームの子タスク**で受ける（下流が `output/analysis/` を直接編集しない） |
-
-企画・開発 PM は notes の [`## 依存（読み取り専用）`](department-model.md#成果物共有読み取り専用) に転記する。
+テンプレ: [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md#分析--開発)
 
 ---
 
-分析チーム PM 委譲（担当・サブタスク）: [`analytics-pm-assignment.md`](analytics-pm-assignment.md)
+## チーム内 workflow（v2 · profile 別）
+
+### full / model-serve（モデル系）
+
+```
+analytics-pm（intake・profile）
+  → analytics-requirements-writer（requirements）→ analysis-reviewer
+  → data-architect → analysis-reviewer（data_model · SLA 必須）
+  → data-engineer → analysis-reviewer（pipeline）     # catalog/insights で skip
+  → data-steward → analysis-reviewer（data_quality）
+  → data-analyst → analysis-reviewer（insights）      # model-serve で skip
+  → data-scientist → analysis-reviewer（model_eval）  # insights/catalog で skip
+  → analysis-reviewer（production_deploy_gate）       # insights/catalog/lite で skip
+  → ml-engineer → analysis-reviewer（deploy_verification）
+  → analytics-requirements-writer（release）
+  → analytics-pm（DeptWorkComplete）
+```
+
+### insights
+
+要件 → 設計 → ETL → 品質 → **探索** → release（モデル・デプロイなし）
+
+### catalog
+
+要件 → 設計 → **品質/カタログ** → release（ETL・探索・モデル・デプロイなし）
 
 ---
 
-## チーム内 workflow 概要
+## 必須ゲート
 
-```
-L2 task-dispatcher（department=analysis）
-  → L3 analytics-pm（ハブ）
-    → data-architect / data-engineer / data-steward / data-analyst / data-scientist / ml-engineer
-    → analysis-reviewer（各ゲート）
-  → DeptWorkComplete → 統括グループ
-```
+| ゲート | review_kind | failed 時の修正担当（目安） |
+|--------|-------------|---------------------------|
+| `requirements_review_passed` | `analytics_requirements` | analytics-requirements-writer |
+| `data_model_review_passed` | `data_model` | data-architect |
+| `pipeline_review_passed` | `pipeline` | data-engineer |
+| `quality_review_passed` | `data_quality` | data-steward |
+| `exploration_review_passed` | `analysis_insights` | data-analyst |
+| `model_review_passed` | `model_eval` | data-scientist |
+| `production_gate_passed` | `production_deploy_gate` | data-scientist / data-steward |
+| `deploy_verification_passed` | `deploy_verification` | ml-engineer |
 
-## 成果物パス（推奨・別リポジトリ想定）
+`failed` 時: PM が修正サブ新規 → 再 review（[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)）。
 
-| フェーズ | 担当 | 成果物 | 推奨パス例 |
-|----------|------|--------|------------|
-| 要求定義 | analytics-pm | 要件書・受け入れ基準 | `output/analysis/requirements/<task_gid>.md` |
-| データ設計 | data-architect | データモデル・アクセスポリシー | `output/analysis/data-model/<task_gid>.md` |
-| 取り込み | data-engineer | パイプラインコード・CI テスト | `pipelines/<task_gid>/` |
-| 品質 | data-steward | 品質レポート・データカタログ | `output/analysis/catalog/<task_gid>.md` |
-| 探索 | data-analyst | 分析ノート・BI ダッシュボード | `output/analysis/insights/<task_gid>.md` |
-| モデル | data-scientist | モデル評価・モデルカード | `output/analysis/models/<task_gid>/` |
-| デプロイ | ml-engineer | デプロイ済モデル・監視 | `deploy/<task_gid>/` |
-| 価値検証 | analytics-pm | リリースノート・KPI レポート | `output/analysis/releases/<task_gid>.md` |
+### SLA（data_model ゲート）
 
-> 製品コード・パイプライン実体は **別リポジトリ** に置く。本リポジトリは workflow・スキル定義のみ。
+data-architect 成果物に **更新頻度 · 遅延許容 · 可用性 · 鮮度** が無いと `data_model` review は **failed**。
+
+---
+
+## チーム内成果物
+
+| フェーズ | 担当 | 推奨パス |
+|----------|------|----------|
+| 分析要件 | analytics-requirements-writer | `output/analysis/requirements/<task_gid>-requirements.md` |
+| データ設計 | data-architect | `output/analysis/data-model/<task_gid>.md` |
+| パイプライン | data-engineer | 別リポジトリ `pipelines/<task_gid>/` |
+| カタログ | data-steward | `output/analysis/catalog/<task_gid>.md` |
+| インサイト | data-analyst | `output/analysis/insights/<task_gid>.md` |
+| モデル | data-scientist | `output/analysis/models/<task_gid>/` |
+| デプロイ | ml-engineer | 別リポジトリ `deploy/<task_gid>/` |
+| リリース | analytics-requirements-writer | `output/analysis/releases/<task_gid>-release.md` |
+| レビュー | analysis-reviewer | `output/analysis/reviews/` |
+
+`DeptWorkComplete.artifacts[]` には下流が参照する **安定 ID**（パス · API URL · バージョン）を列挙する。
+
+---
+
+## 必須運用
+
+| ルール | 内容 |
+|--------|------|
+| PM 分離 | analytics-pm はワーカー成果物を書かない |
+| PM アサイン | profile に応じたサブタスク分解（[`analytics-pm-assignment.md`](analytics-pm-assignment.md)） |
+| production_gate | ml-engineer 前に必須（該当 profile のみ） |
+| RBAC | data-architect 設計 · data-steward 確認 · 本番データ直接アクセス禁止 |
+| 下流 consume | 開発は notes `## 依存` 経由のみ |
+
+---
 
 ## やらないこと
 
-- Handoff 新規作成（→ 企画チーム）
-- ディスパッチ（→ task-dispatcher）
+- Handoff 新規作成（→ 企画）
+- dispatch（→ 統括グループ）
 - 他チーム成果物の直接編集
 
 ---
 
-## 必須運用ルール
+## 関連
 
-### 1. 契約的 SLA
-
-データ設計（data-architect）成果物に **必ず** 含める:
-
-| 項目 | 説明 |
-|------|------|
-| 更新頻度 | 例: 日次 06:00 JST、リアルタイム 5 分以内 |
-| 遅延許容 | 例: バッチ遅延最大 2 時間、ストリーム lag 最大 10 分 |
-| 可用性目標 | 例: 99.5% / 月 |
-| データ鮮度 | 例: 参照時点から 24 時間以内 |
-
-`analysis-reviewer`（`review_kind: data_model`）は SLA 未記載を **failed** とする。
-
-### 2. 承認ゲート（本番デプロイ前）
-
-`production_deploy_gate`（analysis-reviewer）は **ml-engineer 着手前に必須**:
-
-- `DeployGateResult.quality_approved: true`
-- `DeployGateResult.security_approved: true`
-- `DeployGateResult.sla_compliance: true`
-
-いずれか false → `status: failed`。analytics-pm が **修正サブタスク**を新規作成（[`pm-review-rework-ssot.md`](pm-review-rework-ssot.md)）。
-
-### 3. 監査ログと最小権限
-
-| ルール | 担当 |
-|--------|------|
-| データアクセスはロールベース（RBAC） | data-architect がポリシー設計、data-steward がコンプライアンス確認 |
-| アクセス・変換・デプロイ操作の監査ログ | data-engineer / ml-engineer が実装、data-steward がレビュー |
-| 本番データへの直接アクセス禁止（開発は匿名化/サンプル） | 全ロール共通 |
-
-## レビュー結果
-
-| 種別 | review_kind | スキーマ |
-|------|-------------|----------|
-| 分析チームドキュメント・成果物 | `analytics_requirements` \| `data_model` \| `pipeline` \| `data_quality` \| `analysis_insights` \| `model_eval` | `skills/analysis/analysis-reviewer/schemas/analysis-doc-review-result.v1.schema.json` |
-| 本番デプロイゲート | `production_deploy_gate` | `skills/analysis/analysis-reviewer/schemas/deploy-gate-result.v1.schema.json` |
-| デプロイ検証 | `deploy_verification` | `skills/development/qa-verifier/schemas/verification-result.v1.schema.json` |
-
-共通: `status` は `passed` \| `passed_with_notes` \| `failed`。
-
-## DeptWorkComplete
-
-analytics-pm 完了時は product-manager と同一スキーマ（`department: analysis`）:
-
-[`skills/development/product-manager/schemas/dept-work-complete.v1.schema.json`](../../skills/development/product-manager/schemas/dept-work-complete.v1.schema.json)
-
-## Asana 記録
-
-開発チームと同様: 各ロール完了時に `comment_task.py`（署名付き）→ analytics-pm が `complete_task.py -y` → `DeptWorkComplete`。
-
-契約: [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md)
+- PM: [`skills/analysis/analytics-pm/SKILL.md`](../../skills/analysis/analytics-pm/SKILL.md)
+- 開発 consume: [`development-delivery-io.md`](development-delivery-io.md)
+- bridge: [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md)

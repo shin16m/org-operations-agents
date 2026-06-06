@@ -5,7 +5,7 @@ Usage:
   python tools/cursor_worker_dispatch.py --parent <PM_CHILD_GID> --department development --dry-run
   python tools/cursor_worker_dispatch.py --parent <PM_CHILD_GID> --department development -y
 
-Requires CURSOR_API_KEY for -y. Without it: SKIP exit 0.
+Requires CURSOR_API_KEY for -y when ORG_OPS_ENFORCE_L3B=1 (default).
 """
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ if str(TOOLS) not in sys.path:
 
 from pm_emit_worker_prompt import DEPT_PM, emit_snippet, _run_fetch_assignee, _run_fetch_list  # noqa: E402
 from cursor_sdk_kick import kick_prompt  # noqa: E402
+from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 
 
 def _first_worker_sub(parent: str, department: str) -> tuple[str, str, str] | None:
@@ -51,17 +52,6 @@ def build_worker_prompt(*, parent: str, department: str) -> str | None:
     )
 
 
-def dispatch_cursor(prompt: str) -> int:
-    return kick_prompt(
-        prompt,
-        cwd=ROOT,
-        label="KICK",
-        no_api_key_exit=0,
-        no_sdk_exit=0,
-        hint_manual="use pm_emit_worker_prompt snippet",
-    )
-
-
 def main() -> int:
     p = argparse.ArgumentParser(description="Cursor SDK L3b worker dispatch")
     p.add_argument("--parent", required=True, help="PM child task GID")
@@ -69,6 +59,20 @@ def main() -> int:
     p.add_argument("--dry-run", action="store_true")
     p.add_argument("-y", "--yes", action="store_true")
     args = p.parse_args()
+
+    load_env_from_dotfile()
+    token = get_token()
+    from execution_kick_guard import (  # noqa: WPS433
+        execution_kick_allowed,
+        log_blocked,
+        resolve_epic_for_pm_child,
+    )
+
+    epic_gid = resolve_epic_for_pm_child(args.parent, token)
+    ok, reason = execution_kick_allowed(epic_gid, token)
+    if not ok:
+        log_blocked(epic_gid=epic_gid, tool="cursor_worker_dispatch", reason=reason)
+        return 0
 
     gate_cmd = [
         sys.executable,
@@ -102,7 +106,20 @@ def main() -> int:
     if args.dry_run or not args.yes:
         print("KICK  dry-run  (use -y to execute)")
         return 0
-    return dispatch_cursor(prompt)
+
+    enforce = os.environ.get("ORG_OPS_ENFORCE_L3B", "1").strip().lower() not in (
+        "0",
+        "false",
+        "no",
+    )
+    return kick_prompt(
+        prompt,
+        cwd=ROOT,
+        label="KICK",
+        no_api_key_exit=2 if enforce else 0,
+        no_sdk_exit=2 if enforce else 0,
+        hint_manual="use pm_emit_worker_prompt snippet",
+    )
 
 
 if __name__ == "__main__":

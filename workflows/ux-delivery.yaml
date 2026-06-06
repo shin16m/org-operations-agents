@@ -1,8 +1,8 @@
-# UX department workflow v1 — one instance per Asana subtask.
-# ux-pm hub; experience design before downstream development full-ui consume.
+# UX department workflow v2 — one instance per Asana subtask.
+# ux-pm hub; Figma-first visual design before downstream development full-ui consume.
 id: ux-delivery
-version: "1"
-description: PM-led UX delivery (experience spec → design system → review → publish artifacts)
+version: "2"
+description: PM-led UX delivery (Figma UI → design system → quality gates → publish artifacts)
 
 policy:
   scope: single_subtask
@@ -12,40 +12,59 @@ policy:
   assignment_doc: docs/design/ux-pm-assignment.md
   dispatch_prompt_ssot: docs/design/dispatch-prompt-ssot.md#ux
   review_rework_ssot: docs/design/pm-review-rework-ssot.md
+  artifact_bridge_doc: docs/design/cross-team-artifact-bridge.md
   pm_role: orchestrate_only
 
 steps:
   - id: pm_intake
     agent: ux-pm
-    role: 子 notes を読み、必要タスクを洗い出し、サブタスク作成と担当アサイン（必須）
+    role: 子 notes を読み、delivery profile を決定し、サブタスク作成と担当アサイン（必須）
 
   - id: pm_assign
     agent: ux-pm
-    role: pm_assign_subtasks / update_task_notes で各サブに 担当: を設定
+    role: pm_assign_subtasks / update_task_notes で各サブに profile・担当: を設定
 
   - id: pm_review_gate
-    agent: ux-pm
-    role: create_pm_review_gate → 人間 complete → check_pm_review_gate exit 0 まで L3b dispatch 禁止
+    agent: "{department}-pm"
+    role: "opt-in のみ create_pm_review_gate → 人間 complete → check exit 0。デフォルトは省略して L3b へ"
+    optional: true
+    when: human_review_gate
 
-  - id: ux_design
+  - id: ux_visual_design
     agent: ux-designer
-    role: 委譲サブタスク上で体験設計書または Design System を作成
-    artifact: ux-spec
+    role: Figma で画面 UI（flagship は複数案→選定案）。companion ux-spec.md
+    artifact: figma-ui
+    skip_when_profile: lite
+
+  - id: design_quality_review
+    agent: ux-reviewer
+    role: ビジュアル品質・魅力・一貫性の批評ゲート
+    review_kind: design_quality
+    gate_after: design_quality_passed
+    skip_when_profile: lite
+
+  - id: design_system_build
+    agent: design-system-owner
+    role: Figma DS（変数・コンポーネント）+ design-system.md。任意 Code Connect
+    artifact: design-system
+    skip_when_profile: lite
 
   - id: ux_spec_review
     agent: ux-reviewer
-    role: 委譲サブタスク上で体験設計・a11y・要件充足レビュー
+    role: IA・a11y・要件充足・DS 整合の仕様レビュー
     review_kind: ux_spec
-    gate_after: ux_review_passed
+    gate_after: ux_spec_passed
 
   - id: pm_publish
     agent: ux-pm
-    role: DeptWorkComplete（artifacts[]）・notes 用参照を確定
+    role: DeptWorkComplete（artifacts[] に md + Figma URL）・下流参照を確定
 
   - id: pm_complete
     agent: ux-pm
     role: comment_task → complete_task -y
 
 gates:
-  ux_review_passed:
+  design_quality_passed:
+    description: UxReviewResult status passed*（review_kind design_quality）。lite では N/A
+  ux_spec_passed:
     description: UxReviewResult status passed*（review_kind ux_spec）
