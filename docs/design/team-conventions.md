@@ -120,7 +120,7 @@ legacy `課:` 行も読取可。新規投入は `チーム:` を使う（[`hando
 |------|----------|
 | 入力 | `DispatchRequest`、企画子 notes、親 notes（bootstrap は統括が Asana 反映済み） |
 | チーム内成果物 | `output/planning/handoff/*.json`、`output/planning/plan-review/*.json` |
-| 必須ゲート | `review_passed`（plan-reviewer）→ `handoff_approved`（planning-pm・**人間**） |
+| 必須ゲート | `review_passed`（plan-reviewer）→ `handoff_approved`（planning-pm。デフォルトは同一セッション可 · opt-in 時のみ**人間**【承認】必須） |
 | bootstrap | review **なし**で親 + 企画子 1 件 |
 | 本番 sync | `--require-review-result` + `--if-not-exists`（既存親は sync） |
 | PM 完了 | comment → complete → `DeptWorkComplete` |

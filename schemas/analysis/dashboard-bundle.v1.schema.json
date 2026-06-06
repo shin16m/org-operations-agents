@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/schemas/analysis/dashboard-bundle.v1.schema.json",
+  "title": "DashboardBundle",
+  "description": "Machine-readable bundle for analysis insights → full-ui dashboard consume (v1.0).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "meta",
+    "top_factors",
+    "conditions",
+    "insights",
+    "signatures",
+    "source_artifacts"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "analysis_child_gid", "generated_at", "data_version"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1 },
+        "analysis_child_gid": {
+          "type": "string",
+          "pattern": "^[0-9]+$"
+        },
+        "generated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "data_version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Synthetic or production dataset version label."
+        },
+        "locale": {
+          "type": "string",
+          "default": "ja-JP"
+        }
+      }
+    },
+    "top_factors": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["rank", "name", "impact"],
+        "properties": {
+          "rank": { "type": "integer", "minimum": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "impact": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Normalized importance 0–1 for dashboard ranking."
+          },
+          "metric": { "type": "string" },
+          "value": { "type": "string" },
+          "evidence": { "type": "string" },
+          "evidence_id": {
+            "type": "string",
+            "pattern": "^EVD-[0-9]{2}$",
+            "description": "Link to evidence_charts[].id for dashboard drill-down."
+          }
+        }
+      }
+    },
+    "evidence_charts": {
+      "type": "array",
+      "description": "Machine-readable chart data backing top_factors and insights.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "chart_type", "labels", "values", "linked_to"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^EVD-[0-9]{2}$"
+          },
+          "title": { "type": "string", "minLength": 1 },
+          "chart_type": {
+            "type": "string",
+            "enum": ["bar", "comparison"]
+          },
+          "labels": {
+            "type": "array",
+            "minItems": 2,
+            "items": { "type": "string", "minLength": 1 }
+          },
+          "values": {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "NG rate in percent."
+            }
+          },
+          "sample_sizes": {
+            "type": "array",
+            "items": { "type": "integer", "minimum": 0 }
+          },
+          "baseline": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Overall NG rate (%) for reference line."
+          },
+          "caption": { "type": "string" },
+          "source_section": { "type": "string" },
+          "linked_to": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind"],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": ["top_factor", "insight_known", "insight_unknown"]
+              },
+              "rank": { "type": "integer", "minimum": 1 },
+              "index": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "conditions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["parameter", "recommended_range"],
+        "properties": {
+          "parameter": { "type": "string", "minLength": 1 },
+          "recommended_range": { "type": "string", "minLength": 1 },
+          "alert": { "type": "string" },
+          "unit": { "type": "string" }
+        }
+      }
+    },
+    "insights": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["known", "unknown"],
+      "properties": {
+        "known": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "unknown": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "summary_markdown": {
+          "type": "string",
+          "description": "Optional short markdown summary for dashboard panel."
+        }
+      }
+    },
+    "signatures": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "label", "series_key", "template_points"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^SIG-[0-9]{2}$"
+          },
+          "label": { "type": "string", "minLength": 1 },
+          "series_key": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Chip timeseries field name, e.g. impedance_ohm."
+          },
+          "template_points": {
+            "type": "array",
+            "minItems": 2,
+            "items": { "type": "number" }
+          },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "source_artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "path"],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": ["insights", "charts", "models", "catalog", "data-model", "other"]
+          },
+          "path": { "type": "string", "minLength": 1 },
+          "version": { "type": "string" },
+          "gid": { "type": "string", "pattern": "^[0-9]+$" }
+        }
+      }
+    }
+  }
+}

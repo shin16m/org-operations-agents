@@ -1,0 +1,29 @@
+{
+  "parent_title": "【3/4・UX】FCB ダッシュボード v2 UI 設計",
+  "subtasks": [
+    {
+      "name": "【3-1】UX spec v2（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "summary": "`output/ux/specs/1215466399477493-ux-spec-v2.md`",
+      "done_when": "時系列チャート・selector・Top3・予兆バッジ・チェックリスト定義。"
+    },
+    {
+      "name": "【3-2】運用チェックリスト（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "summary": "`output/ux/checklists/1215466399477493-ops-checklist.md`",
+      "done_when": "1 枚チェックリスト完成。"
+    },
+    {
+      "name": "【3-3】仕様 review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "review_kind: ux_spec",
+      "done_when": "passed*"
+    }
+  ]
+}

@@ -49,7 +49,7 @@ workflow: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery
 planning-pm（intake）
   → issue-story-planner（Handoff JSON）
   → plan-reviewer（PlanReviewResult・必須）
-  → planning-pm（gate・人間承認）
+  → planning-pm（gate — 直接チャットは同一セッション可 · Asana ドリブンは人間承認）
   → asana-buddy（sync）
   → planning-pm（complete）
 ```
@@ -69,7 +69,7 @@ planning-pm（intake）
 | ゲート | 条件 |
 |--------|------|
 | `review_passed` | `PlanReviewResult.status` が `passed` / `passed_with_notes` |
-| `handoff_approved` | planning-pm（pm_gate）で人間承認 |
+| `handoff_approved` | planning-pm（pm_gate）。**デフォルト:** 要約提示後同一セッションで可。**opt-in:** 【承認】サブ complete 必須（[`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)） |
 
 ---
 

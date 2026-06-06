@@ -1,0 +1,51 @@
+{
+  "parent_title": "【1/2・UX】ウエハマップ チップ詳細 UI 再設計（blocking）",
+  "profile": "standard",
+  "subtasks": [
+    {
+      "name": "【1/2-1】チップ詳細レイアウト 2+案（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "v4 ドロワーはマップ空間文脈を遮る。ウエハマップ画面に限定し、オーバーレイ以外の詳細表示パターンを比較する。",
+      "summary": "分割ビュー・ボトムシート・改良ドロワーの 3 案を Figma / companion spec で提示。推奨案と選定理由を記録。",
+      "done_when": "3 案の比較表 · 推奨案 A のワイヤー · 状態遷移（選択/切替/閉じる）が ux-spec に記載。"
+    },
+    {
+      "name": "【1/2-2】design quality review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "review_kind: design_quality",
+      "summary": "チップ詳細レイアウト案の魅力・一貫性・意図の明確さを批評。",
+      "done_when": "UxReviewResult design_quality が passed 以上。"
+    },
+    {
+      "name": "【1/2-3】チップ詳細 DS 差分（design-system-owner）",
+      "assignee": "design-system-owner",
+      "department": "ux",
+      "status": "assigned",
+      "background": "推奨案 A（分割パネル）のコンポーネント定義。v4 DS ベース。",
+      "summary": "ChipDetailPanel · ParamTable · SeriesTabs のトークン・寸法を design-system 差分に追記。",
+      "done_when": "developer が consume 可能な ChipDetailPanel 仕様が DS 差分に存在。"
+    },
+    {
+      "name": "【1/2-4】ux-spec 追記（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "ウエハマップ画面 § のチップ詳細を v4 spec から独立追記。",
+      "summary": "`output/ux/specs/1215467311598187-ux-spec-chip-detail.md` — IA 差分 · 画面仕様 · a11y · キーボード。",
+      "done_when": "フロー · 画面仕様 · a11y · Before/After（ドロワー→分割パネル）が含まれる。"
+    },
+    {
+      "name": "【1/2-5】仕様 review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "review_kind: ux_spec",
+      "summary": "ux-spec 追記と DS 差分を検証。",
+      "done_when": "UxReviewResult ux_spec が passed 以上。"
+    }
+  ]
+}

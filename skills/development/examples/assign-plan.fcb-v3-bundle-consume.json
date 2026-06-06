@@ -1,0 +1,38 @@
+{
+  "parent_title": "【2/2・開発】FCB v3 bundle consume",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【1】要件（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/requirements/1215467310080710-requirements.md`",
+      "done_when": "v3 bundle consume・鮮度表示・旧定数除去が記載されている。"
+    },
+    {
+      "name": "【2】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "bundle 再生成・serve.py パス・app.js v3 整合",
+      "done_when": "分析サマリーに v3 known/unknown 表示。TOOL-03 固有ヒューリスティック除去。"
+    },
+    {
+      "name": "【3】接続検証（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: mismatch",
+      "done_when": "Top3・known/unknown が bundle と一致。"
+    },
+    {
+      "name": "【4】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/specs/1215467310080710-spec.md`",
+      "done_when": "as-built 記載。"
+    }
+  ]
+}

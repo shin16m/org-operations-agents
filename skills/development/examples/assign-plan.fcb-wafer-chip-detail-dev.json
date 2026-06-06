@@ -1,0 +1,23 @@
+{
+  "parent_title": "【2/2・開発】ウエハマップ チップ詳細 UI 実装",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【2/2-1】分割パネル実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "UX 推奨案 A: ドロワーを #view-wafer 内の右固定パネルに置換。データ API 不変。",
+      "summary": "`output/development/app/fcb-dashboard/` — index.html / styles.css / app.js を分割パネル化。",
+      "done_when": "マップ 55%+ 視認 · 連続クリックで詳細切替 · Escape/× で閉じる · serve.py 再起動で確認。"
+    },
+    {
+      "name": "【2/2-2】QA 検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "summary": "受け入れ基準（マップ視認・連続探索・a11y Escape）の検証。",
+      "done_when": "passed*"
+    }
+  ]
+}

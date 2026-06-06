@@ -1,0 +1,29 @@
+{
+  "parent_title": "【3/3・開発】refresh API --refresh-exploration",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【1】serve.py refresh 全段統合（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "--refresh-exploration · API レスポンス拡張 · README",
+      "done_when": "POST /api/refresh-insights が exploration_path を返す。"
+    },
+    {
+      "name": "【2】mismatch review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: mismatch",
+      "done_when": "passed"
+    },
+    {
+      "name": "【3】QA（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "done_when": "passed"
+    }
+  ]
+}

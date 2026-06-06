@@ -38,6 +38,19 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 - `fix_target: document` → PM が **requirements-writer 向け修正サブ**を新規作成
 - `fix_target: code` → PM が **developer 向け修正サブ**を新規作成
 
+### full-ui + 分析連携時の追加観点（`review_kind: mismatch` または接続検証サブ）
+
+notes `## 依存` に DashboardBundle がある場合、以下を **3 件以上**確認する（[`development-delivery-io.md`](../../../docs/design/development-delivery-io.md) チェックリスト）:
+
+| # | 観点 | failed 条件の例 |
+|---|------|----------------|
+| 1 | **Top3 因子名一致** | 画面 Top3 の名称が `top_factors[].name` と不一致 |
+| 2 | **insights 一致** | `insights.known` / `unknown` の件数または文言が画面と乖離 |
+| 3 | **定数残存なし** | `app.js` 等に `const TOP3` / `SIG_TEMPLATE` 等の分析値ハードコードが残存 |
+| 4 | **鮮度メタ** | `meta.generated_at` が UI に未表示 |
+
+`fix_target: code` を基本とする。要件書自体の不足は `document`。
+
 `status: passed*` のとき **署名コメント**（`comment_task.py --agent dev-reviewer`）を投稿して PM へ提出。  
 `status: failed` も review 作業完了として PM へ提出。PM が修正サブを追加（[`pm-review-rework-ssot.md`](../../../docs/design/pm-review-rework-ssot.md)）。**完了タスクの `--undo` は行わない。**
 

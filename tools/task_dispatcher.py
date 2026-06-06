@@ -17,8 +17,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 ASANA_OPT = ROOT / "skills/platform/asana-buddy/optional"
+ORG_OS_SRC = ROOT / "products/org-os/src"
 TOOLS = ROOT / "tools"
-for p in (str(ASANA_OPT), str(TOOLS)):
+for p in (str(ASANA_OPT), str(ORG_OS_SRC), str(TOOLS)):
     if p not in sys.path:
         sys.path.insert(0, p)
 

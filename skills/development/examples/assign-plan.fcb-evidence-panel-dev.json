@@ -1,0 +1,22 @@
+{
+  "parent_title": "【4/4・開発】FCB ダッシュボード — 根拠表示実装（full-ui）",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【1】根拠パネル実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "evidence_charts consume · Top3/インサイトクリック · 右パネル棒グラフ。",
+      "done_when": "localhost:8766 で根拠パネル動作確認済み。"
+    },
+    {
+      "name": "【2】QA 検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "summary": "bundle と画面の因子名・NG率一致 · 根拠パネル UX spec 受け入れ。",
+      "done_when": "passed"
+    }
+  ]
+}

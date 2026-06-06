@@ -37,6 +37,7 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 | Asana | 子タスク **notes** | 背景・概要・完了条件（`## 背景` 等） |
 | Asana（任意） | 親エピック notes | エピック全体の文脈 |
 | UX チーム（full-ui） | notes **`## 依存（読み取り専用）`** | UX 仕様 · **Figma URL** · Design System への参照 |
+| 分析チーム（full-ui + insights） | notes **`## 依存（読み取り専用）`** | **DashboardBundle JSON** · 生データパス（[`insights-dashboard-consume-io.md`](insights-dashboard-consume-io.md)） |
 
 **読まないもの:** Handoff JSON、PlanReviewResult、企画チーム `output/planning/`（workflow 入力として）
 
@@ -124,6 +125,19 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 | UX consume | full-ui は UX artifact（Figma 含む）を read-only。変更は UX チーム子タスクで |
 | tech-designer | full-ui 時は UX 仕様・Figma node を設計書に引用 |
 | artifact bridge | UX/分析→開発: [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md) |
+
+### full-ui + 分析連携チェックリスト（insights 子完了時）
+
+`profile: full-ui` かつ同一 Epic に **分析 `profile: insights` 子が完了**している場合、product-manager intake 前に確認する。
+
+| # | 項目 | 確認方法 |
+|---|------|----------|
+| 1 | **分析 JSON consume 必須** | notes `## 依存` に `output/analysis/bundles/<gid>-dashboard-bundle.json` が記載されている |
+| 2 | **定数コピー禁止** | 要件書に「Top3・加工条件・SIG は bundle から読み込み」と明記。`app.js` に `const TOP3` 等の分析値ハードコードを禁止 |
+| 3 | **鮮度表示必須** | UI に `meta.generated_at` / `meta.data_version` を表示する要件がある |
+| 4 | **接続検証サブ** | assign plan に bundle 一致検証（dev-reviewer / qa-verifier）が含まれる（例: [`assign-plan.insights-dashboard-v1.json`](../../skills/development/examples/assign-plan.insights-dashboard-v1.json)） |
+
+不足時は analytics-pm または企画経由で差し戻し。詳細: [`insights-dashboard-consume-io.md`](insights-dashboard-consume-io.md) · [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md#insights--full-ui-ダッシュボードprofile-insights-連携)
 
 ---
 

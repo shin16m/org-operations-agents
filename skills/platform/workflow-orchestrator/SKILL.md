@@ -27,13 +27,22 @@
 **最初の 1 手（相談・機能追加・組織変更すべて共通）:**
 
 1. 利用者の **生課題** を受け取る — **自然言語** または **Asana タスク URL / GID**（`intake-asana`）
-2. **方針を一言で示す** — 「intake → triage → bootstrap → 企画 Handoff/review → gate 承認後に execution 系へ」と伝える
-3. `WorkflowSession` を初期化（`current_step_id: intake`）
+2. **方針を一言で示す** — 「intake → triage → bootstrap → 企画 Handoff/review → Asana 投入 → execution 系へ」と伝える（**デフォルト**では planning gate の人間承認フローを省略し同一セッションで進める）
+3. `WorkflowSession` を初期化（`current_step_id: intake` · **`intake_mode: natural_language`**（既定）または `asana_task`）
 4. **bootstrap 用最小 Handoff** を生成（親エピック + `department: planning` の企画子 1 件）
 5. **bootstrap → dispatch まで同一セッションで進める**（利用者に別チャット起動を求めない）
 6. 企画チーム（[`planning-pm`](../../planning/planning-pm/SKILL.md)）へ dispatch 委譲
 
-**intake-asana（Asana タスク起点）:**
+**planning gate（デフォルト opt-out · 全 intake 経路）:**
+
+| モード | planning gate |
+|--------|---------------|
+| **デフォルト** | Handoff 要約提示後 **同一セッションで `asana_execute`**（【承認】サブ・`--record-wait` 不要） |
+| **opt-in**（`human_planning_approval` 等） | `create_planning_approval_gate.py` + `--record-wait` → セッション終了 → RESUME 後 `asana_execute`（§H） |
+
+`intake_mode`（`natural_language` / `asana_task`）は gate デフォルトに影響しない。
+
+**intake-asana（Asana タスク起点 · `intake_mode: asana_task`）:**
 
 1. `python tools/intake_from_asana.py --task <url|gid> [--out output/platform/intake/<gid>-snapshot.json]`
 2. **triage:** `python tools/intake_triage.py --snapshot ...` → `output/platform/triage/<gid>-epic-input.json`（title · priority · skill_tags）
@@ -79,12 +88,12 @@ Intake は `asana_ops_poller`（`--auto-bootstrap`）の CANDIDATE 条件。Epic
 python tools/check_epic_audit_gate.py --parent <親GID> --handoff output/planning/handoff/<handoff>.json
 ```
 
-exit 0 を確認してから **レトロ集約 · intake 承認**（[`task-retrospective-ssot.md`](task-retrospective-ssot.md)）:
+exit 0 を確認してから **レトロ集約 · intake 起票**（[`task-retrospective-ssot.md`](task-retrospective-ssot.md)）:
 
 ```powershell
 python tools/aggregate_epic_retrospective.py --parent <親GID>
 python tools/create_retrospective_intake_gate.py --parent <親GID> --retro output/platform/retrospectives/<親GID>-epic-retro.json -y
-# 依頼者が【承認】レトロ改善候補 を Asana UI で complete
+# デフォルト SKIP（gate 無し）。opt-in 時のみ依頼者が【承認】レトロ改善候補 を Asana UI で complete
 python tools/check_retrospective_intake_gate.py --parent <親GID>
 python tools/create_retrospective_intake_tasks.py --parent <親GID> --retro output/platform/retrospectives/<親GID>-epic-retro.json -y
 ```
@@ -209,21 +218,24 @@ python tools/cursor_intake_dispatch.py --task <SOURCE_GID> -y
 
 **gate 到達時は必ず `--record-wait`**（ダッシュボード WAIT）。planning 【承認】/ PM 【レビュー】作成だけでは反映されない。詳細チェックリスト: **§H**。
 
-### H. gate 到達時必須チェックリスト（`--record-wait` · 省略禁止）
+### H. gate 到達時必須チェックリスト（`--record-wait` · opt-in 時のみ）
 
-Orchestrator が planning gate または PM review gate に到達し、**人間承認待ちでセッションを終了する前**に以下をすべて実施する。【承認】/【レビュー】サブ作成**のみ**ではダッシュボード WAIT に載らない（[`asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md)）。
+**適用範囲:** planning gate または PM review gate を **opt-in** で有効化した場合のみ。**デフォルト（opt-out）では本節は適用しない** — plan-reviewer 通過後に同一セッションで `handoff_to_asana.py` まで進める。
 
-#### planning gate（`handoff_approved` 待ち）
+Orchestrator が opt-in gate に到達し、**人間承認待ちにセッションを終了する前**に以下をすべて実施する。【承認】/【レビュー】サブ作成**のみ**ではダッシュボード WAIT に載らない（[`asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md)）。
+
+#### planning gate opt-in（`handoff_approved` 待ち）
 
 | # | チェック | 確認 |
 |---|----------|------|
 | 1 | `PlanReviewResult` = `passed` / `passed_with_notes` | `output/planning/plan-review/*.json` |
 | 2 | Handoff 要約を利用者へ提示 | planning-pm gate |
-| 3 | 【承認】サブ GID · URL を控える | Asana（ドリブン運用時） |
+| 3 | `create_planning_approval_gate.py` で【承認】サブ GID · URL を控える | opt-in トリガー確認済み |
 | 4 | **`--record-wait` 実行** | 下記コマンド |
 | 5 | セッション終了 | `handoff_to_asana --require-review-result` は **RESUME 後** |
 
 ```powershell
+python tools/create_planning_approval_gate.py --parent <親GID> --handoff <path> --require-human-approval -y
 python tools/asana_ops_poller.py --record-wait <親GID> <【承認】サブGID> <承認サブURL>
 ```
 
@@ -253,11 +265,13 @@ python tools/check_workflow_suspend.py --all --require-resumable
 
 **やらないこと:** gate サブ作成のみで `--record-wait` を省略してセッション終了すること。
 
-**planning gate 追加禁止（intake-asana · Asana ドリブン）:**
+**planning gate opt-in 時の禁止:**
 
 - Handoff 要約提示後、**チャット「承認待ち」だけで止める**（【承認】サブ + `--record-wait` 未実施）
-- 利用者のチャット「承認」を **gate 到達時の代替** とみなす（RESUME 前の `handoff_to_asana` 実行）
-- planning-pm が `create_approval_subtask` / `--record-wait` を planning-pm または orchestrator いずれかが省略
+- 利用者のチャット「承認」を **opt-in gate 到達時の代替** とみなす（RESUME 前の `handoff_to_asana` 実行）
+- planning-pm が `create_planning_approval_gate` / `--record-wait` を省略
+
+**デフォルト（opt-out）:** plan-reviewer 通過後は要約提示のうえ同一セッションで `handoff_to_asana.py --require-review-result` を実行する。
 
 ## 現段階 ID（default v3）
 

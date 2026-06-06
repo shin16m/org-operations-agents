@@ -1,0 +1,30 @@
+{
+  "parent_title": "【1/4・分析】FCB 時系列合成データ生成",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【1-1】時系列スキーマ更新（data-architect）",
+      "assignee": "data-architect",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/data-model/1215466399377173-timeseries.md`",
+      "done_when": "chip_timeseries スキーマ・chip_quality との FK 記載。"
+    },
+    {
+      "name": "【1-2】時系列 CSV 生成（data-engineer）",
+      "assignee": "data-engineer",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/data/fcb-synthetic/chip_timeseries.csv`",
+      "done_when": "12,000 チップ × 100 step の CSV と生成スクリプト。"
+    },
+    {
+      "name": "【1-3】パイプライン review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: pipeline",
+      "done_when": "passed*"
+    }
+  ]
+}

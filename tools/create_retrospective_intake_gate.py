@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
-"""Create epic retrospective intake approval gate subtask.
+"""Create epic retrospective intake approval gate subtask (opt-in).
+
+By default (opt-out) no gate sub is created. Enable with:
+  --require-human-approval
+  retro JSON \"human_retro_intake_gate\": true
+  env ORG_OPS_RETRO_INTAKE_GATE=1
+  epic notes: human_retro_intake_gate: yes
 
 Usage:
   python tools/create_retrospective_intake_gate.py --parent <EPIC_GID> --retro <epic-retro.json> -y
+  python tools/create_retrospective_intake_gate.py --parent <GID> --retro retro.json --require-human-approval -y
 """
 from __future__ import annotations
 
@@ -13,9 +20,18 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
 OPTIONAL = ROOT / "skills/platform/asana-buddy/optional"
-MARKER = "【承認】"
-TITLE = f"{MARKER}レトロ改善候補 → intake 起票"
+for p in (str(TOOLS), str(OPTIONAL)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
+
+from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
+from asana_program_common import console_safe  # noqa: E402
+from retrospective_intake_gate_util import (  # noqa: E402
+    GATE_TITLE,
+    human_retro_intake_gate_requested,
+)
 
 
 def _notes_from_retro(retro_path: Path) -> str:
@@ -50,14 +66,39 @@ def _notes_from_retro(retro_path: Path) -> str:
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(description="Create retrospective intake approval gate")
+    p = argparse.ArgumentParser(description="Create retrospective intake approval gate (opt-in)")
     p.add_argument("--parent", required=True)
     p.add_argument("--retro", type=Path, required=True)
+    p.add_argument(
+        "--require-human-approval",
+        action="store_true",
+        help="Force create human 【承認】 gate",
+    )
     p.add_argument("-y", action="store_true")
     args = p.parse_args()
 
     notes_path = args.retro.with_suffix(".intake-gate-notes.md")
     notes_path.write_text(_notes_from_retro(args.retro), encoding="utf-8")
+
+    token = None
+    if args.y:
+        load_env_from_dotfile()
+        token = get_token()
+
+    if not human_retro_intake_gate_requested(
+        args.retro,
+        args.parent,
+        token,
+        cli_flag=args.require_human_approval,
+    ):
+        print(
+            console_safe(
+                "SKIP  retro_intake_gate  reason=opt_out_default  "
+                "(use --require-human-approval | retro human_retro_intake_gate | "
+                "ORG_OPS_RETRO_INTAKE_GATE=1 | epic notes human_retro_intake_gate: yes)"
+            )
+        )
+        return
 
     cmd = [
         sys.executable,
@@ -65,7 +106,7 @@ def main() -> None:
         "--parent",
         args.parent,
         "--title",
-        TITLE,
+        GATE_TITLE,
         "--notes-file",
         str(notes_path),
     ]

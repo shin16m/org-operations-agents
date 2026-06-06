@@ -27,10 +27,10 @@
 ```
 check_epic_audit_gate exit 0
   → aggregate_epic_retrospective.py
-  → create_retrospective_intake_gate.py（【承認】サブ · 候補一覧）
-  → 【停止】依頼者が Asana UI で complete（エージェント禁止）
-  → check_retrospective_intake_gate.py exit 0
-  → create_retrospective_intake_tasks.py（承認済み候補のみ）
+  → create_retrospective_intake_gate.py（**opt-in のみ**【承認】サブ · 候補一覧）
+  → **opt-in 時:** 依頼者が Asana UI で complete（エージェント禁止）
+  → check_retrospective_intake_gate.py exit 0（gate 無しも 0）
+  → create_retrospective_intake_tasks.py（承認済み候補のみ · デフォルトは全候補）
   → comment_epic_summary.py → complete 親
 ```
 
@@ -56,10 +56,19 @@ Phase 2: assign plan への [retro] 自動同梱。
 
 [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md) — ワーカー complete 前に `## レトロスペクティブ`（3 項目テンプレ）。
 
-## 依頼者承認（intake 起票）
+## 依頼者承認（intake 起票 · opt-in）
+
+**デフォルト:** gate 無しで `create_retrospective_intake_tasks.py` が全候補を起票可。
+
+**opt-in トリガー（いずれか）:**
+
+- `create_retrospective_intake_gate.py --require-human-approval`
+- retro JSON `human_retro_intake_gate: true`
+- env `ORG_OPS_RETRO_INTAKE_GATE=1`
+- epic notes `human_retro_intake_gate: yes`
 
 - マーカー: `【承認】レトロ改善候補 → intake 起票`
-- 未承認候補は Asana タスク化しない（epic-retro JSON にのみ残す）
+- opt-in 時、未承認候補は Asana タスク化しない（epic-retro JSON にのみ残す）
 - intake タスク notes に `## 依頼者コメント`（承認時の依頼者記入を反映）
 
 ## CLI 一覧

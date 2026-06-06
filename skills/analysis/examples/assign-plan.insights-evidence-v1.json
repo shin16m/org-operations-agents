@@ -1,0 +1,33 @@
+{
+  "parent_title": "【2/4・分析】DashboardBundle 根拠メタ拡張（insights profile）",
+  "profile": "insights",
+  "subtasks": [
+    {
+      "name": "【1】根拠チャート付き bundle 生成（data-analyst）",
+      "assignee": "data-analyst",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "Top 因子・インサイトごとに NG 率比較チャートと出典を bundle に構造化する。",
+      "summary": "schema 拡張（evidence_charts）· generate_dashboard_bundle.py 更新 · charts.md · bundle JSON 出力。",
+      "done_when": "1215467180315066-dashboard-bundle.json が evidence_charts を含み、CSV 集計と一致。"
+    },
+    {
+      "name": "【2】bundle schema review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: dashboard_bundle",
+      "summary": "schema 検証と因子・チャート数値の整合チェック。",
+      "done_when": "passed"
+    },
+    {
+      "name": "【3】リリースノート（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "mode=release",
+      "summary": "bundle v1.1 evidence_charts の下流 development / UX 参照を記載。",
+      "done_when": "release.md に bundle パス・新フィールド説明あり。"
+    }
+  ]
+}

@@ -27,8 +27,10 @@ alwaysApply: true
 
 4. **handoff_plan** — Handoff JSON を `output/planning/handoff/*.json` に保存
 5. **plan_review** — `PlanReviewResult` を `output/planning/plan-review/*.json` に保存（省略不可）
-6. **pm_gate** — planning-pm: Handoff 要約提示 → **`create_approval_subtask`（親 epic）→ `asana_ops_poller --record-wait` → セッション終了**（intake-asana / Asana ドリブン時は必須。チャット「承認待ち」のみ禁止）
-7. **asana_execute** — 依頼者が Asana UI で【承認】complete → `approval_helper` → RESUME 後のみ `handoff_to_asana.py --require-review-result`
+6. **pm_gate** — planning-pm: Handoff 要約提示 → **`handoff_approved` 取得**
+   - **デフォルト（全 intake 経路）:** 要約提示後 **同一セッションで `asana_execute` へ**（【承認】サブ・`--record-wait` 不要）
+   - **opt-in**（`human_planning_approval` 等）: **`create_planning_approval_gate.py` → `asana_ops_poller --record-wait` → セッション終了**
+7. **asana_execute** — **デフォルト:** `pm_gate` 直後に `handoff_to_asana.py --require-review-result`。**opt-in:** 依頼者が Asana UI で【承認】complete → `approval_helper` → RESUME 後のみ実行
 
 **gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / governance / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → **`pm_review_gate`（人間）** → L3b worker dispatch）。**PM がワーカー役を代行しない**（実装作業は L3b ワーカーセッション。PM は委譲・集約のみ）。
 
@@ -38,7 +40,7 @@ alwaysApply: true
 
 **L3b 強制:** `ORG_OPS_ENFORCE_L3B=1`（既定）で `cursor_worker_dispatch -y` は API key 必須。PM が複数 worker を同一セッションで完走しない。
 
-**人間ゲート（【レビュー】/【承認】）:** エージェントは `complete_task.py` でこれらのサブを **完了してはならない**（利用者が Asana UI で complete）。チャットの「すすめて」「承認」は planning gate のみ有効で、PM assign review gate の代行にならない。
+**人間ゲート（【レビュー】/【承認】）:** エージェントは `complete_task.py` でこれらのサブを **完了してはならない**（利用者が Asana UI で complete）。**デフォルト**では planning gate の【承認】サブ自体を作らない。**opt-in** 時のみ planning gate の【承認】は Asana UI complete が必須。チャットの「すすめて」「承認」は **planning gate デフォルト（opt-out）** で有効。PM assign review gate は **opt-in 時のみ** Asana UI complete が必須。
 
 **エピック complete 前:** `comment_epic_summary.py` で依頼者向けサマリを親タスクに投稿してから `complete_task.py`。
 
@@ -83,19 +85,20 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 - **gate 承認直後に product-manager / ux-pm / analytics-pm / governance-pm / audit-pm として成果物を直接書く**（→ PM intake + ワーカー dispatch）
 - **PM slug でワーカー作業を comment_task する**（→ 実作業ワーカーの slug）
 - **bootstrap section 失敗後に create モードを再実行して重複親を作る**
-- **intake-asana / Asana ドリブンで planning gate をチャット「承認待ち」のみにする**（→ 【承認】+ `--record-wait` 必須 · workflow-orchestrator §H）
+- **planning gate opt-in 時にチャット「承認待ち」のみにする**（→ 【承認】+ `--record-wait` 必須 · workflow-orchestrator §H）
 
 ## 例外
 
 利用者が **「workflow を省略」「ドキュメントだけ」「Asana 不要」** と明示したときのみ短絡可。
 
-## gate（人間承認）
+## gate（人間承認 · デフォルトバイパス）
 
 - `review_passed` 後、**Asana に execution 系子を反映する前に** planning-pm が Handoff 要約を提示する。
-- **Asana ドリブン（intake-asana · 本番）:** `create_approval_subtask` + `--record-wait` 必須 → セッション終了 → 依頼者が【承認】サブを Asana UI で complete → RESUME 後に `handoff_to_asana.py`。
-- **レガシーフォールバック:** 利用者が workflow 短絡を明示しない限り、チャット「承認」「Asana に投入して」だけでは gate 到達を満たさない。
+- **デフォルト（全 intake 経路）:** 要約提示後 **同一セッションで `handoff_to_asana.py` まで進める**（人間承認フロー省略）。
+- **opt-in planning gate**（`human_planning_approval` 等）: `create_planning_approval_gate.py` + `--record-wait` 必須 → セッション終了 → 依頼者が【承認】サブを Asana UI で complete → RESUME 後に `handoff_to_asana.py`。
+- PM review gate も **opt-in**（`human_review_gate` 等）。詳細: [`docs/design/planning-gate-vs-pm-review-gate.md`](docs/design/planning-gate-vs-pm-review-gate.md)
 - 差し戻しは planner / reviewer を planning-pm が再実行する。
 
 ## 開始時の一言（エージェント）
 
-**和久桶さん / 実装・機能追加・組織変更の依頼**を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、企画 gate で承認を仰ぐ**旨を短く伝える。本体実装・メタ doc 更新は **gate 承認後の execution 系**で進める。
+**和久桶さん / 実装・機能追加・組織変更の依頼**を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、plan-reviewer 通過後に Asana 投入まで同一セッションで進める**旨を短く伝える（デフォルトでは人間承認フロー省略）。本体実装・メタ doc 更新は **`asana_execute` 後の execution 系 dispatch**で進める。

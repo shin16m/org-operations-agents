@@ -9,7 +9,7 @@
 | フィールド | 型 | 説明 |
 |------------|-----|------|
 | `session_id` | string | 任意のセッション識別子（例: UUID または日時） |
-| `intake_mode` | enum? | `natural_language`（既定）\| `asana_task` |
+| `intake_mode` | enum? | `natural_language`（既定）\| `asana_task`。planning gate 分岐の SSOT — **直接チャット**（`natural_language`）は人間承認フロー省略 · **Asana ドリブン**（`asana_task` · watch-auto · auto-intake）は【承認】+ `--record-wait` 必須 |
 | `raw_request` | string | 利用者が intake で渡した生課題（自然言語） |
 | `source_task_gid` | string? | intake-asana 時の Asana タスク GID |
 | `source_task_url` | string? | intake-asana 時の Asana URL |
@@ -66,7 +66,7 @@
 |---------|-------|------|------|
 | `handoff_plan` | issue-story-planner | 生課題 + 子 notes | `AsanaBuddyHandoff` |
 | `plan_review` | plan-reviewer | Handoff 案 | `PlanReviewResult` |
-| `pm_gate` | planning-pm | Handoff + Review | execute 可否 |
+| `pm_gate` | planning-pm | Handoff + Review + `intake_mode` | execute 可否（`natural_language` は同一セッション可 · `asana_task` は【承認】待ち） |
 | `asana_execute` | asana-buddy | 承認済み Handoff | Asana タスク群 |
 | `pm_complete` | planning-pm | — | `DeptWorkComplete` |
 

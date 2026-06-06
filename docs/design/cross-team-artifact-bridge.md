@@ -1,8 +1,8 @@
 # チーム間 artifact bridge — 価値が継ぎ目で落ちないために
 
-| 版 | 1.1 |
+| 版 | 1.2 |
 | 日付 | 2026-06-06 |
-| 焦点 | UX → 開発 · **分析 → 開発** |
+| 焦点 | UX → 開発 · **分析 → 開発** · **insights → full-ui ダッシュボード** |
 
 ## 問題
 
@@ -92,6 +92,40 @@ product-manager が development 子 intake 前に追記する（`profile: full` 
 
 **dryrun 記録:** [`analysis-to-dev-dryrun.md`](../verification/cross-team/analysis-to-dev-dryrun.md) · Handoff 例: [`handoff.analysis-model-serve.json`](../../skills/planning/issue-story-planner/examples/handoff.analysis-model-serve.json)
 
+### insights → full-ui ダッシュボード（`profile: insights` 連携）
+
+分析チーム（`profile: insights`）完了後、開発ダッシュボード（`profile: full-ui`）が **DashboardBundle JSON** を機械 consume する。
+
+契約 SSOT: [`insights-dashboard-consume-io.md`](insights-dashboard-consume-io.md) · スキーマ: [`schemas/analysis/dashboard-bundle.v1.schema.json`](../../schemas/analysis/dashboard-bundle.v1.schema.json)
+
+#### 標準 `## 依存（読み取り専用）`（full-ui + 分析連携）
+
+product-manager が development 子 intake 前に追記する（UX 依存と併記可）。
+
+```markdown
+## 依存（読み取り専用）
+
+| 種別 | 参照 | バージョン | 提供チーム |
+|------|------|------------|------------|
+| DashboardBundle | `output/analysis/bundles/<analysis_child_gid>-dashboard-bundle.json` | v1.0 | analysis |
+| 生データ | `output/analysis/data/<dataset>/chip_quality.csv` | v1.0 | analysis |
+| UX 仕様 | `output/ux/specs/<ux_child_gid>-ux-spec.md` | v1.0 | ux |
+
+**利用条件:** 読み取りのみ。契約変更は分析 / UX チームの子タスクで依頼する。
+**鮮度 SLA:** UI に `meta.generated_at` と `meta.data_version` を表示すること（[`insights-dashboard-consume-io.md`](insights-dashboard-consume-io.md) 参照）。
+```
+
+#### 責務
+
+| 側 | 担当 | 操作 |
+|----|------|------|
+| 提供 | analytics-pm / data-analyst | `DashboardBundle` を `output/analysis/bundles/` に出力し `DeptWorkComplete.artifacts[]` に含める |
+| 消費 | product-manager | 上表を development 子 notes に転記してから着手 |
+| 消費 | developer | Top3・加工条件・insights・SIG を **bundle から描画**（`app.js` 定数コピー禁止） |
+| 検証 | dev-reviewer / qa-verifier | bundle と画面の因子・インサイト一致、定数残存なし（[`development-delivery-io.md`](development-delivery-io.md) チェックリスト） |
+
+**dryrun 記録:** [`insights-to-dashboard-dryrun.md`](../verification/cross-team/insights-to-dashboard-dryrun.md) · Handoff 例: [`handoff.fcb-bonding-defect-analysis.json`](../../output/planning/handoff/handoff.fcb-bonding-defect-analysis.json)
+
 ---
 
 ## Figma MCP の使い方（運用メモ）
@@ -105,5 +139,7 @@ Cursor 環境では Figma MCP スキル（`figma-generate-design` / `figma-gener
 ## 関連
 
 - UX delivery v2: [`ux-delivery-io.md`](ux-delivery-io.md)
+- 分析 insights consume: [`insights-dashboard-consume-io.md`](insights-dashboard-consume-io.md)
 - 開発 full-ui: [`development-delivery-io.md`](development-delivery-io.md)
+- 分析 delivery: [`analysis-delivery-io.md`](analysis-delivery-io.md)
 - 強みの型: [`delivery-strength-pattern.md`](delivery-strength-pattern.md)

@@ -48,7 +48,7 @@ workflow-orchestrator（intake → triage → bootstrap → dispatch）
 | ゲート ID | 条件 | 未達時 |
 |-----------|------|--------|
 | `review_passed` | **`plan-reviewer` 必須。** `PlanReviewResult.status` が `passed` または `passed_with_notes` | `asana_execute` 不可。差し戻しは `handoff_plan` |
-| `handoff_approved` | `review_passed` 済み。**Asana ドリブン（intake-asana）:** 【承認】サブ complete + `approval_helper` → RESUME 後に `handoff_to_asana`。`create_approval_subtask`（**親 epic**）+ `--record-wait` 必須。**チャット承認待ちのみ禁止。** レガシー短絡 intake のみチャット可 | `handoff_to_asana.py` を実行しない |
+| `handoff_approved` | `review_passed` 済み。**opt-out デフォルト（全 intake 経路）:** Handoff 要約提示後 **同一セッションで `handoff_to_asana`**（人間承認フロー省略）。**opt-in:** `create_planning_approval_gate.py`（`human_planning_approval` / `ORG_OPS_PLANNING_APPROVAL_GATE=1` 等）→ 【承認】サブ complete + `approval_helper` → RESUME 後に `handoff_to_asana` + `--record-wait` 必須（[`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)） | `handoff_to_asana.py` を実行しない |
 
 ## asana_execute 後（execution 系 — 必須分離）
 

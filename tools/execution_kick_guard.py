@@ -42,9 +42,8 @@ def execution_kick_allowed(
 ) -> tuple[bool, str]:
     """Return (allowed, reason). reason is ok or BLOCKED detail."""
     from org_os import asana_client  # noqa: WPS433
-    from asana_program_common import fetch_task  # noqa: WPS433
 
-    task = fetch_task(epic_gid, token)
+    task = asana_client.fetch_task(epic_gid, token)
     state = asana_client.read_os_state(task) or ""
     if require_running and state != "Running":
         return False, f"epic_state={state or 'unknown'}"

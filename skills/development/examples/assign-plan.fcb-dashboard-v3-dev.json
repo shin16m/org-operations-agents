@@ -1,0 +1,30 @@
+{
+  "parent_title": "【2/2・開発】FCB ダッシュボード v3 実装ブラッシュアップ（full-ui）",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【2-1】要件（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/requirements/<dev子GID>-requirements-v3.md` — UX v3 spec + DS 差分を転記。",
+      "done_when": "v3 画面要件・受け入れ基準（Before/After）記載。"
+    },
+    {
+      "name": "【2-2】実装ブラッシュアップ（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/app/fcb-dashboard/` — 視覚・ナビ・危険シグナル・チップ詳細・印刷チェックリストを v3 反映。",
+      "done_when": "serve.py 起動・全主要画面動作・v2 比改善が説明可能。"
+    },
+    {
+      "name": "【2-3】検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: verification",
+      "done_when": "passed"
+    }
+  ]
+}

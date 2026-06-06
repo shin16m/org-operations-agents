@@ -353,7 +353,7 @@ def _warn_planning_stuck_without_approval(
         file=sys.stderr,
     )
     print(
-        "WARN  planning_stuck  next=planning-pm Handoff → plan-review → create_approval_subtask",
+        "WARN  planning_stuck  next=planning-pm Handoff → plan-review → handoff_to_asana (or opt-in create_planning_approval_gate)",
         file=sys.stderr,
     )
 

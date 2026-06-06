@@ -38,20 +38,26 @@
 
 - `PlanReviewResult` で `review_passed` を確認（人間目視のみは不可）
 - Handoff 要約（エピック名・子タスク一覧・レビュー status）を利用者に提示
-- **`handoff_approved` を得るまで** `handoff_to_asana.py` を実行しない
+- **`handoff_approved` を得てから** `handoff_to_asana.py` を実行する
 - 差し戻し時は `handoff_plan` / `plan-reviewer` を再実行
 
-### Asana ドリブン planning gate（intake-asana · 本番運用 · 必須）
+### デフォルト（全 intake 経路 · opt-out）
 
-**チャット「承認待ち」のみでセッションを終了してはならない。** 以下を同一セッションで実施する:
+1. Handoff 要約を利用者に提示
+2. **同一セッションで** `handoff_to_asana.py --require-review-result -y --if-not-exists` を実行
+3. 【承認】サブ・`--record-wait` は **作らない**
 
-1. `create_approval_subtask.py --parent <親エピックGID>` — 【承認】サブ（親 `OS State=Waiting` · `Approval Required=Yes` · 人間 assignee）
-2. `asana_ops_poller.py --record-wait <親エピックGID> <【承認】サブGID> <URL>` — SuspendedSession 保存
-3. **セッション終了** — `handoff_to_asana.py` は **RESUME 後**（依頼者が Asana UI で【承認】complete → `approval_helper` → `wakuoke_resume_scan`）
+### opt-in planning gate（評価・監査）
 
-チャットの「承認」「承認した」は **RESUME 後の再開合図** としては有効。**gate 到達時の代替（【承認】サブ省略）は不可。** レガシー手動 intake のみ、利用者が workflow 短絡を明示した場合に限りチャット承認可（[`planning-gate-vs-pm-review-gate.md`](../../../docs/design/planning-gate-vs-pm-review-gate.md)）。
+トリガー（いずれか）: `--require-human-approval` · Handoff `meta.human_planning_approval: true` · env `ORG_OPS_PLANNING_APPROVAL_GATE=1` · epic notes `human_planning_approval: yes`
 
-チェックリスト: [`workflow-orchestrator/SKILL.md`](../../platform/workflow-orchestrator/SKILL.md) **§H**
+1. `create_planning_approval_gate.py --parent <親エピックGID> --handoff <path> -y`
+2. `asana_ops_poller.py --record-wait <親> <【承認】サブGID> <URL>` — SuspendedSession 保存
+3. **セッション終了** — `handoff_to_asana.py` は **RESUME 後**
+
+チャットの「承認」は **opt-in gate の RESUME 後**の再開合図として有効。**opt-in 時に【承認】サブ省略は不可。**
+
+チェックリスト: [`workflow-orchestrator/SKILL.md`](../../platform/workflow-orchestrator/SKILL.md) **§H**（opt-in 時のみ）
 
 ## やらないこと
 

@@ -1,0 +1,33 @@
+{
+  "parent_title": "【分析】DashboardBundle 整備・refresh 対応",
+  "profile": "insights",
+  "subtasks": [
+    {
+      "name": "【1】DashboardBundle 生成（data-analyst）",
+      "assignee": "data-analyst",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "既存 insights / charts / signatures を入力に schema 準拠 bundle を出力。refresh 用再生成スクリプトを同梱。",
+      "summary": "`output/analysis/bundles/<parent_gid>-dashboard-bundle.json` と `output/analysis/bundles/generate_dashboard_bundle.py` を作成。",
+      "done_when": "bundle が schema 必須フィールドを満たし、source_artifacts[] に insights・charts・signatures を列挙。"
+    },
+    {
+      "name": "【2】bundle schema review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: dashboard_bundle",
+      "summary": "`output/analysis/reviews/<parent_gid>-reviews.json` に schema 検証結果を記録。",
+      "done_when": "passed"
+    },
+    {
+      "name": "【3】リリースノート（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "mode=release",
+      "summary": "`output/analysis/releases/<parent_gid>-release.md` に bundle パス・refresh 手順・下流 development 参照を記載。",
+      "done_when": "development 子 notes ## 依存 に転記可能な bundle パスが明記されている。"
+    }
+  ]
+}

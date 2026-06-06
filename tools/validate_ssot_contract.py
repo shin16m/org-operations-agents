@@ -88,6 +88,17 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["pm_review_gate"],
     },
     {
+        "name": "planning approval gate opt-in",
+        "files": [
+            "docs/design/planning-gate-vs-pm-review-gate.md",
+            "docs/design/workflow-io-contract.md",
+            "skills/planning/planning-pm/SKILL.md",
+            ".cursor/rules/workflow-intake-required.mdc",
+        ],
+        "required_any": [],
+        "required_all": ["create_planning_approval_gate", "opt-out", "human_planning_approval"],
+    },
+    {
         "name": "all pm assignment review gate",
         "files": [
             "docs/design/development-pm-assignment.md",

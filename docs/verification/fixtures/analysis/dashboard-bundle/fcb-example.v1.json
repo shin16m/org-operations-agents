@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0",
+  "meta": {
+    "title": "FCB 接合不良 — dashboard bundle（合成データ）",
+    "analysis_child_gid": "1215466399377173",
+    "generated_at": "2026-06-06T06:30:00+00:00",
+    "data_version": "fcb-synthetic-v1",
+    "locale": "ja-JP"
+  },
+  "top_factors": [
+    {
+      "rank": 1,
+      "name": "接合ツール TOOL-03",
+      "impact": 0.28,
+      "metric": "NG率",
+      "value": "25.28%",
+      "evidence": "全体比 6〜7 倍。L003 後半 33.15%"
+    },
+    {
+      "rank": 2,
+      "name": "ロット L002（バンプ高さばらつき）",
+      "impact": 0.22,
+      "metric": "NG率",
+      "value": "12.07%",
+      "evidence": "ウエハ内 σ=8.5μm 設定"
+    },
+    {
+      "rank": 3,
+      "name": "潰れ量異常",
+      "impact": 0.18,
+      "metric": "NG率",
+      "value": "12.70%",
+      "evidence": "<4μm または >12μm"
+    }
+  ],
+  "conditions": [
+    {
+      "parameter": "超音波出力",
+      "recommended_range": "45〜70",
+      "alert": ">75 かつ荷重 <10N",
+      "unit": "%"
+    },
+    {
+      "parameter": "荷重",
+      "recommended_range": "12〜20 N",
+      "alert": "<10N（高超音波時）",
+      "unit": "N"
+    },
+    {
+      "parameter": "温度",
+      "recommended_range": "230〜260 °C",
+      "alert": "範囲外は副次要因",
+      "unit": "°C"
+    },
+    {
+      "parameter": "潰れ量",
+      "recommended_range": "5〜10 μm",
+      "alert": "<4 または >12 μm",
+      "unit": "μm"
+    },
+    {
+      "parameter": "バンプ高さ",
+      "recommended_range": "95〜105 μm",
+      "alert": "ロット内 σ>6μm は事前選別推奨",
+      "unit": "μm"
+    }
+  ],
+  "insights": {
+    "known": [
+      "TOOL-03 に明確なドリフト型 NG 集中",
+      "L002 の高さばらつきと NG の関連",
+      "潰れ量・US×荷重の閾値効果",
+      "合成仮説 4 件中 3 件を検証"
+    ],
+    "unknown": [
+      "ドリフトの物理原因（ヘッド摩耗 vs 温度制御）",
+      "他ロットへの転用可否",
+      "多変量交絡の完全分離",
+      "実工場データでの再現性"
+    ]
+  },
+  "signatures": [
+    {
+      "id": "SIG-01",
+      "label": "TOOL-03 ドリフト型",
+      "series_key": "impedance_ohm",
+      "template_points": [40, 42, 45, 48, 52, 55, 58, 60, 62, 65],
+      "description": "step 30–70 で線形ドリフト"
+    },
+    {
+      "id": "SIG-02",
+      "label": "NG 後期スパイク型",
+      "series_key": "impedance_ohm",
+      "template_points": [30, 35, 50, 70, 90, 85, 60, 40, 35, 32],
+      "description": "step 60–90 で急上昇"
+    },
+    {
+      "id": "SIG-03",
+      "label": "高超音波×低荷重 不安定型",
+      "series_key": "impedance_ohm",
+      "template_points": [45, 44, 43, 80, 82, 44, 43, 42, 41, 40],
+      "description": "step 40–60 で振動幅 ±0.3Ω"
+    }
+  ],
+  "next_actions": [
+    "TOOL-03 メンテ優先 — ヘルススコア監視",
+    "L002 系ウエハ入荷時バンプ高さ σ 検査の試行",
+    "DOE: 超音波 50/65/80 × 荷重 10/15/20",
+    "ダッシュボードでロット・ツール・ウエハマップを可視化"
+  ],
+  "source_artifacts": [
+    {
+      "kind": "insights",
+      "path": "output/analysis/insights/1215466399377173.md",
+      "version": "1.0",
+      "gid": "1215466399377173"
+    },
+    {
+      "kind": "models",
+      "path": "output/analysis/models/1215466399377173-signatures.md",
+      "version": "1.0",
+      "gid": "1215466532913860"
+    },
+    {
+      "kind": "other",
+      "path": "output/analysis/data/fcb-synthetic/chip_quality.csv",
+      "version": "fcb-synthetic-v1"
+    }
+  ]
+}

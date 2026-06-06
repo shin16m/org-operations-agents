@@ -29,7 +29,7 @@ steps:
 
   - id: pm_gate
     agent: planning-pm
-    role: Handoff 要約を人間に提示し handoff_approved を得てから Asana 投入へ
+    role: Handoff 要約提示 → handoff_approved（デフォルトは同一セッションで asana_execute · opt-in 時のみ【承認】待ち）
     gate_after: handoff_approved
 
   - id: asana_execute
@@ -45,7 +45,7 @@ gates:
   review_passed:
     description: PlanReviewResult status passed または passed_with_notes
   handoff_approved:
-    description: pm_gate で人間が Asana タスク作成（asana_execute）を明示承認
+    description: pm_gate で asana_execute 可否。デフォルトは要約提示後同一セッション可。opt-in（human_planning_approval 等）時のみ【承認】サブ complete 必須
 
 branches:
   plan_revision:

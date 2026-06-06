@@ -53,7 +53,7 @@
 | slug | slot | persona | 委譲元 | persona が効く場面 |
 |------|------|---------|--------|-------------------|
 | `ux-pm` | dept_orchestrate | `ux_pm.md` | dispatch | 自分で Figma を作らない |
-| `ux-designer` | dept_work | `ux_designer.md` | ux-pm | 「これいいな」・IA 探索 |
+| `ux-designer` | dept_work | `ux_designer.md` | ux-pm | ゴール逆算 · 複数案 · ヒューリスティクス評価 |
 | `design-system-owner` | dept_work | `design_system_owner.md` | ux-pm | トークン一貫性 |
 | `ux-reviewer` | dept_review | `ux_reviewer.md` | ux-pm / product-manager | 魅力批評・実装一致 |
 

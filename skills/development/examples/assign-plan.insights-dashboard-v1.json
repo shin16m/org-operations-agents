@@ -1,0 +1,90 @@
+{
+  "parent_title": "【開発】FCB ダッシュボード（full-ui + insights consume）",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【1】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "full-ui + 分析 insights 完了済み。notes ## 依存 の DashboardBundle と UX 仕様を読み取り専用で参照。",
+      "summary": "`output/development/requirements/<parent_gid>-requirements.md` に bundle consume・鮮度表示・定数コピー禁止を明記。",
+      "done_when": "DashboardBundle パス・Top3/条件/SIG の consume 要件が記載されている。"
+    },
+    {
+      "name": "【2】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: requirements",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【3】技術設計（tech-designer）",
+      "assignee": "tech-designer",
+      "department": "development",
+      "status": "assigned",
+      "background": "bundle 読み込みパスと画面コンポーネント対応を設計。",
+      "summary": "`output/development/design/<parent_gid>-design.md`",
+      "done_when": "bundle フィールドと UI 要素の対応表がある。"
+    },
+    {
+      "name": "【4】設計 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: design",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【5】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "bundle JSON を fetch し Top3・条件・insights・SIG を描画。CSV はチップ一覧用に併用可。",
+      "done_when": "app.js に分析値定数コピーが無い。bundle 未読時はプレースホルダ表示。"
+    },
+    {
+      "name": "【6】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: code。定数残存チェック含む。",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【7】UX 実装一致 review（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "review_kind: ux_implementation",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【8】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: verification。分析↔画面接続検証（Top3 因子名一致・鮮度表示・bundle 読込）。",
+      "done_when": "passed"
+    },
+    {
+      "name": "【9】分析接続検証（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: mismatch 相当。DashboardBundle と画面表示の因子・インサイト一致を検証。",
+      "summary": "MismatchReviewResult または DocReviewResult に接続検証 findings を記録。",
+      "done_when": "Top3 因子名一致・known/unknown 件数一致・SIG テンプレートが bundle 由来であることを確認。"
+    },
+    {
+      "name": "【10】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "as-built 文書化。",
+      "summary": "`output/development/specs/<parent_gid>-spec.md`",
+      "done_when": "bundle consume パスと鮮度表示が as-built に記載されている。"
+    }
+  ]
+}

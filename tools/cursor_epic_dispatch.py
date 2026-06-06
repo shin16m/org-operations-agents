@@ -27,7 +27,8 @@ def build_planning_prompt(epic_gid: str, planning_child: str) -> str:
         f"企画子タスク GID: {planning_child}\n"
         f"親エピック GID: {epic_gid}\n\n"
         "planning-delivery workflow に従い、Handoff 作成 → plan-reviewer → "
-        "planning gate（create_approval_subtask + --record-wait）まで進めてください。\n"
+        "planning gate（デフォルト: 同一セッションで handoff_to_asana · opt-in 時のみ create_planning_approval_gate + --record-wait）まで進めてください。\n"
+        "※ watch-auto / auto-intake 経由のため人間承認フロー必須。直接チャット intake とは異なる。\n"
     )
 
 

@@ -28,12 +28,14 @@ CONSISTENCY_AUDIT_REPORT_SCHEMA = (
 AUDIT_REVIEW_RESULT_SCHEMA = (
     ROOT / "skills/audit/audit-reviewer/schemas/audit-review-result.v1.schema.json"
 )
+DASHBOARD_BUNDLE_SCHEMA = ROOT / "schemas/analysis/dashboard-bundle.v1.schema.json"
 
 FIXTURE_GLOBS: list[str] = [
     "docs/verification/fixtures/**/handoff/*.json",
     "docs/verification/fixtures/**/plan-review/*.json",
     "docs/verification/fixtures/**/audit/reports/*.json",
     "docs/verification/fixtures/**/audit/reviews/*.json",
+    "docs/verification/fixtures/**/dashboard-bundle/*.json",
     "skills/planning/issue-story-planner/examples/handoff*.json",
 ]
 
@@ -41,6 +43,7 @@ SCHEMA_BY_KIND: dict[str, Path] = {
     "plan_review": PLAN_REVIEW_SCHEMA,
     "consistency_audit_report": CONSISTENCY_AUDIT_REPORT_SCHEMA,
     "audit_review_result": AUDIT_REVIEW_RESULT_SCHEMA,
+    "dashboard_bundle": DASHBOARD_BUNDLE_SCHEMA,
 }
 
 
@@ -67,6 +70,8 @@ def _kind_for_path(path: Path) -> str | None:
         return "consistency_audit_report"
     if "/audit/reviews/" in rel or "audit-review" in name:
         return "audit_review_result"
+    if "/dashboard-bundle/" in rel or "dashboard-bundle" in name:
+        return "dashboard_bundle"
     return None
 
 

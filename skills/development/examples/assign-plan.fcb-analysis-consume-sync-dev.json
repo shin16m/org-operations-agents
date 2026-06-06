@@ -1,0 +1,32 @@
+{
+  "parent_title": "【3/3・開発】ダッシュボード consume 整合",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【1】bundle SSOT 統合（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "分析子 1215467539202336 完了。serve.py BUNDLE_CHILD_GID 更新・app.js ngRisk/classifySig を bundle 閾値に整合。",
+      "summary": "serve.py · app.js · README 更新。refresh で探索駆動 bundle を consume。",
+      "done_when": "localhost:8766 で分析タブの Top3・インサイト文が bundle と一致。ngRisk が bundle 閾値ベース。"
+    },
+    {
+      "name": "【2】接続検証（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: mismatch",
+      "summary": "bundle と UI の因子名・インサイト一致を検証。",
+      "done_when": "passed"
+    },
+    {
+      "name": "【3】QA（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "summary": "CSV 差し替え + 更新 1 回の鮮度シナリオを確認。",
+      "done_when": "passed"
+    }
+  ]
+}

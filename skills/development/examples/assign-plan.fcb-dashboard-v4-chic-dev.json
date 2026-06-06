@@ -1,0 +1,30 @@
+{
+  "parent_title": "【2/2・開発】FCB ダッシュボード v4 シック UI 実装（full-ui）",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【2-1】要件整理（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "UX v4 spec + Design System v4 を読み、`output/development/requirements/<dev子GID>-requirements-v4.md` を作成。",
+      "done_when": "developer が consume 可能な受け入れ基準・画面差分一覧。"
+    },
+    {
+      "name": "【2-2】シック UI 実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/app/fcb-dashboard/` — 配色・タイポ・RAG 表現・素材感を v4 反映。",
+      "done_when": "localhost:8766 で全主要画面動作 · Before/After 説明可能。"
+    },
+    {
+      "name": "【2-3】QA 検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "summary": "v4 受け入れ基準（30秒危険視認・シックトーン）の検証。",
+      "done_when": "passed*"
+    }
+  ]
+}

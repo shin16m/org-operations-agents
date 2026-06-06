@@ -1,0 +1,30 @@
+{
+  "parent_title": "【4/4・開発】FCB ダッシュボード v2 実装",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【4-1】要件（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/requirements/1215466485523455-requirements.md`",
+      "done_when": "v2 画面要件記載。"
+    },
+    {
+      "name": "【4-2】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/app/fcb-dashboard/` v2",
+      "done_when": "時系列 API・Top3・selector・SIG 実装。"
+    },
+    {
+      "name": "【4-3】検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: verification",
+      "done_when": "passed"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "parent_title": "【2/3・分析】因子再探索・insights 更新・bundle 動的化",
+  "profile": "insights",
+  "subtasks": [
+    {
+      "name": "【1】因子探索・insights・bundle 動的化（data-analyst）",
+      "assignee": "data-analyst",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "chip_quality.csv から統計探索で因子 Top3 を再発見。探索結果 JSON を bundle 生成の入力 SSOT にする。",
+      "summary": "exploration JSON · insights md · generate_dashboard_bundle.py 改修 · bundle 出力。",
+      "done_when": "exploration JSON と insights md が一致。bundle が探索結果駆動で定性テキスト含め生成される。"
+    },
+    {
+      "name": "【2】探索・bundle review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: analysis_insights · dashboard_bundle",
+      "summary": "insights と bundle の因子・数値整合、schema 検証。",
+      "done_when": "passed"
+    },
+    {
+      "name": "【3】リリースノート（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "mode=release",
+      "summary": "exploration→bundle パイプラインと下流 development 参照を記載。",
+      "done_when": "release.md に exploration パス・bundle パス・consume 手順あり。"
+    }
+  ]
+}

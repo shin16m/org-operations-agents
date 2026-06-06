@@ -60,6 +60,22 @@ PM が Result を読む
 
 `R{n}` は同一ゲートの修正ラウンド。Asana 上で履歴が追えるようにする。
 
+## 分析 ↔ 画面接続検証の差し戻し（full-ui + insights）
+
+dev-reviewer（接続検証 / mismatch）または qa-verifier が **bundle と画面の不一致**を検出した場合:
+
+| finding 種別 | fix_target | 修正担当 |
+|--------------|------------|----------|
+| Top3 / insights / SIG 不一致 | `code` | developer |
+| 鮮度未表示 | `code` | developer |
+| 定数コピー残存（`const TOP3` 等） | `code` | developer |
+| 要件に bundle consume 記載なし | `document` | requirements-writer |
+| bundle パス誤り（`## 依存`） | — | product-manager が analytics-pm へエスカレーション |
+
+修正サブ notes の `## 修正依頼` に **bundle パス**と **不一致フィールド名**を必ず含める。再 review は接続検証サブを新規追加（`[re-review] dev-reviewer — analysis connection (R{n})`）。
+
+参照: [`development-delivery-io.md`](development-delivery-io.md) · [`insights-dashboard-consume-io.md`](insights-dashboard-consume-io.md)
+
 ## CLI — 修正サブ作成
 
 ```powershell

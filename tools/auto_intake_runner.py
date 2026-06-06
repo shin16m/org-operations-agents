@@ -175,8 +175,8 @@ def emit_dispatch(parent_gid: str, planning_gid: str) -> None:
     print(f"DISPATCH  parent={parent_gid}  planning={planning_gid}")
     print(f"DISPATCH  snippet={console_safe(snippet)}")
     print(
-        "DISPATCH  hint=planning gate 到達後: "
-        "asana_ops_poller --record-wait <親GID> <【承認】サブGID> <URL>",
+        "DISPATCH  hint=planning gate デフォルト: 同一セッションで handoff_to_asana "
+        "(opt-in 時のみ create_planning_approval_gate + --record-wait)",
         file=sys.stderr,
     )
 
@@ -223,8 +223,9 @@ def main() -> int:
     if parent and planning:
         emit_dispatch(parent, planning)
     print(
-        "AUTO_BOOTSTRAP  NOTE  bootstrap only — no 【承認】 yet. "
-        "Next: PLANNING_DISPATCH / planning-pm → Handoff → plan-review → create_approval_subtask",
+        "AUTO_BOOTSTRAP  NOTE  bootstrap only. "
+        "Next: PLANNING_DISPATCH / planning-pm → Handoff → plan-review → handoff_to_asana "
+        "(opt-in 時のみ create_planning_approval_gate)",
         file=sys.stderr,
     )
     print(f"AUTO_BOOTSTRAP  OK  at={datetime.now(timezone.utc).isoformat()}")

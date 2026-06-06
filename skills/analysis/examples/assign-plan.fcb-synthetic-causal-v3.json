@@ -1,0 +1,96 @@
+{
+  "parent_title": "【1/2・分析】FCB 合成データ v3 再生成・因子再分析",
+  "profile": "insights",
+  "subtasks": [
+    {
+      "name": "【1】分析要件（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/requirements/1215467310291243-requirements.md`",
+      "done_when": "v3 合成データ仕様・因子探索要件が記載されている（埋め込みルールは非開示）。"
+    },
+    {
+      "name": "【2】要件 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: analytics_requirements",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【3】データ設計（data-architect）",
+      "assignee": "data-architect",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/data-model/1215467310291243.md`",
+      "done_when": "v3 スキーマ・SLA 4 項目記載。"
+    },
+    {
+      "name": "【4】設計 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: data_model",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【5】合成データ v3 生成（data-engineer）",
+      "assignee": "data-engineer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "intake snapshot 参照で埋め込みパターンを実装。insights 非開示。",
+      "summary": "`output/analysis/data/fcb-synthetic/`（CSV + 生成スクリプト v3）",
+      "done_when": "chip_quality.csv · chip_timeseries.csv · スクリプト · README（再現手順のみ）が更新済み。"
+    },
+    {
+      "name": "【6】パイプライン review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: pipeline",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【7】品質カタログ（data-steward）",
+      "assignee": "data-steward",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/catalog/1215467310291243.md`",
+      "done_when": "データカタログ保存。"
+    },
+    {
+      "name": "【8】品質 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: data_quality",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【9】因子探索・レポート（data-analyst）",
+      "assignee": "data-analyst",
+      "department": "analysis",
+      "status": "assigned",
+      "summary": "`output/analysis/insights/1215467310291243.md`",
+      "done_when": "探索により発見した因子・わかった/わからない表・加工条件示唆が記載されている。"
+    },
+    {
+      "name": "【10】探索 review（analysis-reviewer）",
+      "assignee": "analysis-reviewer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "review_kind: analysis_insights",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【11】リリース（analytics-requirements-writer）",
+      "assignee": "analytics-requirements-writer",
+      "department": "analysis",
+      "status": "assigned",
+      "background": "mode=release",
+      "summary": "`output/analysis/releases/1215467310291243-release.md`",
+      "done_when": "KPI レポート保存。"
+    }
+  ]
+}
