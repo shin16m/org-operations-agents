@@ -101,7 +101,7 @@
               "type": "number",
               "minimum": 0,
               "maximum": 100,
-              "description": "NG rate in percent."
+              "description": "Metric value in percent (0–100)."
             }
           },
           "sample_sizes": {
@@ -112,7 +112,7 @@
             "type": "number",
             "minimum": 0,
             "maximum": 100,
-            "description": "Overall NG rate (%) for reference line."
+            "description": "Overall baseline metric (%) for reference line."
           },
           "caption": { "type": "string" },
           "source_section": { "type": "string" },

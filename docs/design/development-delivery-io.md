@@ -133,9 +133,9 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 | # | 項目 | 確認方法 |
 |---|------|----------|
 | 1 | **分析 JSON consume 必須** | notes `## 依存` に `output/analysis/bundles/<gid>-dashboard-bundle.json` が記載されている |
-| 2 | **定数コピー禁止** | 要件書に「Top3・加工条件・SIG は bundle から読み込み」と明記。`app.js` に `const TOP3` 等の分析値ハードコードを禁止 |
+| 2 | **定数コピー禁止** | 要件書に「`top_factors` / `conditions` / `signatures` は bundle から読み込み」と明記。分析値の JS ハードコードを禁止 |
 | 3 | **鮮度表示必須** | UI に `meta.generated_at` / `meta.data_version` を表示する要件がある |
-| 4 | **接続検証サブ** | assign plan に bundle 一致検証（dev-reviewer / qa-verifier）が含まれる（例: [`assign-plan.insights-dashboard-v1.json`](../../skills/development/examples/assign-plan.insights-dashboard-v1.json)） |
+| 4 | **接続検証サブ** | assign plan に bundle 一致検証（dev-reviewer / qa-verifier）が含まれる（例: [`assign-plan.dashboard-bundle-consume-v1.json`](../../skills/development/examples/assign-plan.dashboard-bundle-consume-v1.json)） |
 
 不足時は analytics-pm または企画経由で差し戻し。詳細: [`insights-dashboard-consume-io.md`](insights-dashboard-consume-io.md) · [`cross-team-artifact-bridge.md`](cross-team-artifact-bridge.md#insights--full-ui-ダッシュボードprofile-insights-連携)
 

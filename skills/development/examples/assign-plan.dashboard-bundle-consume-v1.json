@@ -1,0 +1,64 @@
+{
+  "parent_title": "【開発】分析ダッシュボード（full-ui + DashboardBundle consume）",
+  "profile": "full-ui",
+  "subtasks": [
+    {
+      "name": "【1】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "分析 insights 子完了済み。notes ## 依存 の DashboardBundle を読み取り専用で参照。",
+      "summary": "`output/development/requirements/<parent_gid>-requirements.md`",
+      "done_when": "bundle consume・鮮度表示・定数コピー禁止が記載されている。"
+    },
+    {
+      "name": "【2】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: requirements",
+      "done_when": "passed*"
+    },
+    {
+      "name": "【3】技術設計（tech-designer）",
+      "assignee": "tech-designer",
+      "department": "development",
+      "status": "assigned",
+      "background": "UX ## 依存 と bundle パスを設計書に引用。",
+      "summary": "`output/development/design/<parent_gid>-design.md`",
+      "done_when": "bundle 読み込み方式と鮮度表示が設計書に記載されている。"
+    },
+    {
+      "name": "【4】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/app/<parent_gid>/` — bundle から Top3・条件・insights・SIG を描画。",
+      "done_when": "分析サマリーが bundle と一致。JS 定数コピーなし。"
+    },
+    {
+      "name": "【5】接続検証（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: mismatch",
+      "done_when": "Top3・known/unknown が bundle と一致。"
+    },
+    {
+      "name": "【6】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "review_kind: verification",
+      "done_when": "鮮度表示あり。bundle と画面の因子名が一致。"
+    },
+    {
+      "name": "【7】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "summary": "`output/development/specs/<parent_gid>-spec.md`",
+      "done_when": "as-built に bundle パスと consume 方式が記載されている。"
+    }
+  ]
+}

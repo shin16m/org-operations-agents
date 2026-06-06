@@ -4,7 +4,7 @@
 
 Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言的 workflow・Asana 連携の SSOT。
 
-> **スコープ:** エピック成果物（要件・コード・モデル等）は **`output/` に書くが git 管理しない**（[`docs/design/artifact-policy.md`](docs/design/artifact-policy.md)）。製品ソースは別リポジトリ。
+> **スコープ:** 本リポジトリは **汎用の組織運用テンプレート**（Git で fork して誰でも利用可）。エピック成果物（要件・コード・モデル等）は **`output/` に書くが git 管理しない**（[`docs/design/artifact-policy.md`](docs/design/artifact-policy.md)）。**プロダクト固有の運用変更・assign plan 実行版はローカルの `output/` / `work/` のみ**で行う。製品ソースは別リポジトリ。
 
 ## レイアウト
 

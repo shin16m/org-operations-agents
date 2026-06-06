@@ -44,9 +44,9 @@ notes `## 依存` に DashboardBundle がある場合、以下を **3 件以上*
 
 | # | 観点 | failed 条件の例 |
 |---|------|----------------|
-| 1 | **Top3 因子名一致** | 画面 Top3 の名称が `top_factors[].name` と不一致 |
+| 1 | **top_factors 一致** | 画面上位因子の名称が `top_factors[].name` と不一致 |
 | 2 | **insights 一致** | `insights.known` / `unknown` の件数または文言が画面と乖離 |
-| 3 | **定数残存なし** | `app.js` 等に `const TOP3` / `SIG_TEMPLATE` 等の分析値ハードコードが残存 |
+| 3 | **定数残存なし** | `app.js` 等に bundle フィールド（`top_factors` / `signatures` 等）のハードコードが残存 |
 | 4 | **鮮度メタ** | `meta.generated_at` が UI に未表示 |
 
 `fix_target: code` を基本とする。要件書自体の不足は `document`。

@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "meta": {
+    "title": "Process quality dashboard — bundle (synthetic)",
+    "analysis_child_gid": "9000000000000001",
+    "generated_at": "2026-06-06T06:30:00+00:00",
+    "data_version": "synthetic-v1",
+    "locale": "ja-JP"
+  },
+  "top_factors": [
+    {
+      "rank": 1,
+      "name": "Equipment LINE-A",
+      "impact": 0.28,
+      "metric": "defect_rate",
+      "value": "12.4%",
+      "evidence": "2.1× baseline in shift 2"
+    },
+    {
+      "rank": 2,
+      "name": "Batch B-104",
+      "impact": 0.22,
+      "metric": "defect_rate",
+      "value": "8.1%",
+      "evidence": "Material variance σ above threshold"
+    },
+    {
+      "rank": 3,
+      "name": "Parameter drift (temp)",
+      "impact": 0.18,
+      "metric": "defect_rate",
+      "value": "6.7%",
+      "evidence": "Out-of-range events clustered"
+    }
+  ],
+  "conditions": [
+    {
+      "parameter": "Setpoint A",
+      "recommended_range": "45–70",
+      "alert": ">75 with low load",
+      "unit": "%"
+    },
+    {
+      "parameter": "Load",
+      "recommended_range": "12–20",
+      "alert": "<10 at high setpoint",
+      "unit": "N"
+    },
+    {
+      "parameter": "Temperature",
+      "recommended_range": "230–260",
+      "alert": "Out of range — secondary factor",
+      "unit": "°C"
+    }
+  ],
+  "insights": {
+    "known": [
+      "LINE-A shows drift pattern in recent batches",
+      "Batch B-104 correlates with elevated defect rate",
+      "Setpoint × load interaction effect confirmed"
+    ],
+    "unknown": [
+      "Root cause of drift (wear vs control loop)",
+      "Generalization to other lines",
+      "Multivariate confounding not fully separated"
+    ]
+  },
+  "signatures": [
+    {
+      "id": "SIG-01",
+      "label": "Drift pattern",
+      "series_key": "metric_value",
+      "template_points": [40, 42, 45, 48, 52, 55, 58, 60, 62, 65],
+      "description": "Monotonic drift mid-sequence"
+    },
+    {
+      "id": "SIG-02",
+      "label": "Late spike",
+      "series_key": "metric_value",
+      "template_points": [30, 35, 50, 70, 90, 85, 60, 40, 35, 32],
+      "description": "Spike in final segment"
+    }
+  ],
+  "next_actions": [
+    "Schedule LINE-A maintenance review",
+    "Add incoming inspection for high-variance batches",
+    "Run DOE on setpoint × load grid"
+  ],
+  "source_artifacts": [
+    {
+      "kind": "insights",
+      "path": "output/analysis/insights/9000000000000001.md",
+      "version": "1.0",
+      "gid": "9000000000000001"
+    },
+    {
+      "kind": "other",
+      "path": "output/analysis/data/synthetic-example/metrics.csv",
+      "version": "synthetic-v1"
+    }
+  ]
+}
