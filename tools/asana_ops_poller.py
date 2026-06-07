@@ -492,7 +492,13 @@ def scan_waiting_hints(project_gid: str, token: str, *, human: bool) -> None:
     except ImportError as exc:
         print(f"WARN  wait_list unavailable: {exc}", file=sys.stderr)
         return
-    for row in org_os_queue.wait_list(project_gid, token=token):
+    ready_rows = org_os_queue.ready_queue(project_gid, token=token)
+    waiting_rows = org_os_queue.wait_list(project_gid, token=token)
+    print(
+        f"DASHBOARD  project={project_gid}  ready_total={len(ready_rows)}  "
+        f"waiting_total={len(waiting_rows)}"
+    )
+    for row in waiting_rows:
         reason = row.get("suspend_reason") or "-"
         parent = row.get("epic_gid")
         print(f"HINT  parent={parent}  tool=approval_helper  reason={reason}")

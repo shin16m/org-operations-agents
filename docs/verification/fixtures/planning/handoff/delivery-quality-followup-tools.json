@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "納品品質 follow-up — PM gate / fix ツール実装",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【組織改善】納品品質 follow-up — PM gate / fix コンテキスト実装",
+    "notes_markdown": "## 依頼者向け（人間が最初に読む）\n\n**要約:** Epic `1215474826616152`（納品完成度 80%）で SSOT・SKILL は整備済みだが、**ツール enforcement が未実装**の 3 点を development lite で解消する。\n\n**着手順:** 各子の **Execution Order** CF（1→2→3）。`org-ops-watch` または task-dispatcher 経由。\n\n| 順 | テーマ |\n|----|--------|\n| 1 | pm_intake_gate — AC 表・実行契約チェック |\n| 2 | pm_create_fix_subtask — R3 エスカレーション + kick 停止 |\n| 3 | pm_emit_worker_prompt — fix サブ向けコンテキスト注入 |\n\n**前提:** [`docs/design/delivery-completion-standard.md`](../../../design/delivery-completion-standard.md) · [`docs/design/pm-review-rework-ssot.md`](../../../design/pm-review-rework-ssot.md) が正本。\n\n## 背景・用語（エージェント / 実装者向け）\n\n### 目的\n\n前 Epic 子 6・9 の follow-up。`pm_intake_gate.py` は full-ui `## 依存` のみ。fix ループ R3 自動エスカレーションと L3b fix kick 時の review/smoke/findings 引き継ぎがコード未反映。\n\n### 設計方針\n\n- **development lite**（`profile: lite`）— 各子に unittest または dryrun 記録\n- SSOT 変更は [`docs/design/dispatch-prompt-ssot.md`](../../../design/dispatch-prompt-ssot.md) と整合\n- 親 Epic `1215474826616152` のコメント follow-up を本 Epic で完遂\n\n### 参照\n\n- 前 Epic intake: [`docs/verification/governance/delivery-quality-80-intake.md`](../../governance/delivery-quality-80-intake.md)\n- Handoff SSOT: [`delivery-quality-followup-tools.json`](delivery-quality-followup-tools.json)"
+  },
+  "subtasks": [
+    {
+      "title": "pm_intake_gate 拡張 — AC 表・実行契約チェック",
+      "pillar": "platform",
+      "department": "development",
+      "background": "現状 `pm_intake_gate.py` は profile=full-ui の ## 依存 のみ。AC Must 表・tech-designer 実行契約節が無いまま pm_assign 可能。",
+      "summary": "assign plan / notes から AC 表（Must 行）と実行契約（起動コマンド1本）を検査。欠落時 BLOCKED。`test_pm_intake_gate.py` 拡張。",
+      "done_when": "pm_intake_gate.py + test 更新。docs/design/development-delivery-io.md に gate 条件 1 節。dryrun または unittest green。"
+    },
+    {
+      "title": "pm_create_fix_subtask — R3 エスカレーション + 自動 kick 停止",
+      "pillar": "platform",
+      "department": "development",
+      "background": "pm-review-rework-ssot.md に R3 依頼者エスカレーション節はあるが、pm_create_fix_subtask に round=3 時の comment + execution 停止フックが無い。",
+      "summary": "fix_round=3 作成時に依頼者向けエスカレーション comment を親 PM 子へ投稿。execution_resume_scan / runner が R3 以降の worker kick をスキップするフラグまたは notes マーカー。",
+      "done_when": "pm_create_fix_subtask.py + unittest 1 本。R3 時の comment テンプレが SSOT と一致。"
+    },
+    {
+      "title": "pm_emit_worker_prompt — fix サブ向けコンテキスト自動注入",
+      "pillar": "platform",
+      "department": "development",
+      "background": "dispatch-prompt-ssot.md Epic 1215474826616152 子 9 要件。fix サブ kick 時に review JSON · smoke.md · findings 要約が snippet に無く同 NG 再発。",
+      "summary": "`[fix]` サブタイトル検出時、notes の review JSON パスから findings 要約を抽出。`output/development/smoke/<parent>.md` パスを snippet に必須注入。",
+      "done_when": "pm_emit_worker_prompt.py 更新 + unittest または dryrun 1 本。dispatch-prompt-ssot.md と整合確認。"
+    }
+  ]
+}

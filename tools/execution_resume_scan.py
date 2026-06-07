@@ -128,13 +128,25 @@ def classify_pm_child(
     workers = _worker_subs(pm_gid, dept or "development", token)
 
     if not workers:
-        return {
+        reason = "no_worker_subs"
+        hint = None
+        if dept == "development":
+            reason = "pm_assign_lite_required"
+            hint = (
+                "python skills/platform/asana-buddy/optional/pm_assign_subtasks.py "
+                f"--parent {pm_gid} --plan skills/development/examples/assign-plan.lite-v1.json "
+                "--department development --update-parent-assignee product-manager -y"
+            )
+        out = {
             "state": "needs_pm_kick",
             "epic_gid": epic_gid,
             "pm_child_gid": pm_gid,
             "department": dept,
-            "reason": "no_worker_subs",
+            "reason": reason,
         }
+        if hint:
+            out["pm_assign_hint"] = hint
+        return out
 
     if review and not review.get("completed"):
         return {
@@ -339,7 +351,7 @@ def kick_execution_action(
     state = item.get("state") or "?"
     epic = item.get("epic_gid") or "?"
     if execute and not dry_run and epic:
-        from execution_kick_guard import execution_kick_allowed, log_blocked  # noqa: WPS433
+        from execution_kick_guard import execution_kick_allowed, log_blocked, worker_kick_allowed  # noqa: WPS433
 
         load_env_from_dotfile()
         tok = token or get_token()
@@ -360,6 +372,25 @@ def kick_execution_action(
             if blocked_out is not None:
                 blocked_out.append(row)
             return 0
+        if state == "needs_worker_kick" and pm:
+            wok, wreason = worker_kick_allowed(str(pm), tok)
+            if not wok:
+                log_blocked(epic_gid=str(epic), tool="execution_resume_scan", reason=wreason)
+                print(
+                    console_safe(
+                        f"RUNNER  BLOCKED  epic={epic}  state={state}  reason={wreason}"
+                    )
+                )
+                if blocked_out is not None:
+                    blocked_out.append(
+                        {
+                            "epic_gid": str(epic),
+                            "state": state,
+                            "reason": wreason,
+                            "tool": "execution_resume_scan",
+                        }
+                    )
+                return 0
     if not execute or dry_run:
         print(f"HINT  execution_kick  epic={epic}  state={state}  cmd={' '.join(cmd)}")
         return 0

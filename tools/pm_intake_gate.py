@@ -22,7 +22,16 @@ if str(ASANA_OPT) not in sys.path:
     sys.path.insert(0, str(ASANA_OPT))
 
 DEPENDENCY_HEADINGS = ("## 依存（読み取り専用）", "## 依存")
+AC_HEADINGS = ("## 受け入れ基準",)
+EXEC_CONTRACT_HEADINGS = ("## 実行契約",)
 PROFILE_RE = re.compile(r"^profile:\s*(\S+)\s*$", re.MULTILINE)
+QUALITY_GATE_PROFILES = frozenset({"full-ui", "full"})
+MUST_AC_RE = re.compile(r"\|\s*Must\s*\|", re.IGNORECASE)
+CMD_IN_BACKTICKS_RE = re.compile(r"`[^`\n]+`")
+STARTUP_CMD_RE = re.compile(
+    r"(?:起動|startup|serve|python\s+|npm\s+|curl\s+|\.\\)",
+    re.IGNORECASE,
+)
 
 
 def parse_profile(notes: str, plan_profile: str | None = None) -> str | None:
@@ -32,19 +41,25 @@ def parse_profile(notes: str, plan_profile: str | None = None) -> str | None:
     return match.group(1) if match else None
 
 
-def _dependency_section(notes: str) -> str:
+def _section_body(notes: str, headings: tuple[str, ...]) -> str:
     start = -1
-    for heading in DEPENDENCY_HEADINGS:
+    matched = ""
+    for heading in headings:
         idx = notes.find(heading)
         if idx >= 0 and (start < 0 or idx < start):
             start = idx
+            matched = heading
     if start < 0:
         return ""
-    body = notes[start:]
-    next_heading = re.search(r"\n## (?!#)", body[len(DEPENDENCY_HEADINGS[0]) :])
+    body = notes[start + len(matched) :]
+    next_heading = re.search(r"\n## (?!#)", body)
     if next_heading:
-        body = body[: len(DEPENDENCY_HEADINGS[0]) + next_heading.start()]
+        body = body[: next_heading.start()]
     return body
+
+
+def _dependency_section(notes: str) -> str:
+    return _section_body(notes, DEPENDENCY_HEADINGS)
 
 
 def check_full_ui_dependency(notes: str) -> list[str]:
@@ -69,9 +84,44 @@ def check_full_ui_dependency(notes: str) -> list[str]:
     return failures
 
 
+def check_acceptance_criteria_table(notes: str) -> list[str]:
+    failures: list[str] = []
+    ac = _section_body(notes, AC_HEADINGS)
+    if not ac.strip():
+        failures.append(
+            "missing ## 受け入れ基準 section "
+            "(see docs/design/acceptance-criteria-template.md)"
+        )
+        return failures
+    if not MUST_AC_RE.search(ac):
+        failures.append("## 受け入れ基準 must include at least one Must AC row")
+    if not CMD_IN_BACKTICKS_RE.search(ac):
+        failures.append("Must AC rows must include verification command in backticks")
+    return failures
+
+
+def check_execution_contract(notes: str) -> list[str]:
+    failures: list[str] = []
+    contract = _section_body(notes, EXEC_CONTRACT_HEADINGS)
+    if not contract.strip():
+        failures.append(
+            "missing ## 実行契約 section with startup command "
+            "(see tech-designer SKILL · 実行契約)"
+        )
+        return failures
+    if not STARTUP_CMD_RE.search(contract):
+        failures.append("## 実行契約 must include startup command (1 line)")
+    return failures
+
+
 def requires_full_ui_gate(notes: str, *, plan_profile: str | None = None) -> bool:
     profile = parse_profile(notes, plan_profile)
     return profile == "full-ui"
+
+
+def requires_quality_gate(notes: str, *, plan_profile: str | None = None) -> bool:
+    profile = parse_profile(notes, plan_profile)
+    return profile in QUALITY_GATE_PROFILES
 
 
 def check_development_intake(
@@ -79,9 +129,15 @@ def check_development_intake(
     *,
     plan_profile: str | None = None,
 ) -> tuple[bool, list[str]]:
-    if not requires_full_ui_gate(notes, plan_profile=plan_profile):
-        return True, []
-    failures = check_full_ui_dependency(notes)
+    failures: list[str] = []
+
+    if requires_full_ui_gate(notes, plan_profile=plan_profile):
+        failures.extend(check_full_ui_dependency(notes))
+
+    if requires_quality_gate(notes, plan_profile=plan_profile):
+        failures.extend(check_acceptance_criteria_table(notes))
+        failures.extend(check_execution_contract(notes))
+
     return not failures, failures
 
 
@@ -121,7 +177,7 @@ def main() -> int:
 
     ok, failures = check_development_intake(notes, plan_profile=plan_profile)
     if ok:
-        profile = parse_profile(notes, plan_profile) or "(not full-ui)"
+        profile = parse_profile(notes, plan_profile) or "(not gated)"
         print(f"OK  pm_intake_gate  gid={gid}  profile={profile}")
         return 0
 

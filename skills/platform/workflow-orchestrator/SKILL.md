@@ -114,7 +114,14 @@ python tools/complete_epic_os_state.py --epic <親GID>
 # または: python tools/org_os.py complete --epic <親GID> --allow-skip
 ```
 
-`comment_epic_summary` の**後** · `complete_task.py` の**前**に実行。CF 未設定等で失敗しても **警告のみ exit 0**（`--strict` で exit 1）。
+`comment_epic_summary` の**後** · `complete_task.py` / `complete_epic_os_state.py` の**前**に実行。CF 未設定等で失敗しても **警告のみ exit 0**（`--strict` で exit 1）。
+
+**retro intake gate WARN（Phase 2 · 非ブロッキング既定）:** 上記レトロ手順の後 · org-os complete / 親 `complete_task` の直前に自動実行される。
+
+```powershell
+python tools/epic_retrospective_complete_hook.py --epic <親GID>
+# missing / pending 時は Asana に WARN comment。ブロックは ORG_OPS_RETRO_COMPLETE_BLOCK=1 のみ
+```
 
 その後 `complete_task.py --gid <親GID> -y`。監査子未完了の親 complete は禁止。
 

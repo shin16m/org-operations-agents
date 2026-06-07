@@ -23,6 +23,41 @@ from asana_program_common import (  # noqa: E402
 )
 
 
+def retro_subtask_title(worker: str) -> str:
+    return f"[retro] {worker} — 所感・改善案"
+
+
+def build_retro_subtask_notes(*, department: str, assignee: str) -> str:
+    notes = assemble_subtask_notes(
+        background="タスク完了前レトロ（task-retrospective-ssot）。",
+        summary="うまくいった点 / 改善したい点 / 次エピック候補を記載。",
+        done_when="3 項目記載後 comment_task → PM が worker 本番サブ complete 可。",
+        department=department,
+        assignee=assignee,
+        status="assigned",
+    )
+    return notes + "\n\n## 記入テンプレ\n\n- **うまくいった点:** \n- **改善したい点:** \n- **次エピック候補:** \n"
+
+
+def ensure_retro_subtask(
+    parent_gid: str,
+    worker: str,
+    *,
+    department: str,
+    token: str,
+) -> tuple[str, str | None]:
+    """Create nested [retro] sub if missing. Returns (status, gid)."""
+    title = retro_subtask_title(worker)
+    for sub in list_subtasks(parent_gid, token):
+        if (sub.get("name") or "").strip() == title:
+            state = "exists_completed" if sub.get("completed") else "exists_open"
+            return state, str(sub.get("gid") or "") or None
+
+    notes = build_retro_subtask_notes(department=department, assignee=worker)
+    sub = create_subtask(parent_gid, title, notes, token)
+    return "created", str(sub.get("gid") or "") or None
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Create [retro] nested subtask")
     p.add_argument("--parent", required=True, help="Worker subtask GID")
@@ -31,33 +66,26 @@ def main() -> None:
     p.add_argument("-y", action="store_true")
     args = p.parse_args()
 
-    title = f"[retro] {args.worker} — 所感・改善案"
+    title = retro_subtask_title(args.worker)
     load_env_from_dotfile()
     token = get_token()
-
-    for sub in list_subtasks(args.parent, token):
-        if (sub.get("name") or "").strip() == title:
-            state = "completed" if sub.get("completed") else "open"
-            print(f"exists_{state}", sub.get("gid"), console_safe(title))
-            return
-
-    notes = assemble_subtask_notes(
-        background="タスク完了前レトロ（task-retrospective-ssot）。",
-        summary="うまくいった点 / 改善したい点 / 次エピック候補を記載。",
-        done_when="3 項目記載後 comment_task → PM が worker 本番サブ complete 可。",
-        department=args.department,
-        assignee=args.worker,
-        status="assigned",
-    )
-    notes += "\n\n## 記入テンプレ\n\n- **うまくいった点:** \n- **改善したい点:** \n- **次エピック候補:** \n"
 
     if not args.y:
         print(console_safe(f"Create {title!r} under {args.parent}? (y/N): "), end="")
         if input().strip().lower() != "y":
             return
 
-    sub = create_subtask(args.parent, title, notes, token)
-    print("created_retro_subtask", sub.get("gid"), console_safe(title))
+    status, gid = ensure_retro_subtask(
+        args.parent,
+        args.worker,
+        department=args.department,
+        token=token,
+    )
+    if status.startswith("exists_"):
+        state = status.removeprefix("exists_")
+        print(f"exists_{state}", gid, console_safe(title))
+        return
+    print("created_retro_subtask", gid, console_safe(title))
 
 
 if __name__ == "__main__":

@@ -677,12 +677,14 @@ def list_task_comment_stories(task_gid: str, token: str) -> list[dict[str, Any]]
             if subtype != "comment_added" and stype != "comment":
                 continue
             author = ((story.get("created_by") or {}).get("name") or "").strip()
+            author_gid = str((story.get("created_by") or {}).get("gid") or "")
             rows.append(
                 {
                     "gid": story.get("gid", ""),
                     "text": text,
                     "created_at": story.get("created_at") or "",
                     "author": author or None,
+                    "author_gid": author_gid or None,
                 }
             )
         offset = (body.get("next_page") or {}).get("offset")

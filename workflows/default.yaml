@@ -1,9 +1,9 @@
-# Default workflow — orchestrator intake entry (v4)
-# v3: intake → bootstrap → dispatch（企画チームへ最初の配賦）
-# v4: intake → triage → bootstrap → dispatch（epic_input 正規化を L1 に追加）
+# Default workflow — orchestrator intake entry (v5)
+# v4: intake → triage → bootstrap → dispatch
+# v5: + suspend / resume（人間承認 · org-os syscall 整合）
 id: default
-version: "4"
-description: intake → triage → bootstrap → dispatch（企画チームへ最初の配賦）
+version: "5"
+description: intake → triage → bootstrap → dispatch（opt-in suspend/resume で人間承認）
 
 policy:
   review_required: false
@@ -28,6 +28,20 @@ steps:
     agent: asana-buddy
     role: epic_input を入力に親 + 企画子タスク 1 件を Asana に作成
     gate_after: null
+
+  - id: suspend
+    agent: workflow-orchestrator
+    role: opt-in 人間承認待ち — create_approval_subtask → org-os syscall suspend（Waiting + Approval）
+    gate_after: planning_approval
+    notes: デフォルト opt-out。`human_planning_approval` / ORG_OPS_PM_REVIEW_GATE 等で有効化
+
+  - id: resume
+    agent: workflow-orchestrator
+    role: 承認完了後 Ready 再開 — approval_helper / wakuoke_resume_scan → syscall resume
+    gate_after: null
+    reads:
+      - tools/approval_helper.py
+      - tools/wakuoke_resume_scan.py
 
   - id: dispatch
     agent: task-dispatcher

@@ -25,7 +25,9 @@ if str(ASANA_OPT) not in sys.path:
     sys.path.insert(0, str(ASANA_OPT))
 
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
-from asana_program_common import fetch_task, list_task_comment_stories  # noqa: E402
+from asana_program_common import ASANA_BASE, fetch_task, list_task_comment_stories  # noqa: E402
+
+import requests  # noqa: E402
 
 TASK_GID_RE = re.compile(r"/task/(\d+)")
 DIGITS_ONLY_RE = re.compile(r"^\d+$")
@@ -57,6 +59,36 @@ def comments_markdown(comments: list[dict]) -> str:
     return "\n\n".join(blocks)
 
 
+def fetch_intake_task(gid: str, token: str) -> dict:
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(
+        f"{ASANA_BASE}/tasks/{gid}",
+        headers=headers,
+        params={
+            "opt_fields": "name,notes,completed,permalink_url,parent.gid,parent.name,assignee.name,assignee.gid",
+        },
+    )
+    r.raise_for_status()
+    return r.json()["data"]
+
+
+def extract_requester_comments(task: dict, comments: list[dict]) -> list[dict]:
+    assignee = task.get("assignee") or {}
+    name = (assignee.get("name") or "").strip()
+    gid = str(assignee.get("gid") or "").strip()
+    if not name and not gid:
+        return []
+    matched: list[dict] = []
+    for comment in comments:
+        author = (comment.get("author") or "").strip()
+        author_gid = str(comment.get("author_gid") or "").strip()
+        if gid and author_gid == gid:
+            matched.append(comment)
+        elif name and author == name:
+            matched.append(comment)
+    return matched
+
+
 def build_snapshot(data: dict, comments: list[dict]) -> dict:
     parent = data.get("parent") or {}
     snapshot: dict = {
@@ -75,6 +107,14 @@ def build_snapshot(data: dict, comments: list[dict]) -> dict:
         md = comments_markdown(comments)
         if md:
             snapshot["comments_markdown"] = md
+    requester_comments = extract_requester_comments(data, comments)
+    if requester_comments:
+        snapshot["schema_version"] = "1.2"
+        snapshot["requester_comments"] = requester_comments
+        snapshot["requester_assignee"] = {
+            "name": (data.get("assignee") or {}).get("name"),
+            "gid": (data.get("assignee") or {}).get("gid"),
+        }
     return snapshot
 
 
@@ -103,7 +143,7 @@ def main() -> int:
         return 3
 
     try:
-        data = fetch_task(gid, token)
+        data = fetch_intake_task(gid, token)
         comments: list[dict] = []
         if not args.no_comments:
             comments = list_task_comment_stories(gid, token)

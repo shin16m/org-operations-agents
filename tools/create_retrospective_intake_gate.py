@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Create epic retrospective intake approval gate subtask (opt-in).
+"""Create epic retrospective intake approval gate (default-on · Phase 2).
 
-By default (opt-out) no gate sub is created. Enable with:
+Default: create 【承認】 gate. Opt-out with:
+  --skip-gate
+  env ORG_OPS_RETRO_INTAKE_GATE_OPT_OUT=1
+
+Legacy opt-in triggers still honored when not opted out:
   --require-human-approval
   retro JSON \"human_retro_intake_gate\": true
   env ORG_OPS_RETRO_INTAKE_GATE=1
@@ -72,7 +76,12 @@ def main() -> None:
     p.add_argument(
         "--require-human-approval",
         action="store_true",
-        help="Force create human 【承認】 gate",
+        help="Force create human 【承認】 gate (legacy alias)",
+    )
+    p.add_argument(
+        "--skip-gate",
+        action="store_true",
+        help="Opt-out: do not create gate sub",
     )
     p.add_argument("-y", action="store_true")
     args = p.parse_args()
@@ -90,17 +99,15 @@ def main() -> None:
         args.parent,
         token,
         cli_flag=args.require_human_approval,
+        cli_skip=args.skip_gate,
     ):
         print(
             console_safe(
-                "SKIP  retro_intake_gate  reason=opt_out_default  "
-                "(use --require-human-approval | retro human_retro_intake_gate | "
-                "ORG_OPS_RETRO_INTAKE_GATE=1 | epic notes human_retro_intake_gate: yes)"
+                "SKIP  retro_intake_gate  reason=opt_out  "
+                "(default is ON; use --skip-gate or ORG_OPS_RETRO_INTAKE_GATE_OPT_OUT=1 to skip)"
             )
         )
-        return
-
-    cmd = [
+        return 0
         sys.executable,
         str(OPTIONAL / "create_approval_subtask.py"),
         "--parent",

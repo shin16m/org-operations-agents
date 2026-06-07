@@ -23,6 +23,13 @@ from asana_program_common import (  # noqa: E402
     set_assignee_type_org_ops,
     update_task_notes,
 )
+from create_retro_subtask import ensure_retro_subtask  # noqa: E402
+
+
+def plan_includes_retro(plan: dict[str, Any], item: dict[str, Any]) -> bool:
+    if item.get("retro") is True:
+        return True
+    return plan.get("include_retro_subtasks") is True
 
 
 def _notes_for_item(item: dict[str, Any], default_department: str) -> str:
@@ -115,6 +122,7 @@ def main() -> None:
     }
 
     created: list[dict[str, Any]] = []
+    retro_created: list[dict[str, Any]] = []
     for item in reversed(items):
         name = item["name"]
         name_stripped = name.strip()
@@ -133,6 +141,27 @@ def main() -> None:
                 f"  + {sub['gid']}  {name}  → 担当: {item.get('assignee')}{cf_note}"
             )
         )
+        worker = item.get("assignee")
+        if sub_gid and worker and plan_includes_retro(plan, item):
+            retro_status, retro_gid = ensure_retro_subtask(
+                sub_gid,
+                str(worker),
+                department=str(item.get("department") or args.department),
+                token=token,
+            )
+            retro_created.append(
+                {
+                    "parent_sub_gid": sub_gid,
+                    "worker": worker,
+                    "retro_gid": retro_gid,
+                    "status": retro_status,
+                }
+            )
+            print(
+                console_safe(
+                    f"    retro {retro_status}  {retro_gid}  under {sub_gid}"
+                )
+            )
 
     if args.update_parent_assignee:
         notes = merge_notes_with_assignment(
@@ -145,7 +174,11 @@ def main() -> None:
         print(console_safe(f"Parent notes → 担当: {args.update_parent_assignee}, 状態: in_progress"))
         set_assignee_type_org_ops(args.parent, token)
 
-    out = {"parent_gid": args.parent, "created": [{"gid": t["gid"], "name": t.get("name")} for t in created]}
+    out = {
+        "parent_gid": args.parent,
+        "created": [{"gid": t["gid"], "name": t.get("name")} for t in created],
+        "retro_subtasks": retro_created,
+    }
     print(json.dumps(out, ensure_ascii=False, indent=2))
 
 

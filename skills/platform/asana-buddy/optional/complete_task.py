@@ -23,6 +23,20 @@ from asana_program_common import (  # noqa: E402
 )
 
 
+def _retro_gate_hook(epic_gid: str) -> int:
+    """WARN (and optionally block) before org-os complete on epics."""
+    py = _REPO_ROOT / ".venv/Scripts/python.exe"
+    if not py.is_file():
+        py = Path(sys.executable)
+    cmd = [
+        str(py),
+        str(_REPO_ROOT / "tools/epic_retrospective_complete_hook.py"),
+        "--epic",
+        epic_gid,
+    ]
+    return subprocess.run(cmd, cwd=str(_REPO_ROOT)).returncode
+
+
 def _org_os_complete_epic(epic_gid: str, *, dry_run: bool, strict: bool) -> int:
     """Invoke org-os complete (--allow-skip unless --strict)."""
     py = _REPO_ROOT / ".venv/Scripts/python.exe"
@@ -90,6 +104,9 @@ def main() -> None:
             sys.exit(4)
 
     if completed and not args.skip_org_os and is_epic_task(args.gid, token, task=task):
+        retro_rc = _retro_gate_hook(args.gid)
+        if retro_rc != 0:
+            sys.exit(retro_rc)
         rc = _org_os_complete_epic(args.gid, dry_run=False, strict=args.strict_os)
         if rc != 0:
             sys.exit(rc)

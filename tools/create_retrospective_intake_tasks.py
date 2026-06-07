@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -60,6 +61,20 @@ def _human_blocks(summary: str) -> tuple[str, str]:
     return human, tech
 
 
+REQUESTER_PLACEHOLDER = "（Asana 承認サブのコメント、または --requester-notes を使用）"
+
+
+def _requester_opt_out() -> bool:
+    return os.environ.get("ORG_OPS_RETRO_REQUESTER_OPT_OUT", "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+    )
+
+
+def requester_notes_ok(text: str) -> bool:
+    body = (text or "").strip()
+    return bool(body) and body != REQUESTER_PLACEHOLDER
 def _gate_ok(parent: str) -> bool:
     r = subprocess.run(
         [sys.executable, str(ROOT / "tools/check_retrospective_intake_gate.py"), "--parent", parent],
@@ -124,6 +139,11 @@ def main() -> int:
         help="Skip Asana gate when requester approved in chat (--requester-notes required)",
     )
     p.add_argument(
+        "--allow-empty-requester",
+        action="store_true",
+        help="Opt-out: allow intake without requester notes (legacy)",
+    )
+    p.add_argument(
         "--add-candidate",
         action="append",
         default=[],
@@ -146,6 +166,15 @@ def main() -> int:
             )
             return 1
 
+    require_requester = not args.allow_empty_requester and not _requester_opt_out()
+    if require_requester and not requester_notes_ok(requester):
+        print(
+            "requester opinion required — pass --requester-notes with non-empty text, "
+            "or opt out with --allow-empty-requester / ORG_OPS_RETRO_REQUESTER_OPT_OUT=1",
+            file=sys.stderr,
+        )
+        return 1
+
     data = json.loads(args.retro.read_text(encoding="utf-8"))
     cands = list(data.get("intake_candidates") or [])
     for extra in args.add_candidate or []:
@@ -165,7 +194,7 @@ def main() -> int:
         return 0
 
     if not requester:
-        requester = "（Asana 承認サブのコメント、または --requester-notes を使用）"
+        requester = REQUESTER_PLACEHOLDER
 
     load_env_from_dotfile()
     token = get_token()

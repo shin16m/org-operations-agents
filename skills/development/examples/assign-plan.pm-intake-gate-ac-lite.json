@@ -1,0 +1,69 @@
+{
+  "parent_title": "pm_intake_gate 拡張 — AC 表・実行契約チェック",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【1/7-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "非 UI ツール拡張。設計フェーズ skip。現状 pm_intake_gate.py は full-ui ## 依存 のみ。AC Must 表・tech-designer 実行契約節チェックを追加する。",
+      "summary": "mode=requirements。`output/development/requirements/1215475096499996-requirements.md` に AC 表・実行契約 gate 条件・受け入れ基準を記載。参照: docs/design/development-delivery-io.md · delivery-completion-standard.md。",
+      "done_when": "要件定義書が保存され、AC Must 表検査・実行契約（起動コマンド1本）検査のスコープが明確である。"
+    },
+    {
+      "name": "【1/7-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【1/7-3・開発】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件に従う。",
+      "summary": "pm_intake_gate.py に AC 表（Must 行）・実行契約（起動コマンド1本）チェック追加。test_pm_intake_gate.py 拡張。docs/design/development-delivery-io.md に gate 条件 1 節追記。",
+      "done_when": "unittest green（test_pm_intake_gate.py）。pm_intake_gate.py が欠落時 BLOCKED を返す。"
+    },
+    {
+      "name": "【1/7-4・開発】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "code ゲート。",
+      "summary": "review_kind: code。CodeReviewResult を出力。",
+      "done_when": "CodeReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【1/7-5・開発】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "unittest / dryrun 検証。",
+      "summary": "review_kind: verification。`python -m unittest tools.test_pm_intake_gate` green 確認。VerificationResult を出力。",
+      "done_when": "VerificationResult status が passed。"
+    },
+    {
+      "name": "【1/7-6・開発】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "as-built 文書化。",
+      "summary": "mode=as-built-spec。`output/development/specs/1215475096499996-spec.md` を作成。",
+      "done_when": "事後詳細仕様書が保存されている。"
+    },
+    {
+      "name": "【1/7-7・開発】mismatch review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "要件 vs 事後仕様の整合ゲート。",
+      "summary": "review_kind: mismatch。MismatchReviewResult を出力。",
+      "done_when": "MismatchReviewResult が passed または fix_target 処理済。"
+    }
+  ]
+}

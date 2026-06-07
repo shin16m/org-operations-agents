@@ -19,6 +19,9 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 ASANA = ROOT / "skills/platform/asana-buddy/optional"
 
+R3_ESCALATION_MARKER = "fix_escalation: R3"
+R3_FIX_TITLE_RE = re.compile(r"\[fix\].*\(R3\)", re.I)
+
 DEPT_FROM_OUTPUT = {
     "development": "development",
     "ux": "ux",
@@ -62,6 +65,63 @@ def format_findings(findings: list[dict[str, Any]] | None) -> str:
         if msg:
             lines.append(f"- [{sev}] {msg}")
     return "\n".join(lines) if lines else "（findings なし — summary を参照）"
+
+
+def build_r3_escalation_comment(
+    *,
+    fix_round: int,
+    gate_label: str,
+    review_path: Path,
+) -> str:
+    return (
+        f"## 依頼者向け — fix R{fix_round} エスカレーション\n\n"
+        f"同一ゲート `{gate_label}` で修正ラウンド **R{fix_round}** に到達しました。\n"
+        "L3b 自動 worker kick を停止します。依頼者判断をお願いします。\n\n"
+        f"- review JSON: `{_rel_path(review_path)}`\n"
+        "- SSOT: docs/design/pm-review-rework-ssot.md § fix ループ上限\n"
+    )
+
+
+def post_r3_escalation_if_needed(
+    *,
+    parent_gid: str,
+    fix_round: int,
+    gate_label: str,
+    review_path: Path,
+    token: str,
+) -> None:
+    if fix_round < 3:
+        return
+    if str(ASANA) not in sys.path:
+        sys.path.insert(0, str(ASANA))
+    from asana_program_common import console_safe, create_task_story  # noqa: WPS433
+
+    body = build_r3_escalation_comment(
+        fix_round=fix_round,
+        gate_label=gate_label,
+        review_path=review_path,
+    )
+    create_task_story(parent_gid, body, token)
+    print(console_safe(f"R3_ESCALATION  parent={parent_gid}  round=R{fix_round}  gate={gate_label}"))
+
+
+def pm_child_has_open_r3_fix(parent_gid: str, token: str) -> bool:
+    """True when incomplete [fix] R3+ subs block automatic worker kick."""
+    if str(ASANA) not in sys.path:
+        sys.path.insert(0, str(ASANA))
+    from asana_program_common import fetch_task, list_subtasks  # noqa: WPS433
+
+    for sub in list_subtasks(parent_gid, token):
+        if sub.get("completed"):
+            continue
+        name = str(sub.get("name") or "")
+        if R3_FIX_TITLE_RE.search(name):
+            return True
+        gid = str(sub.get("gid") or "")
+        notes = str(fetch_task(gid, token).get("notes") or "")
+        if R3_ESCALATION_MARKER in notes:
+            return True
+    return False
 
 
 def resolve_workers(
@@ -170,6 +230,8 @@ def assemble_fix_notes(
     fix_block = build_fix_request_block(review, review_path)
     bg = f"Review NG に伴う修正（R{round_n}）。ゲート: {gate_label}。"
     summary_parts = ["## 修正依頼", fix_block]
+    if round_n >= 3:
+        summary_parts.append(R3_ESCALATION_MARKER)
     if worker_mode:
         summary_parts.insert(0, f"**{worker_mode}**")
     summary = "\n\n".join(summary_parts)
@@ -439,6 +501,15 @@ def main() -> int:
                     fix_gid=fix_gid,
                 )
                 update_task_notes(rec["gid"], notes, token)
+
+    if plan["fix_round"] >= 3:
+        post_r3_escalation_if_needed(
+            parent_gid=args.parent,
+            fix_round=plan["fix_round"],
+            gate_label=plan["gate_label"],
+            review_path=review_path,
+            token=token,
+        )
 
     out = {
         "parent_gid": args.parent,

@@ -43,7 +43,7 @@ check_epic_audit_gate exit 0
 | notes | うまくいった点 / 改善したい点 / 次エピック候補 |
 | CLI | [`create_retro_subtask.py`](../../skills/platform/asana-buddy/optional/create_retro_subtask.py) |
 
-Phase 2: assign plan への [retro] 自動同梱。
+Phase 2: assign plan への [retro] 自動同梱 — plan フィールド `include_retro_subtasks` または item `retro: true` → `pm_assign_subtasks.py` が `ensure_retro_subtask()` を呼ぶ。
 
 ## 成果物パス
 
@@ -58,14 +58,16 @@ Phase 2: assign plan への [retro] 自動同梱。
 
 ## 依頼者承認（intake 起票 · opt-in）
 
-**デフォルト:** gate 無しで `create_retrospective_intake_tasks.py` が全候補を起票可。
+**デフォルト（Phase 2）:** `create_retrospective_intake_gate.py` が【承認】サブを作成。opt-out: `--skip-gate` · `ORG_OPS_RETRO_INTAKE_GATE_OPT_OUT=1`
 
-**opt-in トリガー（いずれか）:**
+**legacy opt-in トリガー（opt-out 時）:**
 
 - `create_retrospective_intake_gate.py --require-human-approval`
 - retro JSON `human_retro_intake_gate: true`
 - env `ORG_OPS_RETRO_INTAKE_GATE=1`
 - epic notes `human_retro_intake_gate: yes`
+
+**依頼者意見（Phase 2 · 既定必須）:** `create_retrospective_intake_tasks.py` は `--requester-notes` 必須。opt-out: `--allow-empty-requester` · `ORG_OPS_RETRO_REQUESTER_OPT_OUT=1`
 
 - マーカー: `【承認】レトロ改善候補 → intake 起票`
 - opt-in 時、未承認候補は Asana タスク化しない（epic-retro JSON にのみ残す）

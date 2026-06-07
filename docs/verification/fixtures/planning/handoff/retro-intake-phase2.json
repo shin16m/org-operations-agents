@@ -1,0 +1,77 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "レトロ / intake 自動化 Phase 2",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【platform】レトロ / intake 自動化 Phase 2",
+    "notes_markdown": "## 依頼者向け（人間が最初に読む）\n\n**要約:** 休眠 intake バックログ（CF 未設定・watch スキップ）を **1 Epic に統合**し、レトロ→intake 自動化と platform dryrun 拡張を順に実装する。\n\n**着手順:** Execution Order CF 1→8。旧 intake タスク（【intake】接頭）は本 Epic 完了後にクローズ済み想定。\n\n| 順 | テーマ |\n|----|--------|\n| 1 | assign plan への [retro] 自動同梱 |\n| 2 | aggregate_epic_retrospective --parent フィルタ |\n| 3 | Epic 完了前 retro gate WARN |\n| 4 | run_all_teams_dryrun audit チーム追加 |\n| 5 | default.yaml suspend/resume 段階 |\n| 6 | レトロ完了前依頼者意見必須化 |\n| 7 | Asana stories 依頼者コメント自動パース |\n| 8 | dashboard Ready 件数 + pm_assign lite 初手必須 |\n\n**起動:** `org-ops-watch` または task-dispatcher → development lite。\n\n## 背景・用語（エージェント / 実装者向け）\n\n### 目的\n\nレトロ intake Phase 1（gate · create_retrospective_intake_tasks）は動作するが、[retro] 手動同梱 · aggregate 全件走査 · epic complete 前 WARN 未組込 · 6 チーム dryrun に audit 欠落などが残る。\n\n### 設計方針\n\n- **development lite** — 各子に unittest または verification dryrun 記録\n- 旧 intake GID は Step 1 バックログ整理で superseded クローズ\n- 参照: [`docs/design/task-retrospective-ssot.md`](../../../design/task-retrospective-ssot.md)\n\n### 参照\n\n- Phase 1 dryrun: [`docs/verification/platform/epic-retrospective-intake-dryrun.md`](../../platform/epic-retrospective-intake-dryrun.md)\n- Handoff SSOT: [`retro-intake-phase2.json`](retro-intake-phase2.json)"
+  },
+  "subtasks": [
+    {
+      "title": "assign plan JSON への [retro] サブ自動同梱",
+      "pillar": "platform",
+      "department": "development",
+      "background": "create_retro_subtask.py は手動。pm_assign_subtasks / assign plan 投入時に worker サブごと [retro] ネストを Phase 2 同梱する要件が未実装。",
+      "summary": "pm_assign_subtasks または assign plan schema に retro 行を解釈し、create_retro_subtask と同等のネストサブを自動作成（addProject なし）。",
+      "done_when": "ツール更新 + unittest。epic-retrospective-intake dryrun 追記 1 本。"
+    },
+    {
+      "title": "aggregate_epic_retrospective に --parent サブタスクフィルタ",
+      "pillar": "platform",
+      "department": "development",
+      "background": "現状 output/platform/retrospectives/ 全 *-retro.json を集約し、他 Epic の retro が混入する。",
+      "summary": "--parent EPIC_GID 指定時、当該 Epic 配下サブタスク GID に紐づく retro JSON のみ集約。",
+      "done_when": "aggregate_epic_retrospective.py 更新 + unittest。既存 dryrun 手順更新。"
+    },
+    {
+      "title": "Epic complete 前 check — retro gate 未作成なら WARN",
+      "pillar": "platform",
+      "department": "development",
+      "background": "check_retrospective_intake_gate.py は CLI のみ。complete_epic / orchestrator が gate 未実行を WARN しない。",
+      "summary": "complete_task / run_org_os complete 前に check_retrospective_intake_gate を呼び、exit 非 0 時は WARN comment（ブロックは opt-in）。workflow-orchestrator SKILL に手順追記。",
+      "done_when": "complete フロー + SKILL 更新。dryrun 記録 1 本。"
+    },
+    {
+      "title": "run_all_teams_dryrun.py を audit チーム対応に拡張",
+      "pillar": "platform",
+      "department": "development",
+      "background": "DEPT_PM に governance 追加済みだが audit が無い。6 チーム E2E が不完全。",
+      "summary": "audit-pm + assign-plan 例を DEPT_PM / DEPT_PLANS に追加。all-teams dryrun verification 更新。",
+      "done_when": "run_all_teams_dryrun.py 更新。docs/verification/cross-team/all-teams-dryrun.md 追記。"
+    },
+    {
+      "title": "default.yaml に suspend/resume 段階を追加",
+      "pillar": "platform",
+      "department": "development",
+      "background": "v4 は intake→triage→bootstrap→dispatch。人間承認 suspend/resume が workflow 宣言に未反映。",
+      "summary": "default.yaml（または org-os product io）に suspend/resume step 定義を追加。approval-flow.md と整合。validate_ssot_contract 通過。",
+      "done_when": "workflows/default.yaml または SSOT doc 更新 + validate 3 本 exit 0。"
+    },
+    {
+      "title": "レトロスペクティブ完了前に依頼者意見を必須化",
+      "pillar": "platform",
+      "department": "development",
+      "background": "create_retrospective_intake_tasks は --requester-approved オプションのみ。ヒューマンなし自動完了を防ぐ enforcement 弱い。",
+      "summary": "gate 無し・依頼者コメント無しで intake 起票 CLI が exit 1。Asana 【承認】レトロ改善候補 をデフォルト必須化（opt-out フラグのみ）。",
+      "done_when": "create_retrospective_intake_tasks.py + check 更新 + unittest。"
+    },
+    {
+      "title": "Asana stories から依頼者コメント自動パース",
+      "pillar": "platform",
+      "department": "development",
+      "background": "intake-asana 時に依頼者の stories コメントを snapshot に取り込む窓口が手動のみ。",
+      "summary": "intake_from_asana.py に stories API 取得を追加。依頼者（human assignee）コメントを snapshot JSON の requester_comments[] に格納。",
+      "done_when": "intake_from_asana.py + test + asana-task-intake dryrun 追記。"
+    },
+    {
+      "title": "dashboard Ready 件数表示 + execution 開発子 pm_assign lite 初手必須",
+      "pillar": "platform",
+      "department": "development",
+      "background": "org-os watch --once の Ready 件数が dashboard/poller UI に無い。development 子で pm_assign 前に lite plan 未投入のまま kick されうる。",
+      "summary": "asana_ops_poller / dashboard に ready_total 表示。execution_resume_scan が development 子 needs_pm_kick 時に pm_assign 未実施を検出して WARN または blocked。",
+      "done_when": "poller/dashboard 更新 + execution ガード unittest または dryrun 1 本。"
+    }
+  ]
+}

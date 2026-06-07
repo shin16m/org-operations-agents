@@ -35,6 +35,13 @@ def main() -> int:
     if not args.strict:
         cmd.append("--allow-skip")
 
+    hook_cmd = [str(PY), str(ROOT / "tools/epic_retrospective_complete_hook.py"), "--epic", args.epic]
+    if args.dry_run:
+        hook_cmd.append("--dry-run")
+    hook_r = subprocess.run(hook_cmd, cwd=str(ROOT))
+    if hook_r.returncode != 0:
+        return hook_r.returncode if args.strict else 0
+
     r = subprocess.run(cmd, cwd=str(ROOT))
     return r.returncode
 

@@ -54,6 +54,9 @@ AGENT_SKILLS: dict[str, str] = {
     "developer": "skills/development/developer/SKILL.md",
     "dev-reviewer": "skills/development/dev-reviewer/SKILL.md",
     "qa-verifier": "skills/development/qa-verifier/SKILL.md",
+    "audit-pm": "skills/audit/audit-pm/SKILL.md",
+    "consistency-auditor": "skills/audit/consistency-auditor/SKILL.md",
+    "audit-reviewer": "skills/audit/audit-reviewer/SKILL.md",
 }
 
 DEPT_PM: dict[str, str] = {
@@ -62,6 +65,7 @@ DEPT_PM: dict[str, str] = {
     "analysis": "analytics-pm",
     "development": "product-manager",
     "governance": "governance-pm",
+    "audit": "audit-pm",
 }
 
 DEPT_PLANS: dict[str, Path] = {
@@ -69,6 +73,7 @@ DEPT_PLANS: dict[str, Path] = {
     "analysis": ROOT / "skills/analysis/examples/assign-plan.dryrun-v2.json",
     "development": ROOT / "skills/development/examples/assign-plan.full-ui-v1.json",
     "governance": ROOT / "skills/governance/examples/assign-plan.org-meta-v1.json",
+    "audit": ROOT / "skills/audit/examples/assign-plan.org-governance-v1.json",
 }
 
 DEPT_MARKERS: dict[str, tuple[str, ...]] = {
@@ -77,6 +82,7 @@ DEPT_MARKERS: dict[str, tuple[str, ...]] = {
     "analysis": ("分析", "analysis"),
     "development": ("開発", "development", "full-ui"),
     "governance": ("governance", "org-meta", "組織改善"),
+    "audit": ("監査", "audit", "整合性"),
 }
 
 
@@ -418,7 +424,7 @@ def write_report(
         "",
         "## 目的",
         "",
-        "4 L3 チーム（planning / ux / analysis / development）+ プラットフォーム配賦で、"
+        "4 L3 チーム（planning / ux / analysis / development）+ audit（任意）+ プラットフォーム配賦で、"
         "各 enabled slug が `comment_task` → `complete_task` まで到達することを Asana 上で確認する。",
         "",
         "## 実行",
@@ -479,7 +485,7 @@ def main() -> int:
     p.add_argument("--skip-bootstrap", action="store_true")
     p.add_argument(
         "--from-dept",
-        choices=("planning", "ux", "analysis", "development"),
+        choices=("planning", "ux", "analysis", "development", "audit"),
         help="Skip earlier departments (requires --parent)",
     )
     args = p.parse_args()
@@ -497,7 +503,7 @@ def main() -> int:
     if epic_url:
         log(f"Epic URL: {epic_url}")
 
-    dept_order = ("planning", "ux", "analysis", "development")
+    dept_order = ("planning", "ux", "analysis", "development", "audit")
     start_idx = dept_order.index(args.from_dept) if args.from_dept else 0
 
     if start_idx == 0 and not args.from_dept:
@@ -549,6 +555,12 @@ def main() -> int:
         results["development"] = run_dept_epic_child(
             epic_gid, "development", ux_gid=ux_gid or None
         )
+    if start_idx <= 4:
+        audit_gid = find_child_by_dept(epic_gid, "audit")
+        if audit_gid:
+            results["audit"] = run_dept_epic_child(epic_gid, "audit")
+        else:
+            log("SKIP  audit child not found on epic (optional for all-teams dryrun)")
 
     comment_and_complete(
         epic_gid,

@@ -2,7 +2,10 @@
 """Guard execution L3b / PM kicks until epic is Running and planning is done."""
 from __future__ import annotations
 
-from typing import Any
+import sys
+from pathlib import Path
+
+TOOLS = Path(__file__).resolve().parents[1]
 
 GATE_MARKERS = ("【承認】", "【レビュー】")
 
@@ -64,6 +67,17 @@ def log_blocked(*, epic_gid: str, tool: str, reason: str) -> None:
             f"BLOCKED  execution_kick  epic={epic_gid}  tool={tool}  reason={reason}"
         )
     )
+
+
+def worker_kick_allowed(pm_child_gid: str, token: str) -> tuple[bool, str]:
+    """Block L3b when open [fix] R3 escalation is pending on PM child."""
+    if str(TOOLS) not in sys.path:
+        sys.path.insert(0, str(TOOLS))
+    from pm_create_fix_subtask import pm_child_has_open_r3_fix  # noqa: WPS433
+
+    if pm_child_has_open_r3_fix(pm_child_gid, token):
+        return False, "fix_r3_escalation_pending"
+    return True, "ok"
 
 
 def resolve_epic_for_pm_child(pm_child_gid: str, token: str) -> str:

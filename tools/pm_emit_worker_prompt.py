@@ -71,14 +71,88 @@ def _run_fetch_assignee(gid: str) -> str | None:
     return m.group(1) if m else None
 
 
+FIX_TITLE_RE = re.compile(r"^\[fix\]", re.I)
+REVIEW_JSON_RE = re.compile(r"review JSON:\s*`([^`]+)`", re.I)
+
+
+def _rel_repo_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(ROOT.resolve()).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _fix_context_block(*, parent_gid: str, sub_name: str, sub_notes: str) -> str:
+    if not FIX_TITLE_RE.search(sub_name.strip()):
+        return ""
+    lines = ["", "【fix コンテキスト — 必須】"]
+    match = REVIEW_JSON_RE.search(sub_notes)
+    if match:
+        review_rel = match.group(1)
+        lines.append(f"- review JSON: `{review_rel}`")
+        review_path = ROOT / review_rel
+        if review_path.is_file():
+            import json
+
+            review = json.loads(review_path.read_text(encoding="utf-8"))
+            findings = review.get("findings") or []
+            if findings:
+                lines.append("- findings 要約:")
+                for item in findings[:8]:
+                    sev = item.get("severity", "medium")
+                    msg = str(item.get("message", "")).strip()
+                    if msg:
+                        lines.append(f"  - [{sev}] {msg}")
+            summary = str(review.get("summary", "")).strip()
+            if summary:
+                lines.append(f"- summary: {summary[:300]}")
+    smoke = ROOT / f"output/development/smoke/{parent_gid}.md"
+    lines.append(f"- developer smoke: `{_rel_repo_path(smoke)}`")
+    return "\n".join(lines)
+
+
+def _run_fetch_notes(gid: str) -> tuple[str, str]:
+    from win_subprocess import run as win_run  # noqa: WPS433
+
+    r = win_run(
+        [str(PY), str(ASANA / "fetch_task.py"), "--gid", gid],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        env={**dict(__import__("os").environ), "PYTHONIOENCODING": "utf-8"},
+    )
+    if r.returncode != 0:
+        return "", ""
+    name = ""
+    notes = ""
+    in_notes = False
+    for line in r.stdout.splitlines():
+        if line.startswith("name:"):
+            name = line.split(":", 1)[1].strip()
+        if line.strip() == "--- notes ---":
+            in_notes = True
+            continue
+        if in_notes:
+            notes += line + "\n"
+    return name, notes
+
+
 def emit_snippet(
     *,
     department: str,
     parent_gid: str,
     sub_gid: str,
     worker_slug: str,
+    sub_name: str = "",
+    sub_notes: str = "",
 ) -> str:
     skill_md = skill_md_for_slug(worker_slug)
+    fix_block = _fix_context_block(
+        parent_gid=parent_gid,
+        sub_name=sub_name,
+        sub_notes=sub_notes,
+    )
     attach_block = ""
     if department == "development" and worker_slug == "requirements-writer":
         attach_block = f"""
@@ -95,7 +169,7 @@ def emit_snippet(
 あなたは {worker_slug} スキルです。Asana サブタスク GID {sub_gid} のみを実行してください。
 
 1. fetch_task.py --gid {sub_gid} --show-assignee で 担当: {worker_slug} を確認（不一致なら PM へ）
-2. サブ notes の done_when に従い成果物を作成（PM 代行禁止 · 他サブ着手禁止）{attach_block}
+2. サブ notes の done_when に従い成果物を作成（PM 代行禁止 · 他サブ着手禁止）{attach_block}{fix_block}
 
 親タスク {parent_gid} の workflow 全体・他サブタスクは実行しないこと。
 """
@@ -162,6 +236,7 @@ def main() -> int:
     targets = pending_workers if args.all else pending_workers[:1]
     for gid, name, worker in targets:
         print(f"--- {name} ({gid}) → {worker} ---")
+        _, sub_notes = _run_fetch_notes(gid)
         try:
             print(
                 emit_snippet(
@@ -169,6 +244,8 @@ def main() -> int:
                     parent_gid=args.parent,
                     sub_gid=gid,
                     worker_slug=worker,
+                    sub_name=name,
+                    sub_notes=sub_notes,
                 )
             )
         except (KeyError, FileNotFoundError) as exc:

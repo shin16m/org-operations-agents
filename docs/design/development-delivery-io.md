@@ -90,6 +90,18 @@ product-manager（intake・profile・サブタスク分解）
 
 notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](development-pm-assignment.md)
 
+### pm_intake_gate（PM assign 前）
+
+`python tools/pm_intake_gate.py` は development 子の notes（または `--plan` の profile）を検査する。
+
+| profile | 必須節 |
+|---------|--------|
+| `full-ui` | `## 依存（読み取り専用）`（UX パス + Figma URL）· `## 受け入れ基準`（Must 行 + 検証コマンド）· `## 実行契約`（起動コマンド 1 本） |
+| `full` | `## 受け入れ基準` · `## 実行契約` |
+| `lite` / `doc-only` | gate 対象外（full-ui `## 依存` のみ従来どおり） |
+
+BLOCKED 時は `pm_assign_subtasks` 前に UX / 企画へ差し戻し。参照: [`acceptance-criteria-template.md`](acceptance-criteria-template.md)
+
 ### full-ui 前提（Epic 内）
 
 1. 同一 Epic の **UX 子タスクが完了**していること
