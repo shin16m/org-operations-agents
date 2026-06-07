@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "Build Asana OS — B2 dashboard + queue",
+    "locale": "ja-JP",
+    "track": "build-asana-os",
+    "epic_code": "B2"
+  },
+  "epic": {
+    "title": "【B2】可視化ダッシュボード + org-os queue 統合",
+    "notes_markdown": "## 目的\n自動運用 ★4。ポーリング運用でも Asana を開かず backlog（READY/WAIT/sessions）を把握できる。\n\n## ★4 受入条件（一部）\n- dashboard で queue + sessions 一覧\n- org-ops-watch から dashboard 同時起動可能\n\n## 依存\n【A1】env/CF 揃い · 【B1】と並行可\n\n## 参照\n- レトロ #4 org-os watch → poller ダッシュボード連携\n- `tools/asana_ops_dashboard.py`"
+  },
+  "subtasks": [
+    {
+      "title": "B2-1 dashboard org-os queue API",
+      "pillar": "development",
+      "background": "Phase 3 dashboard は sessions のみで org-os queue が見えない。",
+      "summary": "`asana_ops_dashboard.py` に `/api/queue/ready` · `/api/queue/wait` を追加（`org_os.queue` 利用）。",
+      "done_when": "API が JSON で ready/wait 一覧を返す。"
+    },
+    {
+      "title": "B2-2 Sessions + Queue 統合 UI",
+      "pillar": "ux",
+      "background": "WAIT / RESUME / READY / RUNNING を 1 画面で見たい。",
+      "summary": "dashboard HTML を更新。sessions 表 + queue 表（READY/WAIT）を統合表示。",
+      "done_when": "ブラウザで sessions と queue が同時に refresh 表示される。"
+    },
+    {
+      "title": "B2-3 runner ログ tail（任意）",
+      "pillar": "development",
+      "background": "ポーリング運用中の runner 出力を dashboard から追いたい。",
+      "summary": "`/api/runner-log` で直近 N 行（ファイル or ring buffer）を返す（任意実装）。",
+      "done_when": "実装した場合、dashboard から runner 直近ログが見える。スキップ時は epic notes に理由記載。"
+    },
+    {
+      "title": "B2-4 org-ops-watch.ps1 -Dashboard オプション",
+      "pillar": "platform",
+      "background": "runner と dashboard を別ターミナルで起動するのが面倒。",
+      "summary": "`org-ops-watch.ps1 -Dashboard` で runner + dashboard を同時起動。",
+      "done_when": "1 コマンドで watch + dashboard が起動する。"
+    },
+    {
+      "title": "B2-5 Phase 3 dryrun 更新（queue 表示）",
+      "pillar": "qa",
+      "background": "自動運用 ★4 の可視化受入証跡が必要。",
+      "summary": "`docs/verification/platform/asana-driven-ops-phase3-dryrun.md` を queue 表示込みで更新、または新規 dryrun 記録。",
+      "done_when": "verification に queue API / UI の確認結果が記載されている。"
+    }
+  ]
+}

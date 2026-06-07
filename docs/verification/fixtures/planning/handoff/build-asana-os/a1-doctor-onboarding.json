@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "Build Asana OS — A1 doctor + onboarding",
+    "locale": "ja-JP",
+    "track": "build-asana-os",
+    "epic_code": "A1"
+  },
+  "epic": {
+    "title": "【A1】org-os セットアップ doctor + 初回オンボーディング",
+    "notes_markdown": "## 目的\nセットアップ UX を ★2→★4 へ。不足 env / CF / エージェント ID を機械検知し、修復コマンドまで案内する。\n\n## ★4 受入条件\n- 新規 fork 者が doctor → sync → `watch --once` までドキュメント通り 1 回で到達\n- `validate_ssot_contract.py` に doctor 契約が追加されている\n\n## 依存\nなし（Build Asana OS 本流の先頭エピック）\n\n## 参照\n- `products/org-os/README.md`\n- `tools/sync_org_os_cf_env.py`"
+  },
+  "subtasks": [
+    {
+      "title": "A1-1 org-os doctor CLI 実装",
+      "pillar": "platform",
+      "background": "初回セットアップで .env / CF GID / ORG_OS_AGENT_ID の不足に気づくのが遅い。",
+      "summary": "`org-os doctor`（`tools/org_os.py doctor` または products/org-os 側）を実装。ASANA_TOKEN, ASANA_PROJECT_ID, org-os CF GID 一式, ORG_OS_AGENT_ID, Task Type / Agent Type GID を検証し exit 0/1 を返す。",
+      "done_when": "doctor コマンドがローカルで実行可能。必須キー不足時に非ゼロ exit。"
+    },
+    {
+      "title": "A1-2 不足時の修復ヒント出力",
+      "pillar": "platform",
+      "background": "doctor が FAIL しても次に何をすべきか分からないと UX が ★4 にならない。",
+      "summary": "不足キーごとに stderr へ「次に打つコマンド」を 1 行表示（例: `sync_org_os_cf_env.py --write -y`）。",
+      "done_when": "代表的な 3 パターン（token なし / OS State CF なし / ORG_OS_AGENT_ID なし）で正しいヒントが出る。"
+    },
+    {
+      "title": "A1-3 Asana 実接続チェック（--online）",
+      "pillar": "platform",
+      "background": "env だけ揃っても Asana 側 CF enum 名が SSOT と不一致だと queue / syscall が壊れる。",
+      "summary": "`doctor --online` でプロジェクト存在と CF enum 名（Ready/Running/Waiting/Done 等）を API 検証。",
+      "done_when": "--online 実行で SSOT 不一致時に WARN/ERROR と修復案が出る。"
+    },
+    {
+      "title": "A1-4 scripts/org-ops/setup.ps1 初回 1 コマンド",
+      "pillar": "platform",
+      "background": "setup_venv → .env → doctor → sync の順序が README に散在している。",
+      "summary": "`scripts/org-ops/setup.ps1` を追加。setup_venv → .env 存在確認 → doctor → sync 案内までを 1 エントリに集約。",
+      "done_when": "PowerShell から setup.ps1 実行で初回オンボーディング手順が完走できる（token 設定除く）。"
+    },
+    {
+      "title": "A1-5 SSOT / README 更新（初回セットアップ 1 ページ）",
+      "pillar": "governance",
+      "background": "doctor 起点の手順が SSOT 化されていないと横展開できない。",
+      "summary": "`products/org-os/README.md` と `docs/e2e/` に doctor 起点の「初回 10 分」手順を 1 ページに統合。",
+      "done_when": "README のセットアップ節が doctor ファーストになっている。"
+    },
+    {
+      "title": "A1-6 validate_ssot_contract.py 拡張",
+      "pillar": "governance",
+      "background": "doctor 存在と README 参照が CI で守られないと後退する。",
+      "summary": "`validate_ssot_contract.py` に doctor 存在・README 参照の cross-file check を追加。",
+      "done_when": "`python tools/validate_ssot_contract.py` exit 0。doctor 関連契約が含まれる。"
+    }
+  ]
+}

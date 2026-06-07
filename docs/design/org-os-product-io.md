@@ -2,7 +2,7 @@
 
 | 項目 | 内容 |
 |------|------|
-| 版 | 2.0 |
+| 版 | 2.2 |
 | エピック | `1215127084158665` |
 | governance 子 | `1215127412682263` |
 | 参照 Handoff | `output/planning/handoff/handoff.os-kernelize.json` |
@@ -131,6 +131,30 @@ Ready/Running/Waiting --(complete)--> Done
 | `asana_ops_poller --once` | `PLANNING_DISPATCH`（planning phase READY）または `DISPATCH`（execution RESUME） |
 | `complete_epic_os_state` | CLI `org-os complete` |
 
+### 7.1 org-ops 依存マトリクス（§7.1 · C2 · 更新責務）
+
+| ツール / モジュール | syscall | queue | asana_client read | CLI ラッパー | 更新責務 |
+|---------------------|---------|-------|-------------------|--------------|----------|
+| `tools/org_os.py` | via CLI | via CLI | via CLI | **入口** | platform |
+| `tools/complete_epic_os_state.py` | `complete` | — | — | subprocess `org_os.py` | platform |
+| `tools/approval_helper.py` | `resume` | — | `resolve_epic_gid` | — | platform |
+| `tools/asana_ops_poller.py` | `suspend` · `dispatch`→`start` | `wait_list` | `resolve_epic_gid` | `org_os.py dispatch` | platform |
+| `tools/wakuoke_resume_scan.py` | — | `ready_queue` | — | — | platform |
+| `tools/asana_ops_dashboard.py` | — | `ready_queue` · `wait_list` | — | — | platform |
+| `tools/backfill_epic_os_state.py` | `init_epic` | — | via `backfill.scan` | — | platform |
+| `tools/execution_resume_scan.py` | — | `list_project_tasks` | `read_os_state` · `is_watch_epic` | — | platform |
+| `tools/execution_kick_guard.py` | — | — | `read_os_state` · `fetch_task` | — | platform |
+| `tools/execution_stuck_escalate.py` | — | — | `read_os_state` · `fetch_task` | — | platform |
+| `tools/epic_resolve.py` | — | — | `resolve_epic_gid` | — | platform |
+| `tools/bypass_planning_gate.py` | `resume` | — | — | — | platform |
+| `handoff_to_asana` / `init_epic_os_state` | `init_epic` | — | — | — | asana-buddy |
+| `create_approval_subtask` | `suspend` | — | `resolve_epic_gid` | — | asana-buddy |
+| `tools/validate_ssot_contract.py` | grep 禁止 | — | — | — | governance |
+
+**境界ルール（CI 検証）:** `tools/*.py`（`org_os.py` 除く）に `set_org_os_custom_fields` · `asana_client.set_os_state` 直叩きがあれば `validate_ssot_contract` が exit 1。
+
+外部利用: [`products/org-os/CONSUMER.md`](../../products/org-os/CONSUMER.md) · リリース: [`RELEASE.md`](../../products/org-os/RELEASE.md)
+
 ## 8. 検証
 
 ```powershell
@@ -139,6 +163,8 @@ python tools/org_os.py queue ready --project <PROJECT_GID> --json
 python tools/org_os.py queue wait --project <PROJECT_GID> --json
 python tools/org_os.py watch --project <PROJECT_GID> --once
 python tools/validate_ssot_contract.py
+python tools/test_org_os_integration.py -v
+pytest products/org-os/tests -q
 ```
 
 ## 9. 関連
@@ -146,3 +172,23 @@ python tools/validate_ssot_contract.py
 - approval flow: [`approval-flow.md`](approval-flow.md)
 - asana-driven-ops: [`asana-driven-ops.md`](asana-driven-ops.md)
 - org-os dryrun: [`../verification/platform/org-os-product-dryrun.md`](../verification/platform/org-os-product-dryrun.md)
+
+## 10. バージョン方針（semver · v1.0.0 凍結）
+
+パッケージ版は [`products/org-os/pyproject.toml`](../../products/org-os/pyproject.toml) · [`CHANGELOG.md`](../../products/org-os/CHANGELOG.md) が SSOT。
+
+| 領域 | 1.0.0 時点の安定 API | 破壊的変更の扱い |
+|------|----------------------|------------------|
+| **syscall** | `start` · `suspend` · `resume` · `complete` · `init_epic` のシグネチャと遷移表（§3） | MAJOR bump + CHANGELOG + migration 節 |
+| **queue** | `ready_queue` · `wait_list` の返却キー（`epic_gid`, `os_state`, `suspend_reason` 等） | フィルタ条件変更は MINOR、キー削除は MAJOR |
+| **asana_client read** | `read_os_state` · `is_watch_epic` · `resolve_epic_gid` | 同上 |
+| **env 契約** | §5.2 の env キー名 | キー rename は MAJOR（sync CLI 併記） |
+| **CLI** | §6 のサブコマンド名 | 削除・改名は MAJOR |
+
+**MINOR** 許容: 後方互換の追加（新 syscall 引数 optional、新 queue キー、doctor チェック追加）。
+
+**PATCH** 許容: バグ修正 · エラーメッセージ改善 · テストのみ。
+
+**org-ops 側:** `tools/org_os.py` はリポジトリ内ラッパー。外部利用は `pip install org-os` 後の `org-os` エントリポイントを正とする（§6）。
+
+**Suspend reason v2.0 注記:** 1.0.0 以降、syscall `suspend(reason=...)` は Asana 表示名のみ受け付ける。旧 snake_case は非対応（0.x からの利用者は CHANGELOG を参照）。

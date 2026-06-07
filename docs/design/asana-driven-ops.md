@@ -1,7 +1,7 @@
 # Asana ドリブン運用 — org-ops SSOT（Phase 1–3）
 
-| 版 | 1.4 |
-| 日付 | 2026-05-26 |
+| 版 | 1.5 |
+| 日付 | 2026-06-07 |
 | Phase 1 エピック | `1215101833446108` |
 | Phase 2 エピック | `1215087157303128` |
 | Phase 3 エピック | `1215087157410286` |
@@ -12,11 +12,34 @@
 
 Asana を運用ダッシュボードとして、**AI タスク検出 → intake → 人間承認 → エージェント再開** をチャット依存なく追跡する。Phase 1 は **CLI ポーリング MVP**（Webhook / ダッシュボードは Phase 2+）。
 
+## 本番標準入口（B1 SSOT · 2026-06-07）
+
+| 用途 | 入口 | 備考 |
+|------|------|------|
+| **本番 watch 常駐** | [`scripts/org-ops/org-ops-watch.ps1`](../../scripts/org-ops/org-ops-watch.ps1) | 推奨: `-Yes`（bootstrap 実行）· 任意 `-AutoKick` |
+| 本番 watch（cmd） | `scripts\org-ops\org-ops-watch-yes.cmd` | PowerShell 不要 |
+| AutoKick 常駐 | `scripts\org-ops\org-ops-watch-auto.cmd` | `CURSOR_API_KEY` + `ORG_OPS_AUTO_KICK=1` |
+| **開発・検証のみ** | `python tools/asana_ops_runner.py --once --dry-run --human` | poller 直叩きも dev のみ |
+| **人手 dispatch（例外）** | `task_dispatcher.py` · チャット和久桶 | fallback · 標準ループ外 |
+
+```
+org-ops-watch.ps1
+  → asana_ops_runner --watch
+       1. approval_helper_pass
+       2. scan_projects (auto-bootstrap · RESUME+HELPER)
+       3. scan_resume_and_dispatch (PLANNING_DISPATCH / DISPATCH)
+       4. scan_execution_and_kick (L3b)
+       5. archive_resumable_sessions
+```
+
+人手 dispatch・poller 単体は **fallback / 開発** として [`docs/e2e/org-ops-watch-runbook.md`](../e2e/org-ops-watch-runbook.md) 参照。
+
 ## コンポーネント
 
 | コンポーネント | パス | 役割 |
 |----------------|------|------|
-| スキャン / ポーラ | [`tools/asana_ops_poller.py`](../../tools/asana_ops_poller.py) | プロジェクト走査 · intake · 保留監視 · **resume scan**（`scan_ready_actions` + `org-os dispatch`）· `--no-scan-resume` で無効化 |
+| **運用 runner（本番 SSOT）** | [`tools/asana_ops_runner.py`](../../tools/asana_ops_runner.py) | watch 1 本化: helper → bootstrap → resume → execution kick → archive |
+| スキャン / ポーラ | [`tools/asana_ops_poller.py`](../../tools/asana_ops_poller.py) | runner 内部 · **開発時の直叩きのみ**（本番は runner 経由） |
 | 保留確認 | [`tools/check_workflow_suspend.py`](../../tools/check_workflow_suspend.py) | suspended 一覧 / gate 状態 · resumable hint |
 | RESUME snippet | [`tools/pm_emit_resume_prompt.py`](../../tools/pm_emit_resume_prompt.py) | **Phase 2** — gate complete 後の再開プロンプト |
 | sessions 共有 | [`tools/asana_ops_sessions.py`](../../tools/asana_ops_sessions.py) | **Phase 3** — session JSON · webhook ログ |
@@ -546,6 +569,7 @@ asana_ops_runner --watch  (ORG_OPS_AUTO_KICK=1)
 | 変数 | 既定 | 意味 |
 |------|------|------|
 | `ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` | `1` | runner 1 サイクルあたり execution kick 上限 |
+| `ORG_OPS_MAX_EXECUTION_STUCK_CYCLES` | `5` | 企画完了後 Running stuck の ESCALATE 閾値（[`execution_stuck_escalate.py`](../../tools/execution_stuck_escalate.py)） |
 
 ### 状態表（SSOT）
 

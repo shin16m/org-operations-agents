@@ -182,9 +182,31 @@ python tools/wakuoke_resume_scan.py \
 
 **スコープ外（C ではやらない）**
 
-- 自動 execution dispatch（resume 後の dispatch は和久桶セッションが Asana コメントを読んで人間判断）
+- RESUME 後の **自動** execution dispatch kick（**L2 デフォルトは workflow-orchestrator が task-dispatcher まで自動進行** — [`dispatch-auto-proceed-ssot.md`](dispatch-auto-proceed-ssot.md)。opt-in `human_execution_dispatch` 時のみチャット確認）
 - planner / PM 自動再起動
 - Webhook（既存 polling MVP 路線維持）
+
+### 5.5 max_ng 到達時 runbook（人手）
+
+`wakuoke_resume_scan` / `asana_ops_runner` が **`ESCALATE parent=<gid> count=M/M`** を出力したら、自動 RESUME ループは停止している。依頼者が next action を決める。
+
+| 手順 | 操作 |
+|------|------|
+| 1. ログ確認 | `output/platform/approval-helper/ng-counters/<parent>.json` の `history` で NG 承認サブと excerpt を確認 |
+| 2. Asana 確認 | 親 epic の escalation コメント（`ASANA_DEFAULT_HUMAN_APPROVER_GID` 宛 mention 付き）を読む |
+| 3. 差し戻し先の判断 | NG コメント内容に応じ planning-pm / 該当 PM 子 / 開発子へ手動 dispatch |
+| 4. カウンタリセット（再開時） | NG ループを解消したら `ng-counters/<parent>.json` を削除するか `ng_count` を 0 に戻す |
+| 5. 再開 | `python tools/approval_helper.py --parent <wait_target> --approval-sub <新承認サブ> --gate-kind <kind> --once`（必要時）の後 `python tools/asana_ops_runner.py --once -y --cursor-kick` |
+
+**CLI パラメータ整合**
+
+| 項目 | 既定 | 上書き |
+|------|------|--------|
+| `--max-ng` | `3` | `asana_ops_runner.py --max-ng N` · `wakuoke_resume_scan.py --max-ng N` |
+| NG counter パス | `output/platform/approval-helper/ng-counters/<parent>.json` | 削除でリセット |
+| dry-run | `ESCALATE` 行のみ（コメント投稿なし） | `--dry-run` |
+
+**やらないこと:** max_ng 到達後も runner が同じ NG ログを再処理し続ける想定はない（`consumed=true` + escalation コメントで停止）。依頼者判断なしに epic を `Done` にしない。
 
 ## 6. env キー
 

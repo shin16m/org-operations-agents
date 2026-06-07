@@ -165,6 +165,22 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["build_human_comment_body", "です・ます"],
     },
     {
+        "name": "L2 execution dispatch auto-proceed",
+        "files": [
+            "docs/design/dispatch-auto-proceed-ssot.md",
+            "docs/design/workflow-io-contract.md",
+            "docs/design/planning-gate-vs-pm-review-gate.md",
+            "skills/platform/workflow-orchestrator/SKILL.md",
+            ".cursor/rules/workflow-intake-required.mdc",
+        ],
+        "required_any": [],
+        "required_all": [
+            "human_execution_dispatch",
+            "ORG_OPS_EXECUTION_DISPATCH_CONFIRM",
+            "dispatch-auto-proceed-ssot",
+        ],
+    },
+    {
         "name": "record-wait orchestrator checklist",
         "files": [
             "skills/platform/workflow-orchestrator/SKILL.md",
@@ -173,7 +189,80 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_any": [],
         "required_all": ["--record-wait", "§H"],
     },
+    {
+        "name": "org-os doctor CLI contract",
+        "files": [
+            "products/org-os/src/org_os/doctor.py",
+            "products/org-os/src/org_os/cli.py",
+        ],
+        "required_any": [],
+        "required_all": ["doctor_local", "doctor_online"],
+    },
+    {
+        "name": "org-os doctor CLI wrapper",
+        "files": ["tools/run_org_os.py"],
+        "required_any": [],
+        "required_all": ["doctor"],
+    },
+    {
+        "name": "org-os doctor setup SSOT",
+        "files": [
+            "products/org-os/README.md",
+            "docs/e2e/org-os-first-setup.md",
+            "scripts/org-ops/setup.ps1",
+        ],
+        "required_any": [],
+        "required_all": ["setup.ps1", "doctor"],
+    },
+    {
+        "name": "org-os consumer guide",
+        "files": ["products/org-os/CONSUMER.md"],
+        "required_any": [],
+        "required_all": ["syscall", "queue", "doctor"],
+    },
+    {
+        "name": "org-os consumer README link",
+        "files": ["products/org-os/README.md"],
+        "required_any": [],
+        "required_all": ["CONSUMER.md"],
+    },
+    {
+        "name": "org-os release guide",
+        "files": ["products/org-os/RELEASE.md"],
+        "required_any": [],
+        "required_all": ["CHANGELOG", "validate_ssot_contract"],
+    },
+    {
+        "name": "org-os integration smoke test",
+        "files": ["tools/test_org_os_integration.py"],
+        "required_any": [],
+        "required_all": ["init_epic", "syscall"],
+    },
+    {
+        "name": "org-os tools dependency matrix",
+        "files": ["docs/design/org-os-product-io.md"],
+        "required_any": [],
+        "required_all": ["§7.1", "validate_ssot_contract"],
+    },
 ]
+
+# tools/*.py must not PUT epic OS State outside org_os.syscall (C2-1).
+ORG_OS_FORBIDDEN_IN_TOOLS: list[tuple[str, str]] = [
+    (
+        "set_org_os_custom_fields direct CF write",
+        r"set_org_os_custom_fields\s*\(",
+    ),
+    (
+        "asana_client.set_os_state direct write",
+        r"asana_client\.set_os_state\s*\(",
+    ),
+    (
+        "set_os_state import from asana_client",
+        r"from\s+org_os\.asana_client\s+import\s+[^;\n]*set_os_state",
+    ),
+]
+
+ORG_OS_TOOLS_ALLOWLIST = frozenset({"run_org_os.py", "org_os_bootstrap.py"})
 
 FORBIDDEN_PATTERNS: list[tuple[str, str, str]] = [
     (
@@ -238,6 +327,19 @@ def main() -> int:
         body = _read(str(cursor_rule.relative_to(ROOT)))
         if "audit" not in body:
             errors.append("workflow-intake-required.mdc missing audit department reference")
+
+    tools_dir = ROOT / "tools"
+    if tools_dir.is_dir():
+        for py_path in sorted(tools_dir.glob("*.py")):
+            if py_path.name in ORG_OS_TOOLS_ALLOWLIST:
+                continue
+            body = py_path.read_text(encoding="utf-8")
+            for label, pattern in ORG_OS_FORBIDDEN_IN_TOOLS:
+                if re.search(pattern, body):
+                    errors.append(
+                        f"org-os boundary ({label}): tools/{py_path.name} "
+                        f"matches {pattern!r} — use org_os.syscall or tools/run_org_os.py"
+                    )
 
     if errors:
         print("\nSSOT CONTRACT VALIDATION FAILED:", file=sys.stderr)

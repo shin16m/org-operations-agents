@@ -46,6 +46,8 @@
 1. **L1 初回:** intake 後の bootstrap 企画子 → `department=planning`
 2. **L2 続き:** 企画完了後 → **`ux`（Web Epic・UI 先行）** → `development` / `analysis` → **`governance`（org-meta）** → **`audit`（組織変更時・最後）**
 
+**呼び出し元:** workflow-orchestrator が **デフォルトで利用者確認なし**に L2 dispatch する（[`dispatch-auto-proceed-ssot.md`](../../../docs/design/dispatch-auto-proceed-ssot.md)）。本スキルは prompt_snippet 生成のみ。
+
 ## やらないこと
 
 - Handoff 新規作成（→ issue-story-planner / planning-pm）

@@ -1,11 +1,35 @@
 """Minimal Asana client for org-os epic CF operations."""
 from __future__ import annotations
 
+from typing import Any, Callable
+
 import requests
 
 from org_os.env import assignee_type_cf_config, get_token, org_os_cf_config, suspend_reason_cf_config, task_type_cf_config
 
 ASANA_BASE = "https://app.asana.com/api/1.0"
+
+HttpGet = Callable[..., Any]
+HttpPut = Callable[..., Any]
+
+_http_get: HttpGet = requests.get
+_http_put: HttpPut = requests.put
+
+
+def set_http_handlers(*, get: HttpGet | None = None, put: HttpPut | None = None) -> None:
+    """Inject HTTP handlers for tests (no network)."""
+    global _http_get, _http_put
+    if get is not None:
+        _http_get = get
+    if put is not None:
+        _http_put = put
+
+
+def reset_http_handlers() -> None:
+    """Restore default requests.get / requests.put."""
+    global _http_get, _http_put
+    _http_get = requests.get
+    _http_put = requests.put
 
 STATE_BY_GID: dict[str, str] = {}
 GIDS_BY_STATE: dict[str, str] = {}
@@ -40,7 +64,7 @@ def _read_enum_cf(task: dict, field_gid: str, *, gid_labels: dict[str, str]) -> 
 
 
 def fetch_task(task_gid: str, token: str | None = None) -> dict:
-    r = requests.get(
+    r = _http_get(
         f"{ASANA_BASE}/tasks/{task_gid}",
         headers=_headers(token),
         params={
@@ -180,7 +204,7 @@ def set_suspend_reason(
         print(f"DRY-RUN  set_suspend_reason  task={task_gid}  reason={reason_name!r}")
         return
     custom_fields: dict[str, str | None] = {field_gid: enum_gid}
-    r = requests.put(
+    r = _http_put(
         f"{ASANA_BASE}/tasks/{task_gid}",
         json={"data": {"custom_fields": custom_fields}},
         headers=_headers(token),
@@ -207,7 +231,7 @@ def set_approval_required(
     if dry_run:
         print(f"DRY-RUN  set_approval_required  task={task_gid}  value={value!r}")
         return
-    r = requests.put(
+    r = _http_put(
         f"{ASANA_BASE}/tasks/{task_gid}",
         json={"data": {"custom_fields": {ap_field: ap_gid}}},
         headers=_headers(token),
@@ -225,7 +249,7 @@ def set_os_state(task_gid: str, state: str, *, token: str | None = None, dry_run
         print(f"DRY-RUN  set_os_state  task={task_gid}  state={state}")
         return
     custom_fields = {cfg["os_state_field_gid"]: enum_gid}
-    r = requests.put(
+    r = _http_put(
         f"{ASANA_BASE}/tasks/{task_gid}",
         json={"data": {"custom_fields": custom_fields}},
         headers=_headers(token),
@@ -234,7 +258,7 @@ def set_os_state(task_gid: str, state: str, *, token: str | None = None, dry_run
 
 
 def list_project_tasks(project_gid: str, *, token: str | None = None) -> list[dict]:
-    r = requests.get(
+    r = _http_get(
         f"{ASANA_BASE}/projects/{project_gid}/tasks",
         headers=_headers(token),
         params={

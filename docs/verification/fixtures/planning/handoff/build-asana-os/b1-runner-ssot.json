@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "Build Asana OS — B1 runner SSOT",
+    "locale": "ja-JP",
+    "track": "build-asana-os",
+    "epic_code": "B1"
+  },
+  "epic": {
+    "title": "【B1】標準運用ループの固定（runner を SSOT 入口に）",
+    "notes_markdown": "## 目的\n自動運用 ★2→★4。`asana_ops_runner --watch` を本番標準入口にし、人手 dispatch を例外パスに降格する。\n\n## ★4 受入条件（一部）\n- 標準入口 = `scripts/org-ops/org-ops-watch.ps1`\n- planning → execution kick チェーン E2E dryrun 記録あり\n- 人手 dispatch は fallback ドキュメントのみ\n\n## 依存\n【A1】doctor 推奨\n\n## 参照\n- `tools/asana_ops_runner.py`\n- `docs/design/asana-driven-ops.md`"
+  },
+  "subtasks": [
+    {
+      "title": "B1-1 運用 SSOT 更新（runner を本番入口に）",
+      "pillar": "governance",
+      "background": "poller 単体運用が SSOT に残っており runner の価値が伝わらない。",
+      "summary": "`docs/design/asana-driven-ops.md` を更新。本番入口 = `scripts/org-ops/org-ops-watch.ps1` を明記。poller 直叩きは dev のみ。",
+      "done_when": "asana-driven-ops.md のコンポーネント表とフローが runner 標準になっている。"
+    },
+    {
+      "title": "B1-2 runner サイクル契約の固定 + テスト拡張",
+      "pillar": "platform",
+      "background": "approval_helper → scan → resume → execution_kick → archive の順序が壊れると自動運用が止まる。",
+      "summary": "runner サイクル順序をコメント + テストで固定。`test_runner_approval_helper_order.py` を拡張。",
+      "done_when": "unittest  green。サイクル順序が SSOT コメントと一致。"
+    },
+    {
+      "title": "B1-3 --human / -AutoKick 運用ガイド",
+      "pillar": "governance",
+      "background": "CURSOR_API_KEY あり/なしで運用パターンが分かれているが runbook がない。",
+      "summary": "runbook 1 ページ。CURSOR_API_KEY あり（AutoKick）/ なし（snippet-only）の 2 パターンを記載。",
+      "done_when": "runbook が scripts/org-ops または docs/e2e から参照可能。"
+    },
+    {
+      "title": "B1-4 planning / execution kick E2E dryrun",
+      "pillar": "qa",
+      "background": "PLANNING_DISPATCH → gate → DISPATCH の通し検証が ★4 の根拠になる。",
+      "summary": "verification doc で PLANNING_DISPATCH → planning kick → gate → DISPATCH → execution kick を E2E 記録。",
+      "done_when": "dryrun 記録に epic GID と期待出力語彙が記載されている。"
+    },
+    {
+      "title": "B1-5 BLOCKED 理由の runner ログ集約",
+      "pillar": "platform",
+      "background": "execution_resume_scan の BLOCKED が runner 外だと運用者が原因を追えない。",
+      "summary": "`execution_resume_scan` の BLOCKED 理由を runner ログに集約表示。",
+      "done_when": "BLOCKED 発生時に runner stderr/stdout に epic GID と reason が出る。"
+    },
+    {
+      "title": "B1-6 Windows 常駐手順（org-ops-watch）",
+      "pillar": "platform",
+      "background": "dev 常駐の具体手順が README にない。",
+      "summary": "`scripts/org-ops/README.md` に Task Scheduler または dev 常駐の例を追加。",
+      "done_when": "README から org-ops-watch.ps1 常駐手順が辿れる。"
+    }
+  ]
+}

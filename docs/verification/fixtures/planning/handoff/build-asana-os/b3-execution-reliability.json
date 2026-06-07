@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "Build Asana OS — B3 execution reliability",
+    "locale": "ja-JP",
+    "track": "build-asana-os",
+    "epic_code": "B3"
+  },
+  "epic": {
+    "title": "【B3】execution チェーンの信頼性 + stuck 検知",
+    "notes_markdown": "## 目的\n自動運用 ★4 完遂。L3b 以降 Running epic から worker kick が止まらないようにし、stuck を ESCALATE する。\n\n## ★4 受入条件（自動運用全体）\n- org-ops-watch.ps1 -Yes で 24h ポーリング可能（人手は gate のみ）\n- planning → execution kick チェーン dryrun 済み\n\n## 依存\n【B1】完了後\n\n## 参照\n- `tools/execution_resume_scan.py`\n- `docs/verification/platform/watch-auto-l3b-execution-chain-delivery.md`"
+  },
+  "subtasks": [
+    {
+      "title": "B3-1 execution_resume_scan ガード E2E 再確認",
+      "pillar": "platform",
+      "background": "os_state=Waiting/Ready 時の kick 禁止が破られると二重 dispatch や stuck の原因になる。",
+      "summary": "`execution_resume_scan` の os_state ガードを E2E で再確認。必要なら `test_execution_kick_guard.py` 拡張。",
+      "done_when": "unittest + dryrun で Waiting/Ready 時 kick 禁止が確認できる。"
+    },
+    {
+      "title": "B3-2 planning stuck 検知拡張",
+      "pillar": "platform",
+      "background": "企画子 complete 済み・OS=Running のまま N 周期続くと自動運用が止まる。",
+      "summary": "`test_planning_stuck.py` 拡張。条件一致時に ESCALATE 行を出力。",
+      "done_when": "stuck 条件で poller/runner が ESCALATE を出す。"
+    },
+    {
+      "title": "B3-3 pm_worker_complete_bridge 連携 dryrun",
+      "pillar": "qa",
+      "background": "PM complete → execution scan → worker kick の通しが ★4 の根拠。",
+      "summary": "PM complete 後の execution scan → worker kick を dryrun 記録。",
+      "done_when": "dryrun 記録に epic GID と KICK/BLOCKED 出力が記載。"
+    },
+    {
+      "title": "B3-4 NG ループ上限 runbook",
+      "pillar": "governance",
+      "background": "max_ng 到達時の人手手順が approval-flow にない。",
+      "summary": "`docs/design/approval-flow.md` に max_ng 到達時の runbook を追記。",
+      "done_when": "runbook が wakuoke_resume_scan の max_ng と整合。"
+    },
+    {
+      "title": "B3-5 統合 E2E 記録更新",
+      "pillar": "qa",
+      "background": "watch-auto L3b チェーンの regression 証跡を Build Asana OS 向けに更新したい。",
+      "summary": "`watch-auto-l3b-execution-chain-delivery.md` を更新、または build-asana-os 向け verification を新規作成。",
+      "done_when": "1 epic 通しの verification が git にある。"
+    }
+  ]
+}

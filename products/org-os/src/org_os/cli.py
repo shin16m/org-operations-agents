@@ -7,6 +7,7 @@ import json
 import sys
 import time
 
+from org_os import doctor as doctor_mod
 from org_os import queue as queue_mod
 from org_os import state_machine
 from org_os import syscall
@@ -95,6 +96,12 @@ def cmd_syscall_complete(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_doctor(args: argparse.Namespace) -> int:
+    if args.online:
+        return doctor_mod.doctor_online()
+    return doctor_mod.doctor_local()
+
+
 def cmd_watch(args: argparse.Namespace) -> int:
     interval = max(5, args.interval)
 
@@ -174,6 +181,14 @@ def main(argv: list[str] | None = None) -> int:
     psy_complete.add_argument("--epic", required=True)
     psy_complete.add_argument("--dry-run", action="store_true")
     psy_complete.set_defaults(func=cmd_syscall_complete)
+
+    pdoc = sub.add_parser("doctor", help="Validate org-os env setup (local keys)")
+    pdoc.add_argument(
+        "--online",
+        action="store_true",
+        help="Also verify Asana project + CF enum names (A1-3)",
+    )
+    pdoc.set_defaults(func=cmd_doctor)
 
     pw = sub.add_parser("watch", help="Poll project queues (human-readable)")
     pw.add_argument("--project", required=True)

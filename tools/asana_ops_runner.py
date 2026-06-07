@@ -23,9 +23,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 ASANA_OPT = ROOT / "skills/platform/asana-buddy/optional"
-for p in (str(ROOT), str(TOOLS), str(ASANA_OPT)):
+ORG_OS_SRC = ROOT / "products/org-os/src"
+if str(ORG_OS_SRC) not in sys.path:
+    sys.path.insert(0, str(ORG_OS_SRC))
+for p in (str(ASANA_OPT), str(ROOT), str(TOOLS)):
     if p not in sys.path:
-        sys.path.insert(0, p)
+        sys.path.append(p)
 
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import resolve_project_with_fallback  # noqa: E402
@@ -80,6 +83,21 @@ def _subprocess_env() -> dict[str, str]:
     return env
 
 
+# Cycle order SSOT (approval-flow.md §5.2 · B1-2):
+#   1. approval_helper_pass
+#   2. scan_projects (auto-bootstrap · session RESUME+HELPER)
+#   3. scan_resume_and_dispatch (PLANNING_DISPATCH / DISPATCH)
+#   4. scan_execution_and_kick (L3b · BLOCKED aggregated as RUNNER BLOCKED)
+#   5. archive_resumable_sessions
+CYCLE_ORDER = (
+    "approval_helper_pass",
+    "scan_projects",
+    "scan_resume_and_dispatch",
+    "scan_execution_and_kick",
+    "archive_resumable_sessions",
+)
+
+
 def run_cycle(
     *,
     project_gids: list[str],
@@ -93,6 +111,7 @@ def run_cycle(
     token = get_token()
     auto_kick = _auto_kick_enabled(cursor_kick)
     print(f"RUNNER  cycle  dry_run={dry_run}  auto_kick={auto_kick}  projects={len(project_gids)}")
+    print(f"RUNNER  cycle_order  {' -> '.join(CYCLE_ORDER)}")
 
     helper_ran = run_approval_helper_pass(dry_run=dry_run)
     print(f"RUNNER  approval_helper_pass  count={helper_ran}")
@@ -122,12 +141,14 @@ def run_cycle(
 
     from execution_resume_scan import scan_execution_and_kick  # noqa: WPS433
 
-    scan_execution_and_kick(
+    blocked_n = scan_execution_and_kick(
         project_gids=project_gids,
         token=token,
         dry_run=dry_run,
         cursor_kick=cursor_kick,
     )
+    if blocked_n:
+        print(f"RUNNER  execution_blocked  count={blocked_n}")
 
     archived = asana_ops_sessions.archive_resumable_sessions(token, dry_run=dry_run)
     print(f"RUNNER  archive  count={archived}")

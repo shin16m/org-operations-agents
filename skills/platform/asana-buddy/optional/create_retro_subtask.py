@@ -36,8 +36,9 @@ def main() -> None:
     token = get_token()
 
     for sub in list_subtasks(args.parent, token):
-        if (sub.get("name") or "").strip() == title and not sub.get("completed"):
-            print("exists_open", sub.get("gid"), console_safe(title))
+        if (sub.get("name") or "").strip() == title:
+            state = "completed" if sub.get("completed") else "open"
+            print(f"exists_{state}", sub.get("gid"), console_safe(title))
             return
 
     notes = assemble_subtask_notes(

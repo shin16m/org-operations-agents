@@ -4,28 +4,76 @@
 
 org-operations-agents 本体は **CLI 契約経由**で本パッケージを呼び出す。状態機械本体・Asana CF read/write はここに集約する。
 
-## 前提
+**外部利用（リポジトリ外）:** [`CONSUMER.md`](CONSUMER.md) · **リリース手順:** [`RELEASE.md`](RELEASE.md) · 版 **1.0.0**
 
-- Asana プロジェクトに **OS State** · **OS Suspend Reason** · **Approval Required** CF が存在すること（依頼者が追加）
-- GID は org-ops 側で同期:
+## 初回セットアップ（約 10 分 · doctor ファースト）
+
+詳細手順: [`docs/e2e/org-os-first-setup.md`](../../docs/e2e/org-os-first-setup.md)
 
 ```powershell
-python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --dry-run
-python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --write -y
+# リポジトリルートで（venv · .env · doctor · sync 案内を一括）
+.\scripts\org-ops\setup.ps1
+
+# 検証（ローカル env → Asana 実接続）
+.\.venv\Scripts\python.exe .\tools\run_org_os.py doctor
+.\.venv\Scripts\python.exe .\tools\run_org_os.py doctor --online
+
+# 動作確認
+.\.venv\Scripts\python.exe .\tools\run_org_os.py watch --project <PROJECT_GID> --once
 ```
+
+1. **token（手動）** — `skills/platform/asana-buddy/optional/.env` に `ASANA_TOKEN` を設定
+2. **setup.ps1** — venv 作成 · `.env` 初期化 · `doctor` 実行
+3. **doctor** — 不足キーがあれば stderr に `FIX` / `NEXT` を表示
+4. **sync** — CF GID 不足時は `sync_*_env.py --write -y`（`setup.ps1 -Sync` でも可）
+5. **doctor --online** — プロジェクトと CF enum 名を API 照合
+6. **watch --once** — Ready / Waiting queue を確認
 
 `.env` は `skills/platform/asana-buddy/optional/.env` を `ORG_OS_ENV_FILE` で上書き可能。
 
-## インストール（開発）
+## 前提（Asana 側）
+
+- プロジェクトに **OS State** · **OS Suspend Reason** · **Approval Required** · **Agent Type** · **Task Type** CF が存在すること
+- GID は `doctor` → sync CLI で `.env` に反映（手動編集は非推奨）
+
+## インストール
+
+### 単体（org-ops リポジトリ外 · v1.0.0）
 
 ```powershell
 cd products/org-os
 pip install -e .
+org-os doctor
+org-os queue ready --project <PROJECT_GID> --json
 ```
+
+`pip install -e .` 後は **sys.path 不要**。`ASANA_TOKEN` と CF GID は `.env` または環境変数で渡す（`ORG_OS_ENV_FILE` でパス指定可）。
+
+### モノレポ開発（org-operations-agents 内）
+
+```powershell
+cd products/org-os
+pip install -e ".[dev]"    # org-os CLI + pytest
+pytest tests -q
+```
+
+リポジトリルートからは **ラッパー** を使える（`tools/` が sys.path 先頭でも package shadow を回避）:
+
+```powershell
+python tools/run_org_os.py doctor
+```
+
+`pip install -e .` 済みなら `org-os doctor` でも可（ラッパーと同じ CLI）。
 
 ## CLI
 
+| 入口 | 用途 |
+|------|------|
+| `org-os <command>` | pip install 後の正規エントリポイント |
+| `python tools/run_org_os.py <command>` | モノレポ内ラッパー（install 済みなら同じ `org_os.cli`） |
+
 ```powershell
+org-os doctor [--online]                              # 初回セットアップ検証（local / API）
 org-os status --epic <PARENT_GID>
 org-os dispatch --epic <PARENT_GID> [--dry-run]   # alias: syscall start (ORG_OS_AGENT_ID required)
 org-os complete --epic <PARENT_GID> [--dry-run] [--allow-skip]

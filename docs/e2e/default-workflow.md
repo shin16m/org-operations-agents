@@ -6,8 +6,8 @@ workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v3 · 
 
 ## 前提
 
-- リポジトリルートで `.venv` 構築済み（[`skills/platform/asana-buddy/optional/setup_venv.ps1`](../../skills/platform/asana-buddy/optional/setup_venv.ps1)）
-- `skills/platform/asana-buddy/optional/.env` に `ASANA_TOKEN`（任意 `ASANA_PROJECT_ID`）
+- org-os 初回セットアップ完了（[`docs/e2e/org-os-first-setup.md`](org-os-first-setup.md) · `.\scripts\org-ops\setup.ps1` · `doctor` PASS）
+- `skills/platform/asana-buddy/optional/.env` に `ASANA_TOKEN` と `ASANA_PROJECT_ID`
 
 ## 0. intake — workflow-orchestrator（ここから開始）
 

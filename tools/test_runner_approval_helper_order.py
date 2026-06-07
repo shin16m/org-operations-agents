@@ -120,5 +120,70 @@ class RunnerHelperParentTests(unittest.TestCase):
         self.assertEqual(captured[0][idx + 1], "PM_CHILD")
 
 
+class RunnerCycleOrderTests(unittest.TestCase):
+    def test_cycle_order_ssot_matches_approval_flow(self) -> None:
+        expected = (
+            "approval_helper_pass",
+            "scan_projects",
+            "scan_resume_and_dispatch",
+            "scan_execution_and_kick",
+            "archive_resumable_sessions",
+        )
+        self.assertEqual(runner.CYCLE_ORDER, expected)
+
+    def test_run_cycle_invokes_steps_in_order(self) -> None:
+        calls: list[str] = []
+
+        def _helper(**kwargs):  # noqa: ANN003
+            calls.append("approval_helper_pass")
+            return 0
+
+        def _scan_projects(**kwargs):  # noqa: ANN003
+            calls.append("scan_projects")
+            return 0
+
+        def _scan_resume(**kwargs):  # noqa: ANN003
+            calls.append("scan_resume_and_dispatch")
+            return 0
+
+        def _scan_execution(**kwargs):  # noqa: ANN003
+            calls.append("scan_execution_and_kick")
+            return 0
+
+        def _archive(token, *, dry_run):  # noqa: ANN001
+            calls.append("archive_resumable_sessions")
+            return 0
+
+        with mock.patch.object(runner, "run_approval_helper_pass", side_effect=_helper):
+            with mock.patch.object(runner, "scan_projects", side_effect=_scan_projects):
+                with mock.patch.object(runner, "scan_resume_and_dispatch", side_effect=_scan_resume):
+                    with mock.patch(
+                        "execution_resume_scan.scan_execution_and_kick",
+                        side_effect=_scan_execution,
+                    ):
+                        with mock.patch.object(
+                            runner.asana_ops_sessions,
+                            "archive_resumable_sessions",
+                            side_effect=_archive,
+                        ):
+                            with mock.patch.object(runner, "load_env_from_dotfile"):
+                                with mock.patch.object(runner, "get_token", return_value="tok"):
+                                    with mock.patch.object(
+                                        runner,
+                                        "_auto_kick_enabled",
+                                        return_value=False,
+                                    ):
+                                        rc = runner.run_cycle(
+                                            project_gids=["P1"],
+                                            dry_run=True,
+                                            yes=False,
+                                            human=True,
+                                            max_ng=3,
+                                            cursor_kick=False,
+                                        )
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls, list(runner.CYCLE_ORDER))
+
+
 if __name__ == "__main__":
     unittest.main()

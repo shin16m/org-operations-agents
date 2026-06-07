@@ -26,11 +26,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+TOOLS = ROOT / "tools"
 ASANA_OPT = ROOT / "skills/platform/asana-buddy/optional"
 ORG_OS_SRC = ROOT / "products/org-os/src"
-for p in (ASANA_OPT, ROOT, ORG_OS_SRC):
-    if str(p) not in sys.path:
-        sys.path.insert(0, str(p))
+if str(ORG_OS_SRC) not in sys.path:
+    sys.path.insert(0, str(ORG_OS_SRC))
+for p in (str(ASANA_OPT), str(ROOT), str(TOOLS)):
+    if p not in sys.path:
+        sys.path.append(p)
 
 import requests  # noqa: E402
 
@@ -270,7 +273,7 @@ def run_session_approval_helper(session: dict, *, dry_run: bool) -> int:
 
 
 def _org_os_start(epic_gid: str, *, dry_run: bool) -> int:
-    cmd = [sys.executable, str(ROOT / "tools/org_os.py"), "dispatch", "--epic", epic_gid]
+    cmd = [sys.executable, str(ROOT / "tools/run_org_os.py"), "dispatch", "--epic", epic_gid]
     if dry_run:
         cmd.append("--dry-run")
     r = _run_capture(cmd, label=f"org_os_start_{epic_gid}")

@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "Build Asana OS — C2 integration contract",
+    "locale": "ja-JP",
+    "track": "build-asana-os",
+    "epic_code": "C2"
+  },
+  "epic": {
+    "title": "【C2】org-ops 統合契約 + 外部利用ドキュメント",
+    "notes_markdown": "## 目的\nプロダクト化 ★4 完遂。org-ops が org-os を外部プロダクトとして扱う契約を CI で守る。\n\n## ★4 受入条件（プロダクト化全体）\n- org-ops 統合 smoke test\n- CF 直書き禁止チェック\n- CONSUMER.md + RELEASE.md\n- 別リポジトリ分離は ★5（本 epic では手順のみ記載可）\n\n## 依存\n【C1】完了 · 【B3】E2E 実績推奨\n\n## 参照\n- `tools/validate_ssot_contract.py`\n- `docs/design/org-os-product-io.md`"
+  },
+  "subtasks": [
+    {
+      "title": "C2-1 validate_ssot_contract org-os 契約",
+      "pillar": "governance",
+      "background": "org-ops ツールが epic CF を syscall 経由以外で PUT すると SSOT が破れる。",
+      "summary": "`validate_ssot_contract.py` に org-os 契約追加。CF 直 PUT 禁止パターンの grep check。",
+      "done_when": "validator exit 0。違反パターン検出時 exit 1。"
+    },
+    {
+      "title": "C2-2 統合 smoke test",
+      "pillar": "qa",
+      "background": "org-ops ↔ org-os 境界の regression テストがない。",
+      "summary": "`tools/test_org_os_integration.py` を追加。mock 上で init_epic → suspend → resume → complete。",
+      "done_when": "unittest green。"
+    },
+    {
+      "title": "C2-3 CONSUMER.md",
+      "pillar": "governance",
+      "background": "org-ops 以外から syscall/queue を使う最小例がない。",
+      "summary": "`products/org-os/CONSUMER.md` に外部利用最小例（install · doctor · syscall · queue）。",
+      "done_when": "CONSUMER.md が README からリンクされている。"
+    },
+    {
+      "title": "C2-4 org-ops 依存マトリクス",
+      "pillar": "governance",
+      "background": "各 tools/*.py の syscall 利用と更新責務が一覧化されていない。",
+      "summary": "`org-os-product-io.md` に tools 依存マトリクス表を追加・更新。",
+      "done_when": "§7 連携表とマトリクスが一致。"
+    },
+    {
+      "title": "C2-5 RELEASE.md（別 repo は ★5）",
+      "pillar": "governance",
+      "background": "release 手順と別リポジトリ分離の意図が文書化されていない。",
+      "summary": "`products/org-os/RELEASE.md` に version bump · changelog · wrapper 互換確認 · 別 repo 分離は ★5 である旨。",
+      "done_when": "RELEASE.md が commit されている。"
+    }
+  ]
+}

@@ -18,6 +18,7 @@ from asana_program_common import (  # noqa: E402
     console_safe,
     create_subtask,
     fetch_task,
+    list_subtasks,
     merge_notes_with_assignment,
     set_assignee_type_org_ops,
     update_task_notes,
@@ -108,11 +109,21 @@ def main() -> None:
             print("Cancelled.")
             return
 
+    existing_names = {
+        (s.get("name") or "").strip()
+        for s in list_subtasks(args.parent, token)
+    }
+
     created: list[dict[str, Any]] = []
     for item in reversed(items):
         name = item["name"]
+        name_stripped = name.strip()
+        if name_stripped in existing_names:
+            print(console_safe(f"  skip exists  {name_stripped}"))
+            continue
         notes = _notes_for_item(item, args.department)
         sub = create_subtask(args.parent, name, notes, token)
+        existing_names.add(name_stripped)
         sub_gid = str(sub.get("gid") or "")
         cf_ok = set_assignee_type_org_ops(sub_gid, token) if sub_gid else False
         created.append({**sub, "assignee_type_cf": cf_ok})

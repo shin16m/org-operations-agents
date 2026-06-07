@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.1",
+  "meta": {
+    "title": "Build Asana OS — C1 org-os v1.0",
+    "locale": "ja-JP",
+    "track": "build-asana-os",
+    "epic_code": "C1"
+  },
+  "epic": {
+    "title": "【C1】org-os v1.0 — テスト・パッケージ・API 凍結",
+    "notes_markdown": "## 目的\nプロダクト化 ★2→★4。`products/org-os/` を v0.1.0 から v1.0.0 へ。単体 install + テスト + API 凍結。\n\n## ★4 受入条件（一部）\n- v1.0.0 · CI green · CHANGELOG あり\n- org-ops なしで `pip install -e .` + org-os CLI 単体動作\n\n## 依存\n【A1】【A2】env 契約確定 · 【B1】E2E 実績あると安全\n\n## 参照\n- `products/org-os/pyproject.toml`\n- `docs/design/org-os-product-io.md`"
+  },
+  "subtasks": [
+    {
+      "title": "C1-1 products/org-os/tests ユニットテスト",
+      "pillar": "development",
+      "background": "org-os パッケージにテストがなくリファクタが危険。",
+      "summary": "syscall 遷移（mock Asana client）、queue フィルタ、require_agent_id エラーを unittest/pytest で追加。",
+      "done_when": "`pytest` or `python -m unittest discover` が products/org-os で green。"
+    },
+    {
+      "title": "C1-2 Asana client mock 境界",
+      "pillar": "development",
+      "background": "HTTP を mock できないと syscall テストが不安定。",
+      "summary": "`asana_client.py` の HTTP を inject 可能に（テスト用）。",
+      "done_when": "テストがネットワークなしで syscall/queue を検証できる。"
+    },
+    {
+      "title": "C1-3 v1.0.0 + CHANGELOG",
+      "pillar": "governance",
+      "background": "v0.1.0 のままでは外部利用者に API 安定性を約束できない。",
+      "summary": "`pyproject.toml` を v1.0.0 に。CHANGELOG に suspend reason v2.0 等の breaking/ notable を記載。",
+      "done_when": "version 1.0.0 と CHANGELOG.md が commit されている。"
+    },
+    {
+      "title": "C1-4 API 安定性宣言（semver）",
+      "pillar": "governance",
+      "background": "syscall シグネチャ変更ポリシーが org-os-product-io にない。",
+      "summary": "`org-os-product-io.md` に semver / syscall 変更ポリシー § を追加。",
+      "done_when": "SSOT v2.x に semver 節がある。"
+    },
+    {
+      "title": "C1-5 CI ジョブ（org-os テスト）",
+      "pillar": "platform",
+      "background": "ローカルだけのテストでは regression する。",
+      "summary": "CI で `pip install -e products/org-os && pytest` を実行。",
+      "done_when": "CI 設定が commit され、org-os テストが走る。"
+    },
+    {
+      "title": "C1-6 tools/org_os.py import 整理 + README",
+      "pillar": "platform",
+      "background": "sys.path 依存が pip install 時と二重になる。",
+      "summary": "wrapper の import を整理。pip install 時は sys.path 不要であることを README に明記。",
+      "done_when": "README に pip install 単体手順と wrapper 手順の両方が記載。"
+    }
+  ]
+}

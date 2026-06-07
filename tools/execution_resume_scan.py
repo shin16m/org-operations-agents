@@ -254,7 +254,14 @@ def _kick_cmd_for_action(item: dict) -> list[str] | None:
     return None
 
 
-def kick_execution_action(item: dict, *, execute: bool, dry_run: bool, token: str | None = None) -> int:
+def kick_execution_action(
+    item: dict,
+    *,
+    execute: bool,
+    dry_run: bool,
+    token: str | None = None,
+    blocked_out: list[dict] | None = None,
+) -> int:
     cmd = _kick_cmd_for_action(item)
     if cmd is None:
         return 0
@@ -267,7 +274,20 @@ def kick_execution_action(item: dict, *, execute: bool, dry_run: bool, token: st
         tok = token or get_token()
         ok, reason = execution_kick_allowed(str(epic), tok)
         if not ok:
+            row = {
+                "epic_gid": str(epic),
+                "state": state,
+                "reason": reason,
+                "tool": "execution_resume_scan",
+            }
             log_blocked(epic_gid=str(epic), tool="execution_resume_scan", reason=reason)
+            print(
+                console_safe(
+                    f"RUNNER  BLOCKED  epic={epic}  state={state}  reason={reason}"
+                )
+            )
+            if blocked_out is not None:
+                blocked_out.append(row)
             return 0
     if not execute or dry_run:
         print(f"HINT  execution_kick  epic={epic}  state={state}  cmd={' '.join(cmd)}")
@@ -290,20 +310,32 @@ def scan_execution_and_kick(
     auto_kick = _auto_kick_enabled(cursor_kick)
     max_kicks = _max_kicks_per_cycle()
     kicks = 0
+    blocked_rows: list[dict] = []
     for project_gid in project_gids:
         actions = scan_running_actions(project_gid, token=token)
         print_execution_scan(project_gid, actions, dry_run=dry_run)
         for item in actions:
+            epic = str(item.get("epic_gid") or "")
+            if epic:
+                from execution_stuck_escalate import check_and_emit_stuck  # noqa: WPS433
+
+                check_and_emit_stuck(epic, item, token=token, dry_run=dry_run)
             state = item.get("state")
             if state in ("idle", "wait_pm_review"):
                 continue
             if kicks >= max_kicks:
                 print(f"EXECUTION  defer  reason=max_kicks_per_cycle={max_kicks}")
                 break
-            kick_execution_action(item, execute=auto_kick, dry_run=dry_run, token=token)
+            kick_execution_action(
+                item,
+                execute=auto_kick,
+                dry_run=dry_run,
+                token=token,
+                blocked_out=blocked_rows,
+            )
             if auto_kick and not dry_run:
                 kicks += 1
-    return 0
+    return len(blocked_rows)
 
 
 def main() -> int:

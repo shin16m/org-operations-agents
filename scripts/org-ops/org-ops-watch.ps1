@@ -6,20 +6,26 @@
 .EXAMPLE
   .\scripts\org-ops\org-ops-watch.ps1
   .\scripts\org-ops\org-ops-watch.ps1 -Yes -AutoKick -Interval 60
-  .\scripts\org-ops\org-ops-watch.ps1 -Project 1214771428861230 -Yes
+  .\scripts\org-ops\org-ops-watch.ps1 -Project 1214771428861230 -Yes -Dashboard
 #>
 param(
     [string]$Project = $env:ASANA_PROJECT_ID,
     [int]$Interval = 60,
+    [int]$DashboardPort = 8765,
     [switch]$Yes,
     [switch]$AutoKick,
-    [switch]$Human
+    [switch]$Human,
+    [switch]$Dashboard
 )
 
 . "$PSScriptRoot\_common.ps1"
 
 if ($AutoKick) {
     Enable-OrgOpsAutoKick
+}
+
+if ($Dashboard) {
+    Start-OrgOpsDashboard -Port $DashboardPort | Out-Null
 }
 
 $args = @(

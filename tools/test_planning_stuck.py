@@ -75,6 +75,61 @@ class CursorKickRoutingTests(unittest.TestCase):
         self.assertIn("--mode planning", out)
 
 
+class ExecutionStuckEscalateTests(unittest.TestCase):
+    """Running + planning complete but no execution progress → ESCALATE."""
+
+    def test_detects_no_execution_children(self) -> None:
+        from execution_stuck_escalate import detect_running_execution_stuck  # noqa: WPS433
+
+        item = {"state": "idle", "reason": "all_execution_complete"}
+        with mock.patch("org_os.asana_client.fetch_task", return_value={}):
+            with mock.patch("org_os.asana_client.read_os_state", return_value="Running"):
+                with mock.patch(
+                    "execution_kick_guard._infer_planning_incomplete", return_value=None
+                ):
+                    with mock.patch("task_dispatcher._epic_children", return_value=[]):
+                        stuck, reason = detect_running_execution_stuck("EPIC", item, token="tok")
+        self.assertTrue(stuck)
+        self.assertEqual(reason, "no_execution_children")
+
+    def test_escalate_after_max_cycles(self) -> None:
+        from execution_stuck_escalate import reset_stuck_counter, tick_execution_stuck  # noqa: WPS433
+
+        reset_stuck_counter("EPIC-ESC")
+        buf = io.StringIO()
+        with redirect_stderr(buf):
+            first = tick_execution_stuck(
+                "EPIC-ESC",
+                "no_execution_children",
+                max_cycles=2,
+                dry_run=True,
+            )
+            second = tick_execution_stuck(
+                "EPIC-ESC",
+                "no_execution_children",
+                max_cycles=2,
+                dry_run=True,
+            )
+        self.assertEqual(first, "WARN")
+        self.assertEqual(second, "ESCALATE")
+        out = buf.getvalue()
+        self.assertIn("execution_stuck", out)
+        self.assertIn("ESCALATE", out)
+        self.assertIn("no_execution_children", out)
+
+    def test_silent_when_planning_still_open(self) -> None:
+        from execution_stuck_escalate import detect_running_execution_stuck  # noqa: WPS433
+
+        item = {"state": "idle", "reason": "all_execution_complete"}
+        with mock.patch("org_os.asana_client.fetch_task", return_value={}):
+            with mock.patch("org_os.asana_client.read_os_state", return_value="Running"):
+                with mock.patch(
+                    "execution_kick_guard._infer_planning_incomplete", return_value="PLAN"
+                ):
+                    stuck, _ = detect_running_execution_stuck("EPIC", item, token="tok")
+        self.assertFalse(stuck)
+
+
 class ExecutionPromptKickTests(unittest.TestCase):
     def test_build_execution_prompt_includes_kick(self) -> None:
         from cursor_epic_dispatch import build_execution_prompt  # noqa: WPS433

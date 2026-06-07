@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ORG_OS = ROOT / "tools/org_os.py"
+ORG_OS = ROOT / "tools/run_org_os.py"
 PY = ROOT / ".venv/Scripts/python.exe"
 if not PY.is_file():
     PY = Path(sys.executable)

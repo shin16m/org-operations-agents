@@ -1,9 +1,11 @@
-# watch-auto L3b execution chain — 開発 delivery（Phase A–D）
+# watch-auto L3b execution chain — 開発 delivery（Phase A–D + B3）
 
 | 項目 | 内容 |
 |------|------|
 | PM 子 GID | `1215437076682690` |
-| 実施 | 2026-06-05 |
+| 参照 epic | `1215436815983476` |
+| 初回実施 | 2026-06-05 |
+| B3 更新 | 2026-06-07（Build Asana OS） |
 
 ## 変更ファイル
 
@@ -13,18 +15,23 @@
 | `tools/execution_resume_scan.py` | B — Running epic 状態機械 + runner kick |
 | `tools/pm_worker_complete_bridge.py` | C — PM complete bridge kick |
 | `tools/asana_ops_runner.py` | B/D — `scan_execution_and_kick` 統合 |
+| `tools/execution_kick_guard.py` | stuck unblock — Waiting/Ready kick 禁止 |
+| `tools/execution_stuck_escalate.py` | B3 — Running stuck → ESCALATE |
 
 ## 検証
 
 ```powershell
 $env:PYTHONIOENCODING = "utf-8"
-python -m unittest tools.test_execution_resume_scan tools.test_planning_stuck -v
-python tools/execution_resume_scan.py --epic 1215436815983476
-python tools/asana_ops_runner.py --once --dry-run
+python -m unittest tools.test_execution_kick_guard tools.test_execution_resume_scan tools.test_planning_stuck -v
+python tools/execution_resume_scan.py --epic 1215436815983476 --dry-run
+python tools/asana_ops_runner.py --once --dry-run --human --project 1214771428861230
 ```
+
+統合 dryrun 記録: [`b3-execution-reliability-dryrun.md`](b3-execution-reliability-dryrun.md)
 
 ## 期待する EXECUTION_SCAN 状態（本 epic · dev 子進行中）
 
 - review complete 後 · 未 comment worker → `needs_worker_kick`
 - worker comment 済 · 未 complete → `needs_pm_complete`
 - 全 worker complete · 次 dept 子あり → `task_dispatcher --kick`（needs_pm_kick）
+- 企画完了 · execution 子未作成 · N サイクル → `ESCALATE`（B3）

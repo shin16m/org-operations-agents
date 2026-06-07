@@ -28,7 +28,7 @@ def _org_os_complete_epic(epic_gid: str, *, dry_run: bool, strict: bool) -> int:
     py = _REPO_ROOT / ".venv/Scripts/python.exe"
     if not py.is_file():
         py = Path(sys.executable)
-    cmd = [str(py), str(_REPO_ROOT / "tools/org_os.py"), "complete", "--epic", epic_gid]
+    cmd = [str(py), str(_REPO_ROOT / "tools/run_org_os.py"), "complete", "--epic", epic_gid]
     if dry_run:
         cmd.append("--dry-run")
     if not strict:

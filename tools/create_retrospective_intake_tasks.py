@@ -22,7 +22,11 @@ if str(OPTIONAL) not in sys.path:
     sys.path.insert(0, str(OPTIONAL))
 
 from agent_handler_asana import create_task, get_token, load_env_from_dotfile  # noqa: E402
-from asana_program_common import console_safe, resolve_project_with_fallback  # noqa: E402
+from asana_program_common import (  # noqa: E402
+    console_safe,
+    find_project_task_by_exact_name,
+    resolve_project_with_fallback,
+)
 
 # Plain-language intros for known retro summaries (substring match).
 _HUMAN_HINTS: list[tuple[str, str, str]] = [
@@ -171,6 +175,11 @@ def main() -> int:
     for c in cands:
         summary = c.get("summary") or "改善"
         title = f"【intake】{summary[:72]}"
+        existing_gid = find_project_task_by_exact_name(project_gid, title, token)
+        if existing_gid:
+            print("exists_intake_task", existing_gid, console_safe(title[:60]))
+            created.append(existing_gid)
+            continue
         notes = _build_notes(parent_gid=args.parent, candidate=c, requester=requester)
         if not args.y:
             print(console_safe(f"would create {title!r}"))

@@ -79,8 +79,10 @@ Intake は `asana_ops_poller`（`--auto-bootstrap`）の CANDIDATE 条件。Epic
 
 1. `fetch_task.py --gid <parent> --list-subtasks` で未完了子を列挙
 2. `department=planning` 以外の子を **1 件ずつ** dispatch（**ux** → development / analysis → **governance**（org-meta）→ **audit**（組織変更時）。Web Epic は UX 先行）
-3. 各子完了（`DeptWorkComplete`）のたびに 1 に戻る
-4. **すべての子**が `completed` になったら利用者へエピック完了報告
+3. **L2 デフォルト（opt-out）:** 先頭 1 件を **利用者確認なし**で [`task-dispatcher`](../task-dispatcher/SKILL.md) へ委譲し entry PM 用 `prompt_snippet` を返す（「続けて dispatch しますか？」禁止 — [`dispatch-auto-proceed-ssot.md`](../../../docs/design/dispatch-auto-proceed-ssot.md)）
+4. **L2 opt-in:** `human_execution_dispatch` / `ORG_OPS_EXECUTION_DISPATCH_CONFIRM=1` 時のみ一覧提示 → 利用者合図後 dispatch
+5. 各子完了（`DeptWorkComplete`）のたびに 1 に戻る
+6. **すべての子**が `completed` になったら利用者へエピック完了報告
 
 **親 complete 前（監査ゲート）:** Handoff に `department: audit` がある、または Asana 上に `チーム: audit` 子がある場合:
 
@@ -121,7 +123,7 @@ python tools/complete_epic_os_state.py --epic <親GID>
 企画 gate で `handoff_to_asana.py` を実行した**後**:
 
 1. **同一セッションで development / ux / analysis / governance / audit の成果物を書かない**
-2. 未完了 execution 系子ごとに [`task-dispatcher`](../task-dispatcher/SKILL.md) で PM へ dispatch
+2. 未完了 execution 系子ごとに [`task-dispatcher`](../task-dispatcher/SKILL.md) で PM へ dispatch（**デフォルト: チャット確認なし** — [`dispatch-auto-proceed-ssot.md`](../../../docs/design/dispatch-auto-proceed-ssot.md)）
 3. 各 PM は `pm_assign_subtasks` → **デフォルト gate 省略**（`check_pm_review_gate` exit 0）→ **L3b** でワーカーへ委譲。**opt-in 時のみ** `pm_review_gate`（人間【レビュー】）（[`dispatch-prompt-ssot.md`](../../../docs/design/dispatch-prompt-ssot.md) · [`pm-assign-review-gate.md`](../../../docs/design/pm-assign-review-gate.md)）
 4. **PM がワーカー役を代行しない** — 実装作業の `comment_task --agent` は **実作業ワーカーの slug**（PM slug は DeptWorkComplete・委譲集約のみ）
 5. org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../development/examples/assign-plan.org-meta-doc-v1.json) 参照）
@@ -333,12 +335,13 @@ Asana タスク: 〈URL または GID〉
 - コメントがある場合は `## ソースコメント` 節に snapshot の `comments_markdown` を引用（Handoff / プラン設計の入力に含める）
 - 本文に snapshot の `notes` を引用（権限不足で fetch 失敗時は利用者へ GID/権限を確認）
 
-## 起動例 B — 企画完了後（実行系 dispatch）
+## 起動例 B — 企画完了後（実行系 dispatch · L2 自動進行）
 
 ```
 企画子タスクが DeptWorkComplete になりました。
 fetch_task.py --list-subtasks で未完了の execution 系子を列挙し、
-先頭 1 件を task-dispatcher へ委譲してください。prompt_snippet は docs/design/dispatch-prompt-ssot.md の該当 department 節を使用すること。
+先頭 1 件を task-dispatcher へ委譲してください（利用者確認は不要 · dispatch-auto-proceed-ssot）。
+prompt_snippet は docs/design/dispatch-prompt-ssot.md の該当 department 節を使用すること。
 ```
 
 ## Asana 完了同期（必須）

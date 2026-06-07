@@ -1,21 +1,23 @@
 # planning gate と PM review gate — 整理 SSOT
 
-| 版 | 1.5 |
-| 日付 | 2026-06-06 |
-| エピック | `1215086341081688` · F4 · **`1215465361526049`**（PM review gate opt-in）· planning / retro gate opt-in |
+| 版 | 1.6 |
+| 日付 | 2026-06-07 |
+| エピック | `1215086341081688` · F4 · **`1215465361526049`**（PM review gate opt-in）· **`1215473463319556`**（L2 dispatch 自動進行） |
 
-## 2 種類の人間ゲート
+## 3 種類のゲート（人間 / 自動）
 
-| ゲート | 段階 | 担当 PM | 承認対象 | トリガー CLI | チェック CLI |
-|--------|------|---------|----------|--------------|--------------|
-| **planning gate** (`handoff_approved`) | L3 企画 | planning-pm | Handoff 要約 · execution 系子の Asana 投入 | **デフォルト:** 要約提示後 **同一セッションで** `handoff_to_asana.py --require-review-result`（【承認】・`--record-wait` 不要）。**opt-in:** `create_planning_approval_gate.py` → `--record-wait` → RESUME 後 `handoff_to_asana.py` | **デフォルト:** `PlanReviewResult` 通過で可。**opt-in:** 【承認】サブ complete + `PlanReviewResult` |
-| **PM review gate** (`pm_review_gate`) | L3 execution 各 PM | product-manager / ux-pm / analytics-pm / governance-pm / audit-pm | **作成済み worker サブ**の構成・担当 slug | **opt-in のみ** `create_pm_review_gate.py` | `check_pm_review_gate.py` exit 0（gate 無しも 0） |
+| ゲート | 段階 | 担当 | 対象 | デフォルト | opt-in |
+|--------|------|------|------|------------|--------|
+| **planning gate** (`handoff_approved`) | L3 企画 | planning-pm | Handoff 要約 · execution 系子 Asana 投入 | 要約提示後 **同一セッションで** `handoff_to_asana.py` | `create_planning_approval_gate.py` · `human_planning_approval` |
+| **L2 execution dispatch** | L1/L2 · `asana_execute` 後 | workflow-orchestrator | 未完了 execution 系子 → task-dispatcher → PM | **自動進行**（チャット確認しない） | `human_execution_dispatch` · `ORG_OPS_EXECUTION_DISPATCH_CONFIRM=1`（[`dispatch-auto-proceed-ssot.md`](dispatch-auto-proceed-ssot.md)） |
+| **PM review gate** (`pm_review_gate`) | L3 各 PM | product-manager / ux-pm / … | worker サブ構成・担当 slug | **gate 省略** | `create_pm_review_gate.py` · `human_review_gate` |
 
 ## 混同しやすい点
 
 - **planning gate の「承認」** = execution 系子タスクを Asana に**作ってよい**（実装開始の合図**ではない**）。
+- **L2 execution dispatch** = 投入済み execution 系子を **task-dispatcher → PM** へ配賦。**デフォルトはチャット確認なし**（「続けて dispatch しますか？」禁止）。
 - **PM review gate の「完了」** = 当該 PM 子の **L3b worker dispatch 可**（`pm_emit_worker_prompt` 前）。**デフォルトでは gate 自体を作らない**（評価・監査時のみ opt-in）。
-- チャットの「すすめて」「承認」は **planning gate デフォルト（opt-out）** で有効。planning gate **opt-in 時のみ**【承認】サブ complete が必須。PM review gate も **opt-in 時のみ** Asana UI で【レビュー】サブを complete する。
+- チャットの「すすめて」「承認」は **planning gate · L2 dispatch デフォルト（opt-out）** で有効。planning gate **opt-in 時のみ**【承認】サブ complete が必須。PM review gate も **opt-in 時のみ** Asana UI で【レビュー】サブを complete する。
 
 ## F1: Asana dependencies
 
@@ -63,4 +65,5 @@ CLI: [`create_planning_approval_gate.py`](../../tools/create_planning_approval_g
 - [`approval-flow.md`](approval-flow.md) — 承認サブ ↔ 親 epic CF 写像 SSOT
 - [`workflow-io-contract.md`](workflow-io-contract.md) — パイプライン全体
 - [`pm-assign-review-gate.md`](pm-assign-review-gate.md) — PM review gate 詳細
+- [`dispatch-auto-proceed-ssot.md`](dispatch-auto-proceed-ssot.md) — L2 execution dispatch 自動進行
 - [`complete_task.py`](../../skills/platform/asana-buddy/optional/complete_task.py) — 【レビュー】/【承認】はエージェント complete 禁止（exit 3）
