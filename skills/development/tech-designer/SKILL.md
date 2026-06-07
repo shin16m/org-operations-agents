@@ -34,6 +34,7 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 | 構成 | モジュール / ファイル / コンポーネント（full-ui は UX 画面対応表 + Figma node-id） |
 | インターフェース | API・公開関数・データ契約 |
 | 非機能 | 性能・エラー処理・テスト方針 |
+| **実行契約** | 起動コマンド 1 本 · 依存データパス · エラー時 UI 表示 · mock vs 本番経路の明示（[`delivery-completion-standard.md`](../../../docs/design/delivery-completion-standard.md)） |
 | リスク | 技術的未知点 |
 
 ## やらないこと

@@ -24,6 +24,7 @@ PM の依頼または workflow 段階で mode を確定する。
 
 - 子タスク notes と親エピック notes から要件定義書を作成
 - パス: `output/development/requirements/<task_gid>-requirements.md`
+- **§受け入れ基準（Must）** — [`acceptance-criteria-template.md`](../../../docs/design/acceptance-criteria-template.md) に従い AC 表 + 検証コマンド列を必須。full-ui は AC-1 に代表 Happy path
 - **Asana 添付（必須）** — `comment_task` の前に worker サブへ upload し、**対応 dev-reviewer review サブへ同一 md を伝播**する（下記「review サブ伝播」）
 - 完了後 **dev-reviewer** へレビュー依頼
 

@@ -144,6 +144,8 @@ PM ハブ（product-manager / ux-pm / analytics-pm）が **ワーカー役を代
 
 【review NG】dev-reviewer / qa-verifier / ux-reviewer の failed → `python tools/pm_create_fix_subtask.py --parent {task_gid} --review-json output/.../reviews/<file>.json -y`（--undo 禁止）
 
+【fix サブ L3b — コンテキスト必須】`[fix]` サブ kick 時、WorkerDispatchSnippet に **review JSON パス** · **findings 要約** · **`output/development/smoke/<gid>.md` パス**（あれば）を必ず含める（再発防止 · Epic 1215474826616152 子 9）。
+
 参照: docs/design/development-pm-assignment.md · docs/design/pm-worker-dispatch-ssot.md · skills/development/product-manager/SKILL.md
 ```
 

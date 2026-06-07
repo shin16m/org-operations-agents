@@ -100,6 +100,8 @@ notes 先頭 `profile: full-ui` 等。詳細: [`development-pm-assignment.md`](d
 
 ## 必須ゲート
 
+**完成度 SSOT:** 初回納品 80% 定義 · AC · smoke · qa evidence — [`delivery-completion-standard.md`](delivery-completion-standard.md)
+
 | ゲート | 担当 | failed 時の修正担当 |
 |--------|------|---------------------|
 | `requirements_review_passed` | dev-reviewer | requirements-writer |

@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "納品完成度 50%→80% — 受け入れ基準・検証 SSOT",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【組織改善】納品完成度 50%→80% — 受け入れ基準・検証・上流品質",
+    "notes_markdown": "## 依頼者向け（人間が最初に読む）\n\n**要約:** モックは出るが動作が不完全で fix ループが続く問題に対し、要件・設計・提出・QA の SSOT を整備して **初回納品の体感完成度を 50% 前後から 80% 前後**へ引き上げる。\n\n**80% の定義:** README の手順どおり起動でき、要件 AC の Must が 100%・Should が 60% 以上、代表ユーザーフロー 1 本が通る。残り 20% は polish・エッジケース。\n\n**着手順の見方:** 各子の **Execution Order** CF（1, 2, 3…）と notes 先頭 `着手順:`。**数字が小さいほど先。** タスク名に `【N/M】` は付けない。\n\n| 順 | テーマ | 担当チーム |\n|----|--------|------------|\n| 1 | 完成度ギャップ監査 + 80% 定義 | 組織改善 |\n| 2 | AC テンプレ + requirements / dev-reviewer SSOT | 組織改善 |\n| 3 | tech-designer 実行契約 + design gate | 組織改善 |\n| 4 | developer smoke + code review gate | 組織改善 |\n| 5 | VerificationResult v1.1 + qa-verifier SSOT | 組織改善 |\n| 6 | pm_intake_gate / fix R3 / rework ツール | 開発 |\n| 7 | assign plan 全例・fixture 更新 | 組織改善 |\n| 8 | UX 操作シナリオ Must 化 | 組織改善 |\n| 9 | dispatch コンテキスト引き継ぎ | 開発 |\n| 10 | bundle / fixture 方針 + 接続 AC | 組織改善 |\n| 11 | delivery-quality smoke + 良悪例 fixture | 組織改善 |\n\n**起動:** `org-ops-watch` または task-dispatcher 経由。組織改善子は `profile: doc-only` または `lite`。\n\n## 背景・用語（エージェント / 実装者向け）\n\n### 目的\n\n- dev-reviewer は静的レビューのみ · developer は自己 verification 禁止 · qa-verifier が唯一の実行時ゲートだが evidence 強制が弱い\n- `done_when` が「code review 依頼可能」止まりで「動く」まで定義されていない\n- L3b セッション分割で fix 時の再現手順が引き継がれにくい\n\n### 設計方針\n\n- **Phase 1–2（子 1–5）:** 要件→提出→QA の「動く」定義を SSOT 化（最優先）\n- **Phase 3（子 6–9）:** PM gate · fix 上限 · dispatch コンテキスト\n- **Phase 4（子 10–11）:** 分析連携 · 計測 smoke\n- 変更は **governance** チーム（org-meta）。ツールは **development lite**\n\n### 参照\n\n- 会話整理: 納品品質改善アイデア（2026-06-08）\n- [`docs/design/pm-review-rework-ssot.md`](../../../design/pm-review-rework-ssot.md)\n- [`docs/design/delivery-strength-pattern.md`](../../../design/delivery-strength-pattern.md)\n- [`skills/development/examples/assign-plan.full-ui-v1.json`](../../../../skills/development/examples/assign-plan.full-ui-v1.json)"
+  },
+  "subtasks": [
+    {
+      "title": "完成度ギャップ監査 + 80% 定義の SSOT 化",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "直近 Epic で fix ループ・起動不全・モック止まりが繰り返されている。数値と定義が無いと改善効果を測れない。",
+      "summary": "直近 3 Epic を起動・データ・UI・運用の 4 軸で棚卸し。80% 定義と KPI（初回 qa pass 率 / fix 平均ラウンド）を `output/governance/records/` に記録し、`docs/design/` に 1 節追記。",
+      "done_when": "監査記録 md 保存。80% 定義が design doc に明文化。governance review passed。"
+    },
+    {
+      "title": "受け入れ基準テンプレ + requirements-writer / dev-reviewer ゲート",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "要件に AC 番号と検証コマンドが無く、qa が推測で passed にしやすい。",
+      "summary": "`docs/design/acceptance-criteria-template.md` 新設。requirements-writer SKILL に Must 節追加。dev-reviewer requirements で検証コマンド欠落時 failed（category: acceptance_criteria）。",
+      "done_when": "テンプレ + SKILL 更新 + validate_org_registry.py exit 0。GovernanceReviewResult passed。"
+    },
+    {
+      "title": "tech-designer 実行契約 + design review ゲート",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "設計書に起動コマンド・データパス・mock 本番分離が無く、実装後に serve 手順が README に後追いされる。",
+      "summary": "tech-designer SKILL に「実行契約」節必須化（起動1本 / 依存パス / エラー UI / mock vs 本番）。dev-reviewer design で欠落時 failed。",
+      "done_when": "SKILL + dev-reviewer 更新。design テンプレ例が assign-plan.full-ui-v1 に反映。"
+    },
+    {
+      "title": "developer smoke 提出 + code review ゲート",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "developer は verification 禁止のため、qa まで「起動しない」成果物が流れる。",
+      "summary": "`docs/design/developer-smoke-template.md` 新設。developer SKILL: complete 前 `output/development/smoke/<gid>.md` 必須（passed 判定不可）。dev-reviewer code で smoke 欠落時 failed。",
+      "done_when": "テンプレ + SKILL 更新。assign-plan の developer done_when を「Must AC smoke 全 pass」に改定。"
+    },
+    {
+      "title": "VerificationResult v1.1 + qa-verifier evidence 必須",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "VerificationResult に evidence フィールドが無く、qa がコマンド実行証跡を残せない。",
+      "summary": "schema v1.1 に `evidence[]`（ac_id, command, exit_code, excerpt）追加。qa-verifier SKILL: evidence 無しは failed。validate_fixture_schemas 拡張。",
+      "done_when": "schema + SKILL + validate 更新。例 JSON が fixtures に 1 件。"
+    },
+    {
+      "title": "pm_intake_gate 拡張 + fix R3 エスカレーション",
+      "pillar": "platform",
+      "department": "development",
+      "background": "AC・実行契約が無いまま pm_assign でき、fix ループに上限が無い。",
+      "summary": "`pm_intake_gate.py` に AC 表・実行契約チェック追加。`pm-review-rework-ssot.md` に R3 依頼者エスカレーション。`pm_create_fix_subtask.py` に round / escalation オプション。",
+      "done_when": "ツール + SSOT 更新。unittest または dryrun 記録 1 本。"
+    },
+    {
+      "title": "assign plan 全例 + verification fixture 更新",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "assign-plan 例の done_when が旧文言のままだと PM が新 SSOT を使わない。",
+      "summary": "full-ui-v1 / lite-v1 / org-meta-doc 等の assign plan 例を新 done_when・AC 参照に更新。requirements review 例 JSON 更新。",
+      "done_when": "主要 assign-plan 例 3 本以上更新。validate_org_registry exit 0。"
+    },
+    {
+      "title": "UX 操作シナリオ Must 化 + ux-reviewer 拡張",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "UX モックは見た目のみで、開発が Happy path を実装できない。",
+      "summary": "ux-designer SKILL / spec テンプレに Happy path 5 ステップ以内を Must。ux-reviewer ux_implementation に操作確認観点追加（interaction_verified）。",
+      "done_when": "UX SKILL + テンプレ更新。ux-delivery-io に 1 節追記。"
+    },
+    {
+      "title": "fix dispatch コンテキスト引き継ぎ",
+      "pillar": "platform",
+      "department": "development",
+      "background": "L3b fix kick 時に前回 verification JSON と smoke.md パスが snippet に含まれず、同じ NG が繰り返される。",
+      "summary": "`dispatch-prompt-ssot.md` と `pm_emit_worker_prompt.py` で fix サブ kick 時に review JSON パス + smoke.md + findings 要約を snippet 必須注入。",
+      "done_when": "SSOT + ツール更新。dryrun または unittest 1 本。"
+    },
+    {
+      "title": "DashboardBundle / fixture 方針 + 接続 AC 標準化",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "fixture fallback で qa passed になり、本番 bundle 経路が検証されない（fcb-dashboard 等）。",
+      "summary": "insights-dashboard-consume-io + development-delivery-io に fixture 禁止条件と接続 AC 番号を標準化。pm_intake_gate で bundle 未生成時 failed（override 除く）。",
+      "done_when": "design doc 2 本更新。intake gate 仕様が doc に明記。"
+    },
+    {
+      "title": "delivery-quality smoke + 良悪例 fixture",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "SSOT 変更後の回帰と、80% vs 50% の具体例が無いと横展開できない。",
+      "summary": "`docs/verification/governance/delivery-quality-smoke.md` 新設。requirements + smoke + verification の良い例/悪い例 fixture を `docs/verification/fixtures/development/` に各 1 セット。",
+      "done_when": "smoke md + fixture 2 セット。validate_fixture_schemas exit 0。"
+    }
+  ]
+}

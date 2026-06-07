@@ -30,7 +30,7 @@
 |------|------|
 | Figma URL | 各主要画面のリンク（node-id 推奨） |
 | 選定理由 | flagship 時: 複数案からの選定根拠 |
-| ユーザーフロー | 主要タスクの操作系列 |
+| ユーザーフロー | 主要タスクの操作系列。**Must: Happy path 5 ステップ以内**（AC-1 連携 · [`delivery-completion-standard.md`](../../../docs/design/delivery-completion-standard.md)） |
 | IA | 画面一覧・ナビゲーション |
 | 画面仕様 | 要素・状態・空/エラー |
 | a11y | 目標 WCAG レベル |

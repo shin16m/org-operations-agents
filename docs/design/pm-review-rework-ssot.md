@@ -60,6 +60,14 @@ PM が Result を読む
 
 `R{n}` は同一ゲートの修正ラウンド。Asana 上で履歴が追えるようにする。
 
+## fix ループ上限（R3 エスカレーション）
+
+| ルール | 内容 |
+|--------|------|
+| **R3 到達** | 同一ゲートの `[fix]` が **3 回目**（R3）作成時、PM は **依頼者へエスカレーション**コメントを親 PM 子またはエピックに投稿 |
+| **自動 resume 停止** | R3 以降は L3b 自動 kick を止め、依頼者判断待ち（approval flow の `--max-ng` と同型） |
+| **R2 上流差し戻し** | 同一 finding が R2 で再発 → code fix より **requirements-writer / tech-designer 修正サブ**を優先 |
+
 ## 分析 ↔ 画面接続検証の差し戻し（full-ui + insights）
 
 dev-reviewer（接続検証 / mismatch）または qa-verifier が **bundle と画面の不一致**を検出した場合:

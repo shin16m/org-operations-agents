@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.1",
+  "status": "passed",
+  "summary": "Must AC-1 起動・AC-2 API 200 を evidence 付きで確認。",
+  "review_kind": "verification",
+  "evidence": [
+    {
+      "ac_id": "AC-1",
+      "command": "python output/development/app/example/serve.py",
+      "exit_code": 0,
+      "excerpt": "Listening on :8766"
+    },
+    {
+      "ac_id": "AC-2",
+      "command": "curl -s -o NUL -w \"%{http_code}\" http://localhost:8766/api/health",
+      "exit_code": 0,
+      "excerpt": "200"
+    }
+  ]
+}

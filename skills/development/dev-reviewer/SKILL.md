@@ -20,6 +20,14 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 | `code` | コード変更 | CodeReviewResult |
 | `mismatch` | 要件定義 + 事後詳細仕様 | MismatchReviewResult |
 
+### design レビュー追加
+
+- **実行契約** 4 項目（起動 / 依存パス / エラー UI / mock vs 本番）のいずれか欠落 → **failed**（`category: design_execution_contract`）
+
+### code レビュー追加
+
+- `output/development/smoke/<gid>.md` が無い、または Must AC 未実行 → **failed**（`category: developer_smoke`）
+
 ## Asana 添付の確認（requirements / mismatch）
 
 `review_kind` が `requirements` または `mismatch` のとき、レビュー開始前に対象 md が **当該 dev-reviewer review サブ**（assign plan 上の review サブタスク）に attach 済みであることを確認する。
@@ -30,6 +38,7 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 ```
 
 - `requirements`: `*-requirements.md` が **review サブ**一覧に無ければ **failed**（attach 欠落）
+- `requirements`: **§受け入れ基準** の Must AC に検証コマンド列が無い → **failed**（`category: acceptance_criteria`）。参照: [`acceptance-criteria-template.md`](../../../docs/design/acceptance-criteria-template.md)
 - `mismatch`: `*-spec.md` が **review サブ**一覧に無ければ **failed**
 - attach 欠落時は PM へ差し戻し（requirements-writer の review サブ伝播手順の欠落修正）。レビュー JSON は `status: failed` + finding に `category: io_contract`
 

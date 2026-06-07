@@ -5,12 +5,38 @@
   "additionalProperties": false,
   "required": ["schema_version", "status", "summary", "review_kind"],
   "properties": {
-    "schema_version": { "type": "string", "const": "1.0" },
+    "schema_version": { "type": "string", "enum": ["1.0", "1.1"] },
     "status": {
       "type": "string",
       "enum": ["passed", "passed_with_notes", "failed"]
     },
     "summary": { "type": "string", "minLength": 1 },
-    "review_kind": { "type": "string", "const": "verification" }
-  }
+    "review_kind": { "type": "string", "const": "verification" },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ac_id", "command", "exit_code"],
+        "properties": {
+          "ac_id": { "type": "string", "minLength": 1 },
+          "command": { "type": "string", "minLength": 1 },
+          "exit_code": { "type": "integer" },
+          "excerpt": { "type": "string" }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": { "const": "1.1" },
+          "status": { "enum": ["passed", "passed_with_notes"] }
+        },
+        "required": ["schema_version", "status"]
+      },
+      "then": { "required": ["evidence"] }
+    }
+  ]
 }

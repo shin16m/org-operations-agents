@@ -45,7 +45,7 @@
       "status": "assigned",
       "background": "承認済み要件・設計に従う。",
       "summary": "設計書に沿って実装。完了後 dev-reviewer へ code review 依頼。",
-      "done_when": "実装が完了し、code review 依頼可能な状態である。"
+      "done_when": "実装が完了し、Must AC の smoke 全 pass。output/development/smoke/<parent_gid>.md 保存済み。"
     },
     {
       "name": "【3/4-6・開発】code review（dev-reviewer）",

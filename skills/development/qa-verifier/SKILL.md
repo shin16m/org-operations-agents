@@ -14,8 +14,12 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 ## 責務
 
 1. 要件定義書・設計書（あれば）・`done_when` を読む
-2. 実装成果に対し動作検証を実施
-3. **VerificationResult** を出力（`review_kind: verification`）
+2. 実装成果に対し動作検証を実施（要件 AC 表の検証コマンドを **そのまま再実行**）
+3. **VerificationResult** を出力（`review_kind: verification` · **`schema_version: "1.1"`** · `evidence[]` 必須）
+
+### evidence 必須（v1.1）
+
+`status: passed*` のとき **Must AC 各行**について `evidence[]` に `{ ac_id, command, exit_code, excerpt? }` を記載。**evidence 無しで passed 禁止**（推測で passed にしない — persona 志向）。
 
 ### full-ui + DashboardBundle 連携時の追加チェック
 
