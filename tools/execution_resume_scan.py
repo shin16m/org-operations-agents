@@ -133,10 +133,13 @@ def classify_pm_child(
             "reason": "pm_review_gate_open",
         }
 
+    from worker_kick_inflight import is_worker_kick_inflight, release_worker_kick  # noqa: WPS433
+
     for worker in workers:
         gid = worker["gid"]
         assignee = worker["assignee"]
         if has_agent_comment(gid, assignee, token):
+            release_worker_kick(gid)
             return {
                 "state": "needs_pm_complete",
                 "epic_gid": epic_gid,
@@ -146,6 +149,17 @@ def classify_pm_child(
                 "worker_slug": assignee,
                 "worker_name": worker["name"],
                 "reason": "worker_comment_without_complete",
+            }
+        if is_worker_kick_inflight(gid):
+            return {
+                "state": "wait_worker_inflight",
+                "epic_gid": epic_gid,
+                "pm_child_gid": pm_gid,
+                "department": dept,
+                "worker_sub_gid": gid,
+                "worker_slug": assignee,
+                "worker_name": worker["name"],
+                "reason": "worker_kick_inflight",
             }
         return {
             "state": "needs_worker_kick",
@@ -212,7 +226,7 @@ def print_execution_scan(project_gid: str, actions: list[dict], *, dry_run: bool
 
 
 def _max_kicks_per_cycle() -> int:
-    raw = os.environ.get("ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE", "1").strip()
+    raw = os.environ.get("ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE", "3").strip()
     try:
         return max(0, int(raw))
     except ValueError:

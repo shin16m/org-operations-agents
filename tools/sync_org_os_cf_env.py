@@ -25,6 +25,7 @@ OS_STATE_FIELD = "OS State"
 APPROVAL_FIELD = "Approval Required"
 APPROVAL_RESULT_FIELD = "Approval Result"
 SUSPEND_REASON_FIELD = "OS Suspend Reason"
+EXECUTION_ORDER_FIELD = "Execution Order"
 OS_STATE_ENUMS = ("Ready", "Running", "Waiting", "Done")
 APPROVAL_ENUMS = ("Yes", "No")
 APPROVAL_RESULT_ENUMS = ("OK", "NG")
@@ -45,7 +46,10 @@ def _fetch_fields(project_gid: str, token: str) -> dict[str, dict]:
         f"{ASANA_BASE}/projects/{project_gid}/custom_field_settings",
         headers=headers,
         params={
-            "opt_fields": "custom_field.name,custom_field.gid,custom_field.enum_options.name,custom_field.enum_options.gid"
+            "opt_fields": (
+                "custom_field.name,custom_field.gid,custom_field.resource_subtype,"
+                "custom_field.enum_options.name,custom_field.enum_options.gid"
+            )
         },
     )
     r.raise_for_status()
@@ -53,12 +57,22 @@ def _fetch_fields(project_gid: str, token: str) -> dict[str, dict]:
     for row in r.json().get("data") or []:
         cf = row.get("custom_field") or {}
         name = (cf.get("name") or "").strip()
-        if name in (OS_STATE_FIELD, APPROVAL_FIELD, APPROVAL_RESULT_FIELD, SUSPEND_REASON_FIELD):
+        if name in (
+            OS_STATE_FIELD,
+            APPROVAL_FIELD,
+            APPROVAL_RESULT_FIELD,
+            SUSPEND_REASON_FIELD,
+            EXECUTION_ORDER_FIELD,
+        ):
             opts = {
                 (o.get("name") or "").strip(): str(o.get("gid") or "")
                 for o in (cf.get("enum_options") or [])
             }
-            out[name] = {"field_gid": str(cf.get("gid") or ""), "options": opts}
+            out[name] = {
+                "field_gid": str(cf.get("gid") or ""),
+                "options": opts,
+                "resource_subtype": (cf.get("resource_subtype") or "").strip(),
+            }
     return out
 
 
@@ -126,6 +140,22 @@ def fetch_org_os_gids(project_gid: str, token: str) -> dict[str, str]:
             f"note  {SUSPEND_REASON_FIELD}: not found (optional until added in Asana)",
             file=sys.stderr,
         )
+
+    if EXECUTION_ORDER_FIELD in fields:
+        eo_row = fields[EXECUTION_ORDER_FIELD]
+        if eo_row.get("resource_subtype") == "number":
+            updates["ASANA_EXECUTION_ORDER_FIELD_GID"] = eo_row["field_gid"]
+        else:
+            print(
+                f"warn  {EXECUTION_ORDER_FIELD}: expected number field, got "
+                f"{eo_row.get('resource_subtype')!r} (skip)",
+                file=sys.stderr,
+            )
+    else:
+        print(
+            f"note  {EXECUTION_ORDER_FIELD}: not found (optional until added in Asana)",
+            file=sys.stderr,
+        )
     return updates
 
 
@@ -171,7 +201,8 @@ def main() -> int:
 
     print(
         f"OK  project={args.project}  fields={OS_STATE_FIELD},{APPROVAL_FIELD},"
-        f"{SUSPEND_REASON_FIELD}(optional),{APPROVAL_RESULT_FIELD}(optional)"
+        f"{SUSPEND_REASON_FIELD}(optional),{APPROVAL_RESULT_FIELD}(optional),"
+        f"{EXECUTION_ORDER_FIELD}(optional)"
     )
     for k, v in updates.items():
         print(f"  {k}={v}")

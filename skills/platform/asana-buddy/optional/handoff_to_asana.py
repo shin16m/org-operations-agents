@@ -33,7 +33,18 @@ from asana_program_common import (  # noqa: E402
     set_assignee_type_org_ops,
     set_task_type_epic,
     sync_handoff_to_parent,
+    validate_notes_two_layer,
 )
+
+
+def _validate_handoff_notes(data: dict) -> list[str]:
+    errors = validate_notes_two_layer(
+        data["epic"]["notes_markdown"], path="epic.notes_markdown"
+    )
+    for i, st in enumerate(data["subtasks"]):
+        notes = handoff_subtask_notes(st)
+        errors.extend(validate_notes_two_layer(notes, path=f"subtasks[{i}]"))
+    return errors
 
 
 def _print_sync_result(result: dict) -> None:
@@ -76,6 +87,11 @@ def main() -> None:
         default=None,
         help="Require PlanReviewResult JSON with status passed or passed_with_notes",
     )
+    p.add_argument(
+        "--allow-legacy-notes",
+        action="store_true",
+        help="Skip ## 依頼者向け validation (legacy handoffs only)",
+    )
     args = p.parse_args()
 
     load_env_from_dotfile()
@@ -90,6 +106,12 @@ def main() -> None:
         print("review_ok", review.get("status"))
 
     data = load_handoff(args.handoff)
+    if not args.allow_legacy_notes:
+        notes_errors = _validate_handoff_notes(data)
+        if notes_errors:
+            for err in notes_errors:
+                print(f"ERROR: {err}", file=sys.stderr)
+            sys.exit(2)
     epic = data["epic"]
     subtasks = data["subtasks"]
     epic_title = epic["title"].strip()

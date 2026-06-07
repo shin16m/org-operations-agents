@@ -5,7 +5,14 @@ from typing import Any, Callable
 
 import requests
 
-from org_os.env import assignee_type_cf_config, get_token, org_os_cf_config, suspend_reason_cf_config, task_type_cf_config
+from org_os.env import (
+    assignee_type_cf_config,
+    execution_order_cf_config,
+    get_token,
+    org_os_cf_config,
+    suspend_reason_cf_config,
+    task_type_cf_config,
+)
 
 ASANA_BASE = "https://app.asana.com/api/1.0"
 
@@ -70,7 +77,8 @@ def fetch_task(task_gid: str, token: str | None = None) -> dict:
         params={
             "opt_fields": (
                 "name,gid,completed,parent.gid,parent.name,"
-                "custom_fields,custom_fields.enum_value.name,custom_fields.enum_value.gid"
+                "custom_fields,custom_fields.enum_value.name,custom_fields.enum_value.gid,"
+                "custom_fields.number_value"
             ),
         },
     )
@@ -164,6 +172,24 @@ def _suspend_reason_gid_for_name(reason_name: str) -> str | None:
     for label, gid in mapping.items():
         if label.strip().lower() == key.lower() and gid:
             return gid
+    return None
+
+
+def read_execution_order(task: dict) -> int | None:
+    cfg = execution_order_cf_config()
+    if not cfg:
+        return None
+    field_gid = cfg["field_gid"]
+    for cf in task.get("custom_fields") or []:
+        if str(cf.get("gid")) != field_gid:
+            continue
+        num = cf.get("number_value")
+        if num is None:
+            return None
+        try:
+            return int(num)
+        except (TypeError, ValueError):
+            return None
     return None
 
 

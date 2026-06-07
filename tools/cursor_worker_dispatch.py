@@ -17,8 +17,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
-if str(TOOLS) not in sys.path:
-    sys.path.insert(0, str(TOOLS))
+ASANA_OPT = ROOT / "skills/platform/asana-buddy/optional"
+for p in (str(ASANA_OPT), str(TOOLS)):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from pm_emit_worker_prompt import DEPT_PM, emit_snippet, _run_fetch_assignee, _run_fetch_list  # noqa: E402
 from cursor_sdk_kick import kick_prompt  # noqa: E402
@@ -95,16 +97,35 @@ def main() -> int:
         )
         return 1
 
-    prompt = build_worker_prompt(parent=args.parent, department=args.department)
-    if prompt is None:
+    row = _first_worker_sub(args.parent, args.department)
+    if row is None:
         print(f"SKIP  no worker sub  parent={args.parent}  department={args.department}")
         return 0
+    worker_gid, _name, worker_slug = row
+    prompt = emit_snippet(
+        department=args.department,
+        parent_gid=args.parent,
+        sub_gid=worker_gid,
+        worker_slug=worker_slug,
+    )
 
-    print(f"L3B  parent={args.parent}  department={args.department}")
+    print(f"L3B  parent={args.parent}  department={args.department}  worker={worker_gid}")
     print(prompt)
 
     if args.dry_run or not args.yes:
         print("KICK  dry-run  (use -y to execute)")
+        return 0
+
+    from worker_kick_inflight import claim_worker_kick, release_worker_kick  # noqa: WPS433
+
+    claimed, inflight_reason = claim_worker_kick(
+        worker_gid,
+        epic_gid=epic_gid,
+        pm_child_gid=args.parent,
+        tool="cursor_worker_dispatch",
+    )
+    if not claimed:
+        print(f"SKIP  worker_inflight  worker={worker_gid}  reason={inflight_reason}")
         return 0
 
     enforce = os.environ.get("ORG_OPS_ENFORCE_L3B", "1").strip().lower() not in (
@@ -112,7 +133,7 @@ def main() -> int:
         "false",
         "no",
     )
-    return kick_prompt(
+    rc = kick_prompt(
         prompt,
         cwd=ROOT,
         label="KICK",
@@ -120,6 +141,9 @@ def main() -> int:
         no_sdk_exit=2 if enforce else 0,
         hint_manual="use pm_emit_worker_prompt snippet",
     )
+    if rc != 0:
+        release_worker_kick(worker_gid)
+    return rc
 
 
 if __name__ == "__main__":

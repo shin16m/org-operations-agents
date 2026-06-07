@@ -568,8 +568,12 @@ asana_ops_runner --watch  (ORG_OPS_AUTO_KICK=1)
 
 | 変数 | 既定 | 意味 |
 |------|------|------|
-| `ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` | `1` | runner 1 サイクルあたり execution kick 上限 |
+| `ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` | `3` | runner 1 サイクルあたり execution kick 上限（Running 中の PM 子・worker 連鎖を細切れにしない。`1` に戻すと従来の 60s 単位運用） |
 | `ORG_OPS_MAX_EXECUTION_STUCK_CYCLES` | `5` | 企画完了後 Running stuck の ESCALATE 閾値（[`execution_stuck_escalate.py`](../../tools/execution_stuck_escalate.py)） |
+| `ORG_OPS_WORKER_INFLIGHT_TTL_SEC` | `7200` | worker in-flight マーカー自動解除（秒） |
+| `ORG_OPS_WORKER_INFLIGHT_STUCK_SEC` | `600` | in-flight のまま comment なし → stuck 判定（秒） |
+
+**テンポ方針（SSOT）:** `Waiting`（人間承認・レビュー）のみ watch が明示停止する。`Running` 中は同一 runner サイクルで `ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` まで L3b kick を連鎖し、次サイクルで続行する。細切れが残る場合は interval 短縮（例: `30`）と併用する。
 
 ### 状態表（SSOT）
 
@@ -578,6 +582,7 @@ asana_ops_runner --watch  (ORG_OPS_AUTO_KICK=1)
 | `needs_pm_kick` | execution 子あり · PM 子下 worker サブ 0 | `task_dispatcher --kick -y` |
 | `wait_pm_review` | 【レビュー】未 complete | WAIT + approval_helper（既存） |
 | `needs_worker_kick` | review complete · worker 未 comment | `cursor_worker_dispatch -y` |
+| `wait_worker_inflight` | kick 済み · comment 前（`output/platform/worker-inflight/`） | 再 kick しない · TTL 超過で `execution_stuck` |
 | `needs_pm_complete` | worker 署名 comment 済 · 未 complete | `pm_worker_complete_bridge -y` |
 | `idle` | 人間 gate / 全 execution 子 complete | なし |
 

@@ -58,7 +58,7 @@ planning-pm → issue-story-planner → plan-reviewer（必須）→ planning-pm
 
 1. **`epic.title` / `epic.notes_markdown`** — 親タスクの `name` / `notes` に対応。一括スクリプトでは既存の `EPIC_NAME` / `EPIC_NOTES` 定数へ写経するか、小さな専用プログラムから `create_task` を呼ぶ。
 2. **`subtasks`** — 配列は **着手順（先頭＝最初にやること）**。Asana が「新しいサブタスクを上に積む」表示になりやすいため、**API では配列の逆順で `create_subtask`** すること（[`optional/handoff_to_asana.py`](optional/handoff_to_asana.py) · [`asana_program_common.create_subtasks_reversed`](optional/asana_program_common.py) と同じ方針）。
-3. **各子タスクの Asana `notes`** — ハンドオフでは `background`（背景）・`summary`（概要）・`done_when`（完了条件）が**必須**。消費側はこれらを 1 本の `notes` にまとめる（例: `## 背景` / `## 概要` / `## 完了条件` の Markdown 見出しで連結）。`pillar` がある場合は先頭に `柱: {pillar}\n\n` を付けてから続けてよい。
+3. **各子タスクの Asana `notes`** — ハンドオフでは `background`（背景）・`summary`（概要）・`done_when`（完了条件）が**必須**。消費側 [`assemble_subtask_notes`](optional/asana_program_common.py) は **二層 Markdown**（先頭 `## 依頼者向け` + `## 背景・用語`）で連結する（[`agent-asana-comment-signature.md`](../../../docs/design/agent-asana-comment-signature.md) §6.1）。`handoff_to_asana.py` 投入時に `validate_notes_two_layer` で検証。fixture 検証: `python tools/validate_fixture_schemas.py`（`[notes-two-layer]`）。
 
 単発タスクのみなら引き続き `agent_handler_asana.py` の `--name` / `--notes` を使う。
 

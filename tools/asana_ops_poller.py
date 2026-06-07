@@ -491,9 +491,25 @@ def scan_waiting_hints(project_gid: str, token: str, *, human: bool) -> None:
         parent = row.get("epic_gid")
         print(f"HINT  parent={parent}  tool=approval_helper  reason={reason}")
         if human and reason == "Approval":
+            sub_gid = "-"
+            try:
+                from check_approval_subtask import _find_subtask  # noqa: WPS433
+
+                sub = _find_subtask(str(parent), "【承認】", token)
+                if sub:
+                    sub_gid = str(sub.get("gid") or "-")
+                    if sub.get("completed"):
+                        print(
+                            f"  → 承認サブ完了済み。次サイクルで approval_helper が自動実行されます "
+                            f"(sub={sub_gid})",
+                            file=sys.stderr,
+                        )
+                        continue
+            except Exception:  # noqa: BLE001
+                pass
             print(
-                f"  → python tools/approval_helper.py --parent {parent} "
-                f"--approval-sub <SUB_GID> --gate-kind planning_approval --once",
+                f"  → Asana で【承認】サブを complete すると watch が自動で approval_helper を実行 "
+                f"(sub={sub_gid})",
                 file=sys.stderr,
             )
 

@@ -90,6 +90,14 @@ def detect_running_execution_stuck(
     if state == "needs_pm_kick" and reason == "no_worker_subs":
         return True, "needs_pm_kick_no_workers"
 
+    if state == "wait_worker_inflight" and reason == "worker_kick_inflight":
+        from worker_kick_inflight import inflight_age_sec, stale_inflight_sec  # noqa: WPS433
+
+        worker_gid = str(item.get("worker_sub_gid") or "")
+        age = inflight_age_sec(worker_gid) if worker_gid else None
+        if age is not None and age >= stale_inflight_sec():
+            return True, f"worker_inflight_stale age_sec={age}"
+
     return False, ""
 
 

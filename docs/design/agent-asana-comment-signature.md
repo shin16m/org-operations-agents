@@ -2,8 +2,8 @@
 
 | 項目 | 内容 |
 |------|------|
-| 版 | 1.3 |
-| 日付 | 2026-06-04 |
+| 版 | 1.4 |
+| 日付 | 2026-06-08 |
 
 ## 1. 目的
 
@@ -212,6 +212,25 @@ handoff.all-teams-dryrun.json を出力。
   "artifacts": ["skills/platform/asana-buddy/optional/comment_task.py"]
 }
 ```
+
+### 6.1 タスク notes（Asana 説明フィールド · v1.4）
+
+**コメント（§3）と同じ二層形式**を、Asana タスクの `notes`（説明）にも適用する。依頼者がタスクを開いたとき **最初に読む節**が人間向けになる。
+
+| ブロック | 位置 | 読者 |
+|----------|------|------|
+| `## 依頼者向け` または `## 依頼者向け（人間が最初に読む）` | **先頭**（`チーム:` / `担当:` 等のメタ行の直後） | 依頼者（人間） |
+| `## 背景・用語（エージェント / 実装者向け）` | 依頼者向けの次 | エージェント / 実装者 |
+
+**子タスク notes（Handoff 投入）:** [`assemble_subtask_notes`](../../skills/platform/asana-buddy/optional/asana_program_common.py) が `summary` を依頼者向け本文の主たる内容とし、`background` / `done_when` は `### 背景` / `### 概要` / `### 完了条件` としてエージェント向け節に配置する。
+
+**親エピック `epic.notes_markdown`:** Handoff JSON 側で二層形式を記述する（planning 成果物）。`handoff_to_asana.py` 投入時に `validate_notes_two_layer` で検証（`--allow-legacy-notes` で legacy 例外）。
+
+**intake / retro テンプレ:** `create_retrospective_intake_tasks.py` · `close_intake_source_task.py` 等と同形（先頭 `## 依頼者向け（人間が最初に読む）`）。
+
+**検証:** `python tools/validate_fixture_schemas.py` — 対象 fixture の `[notes-two-layer]` チェック。`python tools/test_asana_notes_two_layer.py`。
+
+**legacy `## 背景` / `## 概要` / `## 完了条件` のみ形式:** 新規 Handoff 投入では禁止。`notes_from_legacy_body` が読み取り時に二層へ移行可能。
 
 ## 7. 投稿タイミング
 

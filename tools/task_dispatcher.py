@@ -24,7 +24,14 @@ for p in (str(ASANA_OPT), str(ORG_OS_SRC), str(TOOLS)):
         sys.path.insert(0, p)
 
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
-from asana_program_common import fetch_task, list_subtasks, parse_task_assignment  # noqa: E402
+from asana_program_common import (  # noqa: E402
+    fetch_task,
+    has_open_dependencies,
+    list_subtasks,
+    parse_task_assignment,
+    read_execution_order,
+    read_execution_order_from_notes,
+)
 from dispatch_prompt_util import (  # noqa: E402
     EXECUTION_DISPATCH_ORDER,
     infer_department,
@@ -44,19 +51,24 @@ def _epic_children(epic_gid: str, token: str) -> list[dict]:
         name = str(sub.get("name") or "")
         if name.startswith(("【承認】", "【レビュー】")):
             continue
-        notes = fetch_task(str(sub["gid"]), token).get("notes") or ""
+        full = fetch_task(str(sub["gid"]), token, with_custom_fields=True)
+        notes = full.get("notes") or ""
         dept = infer_department(
             notes=notes,
             title=name,
             pillar_defaults=org.get("pillar_defaults"),
         )
         assignee = parse_task_assignment(notes).get("assignee")
+        exec_order = read_execution_order(full)
+        if exec_order is None:
+            exec_order = read_execution_order_from_notes(notes)
         rows.append(
             {
                 "gid": str(sub["gid"]),
                 "name": name,
                 "department": dept,
                 "assignee": assignee,
+                "execution_order": exec_order,
             }
         )
     return rows
@@ -65,9 +77,11 @@ def _epic_children(epic_gid: str, token: str) -> list[dict]:
 def _sort_execution(children: list[dict]) -> list[dict]:
     order = {d: i for i, d in enumerate(EXECUTION_DISPATCH_ORDER)}
 
-    def key(row: dict) -> tuple[int, str]:
+    def key(row: dict) -> tuple[int, int, str]:
         dept = row.get("department") or "zzz"
-        return (order.get(dept, 99), row.get("gid") or "")
+        eo = row.get("execution_order")
+        eo_key = int(eo) if isinstance(eo, int) and eo > 0 else 9999
+        return (order.get(dept, 99), eo_key, row.get("gid") or "")
 
     exec_rows = [r for r in children if r.get("department") != "planning"]
     return sorted(exec_rows, key=key)
@@ -89,7 +103,15 @@ def pick_target(
     candidates = _sort_execution(children)
     if department:
         candidates = [r for r in candidates if r.get("department") == department]
-    return candidates[0] if candidates else None
+    for row in candidates:
+        if has_open_dependencies(row["gid"], token):
+            print(
+                f"SKIP  dispatch_dependency_blocked  task={row['gid']}  "
+                f"name={row.get('name', '')[:40]}"
+            )
+            continue
+        return row
+    return None
 
 
 def dispatch_cursor(prompt: str) -> int:

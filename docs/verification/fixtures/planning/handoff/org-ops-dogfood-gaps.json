@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "org-ops 本番ドッグフード — 運用ギャップ解消",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【org-ops】本番 watch ドッグフードで露呈した運用ギャップの解消",
+    "notes_markdown": "## 依頼者向け（人間が最初に読む）\n\n**要約:** org-ops 本番 watch ドッグフードで露呈した運用ギャップ（dispatch 順序・承認再開・細切れ実行・起動信頼性など）を、子タスク 11 件で順に解消する。\n\n**着手順の見方:** 各子の **Execution Order** カスタムフィールド（1, 2, 3…）と notes 先頭の `着手順:` 行。**数字が小さいほど先。** タスク名に `【N/M】` は付けない。\n\n| 順 | テーマ |\n|----|--------|\n| 1 | L2 dispatch が Handoff 順を無視（Execution Order ソート） |\n| 2 | handoff が L2 子間 dependency を張らない |\n| 3 | planning gate 承認後に watch が自動再開しない |\n| 4 | Running 中の execution が細切れになる |\n| 5 | worker kick の in-flight ガード不足 |\n| 6 | watch / dashboard 重複起動 |\n| 7 | dashboard サイレント起動失敗 |\n| 8 | cursor_worker_dispatch import パス不足 |\n| 9 | tools/org_os.py shadow 衝突 |\n| 10 | HINT / runbook の手動誘導 |\n| 11 | Execution Order SSOT 明文化 |\n\n**起動:** 通常は **`org-ops-watch` のみ**。手動 `approval_helper` / worker kick は例外時のみ。\n\n## 背景・用語（エージェント / 実装者向け）\n\n### 目的\n\nBuild Asana OS（A1–C2）完了後、`org-ops-watch` で実エピック（依頼者向け notes 二層化）を回した。プラットフォーム骨格は動いたが、承認再開・dispatch 順序・細切れ実行・起動信頼性など運用ギャップが複数発生した。本エピックで課題ごとに解消する。\n\n### きっかけ\n\n- エピック `1215474016466868` で planning gate opt-in → 承認後に watch が進まない\n- execution が検証子から先に kick（実装子より先行）\n- `ModuleNotFoundError: agent_handler_asana`（L3b）\n- dashboard `ERR_CONNECTION_REFUSED`\n- watch / dashboard 重複起動\n\n### 着手順（Execution Order CF）\n\nプロジェクトに **Execution Order**（数値 CF · GID `1215489526107991`）を追加済み。各子タスクに **1, 2, 3…** を設定する（Handoff `subtasks[]` の先頭 = 1）。\n\n- **人間:** Asana のカスタムフィールド列と notes の `着手順:` 行で確認できる\n- **機械:** `task_dispatcher` / `execution_resume_scan` が CF 昇順で L2 dispatch（department 順の次キー）\n- **正本:** Handoff JSON 配列順。タスク名に番号は載せない\n- **将来:** Asana dependency でブロック表示（子タスク #2）\n\n### 設計方針\n\n- **タスク名に順序番号（【N/4】等）は載せない**\n- ユーザーが起動するのは **org-ops-watch のみ**（手動 approval_helper / 手動 kick は例外時のみ）\n\n### 参照\n\n- `docs/design/org-os-product-io.md` §5 Execution Order\n- `docs/design/dispatch-auto-proceed-ssot.md`\n- `tools/sync_org_os_cf_env.py` · `tools/task_dispatcher.py`"
+  },
+  "subtasks": [
+    {
+      "title": "L2 dispatch が Handoff 順を無視し GID 順で逆転する",
+      "pillar": "platform",
+      "department": "development",
+      "background": "`task_dispatcher` / `execution_resume_scan` は department 順のあと GID 昇順のみ。Handoff `subtasks[]` 順や Asana dependency を見ない。実エピックで検証子が実装子より先に kick された。",
+      "summary": "`_sort_execution` を **Execution Order CF** 昇順（次に GID）に変更済み。dependency 未完了スキップは #2 と連携。タイトル番号パースは使わない。",
+      "done_when": "`test_task_dispatcher_order.py` green。Execution Order の小さい子が `classify_running_epic` で先頭になる。"
+    },
+    {
+      "title": "handoff_to_asana が L2 execution 子間の Asana dependency を張らない",
+      "pillar": "platform",
+      "department": "development",
+      "background": "PM review gate では `addDependencies` 実績あり。エピック直下の execution 子（実装→整備→検証など）には未適用。順序の正本は Handoff 配列順だが Asana 上に写像されていない。",
+      "summary": "Handoff 投入時に **Execution Order CF** + notes `着手順:` は設定済み。追加で配列順の `addDependencies` を実装し、runner が blocked 子をスキップする。",
+      "done_when": "handoff 投入後 CF と dependency の両方が確認できる。runner が依存未完了をスキップするテストがある。"
+    },
+    {
+      "title": "planning gate opt-in 承認後に watch が自動再開しない",
+      "pillar": "platform",
+      "department": "development",
+      "background": "`approval_helper_pass` は `--record-wait` セッション JSON 前提。record-wait 省略時は Asana 承認だけでは `count=0` がループ。wait キュー フォールバックはセッション中に追加済み（要 SSOT・テスト・コミット）。",
+      "summary": "opt-in 正規経路（record-wait）と wait キュー フォールバックを `approval-flow.md` / planning-pm SKILL に明文化。手動 approval_helper 不要を e2e で確認。",
+      "done_when": "【承認】complete 後、次 watch サイクルで `HELPER source=wait_queue` → RESUME → dispatch まで自動。unittest 拡張済み。"
+    },
+    {
+      "title": "Running 中の execution が worker 1 件・60 秒単位で細切れになる",
+      "pillar": "platform",
+      "department": "development",
+      "background": "L3b 1 worker = 1 セッション、`ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE=1`、watch interval 60s。期待は Waiting（人間承認）まで一気通貫で進むこと。",
+      "summary": "SSOT でテンポ方針を決定し実装（例: Running 中は同一サイクル複数 kick、PM 子完走連鎖、interval 短縮の組み合わせ）。`Waiting` のみ明示停止。",
+      "done_when": "方針が `asana-driven-ops.md` に記載。1 PM 子の worker 列が watch のみで完走する dryrun または実証記録がある。"
+    },
+    {
+      "title": "worker kick に in-flight ガードがなく失敗時に重複 kick しうる",
+      "pillar": "platform",
+      "department": "development",
+      "background": "`has_agent_comment` は comment 後のみ有効。kick 開始〜comment 前・import 失敗リトライ・watch 二重起動で同一 worker 再 kick の可能性。",
+      "summary": "kick 開始時の in-flight マーカー（セッション JSON / サブ状態等）を定義。重複 kick 抑止と失敗時エスカレーション。",
+      "done_when": "並行 kick が抑止されるテストがある。`execution_stuck_escalate` と整合。"
+    },
+    {
+      "title": "org-ops watch と dashboard の重複起動・手動 kill 停止",
+      "pillar": "platform",
+      "department": "development",
+      "background": "複数回 `org-ops-watch -Dashboard` で runner/dashboard が重複。停止用スクリプトなし。`Start-OrgOpsDashboard` は追加済み（要コミット）。",
+      "summary": "単一起動保証（ロック or 既存 PID 検知）、`org-ops-stop.ps1`、runbook 記載。",
+      "done_when": "二重起動時は既存を再利用または警告。stop スクリプトで watch+dashboard を一括停止できる。"
+    },
+    {
+      "title": "dashboard のサイレント起動失敗（ERR_CONNECTION_REFUSED）",
+      "pillar": "platform",
+      "department": "development",
+      "background": "旧 `Start-Process -WindowStyle Minimized` はエラーを握りつぶす。ログ・ポート確認は `Start-OrgOpsDashboard` に追加済み（要コミット・runbook）。",
+      "summary": "起動失敗時に `output/platform/dashboard.err.log` パスを watch が表示。e2e に単体起動・`-Foreground` 手順。",
+      "done_when": "意図的に壊した import でも watch が WARN とログパスを出す。runbook 更新済み。"
+    },
+    {
+      "title": "cursor_worker_dispatch の agent_handler_asana import パス不足",
+      "pillar": "platform",
+      "department": "development",
+      "background": "L3b kick で `ModuleNotFoundError`。`ASANA_OPT` を sys.path に追加済み（要コミット・横断チェック）。",
+      "summary": "修正をコミット。`validate_ssot_contract` または smoke で subprocess 起動検証。同種 path 漏れを tools 横断監査。",
+      "done_when": "`cursor_worker_dispatch.py --dry-run` が CI で実行される。同パターンの regression なし。"
+    },
+    {
+      "title": "tools/org_os.py shadow 衝突の収束と参照統一",
+      "pillar": "platform",
+      "department": "development",
+      "background": "`import org_os` が `tools/org_os.py` と `products/org-os` を衝突。`run_org_os.py` リネーム済み（要コミット・doc 参照更新）。",
+      "summary": "残存 `tools/org_os.py` 参照を `run_org_os.py` / org-os CLI に統一。doctor + runner watch が CI green。",
+      "done_when": "grep で `tools/org_os.py` 実行参照がゼロまたは意図的例外のみ。CHANGELOG 記載。"
+    },
+    {
+      "title": "運用 HINT と runbook が手動 approval_helper を誤誘導する",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "HINT が `<SUB_GID>` 手動コマンドを表示。ユーザーは「watch だけで足りるか」混乱。planning-pm に opt-in 時 record-wait 必須が弱い。",
+      "summary": "`org-ops-watch-runbook.md` に「起動は watch のみ」を明記。HINT は自動処理予定を表示。planning-pm SKILL に record-wait を opt-in 必須化。",
+      "done_when": "runbook と SKILL が approval-flow §5.2 と一致。HINT 文言が手動コマンド前提でない。"
+    },
+    {
+      "title": "execution 順序をタスク名 prefix に載せない SSOT 明文化",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "順序の正本は Handoff `subtasks[]`。タイトル `【N/4】` はリネームで壊れ dispatch パースにも不向き。ユーザー方針と不一致。",
+      "summary": "設計 SSOT に **Execution Order CF**（数値・人間可視）+ Handoff 配列順 + 将来 dependency を明記。タイトル番号禁止を徹底。",
+      "done_when": "`org-os-product-io.md` §5 に Execution Order 記載。issue-story-planner SKILL と整合。"
+    }
+  ]
+}

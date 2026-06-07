@@ -207,8 +207,8 @@ python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --write -y
 **org-os 外部プロダクト（epic 状態）:**
 
 ```powershell
-python tools/org_os.py status --epic <PARENT_GID>
-python tools/org_os.py watch --project <PROJECT_GID> --once
+python tools/run_org_os.py status --epic <PARENT_GID>
+python tools/run_org_os.py watch --project <PROJECT_GID> --once
 ```
 
 **Cursor SDK PoC（`CURSOR_API_KEY` 設定時のみ）:**

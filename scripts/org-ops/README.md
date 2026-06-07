@@ -21,6 +21,9 @@ Windows 向け運用エントリ。venv · `PYTHONIOENCODING` は [`_common.ps1`
 # watch + dashboard 同時起動
 .\scripts\org-ops\org-ops-watch.ps1 -Yes -Human -Dashboard
 
+# 停止（runner + dashboard）
+.\scripts\org-ops\org-ops-stop.ps1
+
 # ダッシュボード単体（接続拒否時はこちらを先に起動）
 .\scripts\org-ops\org-ops-dashboard.ps1
 # フォアグラウンド（エラー確認用）

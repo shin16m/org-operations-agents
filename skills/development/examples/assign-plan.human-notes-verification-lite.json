@@ -1,0 +1,69 @@
+{
+  "parent_title": "【4/4・検証】fixture・smoke・registry 反映",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【4/4-1・開発】要件定義（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "形式変更は fixture と validate スクリプトに反映しないと regression を検知できない。",
+      "summary": "mode=requirements。Handoff fixture・assign-plan 例・validate_fixture_schemas / smoke 手順への notes 二層チェック追加要件を `output/development/requirements/<parent_gid>-requirements.md` に定義。",
+      "done_when": "要件定義書が保存され、変更対象 fixture / validate スクリプト / docs/verification/ の範囲が明確である。"
+    },
+    {
+      "name": "【4/4-2・開発】要件 review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "requirements ゲート。",
+      "summary": "review_kind: requirements。DocReviewResult を出力。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【4/4-3・開発】実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "承認済み要件に従い fixture・validate スクリプト・assign-plan 例を更新。",
+      "summary": "Handoff fixture・assign-plan 例・verification dryrun を更新。`validate_fixture_schemas.py` / smoke 手順に notes 二層チェックを追加。",
+      "done_when": "実装が完了し、code review 依頼可能な状態である。"
+    },
+    {
+      "name": "【4/4-4・開発】code review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "code ゲート。",
+      "summary": "review_kind: code。CodeReviewResult を出力。",
+      "done_when": "CodeReviewResult が passed または passed_with_notes。"
+    },
+    {
+      "name": "【4/4-5・開発】動作検証（qa-verifier）",
+      "assignee": "qa-verifier",
+      "department": "development",
+      "status": "assigned",
+      "background": "実装者と独立した QA。",
+      "summary": "review_kind: verification。`validate_fixture_schemas.py` と `validate_ssot_contract.py` が exit 0。`docs/verification/` に before/after 例または dryrun 記録を確認。",
+      "done_when": "VerificationResult status が passed。"
+    },
+    {
+      "name": "【4/4-6・開発】事後仕様（requirements-writer）",
+      "assignee": "requirements-writer",
+      "department": "development",
+      "status": "assigned",
+      "background": "as-built 文書化。",
+      "summary": "mode=as-built-spec。`output/development/specs/<parent_gid>-spec.md` を作成。",
+      "done_when": "事後詳細仕様書が保存されている。"
+    },
+    {
+      "name": "【4/4-7・開発】mismatch review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "要件 vs 事後仕様の整合ゲート。",
+      "summary": "review_kind: mismatch。MismatchReviewResult を出力。",
+      "done_when": "MismatchReviewResult が passed または fix_target 処理済。"
+    }
+  ]
+}

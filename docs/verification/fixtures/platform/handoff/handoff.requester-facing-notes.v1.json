@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "Asana タスク notes — 依頼者向けレイヤー（fixture）",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【fixture】依頼者向け notes 二層化 — 検証用",
+    "notes_markdown": "## 依頼者向け（人間が最初に読む）\n\nAsana タスクの説明文を、専門用語に詳しくない人が読んでも意図が分かるように整える改善の検証用 fixture です。\n\n## 背景・用語（エージェント / 実装者向け）\n\n- **契約:** 先頭 `## 依頼者向け` + `## 背景・用語` の二層形式\n- **検証:** `validate_fixture_schemas.py` の `[notes-two-layer]` チェック\n- **参照:** `docs/design/agent-asana-comment-signature.md` §7"
+  },
+  "subtasks": [
+    {
+      "title": "fixture — assemble_subtask_notes 二層出力確認",
+      "department": "development",
+      "pillar": "検証",
+      "background": "handoff 投入時に子 notes が二層形式で生成されることを fixture で固定する。",
+      "summary": "`assemble_subtask_notes` が `## 依頼者向け` を先頭に付与し、エージェント向け詳細を `## 背景・用語` に分離する。",
+      "done_when": "`python tools/validate_fixture_schemas.py` が exit 0。`handoff_to_asana.py --dry-run` で notes 検証が pass。"
+    }
+  ]
+}

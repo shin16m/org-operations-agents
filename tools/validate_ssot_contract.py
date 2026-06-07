@@ -165,6 +165,16 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["build_human_comment_body", "です・ます"],
     },
     {
+        "name": "task notes requester-facing layer",
+        "files": [
+            "docs/design/agent-asana-comment-signature.md",
+            "skills/platform/asana-buddy/optional/asana_program_common.py",
+            "tools/validate_fixture_schemas.py",
+        ],
+        "required_any": [],
+        "required_all": ["## 依頼者向け", "validate_notes_two_layer"],
+    },
+    {
         "name": "L2 execution dispatch auto-proceed",
         "files": [
             "docs/design/dispatch-auto-proceed-ssot.md",

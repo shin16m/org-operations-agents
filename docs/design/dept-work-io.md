@@ -41,7 +41,9 @@
 
 ### Asana 署名付きコメント（必須）
 
-**どのエージェントが何をしたか**をタスクに残す。設計: [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md)（**§4 依頼者向け本文 · §5 ロール別テンプレ**）
+**どのエージェントが何をしたか**をタスクに残す。設計: [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md)（**§4 依頼者向け本文 · §5 ロール別テンプレ · §6.1 タスク notes 二層**）
+
+**タスク notes（Asana 説明）:** Handoff 投入・PM assign 経路では先頭 `## 依頼者向け` 必須。生成: [`assemble_subtask_notes`](../../skills/platform/asana-buddy/optional/asana_program_common.py) · 検証: `handoff_to_asana.py` / `validate_fixture_schemas.py`。
 
 | タイミング | 担当 | 操作 |
 |------------|------|------|

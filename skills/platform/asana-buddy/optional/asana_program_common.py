@@ -35,17 +35,73 @@ DEFAULT_TASK_TYPE_INTAKE_GID = "1215089213221083"
 DEFAULT_TASK_TYPE_EPIC_GID = "1215089213221084"
 
 TASK_OPT_FIELDS = "name,notes,completed,permalink_url,parent.gid,parent.name"
+TASK_OPT_FIELDS_WITH_CF = (
+    "name,notes,completed,permalink_url,parent.gid,parent.name,"
+    "custom_fields,custom_fields.gid,custom_fields.number_value"
+)
+EXECUTION_ORDER_FIELD_NAME = "Execution Order"
 
 
-def fetch_task(task_gid: str, token: str) -> dict[str, Any]:
+def fetch_task(task_gid: str, token: str, *, with_custom_fields: bool = False) -> dict[str, Any]:
     headers = {"Authorization": f"Bearer {token}"}
     r = requests.get(
         f"{ASANA_BASE}/tasks/{task_gid}",
         headers=headers,
-        params={"opt_fields": TASK_OPT_FIELDS},
+        params={
+            "opt_fields": TASK_OPT_FIELDS_WITH_CF if with_custom_fields else TASK_OPT_FIELDS
+        },
     )
     r.raise_for_status()
     return r.json()["data"]
+
+
+def execution_order_field_gid() -> str | None:
+    gid = os.getenv("ASANA_EXECUTION_ORDER_FIELD_GID", "").strip()
+    return gid or None
+
+
+def read_execution_order(task: dict[str, Any]) -> int | None:
+    """Read Execution Order number CF from a task payload (requires custom_fields)."""
+    field_gid = execution_order_field_gid()
+    if not field_gid:
+        return None
+    for cf in task.get("custom_fields") or []:
+        if str(cf.get("gid")) != field_gid:
+            continue
+        num = cf.get("number_value")
+        if num is None:
+            return None
+        try:
+            return int(num)
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def read_execution_order_from_notes(notes: str) -> int | None:
+    m = re.search(r"^着手順:\s*(\d+)\s*$", notes or "", re.MULTILINE)
+    if not m:
+        return None
+    return int(m.group(1))
+
+
+def set_execution_order(task_gid: str, order: int, token: str) -> bool:
+    """Set Execution Order number CF. Returns False if field GID unset."""
+    field_gid = execution_order_field_gid()
+    if not field_gid:
+        print(
+            f"warn  execution_order  skipped  task={task_gid}  reason=ASANA_EXECUTION_ORDER_FIELD_GID unset",
+            file=sys.stderr,
+        )
+        return False
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.put(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        json={"data": {"custom_fields": {field_gid: int(order)}}},
+        headers=headers,
+    )
+    r.raise_for_status()
+    return True
 
 
 def assignee_type_config() -> dict[str, str] | None:
@@ -701,6 +757,55 @@ def add_task_dependencies(task_gid: str, dependency_gids: list[str], token: str)
     r.raise_for_status()
 
 
+def has_open_dependencies(task_gid: str, token: str) -> bool:
+    """True when the task has at least one incomplete Asana dependency."""
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        headers=headers,
+        params={"opt_fields": "dependencies.gid,dependencies.completed"},
+    )
+    r.raise_for_status()
+    for dep in r.json()["data"].get("dependencies") or []:
+        if not dep.get("completed"):
+            return True
+    return False
+
+
+def _existing_dependency_gids(task_gid: str, token: str) -> set[str]:
+    headers = {"Authorization": f"Bearer {token}"}
+    r = requests.get(
+        f"{ASANA_BASE}/tasks/{task_gid}",
+        headers=headers,
+        params={"opt_fields": "dependencies.gid"},
+    )
+    r.raise_for_status()
+    return {
+        str(dep.get("gid") or "")
+        for dep in (r.json()["data"].get("dependencies") or [])
+        if dep.get("gid")
+    }
+
+
+def wire_handoff_execution_chain(gid_by_order: dict[int, str], token: str) -> int:
+    """Wire Handoff subtasks so order N depends on N-1. Returns dependency count added."""
+    wired = 0
+    for order in sorted(gid_by_order):
+        if order <= 1:
+            continue
+        prev_gid = gid_by_order.get(order - 1)
+        cur_gid = gid_by_order.get(order)
+        if not prev_gid or not cur_gid:
+            continue
+        existing = _existing_dependency_gids(cur_gid, token)
+        if prev_gid in existing:
+            continue
+        add_task_dependencies(cur_gid, [prev_gid], token)
+        wired += 1
+        print(f"execution_dependency  task={cur_gid}  depends_on={prev_gid}  order={order}")
+    return wired
+
+
 def find_active_review_gate_subtask(
     parent_gid: str,
     token: str,
@@ -811,6 +916,69 @@ def update_task_notes(task_gid: str, notes: str, token: str) -> dict[str, Any]:
     return r.json()["data"]
 
 
+REQUESTER_FACING_HEADING = "依頼者向け（人間が最初に読む）"
+AGENT_CONTEXT_HEADING = "背景・用語（エージェント / 実装者向け）"
+
+_META_HEADER_LINE = re.compile(r"^(?:チーム|課|担当|状態|柱):\s*.+$")
+_H2_HEADING = re.compile(r"^##\s+(.+)$", re.MULTILINE)
+
+
+def _notes_body_without_meta_headers(text: str) -> str:
+    lines = [
+        line
+        for line in (text or "").splitlines()
+        if not _META_HEADER_LINE.match(line.strip())
+    ]
+    return "\n".join(lines).strip()
+
+
+def _first_h2_heading(text: str) -> str | None:
+    m = _H2_HEADING.search(_notes_body_without_meta_headers(text))
+    return m.group(1).strip() if m else None
+
+
+def _requester_section_body(text: str) -> str:
+    body = _notes_body_without_meta_headers(text)
+    m = re.search(
+        r"^##\s+依頼者向け[^\n]*\n(.*)(?=^##\s|\Z)",
+        body,
+        re.MULTILINE | re.DOTALL,
+    )
+    return m.group(1).strip() if m else ""
+
+
+def validate_notes_two_layer(text: str, *, path: str = "") -> list[str]:
+    """Validate task notes: first ## is 依頼者向け with non-empty body."""
+    errors: list[str] = []
+    loc = f" {path}" if path else ""
+    first = _first_h2_heading(text)
+    if not first or not first.startswith("依頼者向け"):
+        errors.append(
+            f"[notes-two-layer]{loc}: first ## must be '依頼者向け', got {first!r}"
+        )
+    elif not _requester_section_body(text):
+        errors.append(
+            f"[notes-two-layer]{loc}: ## 依頼者向け section must have non-empty body"
+        )
+    return errors
+
+
+def validate_comment_body_not_legacy_task_notes(body: str) -> str | None:
+    """Reject comment --body that looks like legacy task notes (## 背景 without 依頼者向け)."""
+    stripped = (body or "").strip()
+    if not stripped:
+        return None
+    if "## 依頼者向け" in stripped:
+        return None
+    if stripped.startswith("## 背景") or "\n## 背景\n" in stripped:
+        return (
+            "comment body uses legacy task-notes layout (## 背景). "
+            "Use --action / build_human_comment_body or start with ## 実施内容; "
+            "format_signed_comment adds ## 依頼者向け automatically."
+        )
+    return None
+
+
 def assemble_subtask_notes(
     background: str,
     summary: str,
@@ -819,12 +987,15 @@ def assemble_subtask_notes(
     department: str | None = None,
     assignee: str | None = None,
     status: str | None = "assigned",
+    execution_order: int | None = None,
 ) -> str:
-    """Build Asana task notes per issue-story-planner v1.1+ / asana-buddy SKILL."""
+    """Build Asana task notes: requester-facing layer first, agent context second."""
     bg = background.strip()
     sm = summary.strip()
     dw = done_when.strip()
     parts: list[str] = []
+    if execution_order is not None and execution_order > 0:
+        parts.append(f"着手順: {execution_order}")
     if department and department.strip():
         parts.append(f"{DEPT_LINE_WRITE}: {department.strip()}")
     if assignee and assignee.strip():
@@ -834,21 +1005,49 @@ def assemble_subtask_notes(
     if pillar and pillar.strip():
         parts.append(f"柱: {pillar.strip()}")
     header = "\n".join(parts)
-    body = f"## 背景\n{bg}\n\n## 概要\n{sm}\n\n## 完了条件\n{dw}"
-    return f"{header}\n\n{body}".strip()
+    human_lines: list[str] = []
+    if execution_order is not None and execution_order > 0:
+        human_lines.append(f"**着手順:** {execution_order}（小さいほど先。Asana の Execution Order CF と同期）")
+    human_lines.append(sm)
+    if dw:
+        human_lines.extend(["", f"**完了すると:** {dw}"])
+    agent_block = f"### 背景\n{bg}\n\n### 概要\n{sm}\n\n### 完了条件\n{dw}"
+    body = (
+        f"## {REQUESTER_FACING_HEADING}\n\n"
+        + "\n".join(human_lines)
+        + f"\n\n## {AGENT_CONTEXT_HEADING}\n\n{agent_block}"
+    )
+    notes = f"{header}\n\n{body}".strip() if header else body.strip()
+    layer_errors = validate_notes_two_layer(notes)
+    if layer_errors:
+        raise ValueError(layer_errors[0])
+    return notes
 
 
 def notes_from_legacy_body(body: str, pillar: str | None = None) -> str:
-    """Map (title, body, pillar) programs to v1.1 notes layout.
+    """Map legacy notes to two-layer layout.
 
-    If body already contains ``## 背景``, only prepend optional ``柱:`` line.
+    If body already has ``## 依頼者向け``, return as-is (optional ``柱:`` prepend).
+    If body contains ``## 背景`` only, rebuild via assemble_subtask_notes.
     Otherwise treat body as summary with short background / done_when wrappers.
     """
     body = body.strip()
-    if "## 背景" in body:
+    if "## 依頼者向け" in body:
         if pillar and pillar.strip():
             return f"柱: {pillar.strip()}\n\n{body}"
         return body
+    if "## 背景" in body:
+        bg_m = re.search(r"## 背景\n+(.*?)(?=\n## |\Z)", body, re.DOTALL)
+        sm_m = re.search(r"## 概要\n+(.*?)(?=\n## |\Z)", body, re.DOTALL)
+        dw_m = re.search(r"## 完了条件\n+(.*?)(?=\n## |\Z)", body, re.DOTALL)
+        bg = (bg_m.group(1).strip() if bg_m else "（移行元 notes）")
+        sm = (sm_m.group(1).strip() if sm_m else body)
+        dw = (
+            dw_m.group(1).strip()
+            if dw_m
+            else "概要の作業が完了し、成果物またはレビュー合意が記録されている。"
+        )
+        return assemble_subtask_notes(bg, sm, dw, pillar=pillar)
     pillar_hint = f"柱「{pillar.strip()}」に関する作業。" if pillar and pillar.strip() else ""
     background = f"本タスクは対策ストーリー上の作業です。{pillar_hint}".strip()
     done_when = "概要の作業が完了し、成果物またはレビュー合意が記録されている。"
@@ -932,21 +1131,35 @@ def create_subtasks_reversed(
     token: str,
     notes_for_item: Callable[[Any], str],
     on_created: Callable[[dict], None] | None = None,
+    *,
+    wire_execution_dependencies: bool = True,
 ) -> None:
     """Create subtasks in reverse order so first list item appears on top in Asana."""
-    for item in reversed(items):
+    gid_by_order: dict[int, str] = {}
+    for ord_idx, item in reversed(list(enumerate(items))):
+        execution_order = ord_idx + 1
         if isinstance(item, (tuple, list)) and len(item) >= 2:
             title = str(item[0])
         elif isinstance(item, dict):
             title = str(item["title"])
         else:
             raise TypeError(f"unsupported subtask item type: {type(item)!r}")
-        notes = notes_for_item(item)
+        if isinstance(item, dict):
+            notes = handoff_subtask_notes(item, execution_order=execution_order)
+        else:
+            notes = notes_for_item(item)
         sub = create_subtask(epic_gid, title, notes, token)
+        sub_gid = str(sub.get("gid") or "")
+        if sub_gid:
+            set_execution_order(sub_gid, execution_order, token)
+            gid_by_order[execution_order] = sub_gid
+            print(f"execution_order  task={sub_gid}  order={execution_order}")
         if on_created:
             on_created(sub)
         else:
             print("created_subtask", sub.get("gid"))
+    if wire_execution_dependencies and gid_by_order:
+        wire_handoff_execution_chain(gid_by_order, token)
 
 
 def resolve_project_with_fallback(explicit: str | None) -> str:
@@ -1018,13 +1231,21 @@ def load_handoff(path: str) -> dict[str, Any]:
     return data
 
 
-def handoff_subtask_notes(st: dict[str, Any]) -> str:
+def handoff_subtask_notes(
+    st: dict[str, Any],
+    *,
+    execution_order: int | None = None,
+) -> str:
+    order = execution_order
+    if order is None and st.get("execution_order") is not None:
+        order = int(st["execution_order"])
     return assemble_subtask_notes(
         st["background"],
         st["summary"],
         st["done_when"],
         st.get("pillar"),
         st.get("department"),
+        execution_order=order,
     )
 
 
@@ -1083,8 +1304,14 @@ def sync_handoff_to_parent(
     used: set[int] = set()
     matched_gids: set[str] = set()
 
+    title_to_idx = {
+        str(st["title"]).strip(): idx for idx, st in enumerate(expected)
+    }
+
     for t in asana_tasks:
         idx = parse_subtask_index(t["name"], expected_count)
+        if idx is None:
+            idx = title_to_idx.get((t.get("name") or "").strip())
         if idx is None:
             continue
         if idx in used:
@@ -1092,12 +1319,21 @@ def sync_handoff_to_parent(
         used.add(idx)
         matched_gids.add(t["gid"])
         st = expected[idx]
+        execution_order = idx + 1
         requests.put(
             f"{ASANA_BASE}/tasks/{t['gid']}",
-            json={"data": {"name": st["title"], "notes": handoff_subtask_notes(st)}},
+            json={
+                "data": {
+                    "name": st["title"],
+                    "notes": handoff_subtask_notes(st, execution_order=execution_order),
+                }
+            },
             headers=headers,
         ).raise_for_status()
-        result["updated"].append({"index": idx + 1, "gid": t["gid"], "title": st["title"]})
+        set_execution_order(str(t["gid"]), execution_order, token)
+        result["updated"].append(
+            {"index": execution_order, "gid": t["gid"], "title": st["title"]}
+        )
 
     for idx, st in enumerate(expected):
         if idx in used:
@@ -1115,24 +1351,63 @@ def sync_handoff_to_parent(
                 t = candidates[0]
                 matched_gids.add(t["gid"])
                 used.add(idx)
+                execution_order = idx + 1
                 requests.put(
                     f"{ASANA_BASE}/tasks/{t['gid']}",
-                    json={"data": {"name": st["title"], "notes": handoff_subtask_notes(st)}},
+                    json={
+                        "data": {
+                            "name": st["title"],
+                            "notes": handoff_subtask_notes(st, execution_order=execution_order),
+                        }
+                    },
                     headers=headers,
                 ).raise_for_status()
+                set_execution_order(str(t["gid"]), execution_order, token)
                 result["fuzzy_matched"].append(
-                    {"index": idx + 1, "gid": t["gid"], "department": dept, "title": st["title"]}
+                    {
+                        "index": execution_order,
+                        "gid": t["gid"],
+                        "department": dept,
+                        "title": st["title"],
+                    }
                 )
                 continue
 
-        created = create_subtask(parent_gid, st["title"], handoff_subtask_notes(st), token)
+        execution_order = idx + 1
+        created = create_subtask(
+            parent_gid,
+            st["title"],
+            handoff_subtask_notes(st, execution_order=execution_order),
+            token,
+        )
         used.add(idx)
+        created_gid = str(created.get("gid") or "")
+        if created_gid:
+            set_execution_order(created_gid, execution_order, token)
         if st.get("department"):
-            set_assignee_type_org_ops(created.get("gid", ""), token)
-        result["created"].append({"index": idx + 1, "gid": created.get("gid"), "title": st["title"]})
+            set_assignee_type_org_ops(created_gid, token)
+        result["created"].append(
+            {"index": execution_order, "gid": created_gid, "title": st["title"]}
+        )
 
     for t in asana_tasks:
         if t["gid"] not in matched_gids:
             result["unmatched_asana"].append({"gid": t["gid"], "name": t["name"]})
+
+    gid_by_order: dict[int, str] = {}
+    for idx, st in enumerate(expected):
+        execution_order = idx + 1
+        gid = None
+        for bucket in ("updated", "fuzzy_matched", "created"):
+            for item in result.get(bucket) or []:
+                if item.get("index") == execution_order:
+                    gid = str(item.get("gid") or "")
+                    break
+            if gid:
+                break
+        if gid:
+            gid_by_order[execution_order] = gid
+    if gid_by_order:
+        result["dependencies_wired"] = wire_handoff_execution_chain(gid_by_order, token)
 
     return result

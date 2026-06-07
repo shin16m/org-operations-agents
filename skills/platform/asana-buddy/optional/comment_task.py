@@ -19,6 +19,7 @@ from asana_program_common import (  # noqa: E402
     create_task_story,
     format_signed_comment,
     load_agent_work_comment,
+    validate_comment_body_not_legacy_task_notes,
 )
 
 
@@ -63,6 +64,11 @@ def main() -> None:
                 artifacts=args.artifact or None,
                 next_state=args.next_state,
             )
+        if body.strip() and not args.action:
+            legacy_err = validate_comment_body_not_legacy_task_notes(body)
+            if legacy_err:
+                print(f"ERROR: {legacy_err}", file=sys.stderr)
+                sys.exit(2)
         if not (body.strip() or (args.summary or "").strip()):
             p.error("--body, --body-file, --summary, or --action is required")
         task_gid = args.gid

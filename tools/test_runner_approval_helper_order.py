@@ -112,12 +112,53 @@ class RunnerHelperParentTests(unittest.TestCase):
                         "check_session_status",
                         return_value={"status": "resumable"},
                     ):
-                        with mock.patch("subprocess.run", side_effect=fake_run):
-                            count = runner.run_approval_helper_pass(dry_run=False)
+                        with mock.patch("org_os.queue.wait_list", return_value=[]):
+                            with mock.patch("subprocess.run", side_effect=fake_run):
+                                count = runner.run_approval_helper_pass(
+                                    project_gids=["P1"],
+                                    token="tok",
+                                    dry_run=False,
+                                )
         self.assertEqual(count, 1)
         self.assertIn("--parent", captured[0])
         idx = captured[0].index("--parent")
         self.assertEqual(captured[0][idx + 1], "PM_CHILD")
+
+
+class WaitQueueApprovalHelperTests(unittest.TestCase):
+    def test_wait_queue_completed_sub_triggers_helper(self) -> None:
+        captured: list[list[str]] = []
+
+        def fake_run(cmd, **kwargs):  # noqa: ANN003
+            captured.append(cmd)
+            class R:
+                returncode = 0
+
+            return R()
+
+        wait_row = {
+            "epic_gid": "EPIC1",
+            "suspend_reason": "Approval",
+            "name": "test epic",
+        }
+        with mock.patch.object(
+            runner.asana_ops_sessions,
+            "load_suspended_sessions",
+            return_value=[],
+        ):
+            with mock.patch("org_os.queue.wait_list", return_value=[wait_row]):
+                with mock.patch(
+                    "check_approval_subtask._find_subtask",
+                    return_value={"gid": "SUB1", "completed": True, "name": "【承認】x"},
+                ):
+                    with mock.patch("subprocess.run", side_effect=fake_run):
+                        count = runner.run_approval_helper_pass(
+                            project_gids=["PROJ"],
+                            token="tok",
+                            dry_run=False,
+                        )
+        self.assertEqual(count, 1)
+        self.assertIn("SUB1", captured[0])
 
 
 class RunnerCycleOrderTests(unittest.TestCase):

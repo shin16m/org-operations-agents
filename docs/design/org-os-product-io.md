@@ -81,6 +81,9 @@ Python: [`products/org-os/src/org_os/queue.py`](../../products/org-os/src/org_os
 | **OS Suspend Reason** | Approval / Human Review / External Block | Waiting 時の理由（v2.0 で追加） |
 | **Approval Required** | Yes / No | 後方互換 · `Approval` suspend 時に Yes |
 | **Approval Result** | OK / NG / 未設定 | 承認サブ完了時に人間が選択 · [`approval-flow.md`](approval-flow.md) |
+| **Execution Order** | 数値（1, 2, 3…） | L2 execution 子の着手順 · Handoff `subtasks[]` 先頭 = 1 · **タスク名に番号は載せない** |
+
+`handoff_to_asana` 投入時に各子へ CF と notes `着手順:` を設定。`task_dispatcher` は department 順の次キーとして CF 昇順を使用。
 
 ### 5.2 env キー
 
@@ -93,13 +96,14 @@ sync CLI: [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_os_cf_env.py)
 | `ASANA_OS_SUSPEND_REASON_*` | OS Suspend Reason フィールド + enum GID |
 | `ASANA_APPROVAL_REQUIRED_*` | Approval Required |
 | `ASANA_APPROVAL_RESULT_*` | Approval Result（optional） |
+| `ASANA_EXECUTION_ORDER_FIELD_GID` | Execution Order 数値 CF（optional · L2 sort） |
 | `ASANA_DEFAULT_HUMAN_APPROVER_GID` | 承認サブ assignee + @mention 先 |
 
 テンプレート: [`.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
 
 ## 6. org-os CLI 契約
 
-wrapper: [`tools/org_os.py`](../../tools/org_os.py)
+wrapper: [`tools/run_org_os.py`](../../tools/run_org_os.py)（`tools/org_os.py` は package shadow のため非推奨）
 
 | コマンド | 説明 |
 |---------|------|

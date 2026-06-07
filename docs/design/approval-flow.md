@@ -120,8 +120,9 @@ archive_resumable_sessions
 | ルール | 内容 |
 |--------|------|
 | resumable 判定 | `session.approval_sub_gid` の `completed` を正とする（marker 曖昧一致禁止） |
+| **wait キュー フォールバック** | planning gate opt-in で `--record-wait` を省略しても、親が `OS State=Waiting` + `suspend_reason=Approval` かつ【承認】サブが **complete** なら `run_approval_helper_pass` が `source=wait_queue` で helper を起動する（手動 `approval_helper` 不要） |
 | 二重 kick 禁止 | `scan_projects` から `_session_auto_kick` を呼ばない（後段 resume scan に委譲） |
-| 期待ログ | `HELPER`/`APPROVED` → `RESUME` → `START` → `DISPATCH` |
+| 期待ログ | `HELPER source=wait_queue` または `HELPER source=session` → `RESUME` → `START` → `DISPATCH` |
 
 ### 5.3 関連実装関数（B 追加分）
 

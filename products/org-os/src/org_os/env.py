@@ -84,6 +84,15 @@ def task_type_cf_config() -> dict[str, str]:
     return {"field_gid": field, "intake_gid": intake, "epic_gid": epic}
 
 
+def execution_order_cf_config() -> dict[str, str] | None:
+    """Execution Order number CF (optional — L2 dispatch sort)."""
+    load_dotenv()
+    field = os.getenv("ASANA_EXECUTION_ORDER_FIELD_GID", "").strip()
+    if not field:
+        return None
+    return {"field_gid": field}
+
+
 def suspend_reason_cf_config() -> dict[str, str] | None:
     """OS Suspend Reason CF GIDs from env (optional until synced)."""
     load_dotenv()

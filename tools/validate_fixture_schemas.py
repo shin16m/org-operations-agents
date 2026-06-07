@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Validate Handoff / PlanReviewResult / audit report JSON fixtures against JSON Schema.
 
+Also validates notes two-layer contract (## 依頼者向け first) for fixtures listed in
+NOTES_TWO_LAYER_HANDOFFS. See docs/design/agent-asana-comment-signature.md §6.1.
+
 Run from repo root:
   pip install -r tools/requirements-validate.txt
   python tools/validate_fixture_schemas.py
@@ -45,6 +48,13 @@ SCHEMA_BY_KIND: dict[str, Path] = {
     "audit_review_result": AUDIT_REVIEW_RESULT_SCHEMA,
     "dashboard_bundle": DASHBOARD_BUNDLE_SCHEMA,
 }
+
+# Handoff fixtures that must satisfy notes two-layer contract (see agent-asana-comment-signature §7).
+NOTES_TWO_LAYER_HANDOFFS: frozenset[str] = frozenset(
+    {
+        "docs/verification/fixtures/platform/handoff/handoff.requester-facing-notes.v1.json",
+    }
+)
 
 
 def _load_schema(path: Path) -> dict:
@@ -100,7 +110,21 @@ def validate_instance(path: Path, data: dict, kind: str) -> list[str]:
     for err in sorted(validator.iter_errors(data), key=lambda e: list(e.path)):
         loc = ".".join(str(p) for p in err.path) or "(root)"
         errors.append(f"{path.relative_to(ROOT)} [{loc}]: {err.message}")
+    rel = path.relative_to(ROOT).as_posix()
+    if kind == "handoff" and rel in NOTES_TWO_LAYER_HANDOFFS:
+        epic_notes = (data.get("epic") or {}).get("notes_markdown") or ""
+        errors.extend(_validate_notes_two_layer(epic_notes, f"{rel} epic.notes_markdown"))
     return errors
+
+
+def _validate_notes_two_layer(text: str, path: str) -> list[str]:
+    """Import asana_program_common validator without adding optional/ to default path."""
+    opt = ROOT / "skills/platform/asana-buddy/optional"
+    if str(opt) not in sys.path:
+        sys.path.insert(0, str(opt))
+    from asana_program_common import validate_notes_two_layer
+
+    return validate_notes_two_layer(text, path=path)
 
 
 def collect_fixture_paths() -> list[Path]:

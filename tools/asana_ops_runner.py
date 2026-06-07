@@ -41,11 +41,48 @@ from asana_ops_poller import (  # noqa: E402
 )
 
 
-def run_approval_helper_pass(*, dry_run: bool) -> int:
-    """Run approval_helper --once for sessions whose gate subtask is complete."""
-    load_env_from_dotfile()
-    token = get_token()
+def _invoke_approval_helper(
+    *,
+    parent: str,
+    sub: str,
+    gate: str,
+    dry_run: bool,
+    source: str,
+) -> bool:
+    cmd = [
+        sys.executable,
+        str(TOOLS / "approval_helper.py"),
+        "--parent",
+        parent,
+        "--approval-sub",
+        sub,
+        "--gate-kind",
+        gate,
+        "--once",
+    ]
+    if dry_run:
+        print(f"HELPER  dry-run  source={source}  parent={parent}  sub={sub}  gate={gate}")
+        return True
+    print(f"HELPER  run  source={source}  parent={parent}  sub={sub}")
+    r = subprocess.run(cmd, cwd=str(ROOT), env=_subprocess_env())
+    return r.returncode == 0
+
+
+def run_approval_helper_pass(
+    *,
+    project_gids: list[str],
+    token: str,
+    dry_run: bool,
+) -> int:
+    """Run approval_helper --once when a gate subtask is complete.
+
+    Path A: suspended session JSON (--record-wait).
+    Path B: org-os wait queue (Approval) + completed 【承認】 sub — fallback when
+    record-wait was skipped but Asana gate exists.
+    """
     ran = 0
+    seen: set[tuple[str, str]] = set()
+
     for session in asana_ops_sessions.load_suspended_sessions():
         status = asana_ops_sessions.check_session_status(session, token)
         if status.get("status") != "resumable":
@@ -55,25 +92,56 @@ def run_approval_helper_pass(*, dry_run: bool) -> int:
         gate = str(session.get("gate_kind") or "planning_approval")
         if not parent or not sub:
             continue
-        cmd = [
-            sys.executable,
-            str(TOOLS / "approval_helper.py"),
-            "--parent",
-            parent,
-            "--approval-sub",
-            sub,
-            "--gate-kind",
-            gate,
-            "--once",
-        ]
-        if dry_run:
-            print(f"HELPER  dry-run  parent={parent}  sub={sub}  gate={gate}")
-            ran += 1
+        key = (parent, sub)
+        if key in seen:
             continue
-        print(f"HELPER  run  parent={parent}  sub={sub}")
-        r = subprocess.run(cmd, cwd=str(ROOT), env=_subprocess_env())
-        if r.returncode == 0:
+        seen.add(key)
+        if _invoke_approval_helper(
+            parent=parent, sub=sub, gate=gate, dry_run=dry_run, source="session"
+        ):
             ran += 1
+
+    try:
+        from check_approval_subtask import _find_subtask  # noqa: WPS433
+        from org_os import queue as org_os_queue  # noqa: WPS433
+    except ImportError as exc:
+        print(f"WARN  wait_queue helper skipped: {exc}", file=sys.stderr)
+        return ran
+
+    for project_gid in project_gids:
+        try:
+            rows = org_os_queue.wait_list(project_gid, token=token)
+        except Exception as exc:  # noqa: BLE001
+            print(
+                f"WARN  wait_queue scan failed  project={project_gid}: {exc}",
+                file=sys.stderr,
+            )
+            continue
+        for row in rows:
+            if row.get("suspend_reason") != "Approval":
+                continue
+            parent = str(row.get("epic_gid") or "")
+            if not parent:
+                continue
+            sub_task = _find_subtask(parent, "【承認】", token)
+            if not sub_task or not sub_task.get("completed"):
+                continue
+            sub = str(sub_task.get("gid") or "")
+            if not sub:
+                continue
+            key = (parent, sub)
+            if key in seen:
+                continue
+            seen.add(key)
+            if _invoke_approval_helper(
+                parent=parent,
+                sub=sub,
+                gate="planning_approval",
+                dry_run=dry_run,
+                source="wait_queue",
+            ):
+                ran += 1
+
     return ran
 
 
@@ -113,7 +181,11 @@ def run_cycle(
     print(f"RUNNER  cycle  dry_run={dry_run}  auto_kick={auto_kick}  projects={len(project_gids)}")
     print(f"RUNNER  cycle_order  {' -> '.join(CYCLE_ORDER)}")
 
-    helper_ran = run_approval_helper_pass(dry_run=dry_run)
+    helper_ran = run_approval_helper_pass(
+        project_gids=project_gids,
+        token=token,
+        dry_run=dry_run,
+    )
     print(f"RUNNER  approval_helper_pass  count={helper_ran}")
 
     code = scan_projects(
