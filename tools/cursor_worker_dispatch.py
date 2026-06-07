@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import os
-import subprocess
 import sys
 from pathlib import Path
 
@@ -82,7 +81,9 @@ def main() -> int:
         "--parent",
         args.parent,
     ]
-    gate_rc = subprocess.run(
+    from win_subprocess import run as win_run  # noqa: WPS433
+
+    gate_rc = win_run(
         gate_cmd,
         cwd=str(ROOT),
         capture_output=True,

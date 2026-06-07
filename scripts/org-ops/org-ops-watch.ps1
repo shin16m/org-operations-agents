@@ -7,6 +7,7 @@
   .\scripts\org-ops\org-ops-watch.ps1
   .\scripts\org-ops\org-ops-watch.ps1 -Yes -AutoKick -Interval 60
   .\scripts\org-ops\org-ops-watch.ps1 -Project 1214771428861230 -Yes -Dashboard
+  .\scripts\org-ops\org-ops-watch.ps1 -Yes -AutoKick -Background -Dashboard
 #>
 param(
     [string]$Project = $env:ASANA_PROJECT_ID,
@@ -15,7 +16,8 @@ param(
     [switch]$Yes,
     [switch]$AutoKick,
     [switch]$Human,
-    [switch]$Dashboard
+    [switch]$Dashboard,
+    [switch]$Background
 )
 
 . "$PSScriptRoot\_common.ps1"
@@ -39,8 +41,13 @@ if ($Project) {
 if ($Yes) {
     $args += "-y"
 }
-if ($Human -or -not $Yes) {
+if ($Human -or (-not $Yes -and -not $Background)) {
     $args += "--human"
+}
+
+if ($Background) {
+    Start-OrgOpsWatchBackground -RunnerArgs $args
+    exit 0
 }
 
 Invoke-OrgOpsPython -Args $args

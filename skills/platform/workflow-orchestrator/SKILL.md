@@ -46,7 +46,7 @@
 
 1. `python tools/intake_from_asana.py --task <url|gid> [--out output/platform/intake/<gid>-snapshot.json]`
 2. **triage:** `python tools/intake_triage.py --snapshot ...` → `output/platform/triage/<gid>-epic-input.json`（title · priority · skill_tags）
-3. epic_input を入力に bootstrap Handoff を生成（`## ソース Asana タスク` + `## triage（epic_input）` 節）
+3. epic_input を入力に bootstrap Handoff を生成（`epic.notes_markdown` は **二層形式**: 先頭 `## 依頼者向け` · 次 `## 背景・用語` 内にソース/triage メタ）
 4. bootstrap → **close_intake_source**（元タスク comment+complete）→ dispatch まで同一セッションで進める
 
 **intake 中にやらないこと:** issue-story-planner / agent-creater / development PM の役割で skills・registry・workflow YAML・design doc を**直接編集して実装を始める**こと（企画 Handoff に落とし、gate 後の execution 子で進める）。
@@ -57,7 +57,7 @@
 2. `handoff_to_asana.py` を **`--require-review-result` なし**で実行（bootstrap 専用）
 3. **`warn_section_add_failed` 時:** 出力の `created_parent <GID>` を控え、**`--parent <GID>` で再実行**（create モードを再実行しない — 重複親防止）
 4. 親 GID・企画子 GID をセッションに記録
-5. **intake-asana 時（`meta.source_task_gid` または snapshot あり）:** bootstrap 直後に `close_intake_source_task.py --source <元GID> --epic <親GID> -y` で元タスクへ新エピックリンクを comment し **complete**（エピック notes には bootstrap Handoff の `## ソース Asana タスク` 節で相互リンク済み）
+5. **intake-asana 時（`meta.source_task_gid` または snapshot あり）:** bootstrap 直後に `close_intake_source_task.py --source <元GID> --epic <親GID> -y` で元タスクへ新エピックリンクを comment し **complete**（エピック notes の `### ソース Asana タスク` 節で相互リンク済み）
 
 **Asana CF 起票ルール（SSOT: [`asana-task-type-field.md`](../../../docs/design/asana-task-type-field.md)）:**
 
@@ -325,13 +325,13 @@ task-dispatcher を起動し、planning-pm 用 prompt_snippet を返してくだ
 Asana タスク: 〈URL または GID〉
 
 1. python tools/intake_from_asana.py --task 〈URL|GID〉 --out output/platform/intake/〈gid〉-snapshot.json
-2. snapshot の name / notes を生課題として bootstrap Handoff を生成（epic.notes_markdown に ## ソース Asana タスク 節）
+2. snapshot の name / notes を生課題として bootstrap Handoff を生成（二層形式 · [`intake_triage.bootstrap_notes_from_epic_input`](../../../tools/intake_triage.py)）
 3. bootstrap → dispatch（企画チーム）まで進めてください。
 ```
 
 **bootstrap Handoff 追加要件（intake-asana）:**
 
-- `epic.notes_markdown` 先頭に `## ソース Asana タスク` — GID · URL · タスク名 · notes 本文
+- `epic.notes_markdown` は二層形式（先頭 `## 依頼者向け`）。`## 背景・用語` 内に `### ソース Asana タスク`（GID · URL）· `### triage` · intake 原文
 - コメントがある場合は `## ソースコメント` 節に snapshot の `comments_markdown` を引用（Handoff / プラン設計の入力に含める）
 - 本文に snapshot の `notes` を引用（権限不足で fetch 失敗時は利用者へ GID/権限を確認）
 

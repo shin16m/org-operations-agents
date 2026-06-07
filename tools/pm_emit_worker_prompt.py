@@ -33,9 +33,9 @@ DEPT_PM = {
 
 
 def _run_fetch_list(parent: str) -> list[tuple[str, str, bool]]:
-    import subprocess
+    from win_subprocess import run as win_run  # noqa: WPS433
 
-    r = subprocess.run(
+    r = win_run(
         [str(PY), str(ASANA / "fetch_task.py"), "--gid", parent, "--list-subtasks"],
         cwd=ROOT,
         capture_output=True,
@@ -55,9 +55,9 @@ def _run_fetch_list(parent: str) -> list[tuple[str, str, bool]]:
 
 
 def _run_fetch_assignee(gid: str) -> str | None:
-    import subprocess
+    from win_subprocess import run as win_run  # noqa: WPS433
 
-    r = subprocess.run(
+    r = win_run(
         [str(PY), str(ASANA / "fetch_task.py"), "--gid", gid, "--show-assignee"],
         cwd=ROOT,
         capture_output=True,
@@ -121,9 +121,9 @@ def main() -> int:
         "--parent",
         args.parent,
     ]
-    import subprocess
+    from win_subprocess import run as win_run  # noqa: WPS433
 
-    gate_rc = subprocess.run(
+    gate_rc = win_run(
         gate_cmd,
         cwd=ROOT,
         capture_output=True,

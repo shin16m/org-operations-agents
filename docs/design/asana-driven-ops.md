@@ -568,12 +568,13 @@ asana_ops_runner --watch  (ORG_OPS_AUTO_KICK=1)
 
 | 変数 | 既定 | 意味 |
 |------|------|------|
-| `ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` | `3` | runner 1 サイクルあたり execution kick 上限（Running 中の PM 子・worker 連鎖を細切れにしない。`1` に戻すと従来の 60s 単位運用） |
+| `ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` | `3` | runner 1 サイクルあたり execution kick 上限（同一サイクル内で kick 後に再スキャンして worker→PM complete 連鎖） |
+| `ORG_OPS_FAST_POLL_SEC` | `5` | `wait_worker_inflight` 時の watch sleep（秒） |
 | `ORG_OPS_MAX_EXECUTION_STUCK_CYCLES` | `5` | 企画完了後 Running stuck の ESCALATE 閾値（[`execution_stuck_escalate.py`](../../tools/execution_stuck_escalate.py)） |
 | `ORG_OPS_WORKER_INFLIGHT_TTL_SEC` | `7200` | worker in-flight マーカー自動解除（秒） |
 | `ORG_OPS_WORKER_INFLIGHT_STUCK_SEC` | `600` | in-flight のまま comment なし → stuck 判定（秒） |
 
-**テンポ方針（SSOT）:** `Waiting`（人間承認・レビュー）のみ watch が明示停止する。`Running` 中は同一 runner サイクルで `ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` まで L3b kick を連鎖し、次サイクルで続行する。細切れが残る場合は interval 短縮（例: `30`）と併用する。
+**テンポ方針（SSOT）:** `Waiting`（人間承認・レビュー）のみ watch が明示停止する。`Running` 中は同一 runner サイクルで kick 完了後に **再スキャン**し、`ORG_OPS_MAX_WORKER_KICKS_PER_CYCLE` まで L3b 連鎖する。上限到達で**進捗あり**の未処理 kick が残る場合のみ **sleep 0**。**kick 後も状態が同じ**（`EXECUTION no_progress`）または `execution_stuck` ESCALATE 後は **`--interval`（既定 60s）** で待つ。`wait_worker_inflight` は `ORG_OPS_FAST_POLL_SEC` で短間隔ポーリング。
 
 ### 状態表（SSOT）
 

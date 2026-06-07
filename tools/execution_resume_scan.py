@@ -10,8 +10,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,6 +38,19 @@ from task_dispatcher import _epic_children, _sort_execution  # noqa: E402
 
 REVIEW_MARKER = "【レビュー】"
 APPROVAL_MARKER = "【承認】"
+_KICKABLE_STATES = frozenset(
+    {"needs_pm_kick", "needs_next_dept", "needs_worker_kick", "needs_pm_complete"}
+)
+
+
+@dataclass(frozen=True)
+class ExecutionKickResult:
+    blocked_count: int
+    kicks: int
+    deferred: bool
+    inflight: bool
+    no_progress: bool = False
+    stuck_level: str | None = None
 
 
 def _resolve_project(arg_project: str | None) -> str | None:
@@ -233,6 +246,50 @@ def _max_kicks_per_cycle() -> int:
         return 1
 
 
+def _action_fingerprint(item: dict) -> tuple[str, str, str, str, str]:
+    return (
+        str(item.get("epic_gid") or ""),
+        str(item.get("state") or ""),
+        str(item.get("reason") or ""),
+        str(item.get("pm_child_gid") or ""),
+        str(item.get("worker_sub_gid") or ""),
+    )
+
+
+def _collect_project_actions(
+    project_gids: list[str],
+    *,
+    token: str,
+    dry_run: bool,
+    log_scan: bool = True,
+    tick_stuck: bool = True,
+) -> list[dict]:
+    rows: list[dict] = []
+    for project_gid in project_gids:
+        actions = scan_running_actions(project_gid, token=token)
+        if log_scan:
+            print_execution_scan(project_gid, actions, dry_run=dry_run)
+        for item in actions:
+            epic = str(item.get("epic_gid") or "")
+            if epic and tick_stuck:
+                from execution_stuck_escalate import check_and_emit_stuck  # noqa: WPS433
+
+                check_and_emit_stuck(epic, item, token=token, dry_run=dry_run)
+            rows.append(item)
+    return rows
+
+
+def _find_kickable_action(actions: list[dict]) -> dict | None:
+    for item in actions:
+        if item.get("state") in _KICKABLE_STATES:
+            return item
+    return None
+
+
+def _has_inflight(actions: list[dict]) -> bool:
+    return any(item.get("state") == "wait_worker_inflight" for item in actions)
+
+
 def _kick_cmd_for_action(item: dict) -> list[str] | None:
     state = item.get("state")
     epic = str(item.get("epic_gid") or "")
@@ -307,7 +364,9 @@ def kick_execution_action(
         print(f"HINT  execution_kick  epic={epic}  state={state}  cmd={' '.join(cmd)}")
         return 0
     print(f"KICK  execution  epic={epic}  state={state}")
-    r = subprocess.run(cmd, cwd=str(ROOT), env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+    from win_subprocess import run as win_run  # noqa: WPS433
+
+    r = win_run(cmd, cwd=str(ROOT), env={**os.environ, "PYTHONIOENCODING": "utf-8"})
     print(f"KICK  execution  epic={epic}  exit={r.returncode}")
     return r.returncode
 
@@ -318,38 +377,83 @@ def scan_execution_and_kick(
     token: str,
     dry_run: bool,
     cursor_kick: bool,
-) -> int:
+) -> ExecutionKickResult:
     from asana_ops_poller import _auto_kick_enabled  # noqa: WPS433
 
     auto_kick = _auto_kick_enabled(cursor_kick)
     max_kicks = _max_kicks_per_cycle()
     kicks = 0
+    deferred = False
     blocked_rows: list[dict] = []
-    for project_gid in project_gids:
-        actions = scan_running_actions(project_gid, token=token)
-        print_execution_scan(project_gid, actions, dry_run=dry_run)
-        for item in actions:
-            epic = str(item.get("epic_gid") or "")
-            if epic:
-                from execution_stuck_escalate import check_and_emit_stuck  # noqa: WPS433
 
-                check_and_emit_stuck(epic, item, token=token, dry_run=dry_run)
-            state = item.get("state")
-            if state in ("idle", "wait_pm_review"):
-                continue
-            if kicks >= max_kicks:
-                print(f"EXECUTION  defer  reason=max_kicks_per_cycle={max_kicks}")
-                break
-            kick_execution_action(
-                item,
-                execute=auto_kick,
-                dry_run=dry_run,
-                token=token,
-                blocked_out=blocked_rows,
+    while True:
+        actions = _collect_project_actions(project_gids, token=token, dry_run=dry_run)
+        candidate = _find_kickable_action(actions)
+        if candidate is None:
+            return ExecutionKickResult(
+                blocked_count=len(blocked_rows),
+                kicks=kicks,
+                deferred=False,
+                inflight=_has_inflight(actions),
             )
-            if auto_kick and not dry_run:
-                kicks += 1
-    return len(blocked_rows)
+        if kicks >= max_kicks:
+            deferred = True
+            print(f"EXECUTION  defer  reason=max_kicks_per_cycle={max_kicks}")
+            return ExecutionKickResult(
+                blocked_count=len(blocked_rows),
+                kicks=kicks,
+                deferred=True,
+                inflight=_has_inflight(actions),
+            )
+        fp_before = _action_fingerprint(candidate)
+        kick_execution_action(
+            candidate,
+            execute=auto_kick,
+            dry_run=dry_run,
+            token=token,
+            blocked_out=blocked_rows,
+        )
+        if not auto_kick or dry_run:
+            return ExecutionKickResult(
+                blocked_count=len(blocked_rows),
+                kicks=kicks,
+                deferred=False,
+                inflight=_has_inflight(actions),
+            )
+        kicks += 1
+        actions_after = _collect_project_actions(
+            project_gids,
+            token=token,
+            dry_run=dry_run,
+            log_scan=False,
+            tick_stuck=False,
+        )
+        candidate_after = _find_kickable_action(actions_after)
+        if candidate_after and _action_fingerprint(candidate_after) == fp_before:
+            epic = fp_before[0]
+            state = fp_before[1]
+            reason = fp_before[2]
+            print(
+                console_safe(
+                    f"EXECUTION  no_progress  epic={epic}  state={state}  reason={reason}"
+                )
+            )
+            from execution_stuck_escalate import check_and_emit_stuck  # noqa: WPS433
+
+            stuck_level = check_and_emit_stuck(
+                epic,
+                candidate_after,
+                token=token,
+                dry_run=dry_run,
+            )
+            return ExecutionKickResult(
+                blocked_count=len(blocked_rows),
+                kicks=kicks,
+                deferred=False,
+                inflight=_has_inflight(actions_after),
+                no_progress=True,
+                stuck_level=stuck_level,
+            )
 
 
 def main() -> int:

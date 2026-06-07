@@ -7,25 +7,39 @@ Verification 子 GID: `1215474028063933`
 
 2026-06-08
 
-## コマンド
+## コマンド（非 validate）
 
 ```powershell
 cd E:\data\document\sourse\org-operations-agents
 $env:PYTHONIOENCODING='utf-8'
 python tools/test_asana_notes_two_layer.py
-python tools/validate_fixture_schemas.py
-python tools/validate_ssot_contract.py
-python tools/validate_org_registry.py
 ```
 
-## 期待結果
+## 期待結果（非 validate）
 
 | コマンド | exit | 備考 |
 |----------|------|------|
 | `test_asana_notes_two_layer.py` | 0 | assemble / validate / legacy guard |
-| `validate_fixture_schemas.py` | 0 | `handoff.requester-facing-notes.v1.json` + notes-two-layer |
-| `validate_ssot_contract.py` | 0 | task notes requester-facing layer contract |
-| `validate_org_registry.py` | 0 | registry 整合 |
+
+## validate（doc-only）
+
+### 実行コマンド
+
+```powershell
+cd E:\data\document\sourse\org-operations-agents
+$env:PYTHONIOENCODING='utf-8'
+python tools/validate_org_registry.py
+python tools/validate_fixture_schemas.py
+python tools/validate_ssot_contract.py
+```
+
+### 実行結果
+
+| コマンド | 判定 | exit | 理由 |
+|----------|------|------|------|
+| `validate_org_registry.py` | 実行 | 0 | registry 整合 |
+| `validate_fixture_schemas.py` | 実行 | 0 | `handoff.requester-facing-notes.v1.json` + notes-two-layer fixture 検証 |
+| `validate_ssot_contract.py` | 実行 | 0 | task notes requester-facing layer contract |
 
 ## handoff_to_asana dry-run（notes 検証）
 
@@ -45,3 +59,4 @@ python skills/platform/asana-buddy/optional/handoff_to_asana.py `
 
 - `output/development/requirements/1215474028063933-requirements.md`
 - `docs/verification/development/human-notes-verification-smoke.md`
+- テンプレ SSOT: `docs/verification/_templates/doc-only-validate-section.md`

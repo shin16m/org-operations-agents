@@ -189,7 +189,11 @@ class RunnerCycleOrderTests(unittest.TestCase):
 
         def _scan_execution(**kwargs):  # noqa: ANN003
             calls.append("scan_execution_and_kick")
-            return 0
+            from execution_resume_scan import ExecutionKickResult  # noqa: WPS433
+
+            return ExecutionKickResult(
+                blocked_count=0, kicks=0, deferred=False, inflight=False
+            )
 
         def _archive(token, *, dry_run):  # noqa: ANN001
             calls.append("archive_resumable_sessions")
@@ -214,7 +218,7 @@ class RunnerCycleOrderTests(unittest.TestCase):
                                         "_auto_kick_enabled",
                                         return_value=False,
                                     ):
-                                        rc = runner.run_cycle(
+                                        result = runner.run_cycle(
                                             project_gids=["P1"],
                                             dry_run=True,
                                             yes=False,
@@ -222,7 +226,7 @@ class RunnerCycleOrderTests(unittest.TestCase):
                                             max_ng=3,
                                             cursor_kick=False,
                                         )
-        self.assertEqual(rc, 0)
+        self.assertEqual(result.code, 0)
         self.assertEqual(calls, list(runner.CYCLE_ORDER))
 
 

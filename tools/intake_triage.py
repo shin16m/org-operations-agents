@@ -96,21 +96,82 @@ def epic_title_from_input(epic_input: dict, *, epic_prefix: str = "【org-ops】
     return f"{epic_prefix}{title[:72]}"
 
 
+_REQUESTER_H2 = re.compile(
+    r"^##\s+依頼者向け[^\n]*\n(.*)(?=^##\s|\Z)",
+    re.MULTILINE | re.DOTALL,
+)
+_REQUESTER_SECTION = re.compile(
+    r"^##\s+依頼者向け[^\n]*\n.*?(?=^##\s|\Z)",
+    re.MULTILINE | re.DOTALL,
+)
+
+
+def _plain_text_requester_summary(description: str, title: str) -> str:
+    """First substantive paragraph from free-form intake notes."""
+    paragraph: list[str] = []
+    for line in (description or "").splitlines():
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            if paragraph:
+                break
+            continue
+        if not stripped:
+            if paragraph:
+                break
+            continue
+        paragraph.append(stripped)
+    if paragraph:
+        return " ".join(paragraph)[:600]
+    clean = (title or "intake").strip()
+    return f"intake 課題: **{clean}**"
+
+
+def _split_requester_from_description(description: str, title: str) -> tuple[str, str]:
+    desc = (description or "").strip()
+    match = _REQUESTER_H2.search(desc)
+    if match:
+        requester = match.group(1).strip()
+        remainder = _REQUESTER_SECTION.sub("", desc).strip()
+        return requester or _plain_text_requester_summary(desc, title), remainder
+    return _plain_text_requester_summary(desc, title), desc
+
+
 def bootstrap_notes_from_epic_input(epic_input: dict, snapshot: dict) -> str:
+    """Epic notes for L1 bootstrap — notes-two-layer SSOT (依頼者向け first)."""
     gid = epic_input.get("metadata", {}).get("source_task_gid") or snapshot.get("task_gid")
     url = snapshot.get("task_url") or f"https://app.asana.com/0/0/0/{gid}"
     tags = ", ".join(epic_input.get("skill_tags") or [])
-    body = (
-        f"## ソース Asana タスク\n\n"
-        f"- GID: `{gid}`\n"
-        f"- URL: {url}\n\n"
-        f"## triage（epic_input）\n\n"
-        f"- priority: {epic_input.get('priority')}\n"
-        f"- skill_tags: {tags}\n\n"
-        f"## description\n\n{epic_input.get('description') or ''}\n\n"
-        f"## 経路\n\nintake → triage → bootstrap\n"
+    title = (epic_input.get("title") or snapshot.get("name") or "intake").strip()
+    description = epic_input.get("description") or ""
+    requester, agent_body = _split_requester_from_description(description, title)
+
+    agent_parts = [
+        "### ソース Asana タスク",
+        "",
+        f"- GID: `{gid}`",
+        f"- URL: {url}",
+        "",
+        "### triage（epic_input）",
+        "",
+        f"- priority: {epic_input.get('priority')}",
+        f"- skill_tags: {tags}",
+        "",
+    ]
+    if agent_body.strip():
+        agent_parts.extend(["### intake 原文", "", agent_body.strip(), ""])
+    agent_parts.extend(["### 経路", "", "intake → triage → bootstrap", ""])
+
+    return "\n".join(
+        [
+            "## 依頼者向け（人間が最初に読む）",
+            "",
+            requester,
+            "",
+            "## 背景・用語（エージェント / 実装者向け）",
+            "",
+            "\n".join(agent_parts),
+        ]
     )
-    return body
 
 
 def main() -> int:

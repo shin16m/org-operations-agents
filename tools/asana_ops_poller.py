@@ -133,7 +133,9 @@ def _subprocess_env() -> dict[str, str]:
 def _run_capture(cmd: list[str], *, label: str) -> subprocess.CompletedProcess[str]:
     """Run a repo Python helper; never raise on Windows decode quirks."""
     try:
-        return subprocess.run(
+        from win_subprocess import run as win_run  # noqa: WPS433
+
+        return win_run(
             cmd,
             cwd=str(ROOT),
             capture_output=True,
@@ -217,7 +219,9 @@ def run_auto_bootstrap(gid: str, *, dry_run: bool, yes: bool) -> int:
         cmd.append("-y")
     else:
         cmd.append("--dry-run")
-    r = subprocess.run(cmd, cwd=str(ROOT))
+    from win_subprocess import run as win_run  # noqa: WPS433
+
+    r = win_run(cmd, cwd=str(ROOT))
     return r.returncode
 
 
@@ -268,7 +272,9 @@ def run_session_approval_helper(session: dict, *, dry_run: bool) -> int:
     if dry_run:
         print(f"HELPER  dry-run  parent={parent}  sub={sub}  gate={gate}")
         return 0
-    r = subprocess.run(cmd, cwd=str(ROOT), env=_subprocess_env())
+    from win_subprocess import run as win_run  # noqa: WPS433
+
+    r = win_run(cmd, cwd=str(ROOT), env=_subprocess_env())
     return r.returncode
 
 

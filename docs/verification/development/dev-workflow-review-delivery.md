@@ -35,7 +35,32 @@
 | ConsistencyAuditReport | `output/audit/reports/1215421281625391-consistency.json` | passed |
 | AuditReviewResult | `output/audit/reviews/1215421281625391-audit-review.json` | passed |
 
+## validate（doc-only）
+
+### 実行コマンド
+
+```powershell
+cd E:\data\document\sourse\org-operations-agents
+$env:PYTHONIOENCODING='utf-8'
+python tools/validate_org_registry.py
+python tools/validate_fixture_schemas.py
+python tools/validate_ssot_contract.py
+```
+
+### 実行結果
+
+| コマンド | 判定 | exit | 理由 |
+|----------|------|------|------|
+| `validate_org_registry.py` | 実行 | 0 | registry 整合（doc-only · design/skills のみ変更） |
+| `validate_fixture_schemas.py` | skip | - | fixture 未変更のため skip（assign-plan JSON のみ追加・fixtures/ 差分なし） |
+| `validate_ssot_contract.py` | 実行 | 0 | SSOT 契約検証 pass |
+
+### skip 理由（該当時）
+
+- **`validate_fixture_schemas.py`:** 本エピックは fixture JSON を変更していない doc-only のため skip。
+
 ## 関連
 
 - Handoff: `output/planning/handoff/handoff.dev-workflow-review.json`
 - 要件: `output/development/requirements/1215421282432324-requirements.md`
+- テンプレ SSOT: `docs/verification/_templates/doc-only-validate-section.md`

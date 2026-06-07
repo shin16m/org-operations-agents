@@ -15,9 +15,9 @@ from __future__ import annotations
 
 import argparse
 import os
-import subprocess
 import sys
 import time
+from dataclasses import dataclass
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,7 +64,9 @@ def _invoke_approval_helper(
         print(f"HELPER  dry-run  source={source}  parent={parent}  sub={sub}  gate={gate}")
         return True
     print(f"HELPER  run  source={source}  parent={parent}  sub={sub}")
-    r = subprocess.run(cmd, cwd=str(ROOT), env=_subprocess_env())
+    from win_subprocess import run as win_run  # noqa: WPS433
+
+    r = win_run(cmd, cwd=str(ROOT), env=_subprocess_env())
     return r.returncode == 0
 
 
@@ -166,6 +168,44 @@ CYCLE_ORDER = (
 )
 
 
+@dataclass(frozen=True)
+class CycleResult:
+    code: int
+    execution_kicks: int = 0
+    execution_deferred: bool = False
+    execution_inflight: bool = False
+    execution_no_progress: bool = False
+    execution_stuck_level: str | None = None
+
+
+def _fast_poll_seconds(interval: int) -> int:
+    raw = os.environ.get("ORG_OPS_FAST_POLL_SEC", "5").strip()
+    try:
+        sec = max(1, int(raw))
+    except ValueError:
+        sec = 5
+    return min(sec, max(5, interval))
+
+
+def _watch_sleep_seconds(*, interval: int, result: CycleResult) -> int:
+    """Sleep policy: progress defer → immediate; no-progress/stuck → full interval."""
+    full = max(5, interval)
+    if result.execution_stuck_level == "ESCALATE":
+        print(f"RUNNER  sleep={full}s  reason=execution_stuck_escalated")
+        return full
+    if result.execution_no_progress:
+        print(f"RUNNER  sleep={full}s  reason=kick_no_progress")
+        return full
+    if result.execution_deferred:
+        print("RUNNER  fast_poll  sleep=0  reason=execution_deferred")
+        return 0
+    if result.execution_inflight:
+        sec = _fast_poll_seconds(interval)
+        print(f"RUNNER  fast_poll  sleep={sec}s  reason=worker_inflight")
+        return sec
+    return full
+
+
 def run_cycle(
     *,
     project_gids: list[str],
@@ -174,7 +214,7 @@ def run_cycle(
     human: bool,
     max_ng: int,
     cursor_kick: bool,
-) -> int:
+) -> CycleResult:
     load_env_from_dotfile()
     token = get_token()
     auto_kick = _auto_kick_enabled(cursor_kick)
@@ -198,7 +238,7 @@ def run_cycle(
         yes=yes and not dry_run,
     )
     if code != 0:
-        return code
+        return CycleResult(code=code)
 
     code = scan_resume_and_dispatch(
         project_gids=project_gids,
@@ -209,23 +249,36 @@ def run_cycle(
         cursor_kick=cursor_kick,
     )
     if code != 0:
-        return code
+        return CycleResult(code=code)
 
     from execution_resume_scan import scan_execution_and_kick  # noqa: WPS433
 
-    blocked_n = scan_execution_and_kick(
+    kick_result = scan_execution_and_kick(
         project_gids=project_gids,
         token=token,
         dry_run=dry_run,
         cursor_kick=cursor_kick,
     )
-    if blocked_n:
-        print(f"RUNNER  execution_blocked  count={blocked_n}")
+    if kick_result.blocked_count:
+        print(f"RUNNER  execution_blocked  count={kick_result.blocked_count}")
+    if kick_result.kicks or kick_result.no_progress:
+        print(
+            f"RUNNER  execution_kicks  count={kick_result.kicks}  "
+            f"deferred={kick_result.deferred}  inflight={kick_result.inflight}  "
+            f"no_progress={kick_result.no_progress}  stuck={kick_result.stuck_level or '-'}"
+        )
 
     archived = asana_ops_sessions.archive_resumable_sessions(token, dry_run=dry_run)
     print(f"RUNNER  archive  count={archived}")
     print("RUNNER  cycle  done")
-    return 0
+    return CycleResult(
+        code=0,
+        execution_kicks=kick_result.kicks,
+        execution_deferred=kick_result.deferred,
+        execution_inflight=kick_result.inflight,
+        execution_no_progress=kick_result.no_progress,
+        execution_stuck_level=kick_result.stuck_level,
+    )
 
 
 def main() -> int:
@@ -251,7 +304,7 @@ def main() -> int:
     else:
         project_gids = [resolve_project_with_fallback(args.project)]
 
-    def _run() -> int:
+    def _run() -> CycleResult:
         return run_cycle(
             project_gids=project_gids,
             dry_run=args.dry_run,
@@ -262,13 +315,15 @@ def main() -> int:
         )
 
     if args.once:
-        return _run()
+        return _run().code
 
     while True:
-        code = _run()
-        if code != 0:
-            return code
-        time.sleep(max(5, args.interval))
+        result = _run()
+        if result.code != 0:
+            return result.code
+        sleep_sec = _watch_sleep_seconds(interval=args.interval, result=result)
+        if sleep_sec > 0:
+            time.sleep(sleep_sec)
 
 
 if __name__ == "__main__":

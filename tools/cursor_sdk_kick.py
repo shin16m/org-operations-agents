@@ -99,7 +99,9 @@ def resolve_repo_url() -> str | None:
     if explicit:
         return explicit
     try:
-        r = subprocess.run(
+        from win_subprocess import run as win_run  # noqa: WPS433
+
+        r = win_run(
             ["git", "remote", "get-url", "origin"],
             cwd=str(ROOT),
             capture_output=True,
@@ -159,8 +161,15 @@ def _use_async_kick() -> bool:
 async def _async_prompt(prompt: str, options, *, cwd: Path):
     from cursor_sdk.asyncio import AsyncAgent, AsyncClient  # type: ignore
 
-    async with await AsyncClient.launch_bridge(workspace=str(cwd)) as client:
-        return await AsyncAgent.prompt(prompt, options, client=client)
+    from win_subprocess import patch_async_subprocess_no_window, win_bridge_command_argv  # noqa: WPS433
+
+    bridge_cmd = win_bridge_command_argv()
+    launch_kwargs: dict[str, str | list[str]] = {"workspace": str(cwd)}
+    if bridge_cmd is not None:
+        launch_kwargs["command"] = bridge_cmd
+    with patch_async_subprocess_no_window():
+        async with await AsyncClient.launch_bridge(**launch_kwargs) as client:
+            return await AsyncAgent.prompt(prompt, options, client=client)
 
 
 def _run_async_prompt(prompt: str, options, *, cwd: Path):
@@ -202,14 +211,9 @@ def _kick_in_process(prompt: str, *, cwd: Path, label: str) -> int:
 
 
 def _windows_creationflags() -> int:
-    if sys.platform != "win32":
-        return 0
-    flags = 0
-    if hasattr(subprocess, "CREATE_NO_WINDOW"):
-        flags |= subprocess.CREATE_NO_WINDOW  # type: ignore[attr-defined]
-    if hasattr(subprocess, "DETACHED_PROCESS"):
-        flags |= subprocess.DETACHED_PROCESS  # type: ignore[attr-defined]
-    return flags
+    from win_subprocess import creationflags_isolated_worker  # noqa: WPS433
+
+    return creationflags_isolated_worker()
 
 
 def _kick_isolated_subprocess(prompt: str, *, cwd: Path, label: str) -> int:

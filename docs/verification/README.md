@@ -138,6 +138,16 @@
 3. **dryrun には必須の冒頭ブロック**: 実施日 / Asana 親 GID + URL / 使用 fixture / コマンド全文。
 4. **fixture は [`fixtures/`](fixtures/) のみ**に置く。`output/` は実行時の書き出し先（gitignore）。
 5. **v2 以前の履歴**は [`archive/`](archive/) に移す。
+6. **doc-only validate 節:** profile: doc-only の dryrun / delivery / smoke は [`_templates/doc-only-validate-section.md`](_templates/doc-only-validate-section.md) を validate 節の SSOT とする。テンプレをコピーし、§3.2 形式の実行結果表（判定・理由列）を必ず記載する。
+7. **doc-only 既定表:** 下記とテンプレ末尾の参照表を整合させること。
+
+| コマンド | doc-only 既定 | skip 許容例 |
+|----------|---------------|-------------|
+| `validate_org_registry.py` | **実行** | registry / workflow YAML 未変更かつ事前確認済み |
+| `validate_fixture_schemas.py` | fixture 変更時のみ | fixture 未変更の doc-only |
+| `validate_ssot_contract.py` | **実行** | SSOT 契約未変更かつ事前確認済み（稀） |
+
+8. **新規 doc-only 記録:** dryrun / delivery 作成時は上記テンプレを validate 節として組み込み、3 コマンドすべてを実行結果表に含める（実行・skip 混在可）。skip 時は理由を 1 文以上記載する。
 
 ---
 

@@ -21,6 +21,9 @@ Windows 向け運用エントリ。venv · `PYTHONIOENCODING` は [`_common.ps1`
 # watch + dashboard 同時起動
 .\scripts\org-ops\org-ops-watch.ps1 -Yes -Human -Dashboard
 
+# 黒窓なしバックグラウンド watch（stdout+stderr 統合: output/platform/runner-watch.log）
+.\scripts\org-ops\org-ops-watch.ps1 -Yes -AutoKick -Background -Dashboard
+
 # 停止（runner + dashboard）
 .\scripts\org-ops\org-ops-stop.ps1
 
@@ -58,7 +61,7 @@ $env:CURSOR_API_KEY = "<key>"
 3. **開始:** リポジトリルート（または `ORG_OPS_REPO_ROOT` を環境変数に設定）
 4. **条件:** ネットワーク接続時のみ（任意）
 
-AutoKick 版は `org-ops-watch-auto.cmd` をタスクに登録し、タスク環境に `CURSOR_API_KEY` を設定。
+# AutoKick 版は `org-ops-watch-auto.cmd` をタスクに登録（`.env` の `CURSOR_API_KEY` / `ORG_OPS_AUTO_KICK` を使用。PowerShell は `Import-OrgOpsDotEnv` で同 .env を読む）
 
 ## 開発常駐（手動）
 
