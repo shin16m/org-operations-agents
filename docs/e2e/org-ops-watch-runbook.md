@@ -1,7 +1,9 @@
 # org-ops watch 運用 runbook
 
-本番標準入口: [`scripts/org-ops/org-ops-watch.ps1`](../../scripts/org-ops/org-ops-watch.ps1)  
-SSOT: [`docs/design/asana-driven-ops.md`](../design/asana-driven-ops.md) §本番標準入口
+> **RETIRED（2026-06-09）** — watch 常駐運用は廃止。本番標準は [`docs/design/chat-driven-ops.md`](../design/chat-driven-ops.md)（和久桶さんへのチャット依頼）。
+
+~~本番標準入口: `scripts/org-ops/org-ops-watch.ps1`~~  
+~~SSOT: `docs/design/asana-driven-ops.md`~~
 
 ## 前提
 

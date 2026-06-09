@@ -409,9 +409,9 @@ def scan_execution_and_kick(
     dry_run: bool,
     cursor_kick: bool,
 ) -> ExecutionKickResult:
-    from asana_ops_poller import _auto_kick_enabled  # noqa: WPS433
+    from execution_kick_guard import auto_kick_enabled  # noqa: WPS433
 
-    auto_kick = _auto_kick_enabled(cursor_kick)
+    auto_kick = auto_kick_enabled(cursor_kick)
     max_kicks = _max_kicks_per_cycle()
     kicks = 0
     deferred = False

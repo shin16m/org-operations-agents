@@ -2,6 +2,8 @@
 
 実施: 2026-06-06 02:14 UTC
 
+> **運用注記（2026-06-09）:** 本番標準は [`chat-driven-ops.md`](../../design/chat-driven-ops.md)（和久桶さんチャット依頼）。本 dryrun は Asana 手動検証の履歴。
+
 ## 目的
 
 4 L3 チーム（planning / ux / analysis / development）+ プラットフォーム配賦で、各 enabled slug が `comment_task` → `complete_task` まで到達することを Asana 上で確認する。

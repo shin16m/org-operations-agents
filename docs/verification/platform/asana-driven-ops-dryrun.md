@@ -1,5 +1,8 @@
 # Asana ドリブン運用 — development dryrun 記録
 
+> **履歴（RETIRED · 2026-06-09）** — Asana **自動化** / org-os の検証記録。本番は [chat-driven-ops.md](../../design/chat-driven-ops.md)（和久桶チャット入口 · Asana タスク運用継続）。
+
+
 | エピック | `1215101833446108` |
 | development 子 | `1215086600091084` |
 | ブランチ | `feature/asana-driven-ops` |

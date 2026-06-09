@@ -52,7 +52,8 @@ class KickIsolationTests(unittest.TestCase):
     def test_kick_prompt_skip_without_api_key(self) -> None:
         with mock.patch.dict(os.environ, {}, clear=False):
             os.environ.pop("CURSOR_API_KEY", None)
-            code = kick.kick_prompt("test", label="TEST", no_api_key_exit=2)
+            with mock.patch.object(kick, "_load_dotenv_if_needed"):
+                code = kick.kick_prompt("test", label="TEST", no_api_key_exit=2)
             self.assertEqual(code, 2)
 
     def test_kick_subprocess_env_sets_pythonioencoding(self) -> None:
@@ -84,9 +85,10 @@ class KickIsolationTests(unittest.TestCase):
                 attempts.append(label)
                 return 1 if "cloud" not in label else 0
 
-            with mock.patch.object(kick, "_attempt_kick", side_effect=fake_attempt):
-                with mock.patch.object(kick, "resolve_repo_url", return_value="https://git/repo.git"):
-                    code = kick.kick_prompt("planning-pm テスト", label="KICK")
+            with mock.patch.dict(sys.modules, {"cursor_sdk": mock.MagicMock()}):
+                with mock.patch.object(kick, "_attempt_kick", side_effect=fake_attempt):
+                    with mock.patch.object(kick, "resolve_repo_url", return_value="https://git/repo.git"):
+                        code = kick.kick_prompt("planning-pm テスト", label="KICK")
         self.assertEqual(code, 0)
         self.assertEqual(attempts, ["KICK", "KICK-cloud"])
 
@@ -98,9 +100,10 @@ class KickIsolationTests(unittest.TestCase):
         ):
             os.environ.pop("ORG_OPS_KICK_RUNTIME", None)
             os.environ.pop("ORG_OPS_REPO_URL", None)
-            with mock.patch.object(kick, "_attempt_kick", return_value=1) as attempt_mock:
-                with mock.patch.object(kick, "resolve_repo_url", return_value=None):
-                    code = kick.kick_prompt("x", label="KICK", hint_manual="manual")
+            with mock.patch.dict(sys.modules, {"cursor_sdk": mock.MagicMock()}):
+                with mock.patch.object(kick, "_attempt_kick", return_value=1) as attempt_mock:
+                    with mock.patch.object(kick, "resolve_repo_url", return_value=None):
+                        code = kick.kick_prompt("x", label="KICK", hint_manual="manual")
         self.assertEqual(code, 1)
         self.assertEqual(attempt_mock.call_count, 1)
 

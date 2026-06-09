@@ -1,5 +1,7 @@
 # Asana ドリブン運用 — org-ops SSOT（Phase 1–3）
 
+> **RETIRED（2026-06-09）** — **Asana 自動化**（Intake タスク自動検出 · watch · 無人 kick）を棄却。本番標準は [`chat-driven-ops.md`](chat-driven-ops.md)。**Asana タスクの作成・遂行**（asana-buddy）は継続。本文は自動化の履歴参照用。
+
 | 版 | 1.5 |
 | 日付 | 2026-06-07 |
 | Phase 1 エピック | `1215101833446108` |

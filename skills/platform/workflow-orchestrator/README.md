@@ -1,50 +1,55 @@
 # workflow-orchestrator（和久桶さん）
 
-**課題の入口。** 生課題を受け取り（intake）、bootstrap で最小 Asana を作成し、企画チームへ dispatch する。
+**課題の入口（本番標準）。** チャットで生課題を受け取り（intake）、bootstrap で Asana に最小タスクを作成し、企画チームへ dispatch する。
 
 利用者向けニックネーム: **和久桶さん**（略: 和久桶）
 
+**運用 SSOT:** [`docs/design/chat-driven-ops.md`](../../../docs/design/chat-driven-ops.md)
+
 詳細: [`SKILL.md`](SKILL.md)
 
-## 使い方
+## 用語（認識合わせ）
 
-### 1. intake — 課題を渡す（ここから開始）
+| 用語 | 意味 |
+|------|------|
+| **Asana 自動化** | Intake タスク自動検出 · watch · 無人 kick → **廃止** |
+| **Asana タスク運用** | `handoff_to_asana` · `comment_task` / `complete_task` 等 → **基本（継続）** |
+| **チャット入口** | 和久桶さんへの依頼でエージェントを起動 → **本番標準** |
 
-**自然言語:**
+## 使い方（本番）
 
-```
-あなたは workflow-orchestrator スキルです（intake モード）。
-課題: 〈依頼内容を自然言語で〉
-bootstrap 用最小 Handoff を生成し、bootstrap → dispatch（企画チーム）まで進めてください。
-```
-
-**Asana タスク（URL / GID）:**
+### 1. intake — チャットで依頼（ここから開始）
 
 ```
-あなたは workflow-orchestrator スキルです（intake-asana モード）。
-Asana タスク: 〈URL または GID〉
-intake_from_asana.py で読取 → bootstrap Handoff → dispatch（企画チーム）まで進めてください。
+和久桶さん、次の課題をお願いします。
+
+〈依頼内容を自然言語で〉
+
+intake から bootstrap（Asana）→ 企画（Handoff → review → gate）→ execution dispatch まで進めてください。
 ```
 
-CLI: `python tools/intake_from_asana.py --task <url|gid>`
+### 2. 任意 — Asana タスク URL をチャットで渡す
 
-### 2. 企画完了後 — execution 系 dispatch
+自動スキャンは行わない。URL を添えて依頼した場合のみ intake-asana として手動読取。
 
-企画チームから `DeptWorkComplete` を受け取ったら、未完了の development / analysis 子を task-dispatcher で順次配賦する。
+### 3. 企画完了後 — execution 系 dispatch
 
-### 3. 作業完了後 — Asana 同期
+企画チームから `DeptWorkComplete` を受け取ったら、未完了の execution 系子を task-dispatcher で順次配賦する。
 
-各チーム PM が `comment_task.py` → `complete_task.py -y` を実行。全子完了後に親エピックも完了にしてから利用者へ報告する。
+### 4. Asana 同期（基本）
 
-## 企画 gate について
+各チーム PM が `comment_task.py` → `complete_task.py -y` を実行。全子完了後に親エピックも完了。
 
-Asana 本番投入前の人間承認（`handoff_approved`）は **planning-pm** が担当。orchestrator の gate モード（v2）は v3 では使用しない。
+## 使わないもの（Asana 自動化 · 廃止）
+
+- `org-ops-watch` · `asana_ops_poller` · org-os watch
+- `--record-wait` · approval_helper 常駐
 
 ## workflow の選び方
 
 | 目的 | ファイル |
 |------|----------|
-| 標準（企画 dispatch まで） | [`workflows/default.yaml`](../../../workflows/default.yaml) v3 |
+| 標準（企画 dispatch まで） | [`workflows/default.yaml`](../../../workflows/default.yaml) v6 |
 | + execution 系 dispatch ループ | [`workflows/with-dispatch.yaml`](../../../workflows/with-dispatch.yaml) |
 | 企画チーム L3 | [`workflows/planning-delivery.yaml`](../../../workflows/planning-delivery.yaml) |
 

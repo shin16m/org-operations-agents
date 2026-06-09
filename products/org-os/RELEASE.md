@@ -1,5 +1,7 @@
 # org-os — リリース手順
 
+> **DEPRECATED（2026-06-09）** — 本番運用から除外 · [`products/_retired/README.md`](../_retired/README.md)
+
 パッケージ版 SSOT: [`pyproject.toml`](pyproject.toml) · 変更履歴: [`CHANGELOG.md`](CHANGELOG.md)
 
 ## 1. バージョン bump

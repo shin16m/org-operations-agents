@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Dispatch incomplete execution children to team PMs (L2).
 
-Reads organizations.yaml + dispatch-prompt-ssot.md. Referenced by asana_ops_poller DISPATCH lines.
+Reads organizations.yaml + dispatch-prompt-ssot.md. Used by workflow-orchestrator L2 dispatch (chat-driven).
 
 Usage:
   python tools/task_dispatcher.py --parent <EPIC_GID> --dry-run

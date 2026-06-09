@@ -1,5 +1,7 @@
 # org-ops ↔ org-os プロダクト I/O 契約
 
+> **DEPRECATED · RETIRED（2026-06-09）** — org-os 状態機械・watch 連携は廃止。本番標準は [`chat-driven-ops.md`](chat-driven-ops.md)。本文は履歴参照用。
+
 | 項目 | 内容 |
 |------|------|
 | 版 | 2.2 |

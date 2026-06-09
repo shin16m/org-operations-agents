@@ -52,12 +52,11 @@
 トリガー（いずれか）: `--require-human-approval` · Handoff `meta.human_planning_approval: true` · env `ORG_OPS_PLANNING_APPROVAL_GATE=1` · epic notes `human_planning_approval: yes`
 
 1. `create_planning_approval_gate.py --parent <親エピックGID> --handoff <path> -y`
-2. `asana_ops_poller.py --record-wait <親> <【承認】サブGID> <URL>` — SuspendedSession 保存（**推奨 · 正規経路**）
-3. **セッション終了** — `handoff_to_asana.py` は **RESUME 後**
+2. **チャット**で依頼者へ Handoff 要約と【承認】サブ URL を提示
+3. 依頼者: Asana UI で **`Approval Result=OK/NG`** → 【承認】complete
+4. 和久桶さんへチャットで再開依頼 → `handoff_to_asana.py --require-review-result`
 
-`--record-wait` を省略した場合でも、Asana で【承認】complete 後は `org-ops-watch` が `HELPER source=wait_queue` で自動再開する（[`approval-flow.md`](../../../docs/design/approval-flow.md) §5.2）。ただし **opt-in 時は record-wait を省略しない**（監査・再現性のため）。
-
-チャットの「承認」は **opt-in gate の RESUME 後**の再開合図として有効。**opt-in 時に【承認】サブ省略は不可。**
+**禁止（opt-in 時）:** チャット「承認待ち」のみで止め、依頼者の Asana complete を待たない。`--record-wait` · `org-ops-watch` · `asana_ops_poller` は**使わない**（[`planning-gate-vs-pm-review-gate.md`](../../../docs/design/planning-gate-vs-pm-review-gate.md) · [`chat-driven-ops.md`](../../../docs/design/chat-driven-ops.md)）。
 
 チェックリスト: [`workflow-orchestrator/SKILL.md`](../../platform/workflow-orchestrator/SKILL.md) **§H**（opt-in 時のみ）
 

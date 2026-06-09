@@ -21,7 +21,7 @@
 
 1. 企画子 `DeptWorkComplete` または `asana_execute` 完了を検知
 2. `fetch_task.py --list-subtasks` で未完了 execution 系子を列挙（配賦順: ux → development / analysis → governance → audit）
-3. 同一 department 内は **Execution Order CF 昇順**（未設定時は GID 昇順）で並べ、**先頭 1 件**を [`task-dispatcher`](../../skills/platform/task-dispatcher/SKILL.md) へ委譲し **entry PM 用 prompt_snippet を返す**（[`org-os-product-io.md`](org-os-product-io.md) §5）
+3. 同一 department 内は **Execution Order CF 昇順**（未設定時は GID 昇順）で並べ、**先頭 1 件**を [`task-dispatcher`](../../skills/platform/task-dispatcher/SKILL.md) へ委譲し **entry PM 用 prompt_snippet を返す**
 4. **利用者への「進めますか？」確認はしない**（チャット「すすめて」は planning gate デフォルトと同様に有効）
 
 **禁止（デフォルト）:**
@@ -46,7 +46,7 @@
 
 1. 未完了 execution 系子の一覧と次の department を提示
 2. 利用者の明示合図（チャット「すすめて」等）後に task-dispatcher 実行
-3. Asana ドリブン RESUME 後も同様（[`approval-flow.md`](approval-flow.md) 更新済み）
+3. チャットで和久桶さんに続行依頼した場合も同様
 
 CLI ヘルパー: [`execution_dispatch_util.py`](../../tools/execution_dispatch_util.py) の `human_execution_dispatch_requested()`
 

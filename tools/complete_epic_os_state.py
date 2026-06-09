@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""L1 hook: set org-os OS State=Done before Asana epic complete.
+"""DEPRECATED (2026-06-09): org-os OS State=Done hook — not used in chat-driven ops.
 
 Non-blocking by default — warns and exits 0 if org-os CF is unset or transition fails.
 

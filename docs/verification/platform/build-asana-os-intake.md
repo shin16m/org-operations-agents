@@ -1,5 +1,7 @@
 # Build Asana OS — Asana 起票記録
 
+> **履歴（RETIRED · 2026-06-09）** — org-os 構築 epic 群の起票記録。本番は [chat-driven-ops.md](../../design/chat-driven-ops.md)（org-os watch 不要）。
+
 | 項目 | 内容 |
 |------|------|
 | 日付 | 2026-06-07 |

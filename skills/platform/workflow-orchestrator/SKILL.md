@@ -2,8 +2,10 @@
 
 **呼称:** **和久桶さん**（略: 和久桶）— 利用者がこの名前で依頼した場合も本スキル（`workflow-orchestrator`）として扱う。
 
+**本番標準入口（必須）:** [`docs/design/chat-driven-ops.md`](../../../docs/design/chat-driven-ops.md) — **和久桶さんへのチャット依頼**で起動。**Asana 自動化**（Intake 自動検出 · watch · 無人 kick）と org-os は廃止。**Asana タスク運用**（作成・遂行）は基本。
+
 **相談・依頼の原則（必須）:** 和久桶さんへのインプット（相談・「作って」「お任せ」含む）は **常に既存 workflow の intake から**進める。Handoff · plan-reviewer · gate · Asana 投入 · execution 系 L3 dispatch を経ずに、registry / skills / workflow / docs の**本体変更に着手しない**。  
-（反面例: 監査チーム追加 — 先行実装後に Asana / Plan B 補完。以後は再発させない。記録: [`org-governance-audit-team-delivery.md`](../../../docs/verification/audit/org-governance-audit-team-delivery.md)）
+（反面例: 監査チーム追加 — 先行実装後に Plan B 補完。以後は再発させない。記録: [`org-governance-audit-team-delivery.md`](../../../docs/verification/audit/org-governance-audit-team-delivery.md)）
 
 **独立スキル:** 宣言的 workflow + agent-registry に基づく段階案内。**利用者の唯一の入口（intake）** と **dispatch 委譲**。ビジネスロジックは各スキル・チーム workflow に委譲。
 
@@ -27,7 +29,7 @@
 **最初の 1 手（相談・機能追加・組織変更すべて共通）:**
 
 1. 利用者の **生課題** を受け取る — **自然言語** または **Asana タスク URL / GID**（`intake-asana`）
-2. **方針を一言で示す** — 「intake → triage → bootstrap → 企画 Handoff/review → Asana 投入 → execution 系へ」と伝える（**デフォルト**では planning gate の人間承認フローを省略し同一セッションで進める）
+2. **方針を一言で示す** — 「intake → bootstrap（Asana）→ 企画 Handoff/review → Asana 投入 → execution 系へ」と伝える（**チャット同一セッション**で進める · planning gate はデフォルト省略）
 3. `WorkflowSession` を初期化（`current_step_id: intake` · **`intake_mode: natural_language`**（既定）または `asana_task`）
 4. **bootstrap 用最小 Handoff** を生成（親エピック + `department: planning` の企画子 1 件）
 5. **bootstrap → dispatch まで同一セッションで進める**（利用者に別チャット起動を求めない）
@@ -37,12 +39,10 @@
 
 | モード | planning gate |
 |--------|---------------|
-| **デフォルト** | Handoff 要約提示後 **同一セッションで `asana_execute`**（【承認】サブ・`--record-wait` 不要） |
-| **opt-in**（`human_planning_approval` 等） | `create_planning_approval_gate.py` + `--record-wait` → セッション終了 → RESUME 後 `asana_execute`（§H） |
+| **デフォルト（本番）** | Handoff 要約提示後 **同一セッションで続行**（チャット「すすめて」で有効 · 【承認】/`--record-wait` 不要） |
+| **opt-in**（`human_planning_approval` 等） | チャットで依頼者へ明示確認 → 承認後 `asana_execute`（**`--record-wait` · org-os は使わない**） |
 
-`intake_mode`（`natural_language` / `asana_task`）は gate デフォルトに影響しない。
-
-**intake-asana（Asana タスク起点 · `intake_mode: asana_task`）:**
+**intake-asana（任意 · チャットで URL/GID を渡した場合 · `intake_mode: asana_task`）:**
 
 1. `python tools/intake_from_asana.py --task <url|gid> [--out output/platform/intake/<gid>-snapshot.json]`
 2. **triage:** `python tools/intake_triage.py --snapshot ...` → `output/platform/triage/<gid>-epic-input.json`（title · priority · skill_tags）
@@ -55,9 +55,9 @@
 
 1. bootstrap Handoff を `output/planning/handoff/bootstrap.<theme>.json` に保存
 2. `handoff_to_asana.py` を **`--require-review-result` なし**で実行（bootstrap 専用）
-3. **`warn_section_add_failed` 時:** 出力の `created_parent <GID>` を控え、**`--parent <GID>` で再実行**（create モードを再実行しない — 重複親防止）
+3. **`warn_section_add_failed` 時:** 出力の `created_parent <GID>` を控え、**`--parent <GID>` で再実行**（重複親防止）
 4. 親 GID・企画子 GID をセッションに記録
-5. **intake-asana 時（`meta.source_task_gid` または snapshot あり）:** bootstrap 直後に `close_intake_source_task.py --source <元GID> --epic <親GID> -y` で元タスクへ新エピックリンクを comment し **complete**（エピック notes の `### ソース Asana タスク` 節で相互リンク済み）
+5. **intake-asana 時（`meta.source_task_gid` または snapshot あり）:** bootstrap 直後に `close_intake_source_task.py --source <元GID> --epic <親GID> -y` で元タスクへ新エピックリンクを comment し **complete**
 
 **Asana CF 起票ルール（SSOT: [`asana-task-type-field.md`](../../../docs/design/asana-task-type-field.md)）:**
 
@@ -66,7 +66,7 @@
 | **Intake**（依頼者→和久桶入口） | **Intake** | **AI** |
 | **Epic**（bootstrap 親） | **Epic** | **AI**（`handoff_to_asana` create 時に自動） |
 
-Intake は `asana_ops_poller`（`--auto-bootstrap`）の CANDIDATE 条件。Epic は org-os `watch`（Agent Type=AI · Task Type=Epic · OS State Ready/Waiting）の対象。
+Intake の自動検出（`asana_ops_poller` 等）は**廃止**。Epic / 子タスクの作成・遂行は asana-buddy で継続。
 
 ### C. dispatch 委譲（L1 初回 = 企画チーム）
 
@@ -107,16 +107,9 @@ python tools/create_retrospective_intake_tasks.py --parent <親GID> --retro outp
   --gid <親GID> --summary "エピック完了" --body-file .\output\platform\comments\epic-summary.md -y
 ```
 
-**OS State=Done（org-os 連携 · 非ブロッキング）:**
+**retro intake gate WARN（非ブロッキング既定）:** 上記レトロ手順の後 · 親 `complete_task` の直前に実行（Asana 使用時）。
 
-```powershell
-python tools/complete_epic_os_state.py --epic <親GID>
-# または: python tools/org_os.py complete --epic <親GID> --allow-skip
-```
-
-`comment_epic_summary` の**後** · `complete_task.py` / `complete_epic_os_state.py` の**前**に実行。CF 未設定等で失敗しても **警告のみ exit 0**（`--strict` で exit 1）。
-
-**retro intake gate WARN（Phase 2 · 非ブロッキング既定）:** 上記レトロ手順の後 · org-os complete / 親 `complete_task` の直前に自動実行される。
+**org-os / OS State=Done:** **廃止**（2026-06-09）。`complete_epic_os_state.py` · `org-os watch` は使わない。
 
 ```powershell
 python tools/epic_retrospective_complete_hook.py --epic <親GID>
@@ -163,152 +156,17 @@ SSOT: [`docs/design/milestone-effectiveness-standard.md`](../../../docs/design/m
 
 PM 代行の事後補完（Plan B）は **利用者が workflow 省略を明示した場合のみ**。通常は [`pm-worker-separation-enforcement.md`](../../../docs/design/pm-worker-separation-enforcement.md) の CLI ガード + L3b kick を使用する。
 
-### F. Asana ドリブン運用（Phase 1 · 任意）
+### F. 廃止機能（参照しない）
 
-[`docs/design/asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md) — スキャン intake · planning gate Asana 化 · 保留再開。
+以下は **2026-06-09 棄却**。本番運用で案内・実行しない:
 
-**スキャン / 監視（運用者）:**
+- [`asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md) — `asana_ops_poller` · `asana_ops_runner` · watch 常駐 · `--record-wait`
+- [`org-os-product-io.md`](../../../docs/design/org-os-product-io.md) — org-os · OS State · `approval_helper` / `wakuoke_resume_scan` 自動再開
+- `scripts/org-ops/org-ops-watch*`
 
-```powershell
-python tools/asana_ops_poller.py --once --dry-run --human
-python tools/asana_ops_poller.py --watch --interval 60
-```
+**opt-in 人間ゲート**が必要な場合は **チャットで依頼者へ明示確認**する（`--record-wait` 不要）。
 
-**人間 gate 到達時（保留）:**
-
-1. planning-pm または PM が【承認】/【レビュー】サブを作成済みであること
-2. 承認サブ GID · URL を控える
-3. 保留 JSON を保存してセッションを終了:
-
-```powershell
-python tools/asana_ops_poller.py --record-wait <親GID> <承認サブGID> <承認サブURL>
-```
-
-**再開（運用者 · 新規セッション）:**
-
-```powershell
-python tools/asana_ops_poller.py --once          # RESUME 行を確認
-python tools/check_workflow_suspend.py --all --require-resumable
-# RESUME 後: handoff_to_asana / task-dispatcher / 該当 PM へ dispatch
-```
-
-**承認サブ自動 Ready 復帰 + NG ループ（A/B/C 完成後の運用）:**
-
-承認サブの完了は [`tools/approval_helper.py`](../../../tools/approval_helper.py)（B）と [`tools/wakuoke_resume_scan.py`](../../../tools/wakuoke_resume_scan.py)（C）が連動して扱う。詳細: [`docs/design/approval-flow.md`](../../../docs/design/approval-flow.md)。
-
-```powershell
-# B: 承認サブ完了監視（オンデマンド · デーモン化しない）
-python tools/approval_helper.py --parent <親GID> --approval-sub <承認サブGID> `
-  --gate-kind planning_approval --once
-# 完了検知 → 親 OS State=Ready · Approval Required=No へ自動戻し → ログ JSON 出力
-
-# C: Ready epic + ヘルパーログ突合 → RESUME / ESCALATE 行を出力
-python tools/wakuoke_resume_scan.py --project <PROJECT_GID> --max-ng 3 --dry-run
-# RESUME parent=... result=OK  → 次の execution dispatch（和久桶セッション）
-# RESUME parent=... result=NG count=N/M → 承認サブのコメントを読み修正方針を提示し再 dispatch
-# ESCALATE parent=... count=M/M → 親 epic に escalation コメントが投稿済（依頼者判断へ）
-```
-
-**NG ループ運用方針:**
-
-- `Approval Result=NG` または「Result 未設定で完了」は **NG 扱い**（C スキャナで counter +1）
-- counter は `output/platform/approval-helper/ng-counters/<parent>.json` に永続化
-- `--max-ng`（default 3）到達時は親に escalation コメント投稿 + 自動 resume を停止
-- counter リセットは依頼者判断 — 該当 JSON を削除/編集する運用（自動化は将来）
-
-**やらないこと（Phase 1）:** `--trigger-intake` から bootstrap まで無人完走 · Webhook 本番 · マルチプロジェクト横断。
-
-### G. Asana ドリブン auto-intake（Phase 4 · 任意）
-
-[`docs/design/asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md) Phase 4 — **CLI baseline 必須** · Cursor SDK optional。
-
-**CLI auto-bootstrap（和久桶 intake baseline）:**
-
-```powershell
-python tools/asana_ops_poller.py --once --auto-bootstrap --dry-run
-python tools/auto_intake_runner.py --task <SOURCE_GID> -y
-# → INTAKE → TRIAGE → HANDOFF → DISPATCH（planning-pm）
-```
-
-**org-os CF GID 同期（依頼者 CF 追加後）:**
-
-```powershell
-python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --dry-run
-python tools/sync_org_os_cf_env.py --project <PROJECT_GID> --write -y
-```
-
-**org-os 外部プロダクト（epic 状態）:**
-
-```powershell
-python tools/run_org_os.py status --epic <PARENT_GID>
-python tools/run_org_os.py watch --project <PROJECT_GID> --once
-```
-
-**Cursor SDK PoC（`CURSOR_API_KEY` 設定時のみ）:**
-
-```powershell
-python tools/cursor_intake_dispatch.py --task <SOURCE_GID> --dry-run
-python tools/cursor_intake_dispatch.py --task <SOURCE_GID> -y
-```
-
-**gate 到達時は必ず `--record-wait`**（ダッシュボード WAIT）。planning 【承認】/ PM 【レビュー】作成だけでは反映されない。詳細チェックリスト: **§H**。
-
-### H. gate 到達時必須チェックリスト（`--record-wait` · opt-in 時のみ）
-
-**適用範囲:** planning gate または PM review gate を **opt-in** で有効化した場合のみ。**デフォルト（opt-out）では本節は適用しない** — plan-reviewer 通過後に同一セッションで `handoff_to_asana.py` まで進める。
-
-Orchestrator が opt-in gate に到達し、**人間承認待ちにセッションを終了する前**に以下をすべて実施する。【承認】/【レビュー】サブ作成**のみ**ではダッシュボード WAIT に載らない（[`asana-driven-ops.md`](../../../docs/design/asana-driven-ops.md)）。
-
-#### planning gate opt-in（`handoff_approved` 待ち）
-
-| # | チェック | 確認 |
-|---|----------|------|
-| 1 | `PlanReviewResult` = `passed` / `passed_with_notes` | `output/planning/plan-review/*.json` |
-| 2 | Handoff 要約を利用者へ提示 | planning-pm gate |
-| 3 | `create_planning_approval_gate.py` で【承認】サブ GID · URL を控える | opt-in トリガー確認済み |
-| 4 | **`--record-wait` 実行** | 下記コマンド |
-| 5 | セッション終了 | `handoff_to_asana --require-review-result` は **RESUME 後** |
-
-```powershell
-python tools/create_planning_approval_gate.py --parent <親GID> --handoff <path> --require-human-approval -y
-python tools/asana_ops_poller.py --record-wait <親GID> <【承認】サブGID> <承認サブURL>
-```
-
-#### PM review gate（execution PM · L3b dispatch 前）
-
-| # | チェック | 確認 |
-|---|----------|------|
-| 1 | `pm_assign_subtasks` 完了 | worker サブ存在 |
-| 2 | 【レビュー】サブ GID · URL を控える | `create_pm_review_gate.py` |
-| 3 | **`--record-wait` 実行**（`--gate-kind` 必須） | 下記コマンド |
-| 4 | セッション終了 | RESUME 後に worker dispatch |
-
-```powershell
-python tools/asana_ops_poller.py --record-wait <PM子GID> <【レビュー】サブGID> <URL> `
-  --gate-kind pm_review_gate --department development
-```
-
-（`--department` は dispatch 先: `development` · `ux` · `analysis` · `governance` · `audit`）
-
-#### 再開（共通）
-
-```powershell
-python tools/asana_ops_poller.py --once
-python tools/check_workflow_suspend.py --all --require-resumable
-# RESUME 後: handoff_to_asana / pm_emit_worker_prompt / task-dispatcher
-```
-
-**やらないこと:** gate サブ作成のみで `--record-wait` を省略してセッション終了すること。
-
-**planning gate opt-in 時の禁止:**
-
-- Handoff 要約提示後、**チャット「承認待ち」だけで止める**（【承認】サブ + `--record-wait` 未実施）
-- 利用者のチャット「承認」を **opt-in gate 到達時の代替** とみなす（RESUME 前の `handoff_to_asana` 実行）
-- planning-pm が `create_planning_approval_gate` / `--record-wait` を省略
-
-**デフォルト（opt-out）:** plan-reviewer 通過後は要約提示のうえ同一セッションで `handoff_to_asana.py --require-review-result` を実行する。
-
-## 現段階 ID（default v3）
+## 現段階 ID（default v6）
 
 `intake` | `bootstrap` | `dispatch`（workflow YAML と同一）
 
@@ -331,7 +189,17 @@ python tools/check_workflow_suspend.py --all --require-resumable
 - 新規 `skills/<organization>/<slug>/`（→ agent-creater）
 - **execution 系 PM のワーカー代行**（gate 承認後も task-dispatcher → PM intake 必須）
 
-## 起動例 A — intake（課題を渡す）
+## 起動例 A — intake（本番標準 · チャット依頼）
+
+```
+和久桶さん、次の課題をお願いします。
+
+〈自然言語で依頼内容〉
+
+intake から bootstrap Handoff → dispatch（企画チーム）まで進めてください。
+```
+
+または:
 
 ```
 あなたは workflow-orchestrator スキルです（intake モード）。
