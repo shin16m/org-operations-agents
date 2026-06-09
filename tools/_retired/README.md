@@ -10,8 +10,11 @@
 | `tools/asana_ops_runner.py` | watch 常駐 runner |
 | `tools/asana_ops_dashboard.py` | WAIT/RESUME UI |
 | `tools/asana_ops_sessions.py` | session JSON |
+| `tools/auto_intake_runner.py` | CLI auto-bootstrap（triage 統合） |
+| `tools/cursor_intake_dispatch.py` | SDK intake 自動 kick |
 | `scripts/org-ops/org-ops-watch*` | watch 起動 |
 | `scripts/org-ops/org-ops-webhook*` | Webhook 常駐 |
+| `scripts/org-ops/org-ops-once-dryrun*` | poller dry-run |
 
 ## 残置・非推奨（手動・opt-in のみ）
 

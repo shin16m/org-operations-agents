@@ -265,11 +265,6 @@ class ScanExecutionKickChainTests(unittest.TestCase):
         self.assertFalse(result.no_progress)
 
 
-@unittest.skip("Asana automation retired 2026-06-09 — asana_ops_runner removed")
-class WatchSleepTests(unittest.TestCase):
-    pass
-
-
 class ExecutionPromptTests(unittest.TestCase):
     def test_execution_prompt_includes_kick(self) -> None:
         from cursor_epic_dispatch import build_execution_prompt  # noqa: WPS433
