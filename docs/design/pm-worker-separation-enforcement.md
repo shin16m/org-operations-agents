@@ -27,14 +27,14 @@
 |------|------|
 | 4 | assignee / attach / signed-comment ガード違反 |
 
-## L3b 強制（runner）
+## L3b 強制
 
 | 環境変数 | 既定 | 内容 |
 |----------|------|------|
 | `ORG_OPS_ENFORCE_L3B` | `1` | `cursor_worker_dispatch.py -y` で `CURSOR_API_KEY` 未設定時 **exit 2**（手動完走を抑止） |
-| `ORG_OPS_ENFORCE_L3B=0` | — | 従来どおり SKIP exit 0 + `pm_emit_worker_prompt` 手動 |
+| `ORG_OPS_ENFORCE_L3B=0` | — | SKIP exit 0 + `pm_emit_worker_prompt` 手動 |
 
-`asana_ops_runner.py --cursor-kick` → `execution_resume_scan` → `cursor_worker_dispatch` チェーンでワーカーは **別セッション** kick。
+和久桶セッションまたは PM dispatch から `cursor_worker_dispatch` でワーカーは **別セッション** kick（**Asana 自動化 runner 廃止** · [`chat-driven-ops.md`](chat-driven-ops.md)）。
 
 ## 正規フロー（再掲）
 

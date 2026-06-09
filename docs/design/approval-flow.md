@@ -1,12 +1,15 @@
 # 人間承認フロー — SSOT
 
-承認サブタスク（【承認】/【レビュー】）と OS State 機械・Approval Required・Approval Result CF の関係を定義する。
+承認サブタスク（【承認】/【レビュー】）と Asana CF（Approval Required · Approval Result 等）の関係を定義する。
+
+**本番（2026-06-09）:** [`chat-driven-ops.md`](chat-driven-ops.md) — planning gate **デフォルトはチャット同一セッション**。**Asana 自動化**（`approval_helper` 常駐 · `wakuoke_resume_scan` · `asana_ops_runner`）は廃止。
 
 関連:
-- [`org-os-product-io.md`](org-os-product-io.md) §4 Asana CF · §5 状態遷移
+- [`chat-driven-ops.md`](chat-driven-ops.md) — 本番ゲート
 - [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md) gate 種類
 - [`pm-assign-review-gate.md`](pm-assign-review-gate.md) PM レビュー gate
 - 実装: [`skills/platform/asana-buddy/optional/create_approval_subtask.py`](../../skills/platform/asana-buddy/optional/create_approval_subtask.py)
+- 廃止: [`org-os-product-io.md`](org-os-product-io.md) · [`asana-driven-ops.md`](asana-driven-ops.md)
 
 ## 1. CF 構成
 
@@ -38,8 +41,8 @@ CF 追加と env 同期は [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_
 
 | 結果 | 操作 | 後続 |
 |------|------|------|
-| OK | 承認サブの `Approval Result=OK` を選択 → 完了 | B（承認ヘルパー）が検知 → 親 `Approval Required=No` · `OS State=Ready` → 和久桶が再開 |
-| NG | 承認サブにコメント追記 → `Approval Result=NG` を選択 → 完了 | B が検知 → 親 `Approval Required=No` · `OS State=Ready` → 和久桶が再開 → C（NG 差し戻しループ）でコメント反映 |
+| OK | 承認サブの `Approval Result=OK` を選択 → 完了 | **opt-in 時:** 和久桶さんへチャットで再開依頼 · 同一セッション継続可 |
+| NG | 承認サブにコメント追記 → `Approval Result=NG` を選択 → 完了 | **opt-in 時:** 和久桶が NG コメントを読み差し戻し（planner / PM 再実行） |
 | 差し戻し（旧運用） | 承認サブを未完了のまま親へコメント | 互換のため B では「Result 未設定で完了」を **NG** と同等に扱う方針（C で実装） |
 
 ## 4. 状態遷移（親エピック）
@@ -105,7 +108,11 @@ CF / env 未設定の場合は `parent_state_after` が `unchanged` となり、
 
 **`--parent` の意味:** 承認サブがぶら下がる **wait_target**（planning gate では親 epic GID · PM review gate では **PM 子 GID**）。`approval_helper` は内部で `resolve_epic_gid` により epic に `syscall.resume` する。
 
-### 5.2 runner サイクル内の B→C 順序（`asana_ops_runner`）
+### 5.2 runner サイクル内の B→C 順序（`asana_ops_runner`）— RETIRED
+
+> **廃止（2026-06-09）** — Asana 自動化。以下は履歴参照用。
+
+### 5.2（履歴）runner サイクル内の B→C 順序（`asana_ops_runner`）
 
 watch-auto / [`tools/asana_ops_runner.py`](../../tools/asana_ops_runner.py) は **1 サイクル**で次の順序を守る（delivery: [`runner-resume-approval-helper-delivery.md`](../verification/platform/runner-resume-approval-helper-delivery.md)）:
 
@@ -131,9 +138,11 @@ archive_resumable_sessions
 | `get_task_custom_fields(task_gid, token)` | 単発タスクの custom_fields を `{field_gid: {name, enum_value}}` で取得 |
 | `read_approval_result(task_gid, token)` | Approval Result enum option 名（OK / NG / None）を返す |
 
-### 5.4 C resume scanner CLI 仕様
+### 5.4 C resume scanner CLI 仕様 — RETIRED
 
-実装: [`tools/wakuoke_resume_scan.py`](../../tools/wakuoke_resume_scan.py)
+> **廃止（2026-06-09）** — 以下は履歴参照用。
+
+実装（残置・非推奨）: `tools/wakuoke_resume_scan.py`
 
 ```
 python tools/wakuoke_resume_scan.py \
@@ -187,7 +196,9 @@ python tools/wakuoke_resume_scan.py \
 - planner / PM 自動再起動
 - Webhook（既存 polling MVP 路線維持）
 
-### 5.5 max_ng 到達時 runbook（人手）
+### 5.5 max_ng 到達時 runbook（人手）— RETIRED
+
+> **廃止** — opt-in gate で NG が続く場合は**チャット**で和久桶さんに差し戻し依頼。以下は履歴参照用。
 
 `wakuoke_resume_scan` / `asana_ops_runner` が **`ESCALATE parent=<gid> count=M/M`** を出力したら、自動 RESUME ループは停止している。依頼者が next action を決める。
 
@@ -220,7 +231,9 @@ python tools/wakuoke_resume_scan.py \
 
 テンプレート: [`skills/platform/asana-buddy/optional/.env.example`](../../skills/platform/asana-buddy/optional/.env.example)
 
-## 7. 関連実装（org-os syscall / asana_program_common）
+## 7. 関連実装（org-os syscall / asana_program_common）— org-os 連携 RETIRED
+
+> **org-os syscall**（suspend/resume）は本番運用から除外（[`org-os-product-io.md`](org-os-product-io.md) RETIRED）。`create_approval_subtask` のサブ作成・CF 設定は opt-in 時に**手動**で利用可。
 
 | コンポーネント | 用途 |
 |----------------|------|

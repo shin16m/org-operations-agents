@@ -1,5 +1,8 @@
 # 承認フロー再設計 A — Approval Result CF + 人間 assignee 連携 — delivery
 
+> **履歴（RETIRED · 2026-06-09）** — Asana **自動化** / org-os の検証記録。本番は [chat-driven-ops.md](../../design/chat-driven-ops.md)（和久桶チャット入口 · Asana タスク運用継続）。
+
+
 | 項目 | 値 |
 |------|------|
 | Asana 親 epic | `1215102436561886` |

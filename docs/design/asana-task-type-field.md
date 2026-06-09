@@ -17,7 +17,7 @@ Asana プロジェクトの **Task Type** enum CF で、タスクが **Intake（
 
 | 起票種別 | Task Type | Agent Type | 備考 |
 |----------|-----------|------------|------|
-| **Intake**（依頼者→和久桶入口） | **Intake** | **AI** | `asana_ops_poller` / `--auto-bootstrap` の CANDIDATE 条件 |
+| **Intake**（依頼者→和久桶入口） | **Intake** | **AI** | チャットで和久桶に URL 手動渡し時の参照用（**自動検出廃止**） |
 | **Epic**（bootstrap / handoff 親） | **Epic** | **AI** | `handoff_to_asana.py` create 時に org-ops が自動設定 |
 
 **Intake タスク作成（依頼者が Asana UI で起票）:**
@@ -25,19 +25,21 @@ Asana プロジェクトの **Task Type** enum CF で、タスクが **Intake（
 - Task Type = **Intake**
 - Agent Type = **AI**
 
-**poller intake 候補（`asana_ops_poller` · `--auto-bootstrap`）:**
+**Intake タスク（手動 intake-asana · 自動検出は廃止）:**
 
 - 未完了 · トップレベル
-- **Agent Type = AI** かつ **Task Type = Intake**（Epic 除外は Task Type CF が担う。タスク名プレフィックス不要）
+- **Agent Type = AI** かつ **Task Type = Intake**
 
 **Epic タスク作成（和久桶 bootstrap）:**
 
 - `handoff_to_asana.py` create モードが **Agent Type=AI · Task Type=Epic · OS State=Ready** を設定
 - 手動で epic を作る場合も同じ CF 組み合わせを守る
 
-## org-os watch 対象（Epic · poller とは別）
+## org-os watch 対象 — RETIRED
 
-`org-os watch --project <GID>` が列挙するタスク:
+> **廃止（2026-06-09）** — org-os watch は本番で使わない。
+
+~~`org-os watch --project <GID>` が列挙するタスク:~~
 
 1. **Agent Type** = `AI`
 2. **Task Type** = `Epic`

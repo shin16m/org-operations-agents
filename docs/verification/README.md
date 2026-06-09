@@ -2,11 +2,13 @@
 
 このフォルダは **手順 / チェックリスト / 実行記録 / 固定 fixture** の 4 種類を含む。新規追加・読み解きの起点。
 
+> **運用注記（2026-06-09）:** 本番標準は [`chat-driven-ops.md`](../design/chat-driven-ops.md)（和久桶さんチャット入口 · **Asana 自動化廃止** · **Asana タスク運用継続**）。`platform/*` の watch / poller / org-os 系記録は **履歴**（Asana 自動化 Phase 1–4 の検証ログ）。
+
 ## レイアウト（チーム別）
 
 | サブフォルダ | 対象 | 主な内容 |
 |--------------|------|----------|
-| [`platform/`](platform/) | **統括グループ** | intake · dispatch · Asana 運用 · 承認 · org-os · poller |
+| [`platform/`](platform/) | **統括グループ** | intake · dispatch · Asana タスク運用 · 承認（**自動化系は履歴**） |
 | [`planning/`](planning/) | **企画チーム** | Handoff · planning gate · review |
 | [`development/`](development/) | **開発チーム** | PM 配賦 · dev workflow · review gate |
 | [`ux/`](ux/) | **UX チーム** | ux-delivery v1/v2 |
@@ -44,7 +46,7 @@
 | [`orchestrator-intake-dryrun.md`](platform/orchestrator-intake-dryrun.md) | intake 入口化（v3） |
 | [`org-dispatch-pm-smoke.md`](platform/org-dispatch-pm-smoke.md) | dispatch → PM 配賦 |
 | [`agent-comment-smoke.md`](platform/agent-comment-smoke.md) | 署名付き comment / complete |
-| [`asana-driven-ops-dryrun.md`](platform/asana-driven-ops-dryrun.md) | Asana ドリブン Phase 1 |
+| [`asana-driven-ops-dryrun.md`](platform/asana-driven-ops-dryrun.md) | **履歴** — Asana 自動化 Phase 1 |
 | [`approval-flow-e2e-dryrun.md`](platform/approval-flow-e2e-dryrun.md) | 承認フロー E2E |
 
 → 全件: [`platform/`](platform/) フォルダ参照
@@ -93,7 +95,8 @@
 
 ## 手順（このフォルダ外）
 
-- [`../e2e/default-workflow.md`](../e2e/default-workflow.md) — default v3 標準手順
+- [`../e2e/default-workflow.md`](../e2e/default-workflow.md) — default v6 標準手順（チャット入口）
+- [`../design/chat-driven-ops.md`](../design/chat-driven-ops.md) — 本番運用 SSOT
 - [`../e2e/dispatch-workflow.md`](../e2e/dispatch-workflow.md) — execution 系子の dispatch ループ
 
 ## archive（v2 以前）
@@ -116,7 +119,6 @@
 |--------|------|
 | [`../../tools/validate_org_registry.py`](../../tools/validate_org_registry.py) | registry ↔ workflow ↔ schema 整合 |
 | [`../../tools/validate_fixture_schemas.py`](../../tools/validate_fixture_schemas.py) | fixture Handoff / PlanReviewResult の JSON Schema 検証 |
-| [`../../tools/validate_ssot_contract.py`](../../tools/validate_ssot_contract.py) | SSOT 横断契約・禁止パターン検証 |
 | [`../../tools/run_all_teams_dryrun.py`](../../tools/run_all_teams_dryrun.py) | 全チーム E2E（`cross-team/all-teams-dryrun.md` を生成） |
 | [`../../tools/run_ux_v2_dryrun.py`](../../tools/run_ux_v2_dryrun.py) | UX v2 単体 dryrun |
 | [`../../tools/run_analysis_v2_dryrun.py`](../../tools/run_analysis_v2_dryrun.py) | 分析 v2 full 単体 dryrun |
@@ -125,9 +127,9 @@
 | [`../../tools/run_analysis_to_dev_dryrun.py`](../../tools/run_analysis_to_dev_dryrun.py) | 分析 → dev 継ぎ目 |
 | [`../../tools/check_new_department.py`](../../tools/check_new_department.py) | 新チーム checklist A〜J |
 | [`../../tools/check_new_skill.py`](../../tools/check_new_skill.py) | 新規 slug 配線チェック |
-| [`../../tools/asana_ops_poller.py`](../../tools/asana_ops_poller.py) | Asana スキャン · intake trigger（[`asana-driven-ops.md`](../design/asana-driven-ops.md)） |
+| [`../../tools/validate_ssot_contract.py`](../../tools/validate_ssot_contract.py) | SSOT 横断契約（chat-driven 含む） |
 
-その他 PM gate · intake · レトロ系: 各 dryrun 記録の「コマンド」節を参照。
+~~`asana_ops_poller.py`~~ — **削除**（Asana 自動化廃止）。その他 PM gate · intake · レトロ系: 各 dryrun 記録の「コマンド」節を参照。
 
 ---
 

@@ -1,5 +1,7 @@
 # org-os
 
+> **DEPRECATED · RETIRED（2026-06-09）** — org-os 状態機械・watch 連携は本番運用から除外。標準は [`docs/design/chat-driven-ops.md`](../../docs/design/chat-driven-ops.md)。アーカイブ索引: [`products/_retired/README.md`](../_retired/README.md)
+
 組織OS — epic 単位の **Ready / Running / Waiting / Done** 状態機械（外部プロダクト）。
 
 org-operations-agents 本体は **CLI 契約経由**で本パッケージを呼び出す。状態機械本体・Asana CF read/write はここに集約する。

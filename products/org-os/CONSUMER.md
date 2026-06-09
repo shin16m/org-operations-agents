@@ -1,6 +1,8 @@
 # org-os — 外部利用ガイド（CONSUMER）
 
-org-operations-agents リポジトリ外から **org-os** を syscall / queue 経由で使う最小手順。
+> **DEPRECATED（2026-06-09）** — 本番運用から除外。履歴参照のみ · [`products/_retired/README.md`](../_retired/README.md)
+
+org-operations-agents リポジトリ外から **org-os** を syscall / queue 経由で使う最小手順（**非推奨**）。
 
 SSOT: [`docs/design/org-os-product-io.md`](../../docs/design/org-os-product-io.md) · 版 **1.0.0**
 

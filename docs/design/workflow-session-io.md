@@ -9,7 +9,7 @@
 | フィールド | 型 | 説明 |
 |------------|-----|------|
 | `session_id` | string | 任意のセッション識別子（例: UUID または日時） |
-| `intake_mode` | enum? | `natural_language`（既定）\| `asana_task`。planning gate 分岐の SSOT — **直接チャット**（`natural_language`）は人間承認フロー省略 · **Asana ドリブン**（`asana_task` · watch-auto · auto-intake）は【承認】+ `--record-wait` 必須 |
+| `intake_mode` | enum? | `natural_language`（本番既定）\| `asana_task`（チャットで URL 手動渡し）。**チャット入口**では planning gate デフォルト省略 · `--record-wait` / SuspendedSession は**使わない**（[`chat-driven-ops.md`](chat-driven-ops.md)） |
 | `raw_request` | string | 利用者が intake で渡した生課題（自然言語） |
 | `source_task_gid` | string? | intake-asana 時の Asana タスク GID |
 | `source_task_url` | string? | intake-asana 時の Asana URL |
@@ -23,10 +23,11 @@
 | `review_result_path` | string? | `PlanReviewResult` JSON |
 | `workflow_id` | string | 例: `default` |
 
-## SuspendedSession（保留 · Phase 1）
+## SuspendedSession（廃止 · 2026-06-09）
 
-人間 gate（【承認】/【レビュー】）到達時、Cursor セッションを終了する前に **`output/platform/sessions/<session_id>.json`** へ保存する。  
-生成 CLI: [`tools/asana_ops_poller.py`](../../tools/asana_ops_poller.py) の `--record-wait`。確認: [`tools/check_workflow_suspend.py`](../../tools/check_workflow_suspend.py)。
+> **RETIRED** — Asana ドリブン廃止に伴い `--record-wait` / `check_workflow_suspend` は本番で使わない。opt-in 人間ゲートは**チャットで確認**。
+
+~~人間 gate 到達時に `output/platform/sessions/<session_id>.json` へ保存。~~
 
 | フィールド | 型 | 説明 |
 |------------|-----|------|
@@ -39,7 +40,7 @@
 | `approval_url` | string? | 依頼者が complete する URL |
 | `created_at` | string | ISO8601 UTC |
 
-**再開:** `asana_ops_poller --once` が `check_approval_subtask` 経由で complete を検知すると `RESUME` 行を出力。運用者は **新規 dispatch セッション**を起動する（[`asana-driven-ops.md`](asana-driven-ops.md)）。
+**再開（廃止）:** ~~`asana_ops_poller --once` RESUME~~ → チャットで和久桶さんに続行を依頼。
 
 ## orchestrator の役割（v3）
 

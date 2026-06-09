@@ -10,6 +10,15 @@ TOOLS = Path(__file__).resolve().parents[1]
 GATE_MARKERS = ("【承認】", "【レビュー】")
 
 
+def auto_kick_enabled(cursor_kick: bool = False) -> bool:
+    """True when CLI requests kick and ORG_OPS_AUTO_KICK is set (legacy automation hook)."""
+    import os
+
+    if not cursor_kick:
+        return False
+    return os.environ.get("ORG_OPS_AUTO_KICK", "").strip().lower() in ("1", "true", "yes")
+
+
 def _infer_planning_incomplete(epic_gid: str, token: str) -> str | None:
     from asana_program_common import fetch_task, list_subtasks, parse_task_assignment  # noqa: WPS433
     from dispatch_prompt_util import infer_department, load_organizations  # noqa: WPS433

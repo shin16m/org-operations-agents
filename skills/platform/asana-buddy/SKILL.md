@@ -1,6 +1,6 @@
 # asana-buddy SKILL
 
-**独立スキル:** Asana 連携タスクアシスタント。`agent-creater` の子ではなく、`skills/platform/asana-buddy/` として `issue-story-planner` と同格に配置する。
+**独立スキル:** Asana タスクの**作成・遂行**を担う。本番入口はチャット（[`chat-driven-ops.md`](../../../docs/design/chat-driven-ops.md)）だが、**Asana タスク運用自体は基本**。廃止するのは **Asana 自動化**（Intake 自動検出 · watch · 無人 kick）のみ。
 
 人間向けのセットアップ・コマンド例は [`README.md`](README.md) を参照。
 

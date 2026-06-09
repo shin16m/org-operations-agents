@@ -1,25 +1,29 @@
-# デフォルト E2E 手順（default v3）
+# デフォルト E2E 手順（default v6 · チャット入口）
 
-workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v3 · 企画チーム: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml)
+workflow 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v6 · 企画チーム: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml)
 
-パイプライン概要（SSOT）: [`docs/design/workflow-io-contract.md`](../design/workflow-io-contract.md)
+**本番入口 SSOT:** [`docs/design/chat-driven-ops.md`](../design/chat-driven-ops.md)
+
+パイプライン概要: [`docs/design/workflow-io-contract.md`](../design/workflow-io-contract.md)
 
 ## 前提
 
-- org-os 初回セットアップ完了（[`docs/e2e/org-os-first-setup.md`](org-os-first-setup.md) · `.\scripts\org-ops\setup.ps1` · `doctor` PASS）
-- `skills/platform/asana-buddy/optional/.env` に `ASANA_TOKEN` と `ASANA_PROJECT_ID`
+- Cursor チャットで **和久桶さん**（`workflow-orchestrator`）に依頼する（**エージェント起動のトリガー**）
+- `skills/platform/asana-buddy/optional/.env` に `ASANA_TOKEN` と `ASANA_PROJECT_ID`（**Asana タスク運用は基本**）
+- ~~org-os セットアップ~~ · ~~Asana 自動化（watch / poller）~~ — **不要**（廃止）
 
-## 0. intake — workflow-orchestrator（ここから開始）
+## 0. intake — 和久桶さんへチャット依頼（ここから開始）
 
 **入力:** 生課題（自然言語）
 
-**プロンプト例:**
+**プロンプト例（本番標準）:**
 
 ```
-あなたは workflow-orchestrator スキルです（intake モード）。
-課題: 〈依頼内容〉
-bootstrap 用最小 Handoff（親 + department=planning の企画子 1 件）を生成し、
-bootstrap → dispatch（企画チーム）まで進めてください。
+和久桶さん、次の課題をお願いします。
+
+〈依頼内容〉
+
+intake から bootstrap（Asana）→ dispatch（企画チーム）まで進めてください。
 ```
 
 **bootstrap Handoff 要件:**

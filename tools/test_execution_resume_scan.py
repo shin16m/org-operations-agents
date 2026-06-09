@@ -172,7 +172,7 @@ class ScanExecutionKickChainTests(unittest.TestCase):
             with mock.patch.object(scan, "kick_execution_action") as kick_mock:
                 with mock.patch.object(scan, "_max_kicks_per_cycle", return_value=3):
                     with mock.patch(
-                        "asana_ops_poller._auto_kick_enabled",
+                        "execution_kick_guard.auto_kick_enabled",
                         return_value=True,
                     ):
                         result = scan.scan_execution_and_kick(
@@ -199,7 +199,7 @@ class ScanExecutionKickChainTests(unittest.TestCase):
         ):
             with mock.patch.object(scan, "kick_execution_action") as kick_mock:
                 with mock.patch(
-                    "asana_ops_poller._auto_kick_enabled",
+                    "execution_kick_guard.auto_kick_enabled",
                     return_value=True,
                 ):
                     with mock.patch(
@@ -251,7 +251,7 @@ class ScanExecutionKickChainTests(unittest.TestCase):
             with mock.patch.object(scan, "kick_execution_action"):
                 with mock.patch.object(scan, "_max_kicks_per_cycle", return_value=1):
                     with mock.patch(
-                        "asana_ops_poller._auto_kick_enabled",
+                        "execution_kick_guard.auto_kick_enabled",
                         return_value=True,
                     ):
                         result = scan.scan_execution_and_kick(
@@ -265,31 +265,9 @@ class ScanExecutionKickChainTests(unittest.TestCase):
         self.assertFalse(result.no_progress)
 
 
+@unittest.skip("Asana automation retired 2026-06-09 — asana_ops_runner removed")
 class WatchSleepTests(unittest.TestCase):
-    def test_deferred_sleep_is_zero(self) -> None:
-        import asana_ops_runner as runner  # noqa: WPS433
-
-        result = runner.CycleResult(code=0, execution_deferred=True)
-        self.assertEqual(runner._watch_sleep_seconds(interval=60, result=result), 0)
-
-    def test_inflight_uses_fast_poll(self) -> None:
-        import asana_ops_runner as runner  # noqa: WPS433
-
-        result = runner.CycleResult(code=0, execution_inflight=True)
-        with mock.patch.dict(os.environ, {"ORG_OPS_FAST_POLL_SEC": "7"}, clear=False):
-            self.assertEqual(runner._watch_sleep_seconds(interval=60, result=result), 7)
-
-    def test_no_progress_uses_full_interval(self) -> None:
-        import asana_ops_runner as runner  # noqa: WPS433
-
-        result = runner.CycleResult(code=0, execution_no_progress=True)
-        self.assertEqual(runner._watch_sleep_seconds(interval=60, result=result), 60)
-
-    def test_escalated_uses_full_interval(self) -> None:
-        import asana_ops_runner as runner  # noqa: WPS433
-
-        result = runner.CycleResult(code=0, execution_stuck_level="ESCALATE")
-        self.assertEqual(runner._watch_sleep_seconds(interval=60, result=result), 60)
+    pass
 
 
 class ExecutionPromptTests(unittest.TestCase):

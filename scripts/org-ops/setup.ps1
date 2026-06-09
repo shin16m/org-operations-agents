@@ -1,11 +1,11 @@
 #!/usr/bin/env pwsh
 <#
 .SYNOPSIS
-  First-time org-ops onboarding: venv, .env, doctor, sync guidance.
+  First-time onboarding: venv + .env（任意 Asana 連携用）。
 
 .DESCRIPTION
-  Aggregates setup_venv -> .env check -> doctor -> sync instructions.
-  ASANA_TOKEN must be set manually in .env (not automated).
+  本番標準はチャット入口（docs/design/chat-driven-ops.md）。ASANA_TOKEN は任意。
+  org-os doctor / watch は廃止（2026-06-09）。
 
 .EXAMPLE
   .\scripts\org-ops\setup.ps1
@@ -54,25 +54,25 @@ $envFile = Join-Path $optionalDir ".env"
 $envExample = Join-Path $optionalDir ".env.example"
 $setupVenv = Join-Path $optionalDir "setup_venv.ps1"
 
-Write-Host "SETUP  org-ops first-time onboarding" -ForegroundColor Cyan
+Write-Host "SETUP  org-ops venv + .env（チャット入口 · Asana 任意）" -ForegroundColor Cyan
 Write-Host "  repo: $root"
 
 # 1. venv
 if (-not $SkipVenv) {
     Write-Host ""
-    Write-Host "[1/4] setup_venv" -ForegroundColor Cyan
+    Write-Host "[1/3] setup_venv" -ForegroundColor Cyan
     & $setupVenv
 }
 else {
     Write-Host ""
-    Write-Host "[1/4] setup_venv  (skipped)" -ForegroundColor DarkGray
+    Write-Host "[1/3] setup_venv  (skipped)" -ForegroundColor DarkGray
 }
 
 $py = Get-OrgOpsPython -RepoRoot $root
 
 # 2. .env
 Write-Host ""
-Write-Host "[2/4] .env check" -ForegroundColor Cyan
+Write-Host "[2/3] .env check" -ForegroundColor Cyan
 if (-not (Test-Path $envFile)) {
     if (-not (Test-Path $envExample)) {
         throw ".env.example not found: $envExample"
@@ -91,33 +91,20 @@ if (-not $token -or $token -eq "your_personal_access_token") {
     Write-Host "  WARN  ASANA_TOKEN not configured (manual step — excluded from automation)" -ForegroundColor Yellow
 }
 
-# 3. doctor
+# 3. optional sync guidance
 Write-Host ""
-Write-Host "[3/4] doctor$(if ($Online) { ' --online' })" -ForegroundColor Cyan
-$doctorArgs = @("tools/run_org_os.py", "doctor")
-if ($Online) { $doctorArgs += "--online" }
-Invoke-OrgOpsPython -Args $doctorArgs
-$doctorRc = $LASTEXITCODE
-
-# 4. sync (optional auto or guidance)
-Write-Host ""
-Write-Host "[4/4] sync" -ForegroundColor Cyan
-if ($Sync -and $doctorRc -ne 0 -and $project -and $token -and $token -ne "your_personal_access_token") {
-    Write-Host "  Running sync scripts (--write -y) ..." -ForegroundColor Cyan
+Write-Host "[3/3] Asana CF sync（任意）" -ForegroundColor Cyan
+if ($Sync -and $project -and $token -and $token -ne "your_personal_access_token") {
     Invoke-OrgOpsPython -Args @("tools/sync_all_cf_env.py", "--project", $project, "--write", "-y")
-    Write-Host "  Re-running doctor ..." -ForegroundColor Cyan
-    Invoke-OrgOpsPython -Args $doctorArgs
-    $doctorRc = $LASTEXITCODE
 }
 
-if ($doctorRc -eq 0) {
-    Write-Host "  OK  doctor passed — env ready for org-os" -ForegroundColor Green
-    Write-Host ""
-    Write-Host "DONE  setup complete. Try: $py tools/run_org_os.py watch --project <GID> --once" -ForegroundColor Green
-    exit 0
-}
-
-Write-SyncGuide -ProjectGid $project -Python $py
 Write-Host ""
-Write-Host "SETUP  finished with doctor warnings — follow NEXT commands above" -ForegroundColor Yellow
-exit $doctorRc
+Write-Host "DONE  setup complete." -ForegroundColor Green
+Write-Host "  本番: Cursor チャットで和久桶さんに依頼（docs/design/chat-driven-ops.md）" -ForegroundColor Green
+if (-not $token -or $token -eq "your_personal_access_token") {
+    Write-Host "  Asana 未設定 — Handoff JSON / output/ のみで運用可" -ForegroundColor DarkGray
+}
+else {
+    Write-SyncGuide -ProjectGid $project -Python $py
+}
+exit 0

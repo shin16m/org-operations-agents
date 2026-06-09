@@ -5,7 +5,9 @@ alwaysApply: true
 
 # 標準 workflow 厳守（このリポジトリ）
 
-このリポジトリは **宣言的 workflow とエージェント挙動の定義** が主目的である。利用者が「作って」「実装して」「和久桶さん」と言っただけでは、**Handoff・レビュー・gate を経ずに製品コードの実装をこのリポジトリへ書き始めない**（成果物は別リポジトリまたは Asana 投入後のチーム内フローで扱う）。
+このリポジトリは **宣言的 workflow とエージェント挙動の定義** が主目的である。利用者が「作って」「実装して」「和久桶さん」と言っただけでは、**Handoff・レビュー・gate を経ずに製品コードの実装をこのリポジトリへ書き始めない**（成果物は別リポジトリまたは execution 系 dispatch 後のチーム内フローで扱う）。
+
+**本番標準入口:** [`docs/design/chat-driven-ops.md`](docs/design/chat-driven-ops.md) — **和久桶さんへのチャット依頼**で起動。**Asana 自動化**（Intake 自動検出 · watch · 無人 kick）と org-os は廃止。**Asana タスク運用**（作成・遂行）は基本。
 
 ## 和久桶さん（workflow-orchestrator）への相談
 
@@ -13,14 +15,14 @@ alwaysApply: true
 
 **禁止:** 相談を受けてすぐ skills / registry / workflow / validate を編集し始める（監査チーム追加で発生した先行実装パターン）。
 
-**正規:** intake → bootstrap → planning（Handoff → plan-reviewer → gate）→ asana_execute → task-dispatcher → 各 PM L3。
+**正規:** intake → bootstrap（Asana 親 + 企画子）→ planning（Handoff → plan-reviewer → gate）→ asana_execute → task-dispatcher → 各 PM L3。
 
 ## エージェントの進行責務（L1）
 
 **利用者に「次は issue-story-planner を起動してください」と丸投げしない。** 同一セッション内でエージェントが次を実行する:
 
 1. **intake** — 課題受付・bootstrap 用最小 Handoff 生成
-2. **bootstrap** — Asana に親 + 企画子 1 件を作成
+2. **bootstrap** — `handoff_to_asana.py` で Asana に親 + 企画子 1 件を作成
 3. **dispatch** — 企画子を `planning-delivery`（planning-pm）へ配賦
 
 ## 企画チーム（L3）— 同一セッションまたは planning-pm セッションで
@@ -28,29 +30,28 @@ alwaysApply: true
 4. **handoff_plan** — Handoff JSON を `output/planning/handoff/*.json` に保存
 5. **plan_review** — `PlanReviewResult` を `output/planning/plan-review/*.json` に保存（省略不可）
 6. **pm_gate** — planning-pm: Handoff 要約提示 → **`handoff_approved` 取得**
-   - **デフォルト（全 intake 経路）:** 要約提示後 **同一セッションで `asana_execute` へ**（【承認】サブ・`--record-wait` 不要）
-   - **opt-in**（`human_planning_approval` 等）: **`create_planning_approval_gate.py` → `asana_ops_poller --record-wait` → セッション終了**
-7. **asana_execute** — **デフォルト:** `pm_gate` 直後に `handoff_to_asana.py --require-review-result`。**opt-in:** 依頼者が Asana UI で【承認】complete → `approval_helper` → RESUME 後のみ実行
+   - **デフォルト:** 要約提示後 **同一セッションで続行**（チャット「すすめて」で有効 · Asana 【承認】不要）
+7. **asana_execute** — `handoff_to_asana.py --require-review-result`（利用者が「Asana 不要」と明示した場合のみ省略）
 
-**gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / governance / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute` の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → **pm_review_gate（opt-in）** → L3b worker dispatch）。**PM がワーカー役を代行しない**（実装作業は L3b ワーカーセッション。PM は委譲・集約のみ）。
+**gate 承認後の禁止:** 同一セッションで execution 系（development / ux / analysis / governance / audit）の **ファイル編集・doc 更新**に着手しない。`asana_execute`（または企画完了）の次は **task-dispatcher → 各 PM intake**（`pm_assign_subtasks` → **pm_review_gate（opt-in）** → L3b worker dispatch）。**PM がワーカー役を代行しない**。
 
-**L2 dispatch 自動進行（デフォルト）:** 企画完了 · RESUME 後は **「続けて dispatch しますか？」等の確認を挟まず** task-dispatcher → PM prompt_snippet まで進める（[`dispatch-auto-proceed-ssot.md`](docs/design/dispatch-auto-proceed-ssot.md)）。opt-in: `human_execution_dispatch` / `ORG_OPS_EXECUTION_DISPATCH_CONFIRM=1`。
+**L2 dispatch 自動進行（デフォルト）:** 企画完了後は **「続けて dispatch しますか？」等の確認を挟まず** task-dispatcher → PM prompt_snippet まで進める（[`dispatch-auto-proceed-ssot.md`](docs/design/dispatch-auto-proceed-ssot.md)）。opt-in: `human_execution_dispatch` / `ORG_OPS_EXECUTION_DISPATCH_CONFIRM=1`。
 
-**bootstrap 部分失敗:** `handoff_to_asana.py` が `warn_section_add_failed` を出したら、出力の `created_parent` GID を控え **`--parent <GID>` で再実行**する（create モードの再実行で重複親を作らない）。
+**bootstrap 部分失敗:** `handoff_to_asana.py` が `warn_section_add_failed` を出したら、出力の `created_parent` GID を控え **`--parent <GID>` で再実行**する。
 
-**comment_task の `--agent`:** 実装作業の署名は **実作業ワーカーの slug**（notes の `担当:` と一致）。PM slug は DeptWorkComplete・委譲集約・gate のみ。CLI が不一致を **exit 4**（[`pm-worker-separation-enforcement.md`](docs/design/pm-worker-separation-enforcement.md)）。
+**comment_task の `--agent`:** 実装作業の署名は **実作業ワーカーの slug**。PM slug は DeptWorkComplete・委譲集約・gate のみ。
 
 **L3b 強制:** `ORG_OPS_ENFORCE_L3B=1`（既定）で `cursor_worker_dispatch -y` は API key 必須。PM が複数 worker を同一セッションで完走しない。
 
-**人間ゲート（【レビュー】/【承認】）:** エージェントは `complete_task.py` でこれらのサブを **完了してはならない**（利用者が Asana UI で complete）。**デフォルト**では planning gate の【承認】サブ自体を作らない。**opt-in** 時のみ planning gate の【承認】は Asana UI complete が必須。チャットの「すすめて」「承認」は **planning gate デフォルト（opt-out）** で有効。PM assign review gate は **opt-in 時のみ** Asana UI complete が必須。
+**人間ゲート:** エージェントは `complete_task.py` で【レビュー】/【承認】サブを **完了してはならない**（利用者が Asana UI で complete）。**デフォルト**では planning gate の【承認】サブを作らない。**`--record-wait` · approval_helper 常駐 · org-os Waiting は使わない**（チャットで確認）。
 
-**エピック complete 前:** `comment_epic_summary.py` で依頼者向けサマリを親タスクに投稿してから `complete_task.py`。
+**エピック complete 前（Asana 使用時）:** `comment_epic_summary.py` で依頼者向けサマリを親タスクに投稿してから `complete_task.py`。
 
 ## 必須の順序
 
-パイプライン SSOT: [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) · YAML: [`workflows/default.yaml`](workflows/default.yaml) · [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
+パイプライン SSOT: [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) · YAML: [`workflows/default.yaml`](workflows/default.yaml) v6 · [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
 
-L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Handoff → review → gate → Asana） → execution 系 dispatch（**6 チーム**。governance=org-meta · audit は組織変更時・最後）
+L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Handoff → review → gate → Asana） → execution 系 dispatch（**6 チーム**）
 
 ## 実装依頼時（L2/L3 実行系）
 
@@ -65,16 +66,6 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 | 組織改善 | governance-pm | `output/governance/` | [`governance-delivery`](workflows/governance-delivery.yaml) |
 | 監査 | audit-pm | `output/audit/` | [`audit-delivery`](workflows/audit-delivery.yaml) |
 
-**開発チーム** — 要件 → 設計 → 実装 → dev-reviewer / qa-verifier。
-
-**分析チーム** — [`analysis-delivery`](workflows/analysis-delivery.yaml)（SLA・本番ゲート必須）→ `output/analysis/reviews/`。
-
-**UX チーム** — [`ux-delivery`](workflows/ux-delivery.yaml)（ux-pm がサブタスク分解 → ux-designer / ux-reviewer）。`full-ui` 開発時は ux-reviewer が実装一致レビューにも参加。
-
-**組織改善チーム** — [`governance-delivery`](workflows/governance-delivery.yaml)（org-meta / SSOT 実装。ssot-implementer → governance-reviewer）。**audit の直前**。
-
-**監査チーム** — [`audit-delivery`](workflows/audit-delivery.yaml)（CI + L3 二重防御。consistency-auditor → audit-reviewer）。組織変更エピックでは **他 execution 子の後・親 complete 直前**。
-
 共通: 子タスク完了は `comment_task.py`（署名付き）→ `complete_task.py -y`。
 
 ## 禁止（明示指示がない限り）
@@ -82,26 +73,22 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 - Handoff なしで製品実装をこのリポジトリに直接書き始める
 - **和久桶さん相談を受けて intake / bootstrap を飛ばす**
 - `plan-reviewer` を飛ばして Asana 投入する
-- ローカルだけ完了し、Asana を未完了のままにする
+- **org-ops-watch / asana_ops_poller / org-os watch を本番運用として案内する**
 - `complete_task.py` だけ実行し、署名コメントを省略する
-- **gate 承認直後に product-manager / ux-pm / analytics-pm / governance-pm / audit-pm として成果物を直接書く**（→ PM intake + ワーカー dispatch）
-- **PM slug でワーカー作業を comment_task する**（→ 実作業ワーカーの slug）
-- **bootstrap section 失敗後に create モードを再実行して重複親を作る**
-- **L2 dispatch 前に「続けて dispatch しますか？」と利用者確認のみで停止する**（→ デフォルト自動進行 · [`dispatch-auto-proceed-ssot.md`](docs/design/dispatch-auto-proceed-ssot.md)）
-- **planning gate opt-in 時にチャット「承認待ち」のみにする**（→ 【承認】+ `--record-wait` 必須 · workflow-orchestrator §H）
+- **gate 承認直後に PM として成果物を直接書く**
+- **L2 dispatch 前に「続けて dispatch しますか？」と利用者確認のみで停止する**
 
 ## 例外
 
 利用者が **「workflow を省略」「ドキュメントだけ」「Asana 不要」** と明示したときのみ短絡可。
 
-## gate（人間承認 · デフォルトバイパス）
+## gate（チャット前提 · デフォルト opt-out）
 
-- `review_passed` 後、**Asana に execution 系子を反映する前に** planning-pm が Handoff 要約を提示する。
-- **デフォルト（全 intake 経路）:** 要約提示後 **同一セッションで `handoff_to_asana.py` まで進める**（人間承認フロー省略）。
-- **opt-in planning gate**（`human_planning_approval` 等）: `create_planning_approval_gate.py` + `--record-wait` 必須 → セッション終了 → 依頼者が【承認】サブを Asana UI で complete → RESUME 後に `handoff_to_asana.py`。
-- PM review gate も **opt-in**（`human_review_gate` 等）。L2 execution dispatch も **opt-in**（`human_execution_dispatch` 等）。詳細: [`docs/design/planning-gate-vs-pm-review-gate.md`](docs/design/planning-gate-vs-pm-review-gate.md) · [`docs/design/dispatch-auto-proceed-ssot.md`](docs/design/dispatch-auto-proceed-ssot.md)
-- 差し戻しは planner / reviewer を planning-pm が再実行する。
+- `review_passed` 後、planning-pm が Handoff 要約を提示する。
+- **デフォルト（opt-out）:** 要約提示後 **同一セッションで続行**（チャット「すすめて」で有効）。
+- **opt-in planning gate:** `human_planning_approval` · `create_planning_approval_gate.py` — チャットで依頼者確認（`--record-wait` 禁止）。
+- PM review gate / L2 dispatch: [`planning-gate-vs-pm-review-gate.md`](docs/design/planning-gate-vs-pm-review-gate.md) · [`dispatch-auto-proceed-ssot.md`](docs/design/dispatch-auto-proceed-ssot.md)。
 
 ## 開始時の一言（エージェント）
 
-**和久桶さん / 実装・機能追加・組織変更の依頼**を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、plan-reviewer 通過後に Asana 投入まで同一セッションで進める**旨を短く伝える（デフォルトでは人間承認フロー省略）。本体実装・メタ doc 更新は **`asana_execute` 後の execution 系 dispatch**で進める。
+**和久桶さん / 実装・機能追加・組織変更の依頼**を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、plan-reviewer 通過後に Asana 投入まで同一セッションで進める**旨を短く伝える。本体実装・メタ doc 更新は **`asana_execute` 後の execution 系 dispatch**で進める。

@@ -1,51 +1,37 @@
-# Default workflow — orchestrator intake entry (v5)
-# v4: intake → triage → bootstrap → dispatch
-# v5: + suspend / resume（人間承認 · org-os syscall 整合）
+# Default workflow — orchestrator intake entry (v6)
+# v5: suspend / resume（org-os）— RETIRED 2026-06-09
+# v6: チャット入口のみ（chat-driven-ops SSOT）
 id: default
-version: "5"
-description: intake → triage → bootstrap → dispatch（opt-in suspend/resume で人間承認）
+version: "6"
+description: 和久桶さんチャット intake → bootstrap Handoff → dispatch（企画チーム）
 
 policy:
   review_required: false
   entry_step: intake
   entry_agent: workflow-orchestrator
-  note: plan/review/gate/asana 投入は planning-delivery（L3 企画チーム）で実行
+  note: 本番入口はチャットのみ。plan/review/gate/asana 投入は planning-delivery（L3 企画チーム）
 
 steps:
   - id: intake
     agent: workflow-orchestrator
-    role: 課題受付。snapshot 取得（intake-asana / auto-intake）
+    role: 課題受付（自然言語 · チャット）。任意で Asana URL を手動参照
     gate_after: null
 
   - id: triage
     agent: workflow-orchestrator
-    role: snapshot → epic_input JSON（title · priority · skill_tags · metadata）
+    role: 任意 — intake-asana 時のみ snapshot → epic_input JSON
     gate_after: null
     outputs:
       - output/platform/triage/<source_gid>-epic-input.json
 
   - id: bootstrap
     agent: asana-buddy
-    role: epic_input を入力に親 + 企画子タスク 1 件を Asana に作成
+    role: bootstrap Handoff を Asana に投入（親 + 企画子 1 件）。入口はチャット（自動検出なし）
     gate_after: null
-
-  - id: suspend
-    agent: workflow-orchestrator
-    role: opt-in 人間承認待ち — create_approval_subtask → org-os syscall suspend（Waiting + Approval）
-    gate_after: planning_approval
-    notes: デフォルト opt-out。`human_planning_approval` / ORG_OPS_PM_REVIEW_GATE 等で有効化
-
-  - id: resume
-    agent: workflow-orchestrator
-    role: 承認完了後 Ready 再開 — approval_helper / wakuoke_resume_scan → syscall resume
-    gate_after: null
-    reads:
-      - tools/approval_helper.py
-      - tools/wakuoke_resume_scan.py
 
   - id: dispatch
     agent: task-dispatcher
-    role: 企画子タスクを planning-delivery へルーティング
+    role: 企画子を planning-delivery へルーティング
     gate_after: null
     reads:
       - workflows/organizations.yaml

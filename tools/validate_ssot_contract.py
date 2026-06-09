@@ -200,68 +200,41 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         ],
     },
     {
-        "name": "record-wait orchestrator checklist",
+        "name": "chat-driven ops SSOT",
         "files": [
+            "docs/design/chat-driven-ops.md",
+            "docs/design/workflow-io-contract.md",
+            ".cursor/rules/workflow-intake-required.mdc",
             "skills/platform/workflow-orchestrator/SKILL.md",
-            "docs/design/asana-driven-ops.md",
         ],
         "required_any": [],
-        "required_all": ["--record-wait", "§H"],
-    },
-    {
-        "name": "org-os doctor CLI contract",
-        "files": [
-            "products/org-os/src/org_os/doctor.py",
-            "products/org-os/src/org_os/cli.py",
+        "required_all": [
+            "Asana 自動化",
+            "Asana タスク運用",
+            "和久桶",
+            "chat-driven-ops",
         ],
-        "required_any": [],
-        "required_all": ["doctor_local", "doctor_online"],
     },
     {
-        "name": "org-os doctor CLI wrapper",
-        "files": ["tools/run_org_os.py"],
-        "required_any": [],
-        "required_all": ["doctor"],
-    },
-    {
-        "name": "org-os doctor setup SSOT",
+        "name": "org-ops setup chat-driven",
         "files": [
-            "products/org-os/README.md",
-            "docs/e2e/org-os-first-setup.md",
             "scripts/org-ops/setup.ps1",
+            "scripts/org-ops/README.md",
+            "docs/design/chat-driven-ops.md",
         ],
         "required_any": [],
-        "required_all": ["setup.ps1", "doctor"],
+        "required_all": ["chat-driven-ops", "和久桶"],
     },
     {
-        "name": "org-os consumer guide",
-        "files": ["products/org-os/CONSUMER.md"],
+        "name": "org-os retired archive",
+        "files": [
+            "products/_retired/README.md",
+            "products/org-os/README.md",
+            "docs/design/org-os-product-io.md",
+            "tools/_retired/README.md",
+        ],
         "required_any": [],
-        "required_all": ["syscall", "queue", "doctor"],
-    },
-    {
-        "name": "org-os consumer README link",
-        "files": ["products/org-os/README.md"],
-        "required_any": [],
-        "required_all": ["CONSUMER.md"],
-    },
-    {
-        "name": "org-os release guide",
-        "files": ["products/org-os/RELEASE.md"],
-        "required_any": [],
-        "required_all": ["CHANGELOG", "validate_ssot_contract"],
-    },
-    {
-        "name": "org-os integration smoke test",
-        "files": ["tools/test_org_os_integration.py"],
-        "required_any": [],
-        "required_all": ["init_epic", "syscall"],
-    },
-    {
-        "name": "org-os tools dependency matrix",
-        "files": ["docs/design/org-os-product-io.md"],
-        "required_any": [],
-        "required_all": ["§7.1", "validate_ssot_contract"],
+        "required_all": ["DEPRECATED", "RETIRED"],
     },
 ]
 
@@ -283,6 +256,14 @@ ORG_OS_FORBIDDEN_IN_TOOLS: list[tuple[str, str]] = [
 
 ORG_OS_TOOLS_ALLOWLIST = frozenset({"run_org_os.py", "org_os_bootstrap.py"})
 
+ACTIVE_DESIGN_DOCS = [
+    "docs/design/approval-flow.md",
+    "docs/design/planning-gate-vs-pm-review-gate.md",
+    "docs/design/workflow-io-contract.md",
+    "docs/design/dispatch-auto-proceed-ssot.md",
+    "skills/platform/workflow-orchestrator/SKILL.md",
+]
+
 FORBIDDEN_PATTERNS: list[tuple[str, str, str]] = [
     (
         "agent-registry development v2 note",
@@ -294,6 +275,12 @@ FORBIDDEN_PATTERNS: list[tuple[str, str, str]] = [
         "docs/design/agent-asana-comment-signature.md",
         r"gate 判定",
     ),
+]
+
+FORBIDDEN_IN_ACTIVE_DESIGN: list[tuple[str, str]] = [
+    ("asana_ops_poller active reference", r"asana_ops_poller\.py"),
+    ("asana_ops_runner active reference", r"asana_ops_runner\.py"),
+    ("org-ops-watch active reference", r"org-ops-watch"),
 ]
 
 
@@ -328,6 +315,27 @@ def main() -> int:
             continue
         if re.search(pattern, _read(rel)):
             errors.append(f"forbidden pattern ({label}): {rel} matches {pattern!r}")
+
+    for rel in ACTIVE_DESIGN_DOCS:
+        path = ROOT / rel
+        if not path.is_file():
+            continue
+        skip_line = False
+        for line in _read(rel).splitlines():
+            if re.match(r"^#{1,3}\s+.*(RETIRED|廃止|履歴)", line):
+                skip_line = True
+                continue
+            if re.match(r"^#{1,3}\s+", line) and skip_line:
+                skip_line = False
+            if skip_line:
+                continue
+            for label, pattern in FORBIDDEN_IN_ACTIVE_DESIGN:
+                if re.search(pattern, line) and not any(
+                    m in line for m in ("~~", "廃止", "RETIRED", "履歴", "非推奨")
+                ):
+                    errors.append(
+                        f"stale automation ref ({label}): {rel} line: {line.strip()!r}"
+                    )
 
     dept_ids = _load_department_ids()
     team_conv = ROOT / "docs/design/team-conventions.md"

@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-"""Repo-root wrapper for products/org-os CLI (no pip install required).
+"""Repo-root wrapper for products/org-os CLI — DEPRECATED (2026-06-09).
 
-Usage:
-  python tools/run_org_os.py status --epic <GID>
-  python tools/run_org_os.py dispatch --epic <GID> --dry-run
-  python tools/run_org_os.py complete --epic <GID> [--allow-skip]
+org-os は本番運用から除外。履歴・開発参照のみ。
+SSOT: docs/design/chat-driven-ops.md · products/_retired/README.md
+
+Usage (non-production):
   python tools/run_org_os.py doctor
-  python tools/run_org_os.py watch --project <GID> --once
+  python tools/run_org_os.py status --epic <GID>
 
-Named run_org_os.py (not org_os.py) so tools/ on sys.path does not shadow the
-org_os package when runner/poller import org_os.queue (C2 hotfix).
+Named run_org_os.py (not org_os.py) so tools/ on sys.path does not shadow org_os.
 """
 from __future__ import annotations
 

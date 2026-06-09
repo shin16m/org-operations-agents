@@ -4,13 +4,16 @@ registry / workflow 実体は [`workflows/`](../../workflows/)。セッション
 
 **パイプライン図・段階一覧の SSOT は本ファイル。** README / CONTRIBUTING / SKILL / Cursor rule はここを参照し、同じ ASCII 図をコピーしない。
 
-## 標準パイプライン（default v4 · SSOT）
+**本番入口 SSOT:** [`chat-driven-ops.md`](chat-driven-ops.md) — 和久桶さんへのチャット依頼。**Asana 自動化**（タスク自動検出・無人起動）と org-os は廃止。**Asana タスク運用**（作成・遂行）は基本。
+
+## 標準パイプライン（default v6 · SSOT）
 
 ```
-workflow-orchestrator（intake → triage → bootstrap → dispatch）
+依頼者 ──チャット──► workflow-orchestrator（intake → bootstrap → dispatch）
+  → asana-buddy（bootstrap: Asana 親 + 企画子）
   → planning-pm（企画チーム / planning-delivery）
     → issue-story-planner → plan-reviewer（必須）
-    → planning-pm（gate）→ asana-buddy
+    → planning-pm（gate）→ asana-buddy（Handoff 投入）
   → task-dispatcher（execution 系子ごと · **L2 デフォルト自動進行**）
   → 各 PM: pm_assign_subtasks → **pm_review_gate（opt-in · 人間）** → L3b worker dispatch
   → ux-pm → ux-designer / ux-reviewer
@@ -19,8 +22,8 @@ workflow-orchestrator（intake → triage → bootstrap → dispatch）
   → audit-pm → consistency-auditor / audit-reviewer（組織変更エピックの **最後**）
 ```
 
-- L1 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v4（v3 から triage step 追加）
-- org-ops ↔ org-os 境界: [`org-os-product-io.md`](org-os-product-io.md)
+- L1 定義: [`workflows/default.yaml`](../../workflows/default.yaml) v6（チャット入口 · suspend/resume 廃止）
+- 廃止: [`org-os-product-io.md`](org-os-product-io.md) · [`asana-driven-ops.md`](asana-driven-ops.md)
 - 企画 L3: [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml)
 - 組織ルーティング: [`workflows/organizations.yaml`](../../workflows/organizations.yaml)
 - 手順（コマンド例）: [`docs/e2e/default-workflow.md`](../e2e/default-workflow.md)
@@ -29,9 +32,9 @@ workflow-orchestrator（intake → triage → bootstrap → dispatch）
 
 | 段階 ID | スロット | 担当スキル | 入力 | 出力 |
 |---------|----------|------------|------|------|
-| `intake` | orchestrate | workflow-orchestrator | 生課題 / Asana タスク | intake snapshot |
-| `triage` | orchestrate | workflow-orchestrator | snapshot | `epic_input` JSON（[`epic-input.v1.schema.json`](../../schemas/platform/epic-input.v1.schema.json)） |
-| `bootstrap` | execute | asana-buddy | epic_input 入力 Handoff | Asana 親 + 企画子 1 件 |
+| `intake` | orchestrate | workflow-orchestrator | チャット自然言語（本番） | bootstrap Handoff |
+| `triage` | orchestrate | workflow-orchestrator | 任意 — intake-asana 時 snapshot | `epic_input` JSON |
+| `bootstrap` | execute | asana-buddy | bootstrap Handoff | Asana 親 + 企画子 1 件 |
 | `dispatch` | dispatch | task-dispatcher | DispatchRequest（planning） | planning-pm 用 prompt_snippet |
 
 ## 企画チーム L3（planning-delivery）
@@ -48,7 +51,7 @@ workflow-orchestrator（intake → triage → bootstrap → dispatch）
 | ゲート ID | 条件 | 未達時 |
 |-----------|------|--------|
 | `review_passed` | **`plan-reviewer` 必須。** `PlanReviewResult.status` が `passed` または `passed_with_notes` | `asana_execute` 不可。差し戻しは `handoff_plan` |
-| `handoff_approved` | `review_passed` 済み。**opt-out デフォルト（全 intake 経路）:** Handoff 要約提示後 **同一セッションで `handoff_to_asana`**（人間承認フロー省略）。**opt-in:** `create_planning_approval_gate.py`（`human_planning_approval` / `ORG_OPS_PLANNING_APPROVAL_GATE=1` 等）→ 【承認】サブ complete + `approval_helper` → RESUME 後に `handoff_to_asana` + `--record-wait` 必須（[`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)） | `handoff_to_asana.py` を実行しない |
+| `handoff_approved` | `review_passed` 済み。**デフォルト（opt-out）:** 要約提示後 **同一セッションで `handoff_to_asana`**。**opt-in:** `human_planning_approval` · `create_planning_approval_gate` — チャット確認（[`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md)） | `handoff_to_asana` 不可 |
 
 ## asana_execute 後（execution 系 — 必須分離）
 
@@ -62,9 +65,9 @@ workflow-orchestrator（intake → triage → bootstrap → dispatch）
 
 org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.org-meta-doc-v1.json`](../../skills/development/examples/assign-plan.org-meta-doc-v1.json)）。本体を PM が先行完了した場合の事後補完: [`docs/verification/platform/asana-comment-detail-delivery.md`](../verification/platform/asana-comment-detail-delivery.md)。
 
-**PM review gate（execution）:** [`pm-assign-review-gate.md`](pm-assign-review-gate.md) · planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md) · **L2 dispatch 自動進行:** [`dispatch-auto-proceed-ssot.md`](dispatch-auto-proceed-ssot.md)（opt-in: `human_execution_dispatch` / `ORG_OPS_EXECUTION_DISPATCH_CONFIRM=1`）· **org-os 改修候補:** PM review gate 待ち時に親 epic CF 未更新（[`asana-driven-ops.md`](asana-driven-ops.md) §org-os）
+**PM review gate（execution）:** [`pm-assign-review-gate.md`](pm-assign-review-gate.md) · planning gate との違い: [`planning-gate-vs-pm-review-gate.md`](planning-gate-vs-pm-review-gate.md) · **L2 dispatch 自動進行:** [`dispatch-auto-proceed-ssot.md`](dispatch-auto-proceed-ssot.md)（opt-in: `human_execution_dispatch` / `ORG_OPS_EXECUTION_DISPATCH_CONFIRM=1`）
 
-**Asana ドリブン運用（Phase 1–4）:** [`asana-driven-ops.md`](asana-driven-ops.md) — スキャン intake · planning gate Asana 化 · 保留再開 · **Phase 4:** auto-intake SSOT · `--record-wait` ダッシュボード必須（`asana_ops_poller` / `check_workflow_suspend` · [`workflow-session-io.md`](workflow-session-io.md) SuspendedSession）。**gate 到達時チェックリスト:** [`workflow-orchestrator/SKILL.md`](../../skills/platform/workflow-orchestrator/SKILL.md) §H
+**チャットドリブン運用（本番）:** [`chat-driven-ops.md`](chat-driven-ops.md) — 和久桶さんチャット入口 · 同一セッション進行。**廃止:** [`asana-driven-ops.md`](asana-driven-ops.md) · org-os
 
 **タスク / エピックレトロ（親 complete 前）:** [`task-retrospective-ssot.md`](task-retrospective-ssot.md) — 各 complete 前レトロ · audit 後集約 · 依頼者承認 → intake 起票
 
@@ -82,7 +85,7 @@ org-ops メタ doc のみの開発子は **profile: doc-only**（[`assign-plan.o
 |------|------|
 | `intake` | 課題受付 · snapshot 取得 |
 | `triage` | snapshot → epic_input 正規化 |
-| `bootstrap` | 最小 Asana（企画子 1 件）· [`org-os-product-io.md`](org-os-product-io.md) CF 初期化 |
+| `bootstrap` | asana-buddy — Asana 親 + 企画子 1 件 |
 | `dispatch` | 企画チームへ初回配賦；完了後は execution 系子を順次配賦 |
 
 ## 変更境界（新規スキル追加時）

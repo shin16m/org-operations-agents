@@ -1,5 +1,8 @@
 # 親 epic complete → OS State=Done 自動連動 — delivery 記録
 
+> **履歴（RETIRED · 2026-06-09）** — Asana **自動化** / org-os の検証記録。本番は [chat-driven-ops.md](../../design/chat-driven-ops.md)（和久桶チャット入口 · Asana タスク運用継続）。
+
+
 | 親 GID | `1215428253771574` |
 | 実装サブ | `1215428475113902` |
 | 日付 | 2026-06-05 |

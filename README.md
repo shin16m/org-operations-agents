@@ -1,8 +1,10 @@
 # org-operations-agents
 
-**組織運用エージェントテンプレート** — `agent-creater`（エージェント生成）と **6 チーム**構成の org runtime（intake → plan → Asana → dispatch · 監査チーム含む）を同梱。fork して拡張する。
+**組織運用エージェントテンプレート** — `agent-creater`（エージェント生成）と **6 チーム**構成の org runtime（**チャット intake** → plan → Asana → dispatch · 監査チーム含む）を同梱。fork して拡張する。
 
-Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言的 workflow・Asana 連携の SSOT。
+Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言的 workflow の SSOT。
+
+**本番標準入口:** [`docs/design/chat-driven-ops.md`](docs/design/chat-driven-ops.md) — **和久桶さん**（`workflow-orchestrator`）へのチャット依頼。
 
 > **スコープ:** 本リポジトリは **汎用の組織運用テンプレート**（Git で fork して誰でも利用可）。エピック成果物（要件・コード・モデル等）は **`output/` に書くが git 管理しない**（[`docs/design/artifact-policy.md`](docs/design/artifact-policy.md)）。**プロダクト固有の運用変更・assign plan 実行版はローカルの `output/` / `work/` のみ**で行う。製品ソースは別リポジトリ。
 
@@ -40,16 +42,16 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 | [`governance-pm`](skills/governance/governance-pm/SKILL.md) | 組織改善チーム PM（org-meta SSOT 変更） |
 | [`ssot-implementer`](skills/governance/ssot-implementer/SKILL.md) / [`governance-reviewer`](skills/governance/governance-reviewer/SKILL.md) | 組織改善チーム委譲ロール |
 
-## 標準 workflow（default v3）
+## 標準 workflow（default v6 · チャット入口）
 
-パイプライン図・段階定義の SSOT: [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md)
+パイプライン図・段階定義の SSOT: [`docs/design/workflow-io-contract.md`](docs/design/workflow-io-contract.md) · 運用: [`docs/design/chat-driven-ops.md`](docs/design/chat-driven-ops.md)
 
-- **入口:** `workflow-orchestrator`（intake）に生課題を渡す
+- **入口:** Cursor チャットで **和久桶さん**（`workflow-orchestrator`）に自然言語で依頼
 - **企画:** `planning-pm` ハブが Handoff → review → gate → Asana 投入を担当
 - **review:** `plan-reviewer` は省略不可（人間目視のみでは `review_passed` にならない）
 - **gate:** `planning-pm` が Handoff 要約提示後、人間承認を取得
 
-手順: [`docs/e2e/default-workflow.md`](docs/e2e/default-workflow.md) · YAML: [`workflows/default.yaml`](workflows/default.yaml) v3 · 企画: [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
+手順: [`docs/e2e/default-workflow.md`](docs/e2e/default-workflow.md) · YAML: [`workflows/default.yaml`](workflows/default.yaml) v6 · 企画: [`workflows/planning-delivery.yaml`](workflows/planning-delivery.yaml)
 
 ### 移行
 
@@ -67,10 +69,10 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 Copy-Item .\skills\platform\asana-buddy\optional\.env.example .\skills\platform\asana-buddy\optional\.env
 ```
 
-## クイックスタート（Asana 投入）
+## クイックスタート（チャット依頼）
 
-1. [`workflow-orchestrator`](skills/platform/workflow-orchestrator/README.md)（**intake**）に課題を渡す → bootstrap → dispatch（企画チーム）  
-   **intake-asana:** Asana タスク URL/GID も可（[`intake_from_asana.py`](tools/intake_from_asana.py) · [`workflow-orchestrator/SKILL.md`](skills/platform/workflow-orchestrator/SKILL.md) 起動例 C）
+1. Cursor チャットで [**和久桶さん**](skills/platform/workflow-orchestrator/README.md) に課題を渡す → bootstrap（Asana）→ dispatch（企画チーム）  
+   チャットで Asana タスク URL/GID を添付可（手動 intake-asana · **自動検出なし**）
 2. [`planning-pm`](skills/planning/planning-pm/SKILL.md) が [`issue-story-planner`](skills/planning/issue-story-planner/SKILL.md) で Handoff JSON を得る
 3. **必須:** [`plan-reviewer`](skills/planning/plan-reviewer/SKILL.md) で `PlanReviewResult`（`passed` / `passed_with_notes`）
 4. [`planning-pm`](skills/planning/planning-pm/SKILL.md)（**gate**）で Asana 投入承認
