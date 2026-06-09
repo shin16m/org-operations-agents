@@ -24,7 +24,7 @@ from asana_program_common import (  # noqa: E402
 
 
 def _retro_gate_hook(epic_gid: str) -> int:
-    """WARN (and optionally block) before org-os complete on epics."""
+    """WARN (and optionally block) before epic complete."""
     py = _REPO_ROOT / ".venv/Scripts/python.exe"
     if not py.is_file():
         py = Path(sys.executable)
@@ -34,19 +34,6 @@ def _retro_gate_hook(epic_gid: str) -> int:
         "--epic",
         epic_gid,
     ]
-    return subprocess.run(cmd, cwd=str(_REPO_ROOT)).returncode
-
-
-def _org_os_complete_epic(epic_gid: str, *, dry_run: bool, strict: bool) -> int:
-    """Invoke org-os complete (--allow-skip unless --strict)."""
-    py = _REPO_ROOT / ".venv/Scripts/python.exe"
-    if not py.is_file():
-        py = Path(sys.executable)
-    cmd = [str(py), str(_REPO_ROOT / "tools/run_org_os.py"), "complete", "--epic", epic_gid]
-    if dry_run:
-        cmd.append("--dry-run")
-    if not strict:
-        cmd.append("--allow-skip")
     return subprocess.run(cmd, cwd=str(_REPO_ROOT)).returncode
 
 
@@ -63,16 +50,6 @@ def main() -> None:
         "--allow-human-gate",
         action="store_true",
         help="Allow completing 【レビュー】/【承認】 subs (dryrun teardown only — not for agents)",
-    )
-    p.add_argument(
-        "--strict-os",
-        action="store_true",
-        help="Exit non-zero if org-os complete fails on an epic (default: warn and continue)",
-    )
-    p.add_argument(
-        "--skip-org-os",
-        action="store_true",
-        help="Do not call org-os complete even for epics (dryrun/teardown)",
     )
     p.add_argument(
         "--skip-worker-guards",
@@ -103,13 +80,10 @@ def main() -> None:
             print(f"ERROR: {err}", file=sys.stderr)
             sys.exit(4)
 
-    if completed and not args.skip_org_os and is_epic_task(args.gid, token, task=task):
+    if completed and is_epic_task(args.gid, token, task=task):
         retro_rc = _retro_gate_hook(args.gid)
         if retro_rc != 0:
             sys.exit(retro_rc)
-        rc = _org_os_complete_epic(args.gid, dry_run=False, strict=args.strict_os)
-        if rc != 0:
-            sys.exit(rc)
 
     if not args.yes:
         verb = "完了" if completed else "未完了"

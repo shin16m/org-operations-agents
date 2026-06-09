@@ -60,7 +60,7 @@ class IsEpicTaskTests(unittest.TestCase):
 
 
 class CompleteTaskHookTests(unittest.TestCase):
-    def test_org_os_called_before_complete(self) -> None:
+    def test_retro_hook_called_before_epic_complete(self) -> None:
         import complete_task as mod  # noqa: E402
 
         argv = ["complete_task.py", "--gid", "1", "-y"]
@@ -71,15 +71,18 @@ class CompleteTaskHookTests(unittest.TestCase):
                         with mock.patch.object(mod, "is_human_gate_task_name", return_value=False):
                             with mock.patch.object(mod, "is_epic_task", return_value=True):
                                 with mock.patch.object(
-                                    mod, "_org_os_complete_epic", return_value=0
-                                ) as org_os:
+                                    mod, "validate_worker_sub_complete", return_value=None
+                                ):
                                     with mock.patch.object(
-                                        mod,
-                                        "set_task_completed",
-                                        return_value={"gid": "1", "completed": True},
-                                    ):
-                                        mod.main()
-        org_os.assert_called_once_with("1", dry_run=False, strict=False)
+                                        mod, "_retro_gate_hook", return_value=0
+                                    ) as retro:
+                                        with mock.patch.object(
+                                            mod,
+                                            "set_task_completed",
+                                            return_value={"gid": "1", "completed": True},
+                                        ):
+                                            mod.main()
+        retro.assert_called_once_with("1")
 
 
 if __name__ == "__main__":

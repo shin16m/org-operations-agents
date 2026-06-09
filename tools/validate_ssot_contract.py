@@ -262,6 +262,8 @@ ACTIVE_DESIGN_DOCS = [
     "docs/design/workflow-io-contract.md",
     "docs/design/dispatch-auto-proceed-ssot.md",
     "skills/platform/workflow-orchestrator/SKILL.md",
+    "skills/planning/planning-pm/SKILL.md",
+    "skills/platform/asana-buddy/SKILL.md",
 ]
 
 FORBIDDEN_PATTERNS: list[tuple[str, str, str]] = [
@@ -281,6 +283,9 @@ FORBIDDEN_IN_ACTIVE_DESIGN: list[tuple[str, str]] = [
     ("asana_ops_poller active reference", r"asana_ops_poller\.py"),
     ("asana_ops_runner active reference", r"asana_ops_runner\.py"),
     ("org-ops-watch active reference", r"org-ops-watch"),
+    ("record-wait active reference", r"--record-wait"),
+    ("approval_helper active reference", r"approval_helper\.py"),
+    ("wakuoke_resume_scan active reference", r"wakuoke_resume_scan\.py"),
 ]
 
 
@@ -331,7 +336,20 @@ def main() -> int:
                 continue
             for label, pattern in FORBIDDEN_IN_ACTIVE_DESIGN:
                 if re.search(pattern, line) and not any(
-                    m in line for m in ("~~", "廃止", "RETIRED", "履歴", "非推奨")
+                    m in line
+                    for m in (
+                        "~~",
+                        "廃止",
+                        "RETIRED",
+                        "履歴",
+                        "非推奨",
+                        "削除済",
+                        "使わない",
+                        "使わない**",
+                        "不要",
+                        "作らない",
+                        "禁止",
+                    )
                 ):
                     errors.append(
                         f"stale automation ref ({label}): {rel} line: {line.strip()!r}"

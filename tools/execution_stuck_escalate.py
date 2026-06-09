@@ -164,7 +164,7 @@ def _post_escalation_comment(
         f"{(' ' + mention_html) if mention_html else ''} "
         f"企画完了後 OS=Running のまま <strong>{counter['cycle_count']}/{max_cycles}</strong> "
         f"サイクル進展がありません（reason=<code>{stuck_reason}</code>）。"
-        "手動で cursor_epic_dispatch / task_dispatcher / approval_helper を確認してください。"
+        "手動で cursor_epic_dispatch / task_dispatcher を確認してください。"
         f" ログ: output/platform/execution-stuck/{epic_gid}.json"
         "</body>"
     )

@@ -66,12 +66,14 @@ CF 追加と env 同期は [`tools/sync_org_os_cf_env.py`](../../tools/sync_org_
 | Epic | 範囲 | ステータス |
 |------|------|------------|
 | **A** Approval Result CF + 人間 assignee 連携 | 起票時の **書込み** すべて（OS State/ApprovalRequired/assignee）· Approval Result CF env 同期 | 実装済 |
-| **B** 承認ヘルパー | 完了検知 + 親 CF 戻し（OS State→Ready, ApprovalRequired→No）· `tools/approval_helper.py` + `read_approval_result` | 実装済 |
-| **C** Ready 再開ループ | OS State=Ready epic の resume scanner · NG コメント反映 · NG ループ上限 + escalation · `tools/wakuoke_resume_scan.py` | 実装済 |
+| **B** 承認ヘルパー | 完了検知 + 親 CF 戻し — **`tools/approval_helper.py`（削除済 · 2026-06-09）** | **RETIRED** |
+| **C** Ready 再開ループ | resume scanner — **`tools/wakuoke_resume_scan.py`（削除済 · 2026-06-09）** | **RETIRED** |
 
-### 5.1 B 承認ヘルパー CLI 仕様
+### 5.1 B 承認ヘルパー CLI 仕様 — RETIRED
 
-実装: [`tools/approval_helper.py`](../../tools/approval_helper.py)
+> **廃止（2026-06-09）** — 以下は履歴参照用。本番はチャット再開（[`chat-driven-ops.md`](chat-driven-ops.md)）。
+
+実装（削除済）: ~~`tools/approval_helper.py`~~
 
 ```
 python tools/approval_helper.py \

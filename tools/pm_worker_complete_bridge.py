@@ -21,7 +21,7 @@ for p in (str(ASANA_OPT), str(TOOLS)):
 from agent_handler_asana import get_token, load_env_from_dotfile  # noqa: E402
 from asana_program_common import fetch_task, parse_task_assignment  # noqa: E402
 from cursor_sdk_kick import kick_prompt  # noqa: E402
-from execution_resume_scan import has_agent_comment  # noqa: E402
+from agent_comment_guard import has_agent_comment  # noqa: E402
 from pm_emit_worker_prompt import DEPT_PM  # noqa: E402
 
 

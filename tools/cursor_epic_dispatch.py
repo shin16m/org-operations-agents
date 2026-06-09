@@ -27,8 +27,7 @@ def build_planning_prompt(epic_gid: str, planning_child: str) -> str:
         f"企画子タスク GID: {planning_child}\n"
         f"親エピック GID: {epic_gid}\n\n"
         "planning-delivery workflow に従い、Handoff 作成 → plan-reviewer → "
-        "planning gate（デフォルト: 同一セッションで handoff_to_asana · opt-in 時のみ create_planning_approval_gate + --record-wait）まで進めてください。\n"
-        "※ watch-auto / auto-intake 経由のため人間承認フロー必須。直接チャット intake とは異なる。\n"
+        "planning gate（デフォルト: 同一セッションで handoff_to_asana · opt-in 時は create_planning_approval_gate + チャット確認）まで進めてください。\n"
     )
 
 
@@ -62,7 +61,6 @@ def dispatch_cursor(prompt: str) -> int:
         no_sdk_exit=2,
         hint_manual=(
             "手動 planning-pm — Cursor で planning-pm として企画子 GID を dispatch"
-            "（poller --human PLANNING_DISPATCH）"
         ),
     )
 
