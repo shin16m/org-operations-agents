@@ -4,7 +4,7 @@ registry / workflow 実体は [`workflows/`](../../workflows/)。セッション
 
 **パイプライン図・段階一覧の SSOT は本ファイル。** README / CONTRIBUTING / SKILL / Cursor rule はここを参照し、同じ ASCII 図をコピーしない。
 
-**本番入口 SSOT:** [`chat-driven-ops.md`](chat-driven-ops.md) — 和久桶さんへのチャット依頼。**Asana 自動化**（タスク自動検出・無人起動）と org-os は廃止。**Asana タスク運用**（作成・遂行）は基本。
+**本番入口 SSOT:** [`chat-driven-ops.md`](chat-driven-ops.md) — 和久桶さんへのチャット依頼。**intake 三モード:** [`wakuoke-intake-modes.md`](wakuoke-intake-modes.md)。**Asana 自動化**（タスク自動検出・無人起動）と org-os は廃止。**Asana タスク運用**（作成・遂行）は基本。
 
 ## 標準パイプライン（default v6 · SSOT）
 

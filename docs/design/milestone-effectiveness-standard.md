@@ -33,15 +33,19 @@ M5 で露呈した問題: トラッカーは ✅ だが学習ループ中核（g
 
 ## 閾値
 
-fixture の `min_score_achieved`（既定 80）· `min_score_warn`（既定 70）で判定する。
+fixture の `min_score_achieved`（中間マイルストーン既定 80）· `min_score_warn`（既定 70）· **`min_score_final`（最終マイルストーン既定 90）** で判定する。
 
 | スコア | 判定 | 動作（MS3 以降） |
 |--------|------|------------------|
-| **≥ 80** | 達成 | トラッカー complete 可 |
+| **≥ 90** | 目標達成 | 中間・最終とも complete 可（推奨水準） |
+| **80–89** | 達成（中間のみ） | 中間トラッカー complete 可 · **ギャップを comment** · 90 を目指して follow-up 検討 |
+| **< 80**（最終 MS） | 未達 | **最終トラッカー complete 禁止** |
 | **70–79** | 警告 | complete 可（MS3）/ 不可（MS4+ 推奨）。改善子起票推奨 |
 | **< 70** | 未達 | トラッカー complete **禁止**。follow-up 子を起票 |
 
-環境変数 `ORG_OPS_MILESTONE_READINESS_BLOCK=1` 時は **< 80 で exit 1**（[`epic_milestone_readiness_hook.py`](../../tools/epic_milestone_readiness_hook.py) · MS3）。
+**運用目標（和久桶 intake SSOT）:** 各マイルストーンの出来栄えは **90 点以上を目指す**。最終マイルストーン・成果物は **90 点以上を達成する**（[`wakuoke-intake-modes.md`](wakuoke-intake-modes.md)）。
+
+環境変数 `ORG_OPS_MILESTONE_READINESS_BLOCK=1` 時は **< 80 で exit 1**（[`epic_milestone_readiness_hook.py`](../../tools/epic_milestone_readiness_hook.py) · MS3）。最終 MS は fixture で `min_score_achieved: 90` を指定する。
 
 ## トラッカー vs 作業 Epic
 

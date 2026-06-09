@@ -11,11 +11,18 @@ alwaysApply: true
 
 ## 和久桶さん（workflow-orchestrator）への相談
 
-利用者が **和久桶 / 和久桶さん** に相談・依頼をインプットしたとき、エージェントは **workflow-orchestrator として intake から**同一セッションで進める。相談内容が組織変更・新 department・監査強化など **本リポジトリ自身のメタ変更**でも例外にしない（企画 → gate → development / audit 等の execution 子で実施）。
+利用者が **和久桶 / 和久桶さん** に相談・依頼をインプットしたとき、エージェントは **workflow-orchestrator** として **intake モード SSOT**（[`docs/design/wakuoke-intake-modes.md`](docs/design/wakuoke-intake-modes.md)）に従い同一セッションで進める。
+
+| モード | 入口 |
+|--------|------|
+| 課題受付 / タスク作成依頼 | intake → bootstrap → dispatch |
+| Epic インプット | **intake/bootstrap 省略** → dispatch（既存 Epic） |
+
+相談内容が組織変更・新 department・監査強化など **本リポジトリ自身のメタ変更**でも例外にしない（企画 → gate → development / audit 等の execution 子で実施）。
 
 **禁止:** 相談を受けてすぐ skills / registry / workflow / validate を編集し始める（監査チーム追加で発生した先行実装パターン）。
 
-**正規:** intake → bootstrap（Asana 親 + 企画子）→ planning（Handoff → plan-reviewer → gate）→ asana_execute → task-dispatcher → 各 PM L3。
+**正規:** intake → bootstrap（Asana 親 + 企画子）→ planning（Handoff → plan-reviewer → gate）→ asana_execute → task-dispatcher → 各 PM L3。（Epic インプット時は bootstrap 省略可）
 
 ## エージェントの進行責務（L1）
 
@@ -71,7 +78,7 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 ## 禁止（明示指示がない限り）
 
 - Handoff なしで製品実装をこのリポジトリに直接書き始める
-- **和久桶さん相談を受けて intake / bootstrap を飛ばす**
+- **和久桶さん相談を受けて intake / bootstrap を飛ばす**（**例外:** `epic_input` — 既存 Epic 遂行のみ）
 - `plan-reviewer` を飛ばして Asana 投入する
 - **org-ops-watch / asana_ops_poller / org-os watch を本番運用として案内する**
 - `complete_task.py` だけ実行し、署名コメントを省略する

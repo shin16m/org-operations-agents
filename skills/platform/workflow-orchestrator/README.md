@@ -16,9 +16,21 @@
 | **Asana タスク運用** | `handoff_to_asana` · `comment_task` / `complete_task` 等 → **基本（継続）** |
 | **チャット入口** | 和久桶さんへの依頼でエージェントを起動 → **本番標準** |
 
+## intake 三モード
+
+詳細 SSOT: [`docs/design/wakuoke-intake-modes.md`](../../../docs/design/wakuoke-intake-modes.md)
+
+| モード | 用途 |
+|--------|------|
+| **課題受付**（既定） | 簡単な依頼 → 企画 → Epic 起票 |
+| **タスク作成依頼** | タスク化相談 → 合意後 Epic + 子起票 |
+| **Epic インプット** | 既存 Epic を dispatch して遂行（intake 省略） |
+
+**マイルストーン:** 各節目で自己評価（組織構築済）。中間は **90 点目標**、最終は **90 点以上必須**。
+
 ## 使い方（本番）
 
-### 1. intake — チャットで依頼（ここから開始）
+### 1. intake — 課題受付（既定）
 
 ```
 和久桶さん、次の課題をお願いします。
@@ -28,11 +40,25 @@
 intake から bootstrap（Asana）→ 企画（Handoff → review → gate）→ execution dispatch まで進めてください。
 ```
 
-### 2. 任意 — Asana タスク URL をチャットで渡す
+### 2. タスク作成依頼
+
+```
+和久桶さん、タスク作成依頼です。〈相談内容〉
+Epic 構成とマイルストーン案を提示し、合意後に起票まで進めてください。
+```
+
+### 3. Epic インプット（既存 Epic の遂行）
+
+```
+和久桶さん、Epic インプットです。親 Epic: 〈URL|GID〉
+未完了子を dispatch して遂行を進めてください。
+```
+
+### 4. 任意 — Asana タスク URL をチャットで渡す
 
 自動スキャンは行わない。URL を添えて依頼した場合のみ intake-asana として手動読取。
 
-### 3. 企画完了後 — execution 系 dispatch
+### 5. 企画完了後 — execution 系 dispatch
 
 企画チームから `DeptWorkComplete` を受け取ったら、未完了の execution 系子を task-dispatcher で順次配賦する。
 

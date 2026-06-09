@@ -1,6 +1,6 @@
 # チャットドリブン運用 — org-ops SSOT
 
-| 版 | 1.1 |
+| 版 | 1.2 |
 | 日付 | 2026-06-09 |
 | 状態 | **本番標準** |
 | SSOT id | `chat-driven-ops` |
@@ -29,9 +29,13 @@
 | 用途 | 入口 | 備考 |
 |------|------|------|
 | **本番依頼** | Cursor チャットで **和久桶さん** に自然言語で依頼 | エージェント起動のトリガー |
+| **タスク作成依頼** | 「タスク化の相談」等で和久桶に相談 | `task_creation_request` — 合意後 Epic 起票 |
+| **Epic インプット** | 既存 Epic の URL/GID を渡して遂行再開 | `epic_input` — intake/bootstrap 省略 |
 | Asana タスク URL 渡し | チャット内で URL/GID を添えて依頼 | **手動** intake-asana（自動スキャンなし） |
 | bootstrap / asana_execute | 和久桶セッション内で `handoff_to_asana.py` | **基本** — Asana 親 + 子の作成・更新 |
 | 子タスク遂行 | 各 PM / worker が Asana 子を消化 | `comment_task` → `complete_task`（署名付き） |
+
+intake 三モードの詳細: [`wakuoke-intake-modes.md`](wakuoke-intake-modes.md)
 
 ## 廃止するもの（Asana 自動化）
 
@@ -115,3 +119,4 @@ opt-in 人間承認は**チャットで確認**。`--record-wait` · org-os Wait
 |------|------|
 | 2026-06-09 | v1.0 — Asana 自動化棄却 · チャット入口を本番標準に固定 |
 | 2026-06-09 | v1.1 — 用語定義追加。Asana タスク運用は基本として明記 |
+| 2026-06-09 | v1.2 — intake 三モード（[`wakuoke-intake-modes.md`](wakuoke-intake-modes.md)）参照追加 |

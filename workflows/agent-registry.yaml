@@ -9,8 +9,9 @@ agents:
     enabled: true
     workflow_steps: [intake, bootstrap, dispatch]
     io:
-      intake_input: raw_request（自然言語）
-      bootstrap_input: 最小 Handoff（企画子 1 件）
+      intake_input: raw_request（自然言語）· task_creation_request · epic_input（既存 Epic GID）
+      intake_modes_doc: docs/design/wakuoke-intake-modes.md
+      bootstrap_input: 最小 Handoff（企画子 1 件）— epic_input 時は省略
       reads:
         - workflows/default.yaml
         - workflows/with-dispatch.yaml

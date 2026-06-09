@@ -9,7 +9,7 @@
 | フィールド | 型 | 説明 |
 |------------|-----|------|
 | `session_id` | string | 任意のセッション識別子（例: UUID または日時） |
-| `intake_mode` | enum? | `natural_language`（本番既定）\| `asana_task`（チャットで URL 手動渡し）。**チャット入口**では planning gate デフォルト省略 · `--record-wait` / SuspendedSession は**使わない**（[`chat-driven-ops.md`](chat-driven-ops.md)） |
+| `intake_mode` | enum? | `natural_language`（本番既定）\| `task_creation_request`（タスク化相談）\| `epic_input`（既存 Epic 遂行 · intake/bootstrap 省略）\| `asana_task`（チャットで URL 手動渡し）。詳細: [`wakuoke-intake-modes.md`](wakuoke-intake-modes.md)。**チャット入口**では planning gate デフォルト省略 · `--record-wait` / SuspendedSession は**使わない**（[`chat-driven-ops.md`](chat-driven-ops.md)） |
 | `raw_request` | string | 利用者が intake で渡した生課題（自然言語） |
 | `source_task_gid` | string? | intake-asana 時の Asana タスク GID |
 | `source_task_url` | string? | intake-asana 時の Asana URL |
