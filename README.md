@@ -18,7 +18,7 @@ Git で共有する **Cursor / Copilot 用エージェントスキル**・宣言
 | [`workflows/`](workflows/) | 宣言的 workflow |
 | [`docs/`](docs/) | 設計・E2E・検証（契約文書） |
 
-組織モデル: [`docs/design/department-model.md`](docs/design/department-model.md) · スキル・ペルソナ: [`docs/design/skill-persona-principles.md`](docs/design/skill-persona-principles.md)
+組織モデル: [`docs/design/department-model.md`](docs/design/department-model.md) · スキル・ペルソナ: [`docs/design/skill-persona-principles.md`](docs/design/skill-persona-principles.md) · 要件定義書フォーマット: [`docs/design/requirements-document-format.md`](docs/design/requirements-document-format.md)
 
 ## スキル一覧
 
