@@ -78,6 +78,15 @@ CROSS_FILE_CONTRACTS: list[dict] = [
         "required_all": ["comment_epic_summary.py"],
     },
     {
+        "name": "milestone effectiveness readiness",
+        "files": [
+            "docs/design/milestone-effectiveness-standard.md",
+            "tools/check_milestone_readiness.py",
+        ],
+        "required_any": [],
+        "required_all": ["check_milestone_readiness.py", "min_score_achieved"],
+    },
+    {
         "name": "pm assign review gate",
         "files": [
             "docs/design/pm-assign-review-gate.md",
@@ -337,6 +346,25 @@ def main() -> int:
         body = _read(str(cursor_rule.relative_to(ROOT)))
         if "audit" not in body:
             errors.append("workflow-intake-required.mdc missing audit department reference")
+
+    milestone_files = [
+        "docs/design/milestone-effectiveness-standard.md",
+        "tools/check_milestone_readiness.py",
+        "skills/governance/governance-reviewer/schemas/milestone-effectiveness-report.v1.schema.json",
+        "skills/governance/governance-reviewer/schemas/milestone-readiness-checklist.v1.schema.json",
+        "docs/verification/fixtures/milestone-readiness/m4-enforcement.json",
+        "docs/verification/fixtures/milestone-readiness/m5-learning-loop.json",
+        "docs/verification/fixtures/milestone-readiness/m6-kpi-measurement.json",
+        "docs/verification/fixtures/milestone-readiness/m7-ops-hardening.json",
+        "docs/verification/fixtures/milestone-readiness/m8-quality-ssot.json",
+        "docs/verification/fixtures/milestone-readiness/m9-completion-100.json",
+        "tools/emit_milestone_effectiveness_report.py",
+        "tools/create_milestone_followup_subtasks.py",
+        "skills/audit/examples/assign-plan.milestone-tracker-audit-v1.json",
+    ]
+    for rel in milestone_files:
+        if not (ROOT / rel).is_file():
+            errors.append(f"milestone-readiness: missing file {rel}")
 
     tools_dir = ROOT / "tools"
     if tools_dir.is_dir():

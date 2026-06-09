@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "milestone_id": "m6-kpi-measurement",
+  "title": "M6 80% 実測達成（KPI）",
+  "work_epic_gid": "1215475353160824",
+  "min_score_achieved": 80,
+  "min_score_warn": 70,
+  "checks": [
+    {
+      "id": "aggregate_delivery_kpi_cli",
+      "description": "aggregate_delivery_kpi.py が存在し --help が動作する",
+      "check_type": "cli_help",
+      "target": "tools/aggregate_delivery_kpi.py",
+      "weight": 20,
+      "axis": "parts",
+      "severity_on_fail": "P0"
+    },
+    {
+      "id": "completion_score_enforced",
+      "description": "completion_score が worker レトロで必須",
+      "check_type": "rg_pattern",
+      "target": "tools/check_task_retrospective.py",
+      "pattern": "completion_score",
+      "weight": 15,
+      "axis": "enforcement",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "milestone_readiness_on_m6_tracker",
+      "description": "M6 トラッカー done_when に check_milestone_readiness が含まれる",
+      "check_type": "rg_pattern",
+      "target": "docs/verification/fixtures/planning/handoff/completion-100-roadmap.json",
+      "pattern": "check_milestone_readiness",
+      "weight": 15,
+      "axis": "enforcement",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "quality_audit_record",
+      "description": "直近3エピック品質監査記録が存在する",
+      "check_type": "file_exists",
+      "target": "docs/verification/governance",
+      "weight": 10,
+      "axis": "e2e",
+      "severity_on_fail": "P2"
+    },
+    {
+      "id": "delivery_standard_kpi",
+      "description": "delivery-completion-standard に KPI 節がある",
+      "check_type": "rg_pattern",
+      "target": "docs/design/delivery-completion-standard.md",
+      "pattern": "初回 qa pass",
+      "weight": 10,
+      "axis": "parts",
+      "severity_on_fail": "P2"
+    }
+  ]
+}

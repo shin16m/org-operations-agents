@@ -1,0 +1,24 @@
+{
+  "parent_title": "【監査】マイルストーン readiness 整合監査",
+  "profile": "milestone-tracker-audit",
+  "subtasks": [
+    {
+      "name": "【1/2・監査】validate + milestone checklist 整合",
+      "assignee": "consistency-auditor",
+      "department": "audit",
+      "status": "assigned",
+      "background": "マイルストーン自律評価 Epic（MS4）の SSOT · fixture · CLI が registry と一致するか機械検証する。",
+      "summary": "validate_org_registry · validate_fixture_schemas · validate_ssot_contract を実行。加え check_milestone_readiness.py を m5-learning-loop.json で実行し score をレポートに記録。",
+      "done_when": "ConsistencyAuditReport 保存。checks に validate 3 本 + milestone_readiness の exit_code / score。"
+    },
+    {
+      "name": "【2/2・監査】AuditReviewResult",
+      "assignee": "audit-reviewer",
+      "department": "audit",
+      "status": "assigned",
+      "background": "マイルストーン readiness 監査のゲート。",
+      "summary": "ConsistencyAuditReport を review_kind org_governance でレビュー。completion-100-roadmap トラッカー done_when 更新の整合を確認。",
+      "done_when": "AuditReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

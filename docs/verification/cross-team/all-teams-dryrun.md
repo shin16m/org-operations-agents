@@ -50,9 +50,34 @@ tools\run_all_teams_dryrun.py
 - child GID: `1215466234582808`
 - workers: requirements-writer, dev-reviewer, tech-designer, dev-reviewer, developer, dev-reviewer, ux-reviewer, qa-verifier, requirements-writer, dev-reviewer
 
+### governance
+
+- child GID: （M4 以前の dryrun では未実施）
+- workers: ssot-implementer, governance-reviewer
+- assign plan: `skills/governance/examples/assign-plan.org-meta-v1.json`
+
+### audit（Phase 2 · M5 追加）
+
+- child GID: （`run_all_teams_dryrun.py` DEPT_PM / DEPT_PLANS に audit 追加済 · 2026-06-08）
+- workers: consistency-auditor, audit-reviewer
+- assign plan: `skills/audit/examples/assign-plan.org-governance-v1.json`
+- 備考: development 子の assign plan（`assign-plan.full-ui-v1.json`）は M5.1 で `include_retro_subtasks: true` を展開
+
+## milestone-readiness（MS5 · 自律評価）
+
+- status: `gaps`（2026-06-09 時点 · 未達項目はレポート gaps[] を参照）
+- detail: `MILESTONE_READINESS score=...`（`check_milestone_readiness.py` 実行結果）
+- checklist: `docs/verification/fixtures/milestone-readiness/m5-learning-loop.json`
+- 手順 SSOT: `docs/design/milestone-effectiveness-standard.md`
+
+```powershell
+python tools/check_milestone_readiness.py `
+  --checklist docs/verification/fixtures/milestone-readiness/m5-learning-loop.json
+```
+
 ## 参加 slug 一覧
 
-analysis-reviewer, analytics-requirements-writer, data-analyst, data-architect, data-engineer, data-scientist, data-steward, design-system-owner, dev-reviewer, developer, issue-story-planner, ml-engineer, plan-reviewer, planning-pm, qa-verifier, requirements-writer, tech-designer, ux-designer, ux-reviewer
+analysis-reviewer, analytics-requirements-writer, audit-reviewer, consistency-auditor, data-analyst, data-architect, data-engineer, data-scientist, data-steward, design-system-owner, dev-reviewer, developer, governance-reviewer, issue-story-planner, ml-engineer, plan-reviewer, planning-pm, qa-verifier, requirements-writer, ssot-implementer, tech-designer, ux-designer, ux-reviewer
 
 ## 関連
 

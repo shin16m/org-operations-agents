@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "milestone_id": "m7-ops-hardening",
+  "title": "M7 運用インフラ硬化",
+  "min_score_achieved": 80,
+  "min_score_warn": 70,
+  "checks": [
+    {
+      "id": "milestone_ssot",
+      "description": "milestone-effectiveness-standard.md 存在",
+      "check_type": "file_exists",
+      "target": "docs/design/milestone-effectiveness-standard.md",
+      "weight": 10,
+      "axis": "parts",
+      "severity_on_fail": "P2"
+    },
+    {
+      "id": "readiness_cli",
+      "description": "check_milestone_readiness.py --help",
+      "check_type": "cli_help",
+      "target": "tools/check_milestone_readiness.py",
+      "weight": 15,
+      "axis": "parts",
+      "severity_on_fail": "P0"
+    },
+    {
+      "id": "webhook_runbook",
+      "description": "webhook 本番手順の記録または runbook 参照",
+      "check_type": "rg_pattern",
+      "target": "docs/e2e",
+      "pattern": "webhook",
+      "weight": 15,
+      "axis": "e2e",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "auto_intake_dryrun",
+      "description": "asana-driven-auto-intake dryrun 記録",
+      "check_type": "file_exists",
+      "target": "docs/verification/platform/asana-driven-auto-intake-dryrun.md",
+      "weight": 20,
+      "axis": "e2e",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "org_ops_readme",
+      "description": "scripts/org-ops/README に watch 手順",
+      "check_type": "rg_pattern",
+      "target": "scripts/org-ops/README.md",
+      "pattern": "org-ops-watch",
+      "weight": 15,
+      "axis": "parts",
+      "severity_on_fail": "P2"
+    }
+  ]
+}

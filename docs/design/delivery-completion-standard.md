@@ -47,6 +47,7 @@
 
 ## 関連
 
+- マイルストーン実効達成度（節目トラッカー）: [`milestone-effectiveness-standard.md`](milestone-effectiveness-standard.md)
 - 監査記録: [`output/governance/records/1215474835681087-quality-gap-audit.md`](../../output/governance/records/1215474835681087-quality-gap-audit.md)
 - 強みの型: [`delivery-strength-pattern.md`](delivery-strength-pattern.md)
 - Handoff: [`output/planning/handoff/delivery-quality-80.json`](../../output/planning/handoff/delivery-quality-80.json)

@@ -409,12 +409,35 @@ def run_dept_epic_child(epic_gid: str, dept: str, ux_gid: str | None = None) -> 
     return {"child_gid": child_gid, "workers": ["issue-story-planner", "plan-reviewer", pm]}
 
 
+def run_milestone_readiness_dryrun() -> dict[str, str]:
+    """Run m5-learning-loop checklist (non-blocking) for cross-team dryrun record."""
+    checklist = ROOT / "docs/verification/fixtures/milestone-readiness/m5-learning-loop.json"
+    if not checklist.is_file():
+        return {"status": "skip", "detail": "checklist missing"}
+    r = subprocess.run(
+        [
+            str(PY),
+            str(ROOT / "tools/check_milestone_readiness.py"),
+            "--checklist",
+            str(checklist.relative_to(ROOT)),
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
+    detail_lines = (r.stderr or "").strip().splitlines()
+    last = detail_lines[-1] if detail_lines else f"exit {r.returncode}"
+    return {"status": "ok" if r.returncode == 0 else "gaps", "detail": last}
+
+
 def write_report(
     epic_gid: str,
     results: dict,
     *,
     epic_url: str = "",
     command: str = "python tools/run_all_teams_dryrun.py",
+    milestone_result: dict[str, str] | None = None,
 ) -> None:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     lines = [
@@ -459,6 +482,17 @@ def write_report(
         if workers:
             lines.append(f"- workers: {', '.join(workers)}")
         lines.append("")
+    lines.extend(["", "## milestone-readiness（MS5 · 自律評価）", ""])
+    if milestone_result:
+        lines.append(f"- status: `{milestone_result.get('status', 'n/a')}`")
+        lines.append(f"- detail: `{milestone_result.get('detail', '')}`")
+        lines.append(
+            "- checklist: `docs/verification/fixtures/milestone-readiness/m5-learning-loop.json`"
+        )
+    else:
+        lines.append("- （未実行）")
+    lines.append("")
+
     all_workers = sorted(set(a for i in results.values() for a in i.get("workers", [])))
     lines.extend(
         [
@@ -575,7 +609,14 @@ def main() -> int:
         ),
     )
 
-    write_report(epic_gid, results, epic_url=epic_url, command=" ".join(sys.argv))
+    milestone_result = run_milestone_readiness_dryrun()
+    write_report(
+        epic_gid,
+        results,
+        epic_url=epic_url,
+        command=" ".join(sys.argv),
+        milestone_result=milestone_result,
+    )
     log("\nDONE.")
     return 0
 

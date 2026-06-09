@@ -1,7 +1,8 @@
 {
   "parent_title": "【3/4・開発】API バグ修正（lite）",
-  "profile": "lite",
-  "subtasks": [
+    "profile": "lite",
+    "include_retro_subtasks": true,
+    "subtasks": [
     {
       "name": "【3/4-1・開発】要件定義（requirements-writer）",
       "assignee": "requirements-writer",

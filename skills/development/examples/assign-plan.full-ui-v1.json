@@ -1,7 +1,8 @@
 {
   "parent_title": "【3/4・開発】Web アプリ API + 画面",
-  "profile": "full-ui",
-  "subtasks": [
+    "profile": "full-ui",
+    "include_retro_subtasks": true,
+    "subtasks": [
     {
       "name": "【3/4-1・開発】要件定義（requirements-writer）",
       "assignee": "requirements-writer",

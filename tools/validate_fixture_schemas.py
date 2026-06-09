@@ -32,6 +32,14 @@ AUDIT_REVIEW_RESULT_SCHEMA = (
     ROOT / "skills/audit/audit-reviewer/schemas/audit-review-result.v1.schema.json"
 )
 DASHBOARD_BUNDLE_SCHEMA = ROOT / "schemas/analysis/dashboard-bundle.v1.schema.json"
+MILESTONE_EFFECTIVENESS_REPORT_SCHEMA = (
+    ROOT
+    / "skills/governance/governance-reviewer/schemas/milestone-effectiveness-report.v1.schema.json"
+)
+MILESTONE_READINESS_CHECKLIST_SCHEMA = (
+    ROOT
+    / "skills/governance/governance-reviewer/schemas/milestone-readiness-checklist.v1.schema.json"
+)
 
 FIXTURE_GLOBS: list[str] = [
     "docs/verification/fixtures/**/handoff/*.json",
@@ -39,6 +47,8 @@ FIXTURE_GLOBS: list[str] = [
     "docs/verification/fixtures/**/audit/reports/*.json",
     "docs/verification/fixtures/**/audit/reviews/*.json",
     "docs/verification/fixtures/**/dashboard-bundle/*.json",
+    "docs/verification/fixtures/milestone-readiness/*.json",
+    "docs/verification/fixtures/milestone-readiness/reports/*.json",
     "skills/planning/issue-story-planner/examples/handoff*.json",
 ]
 
@@ -47,6 +57,8 @@ SCHEMA_BY_KIND: dict[str, Path] = {
     "consistency_audit_report": CONSISTENCY_AUDIT_REPORT_SCHEMA,
     "audit_review_result": AUDIT_REVIEW_RESULT_SCHEMA,
     "dashboard_bundle": DASHBOARD_BUNDLE_SCHEMA,
+    "milestone_effectiveness_report": MILESTONE_EFFECTIVENESS_REPORT_SCHEMA,
+    "milestone_readiness_checklist": MILESTONE_READINESS_CHECKLIST_SCHEMA,
 }
 
 # Handoff fixtures that must satisfy notes two-layer contract (see agent-asana-comment-signature §7).
@@ -82,6 +94,10 @@ def _kind_for_path(path: Path) -> str | None:
         return "audit_review_result"
     if "/dashboard-bundle/" in rel or "dashboard-bundle" in name:
         return "dashboard_bundle"
+    if "/milestone-readiness/reports/" in rel:
+        return "milestone_effectiveness_report"
+    if "/milestone-readiness/" in rel and name.endswith(".json"):
+        return "milestone_readiness_checklist"
     return None
 
 

@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "milestone_id": "m9-completion-100",
+  "title": "M9 完成度100% 達成",
+  "min_score_achieved": 80,
+  "min_score_warn": 70,
+  "checks": [
+    {
+      "id": "m8_checklist_fixture",
+      "description": "M8 checklist fixture 存在",
+      "check_type": "file_exists",
+      "target": "docs/verification/fixtures/milestone-readiness/m8-quality-ssot.json",
+      "weight": 20,
+      "axis": "e2e",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "emit_report_cli",
+      "description": "emit_milestone_effectiveness_report.py --help",
+      "check_type": "cli_help",
+      "target": "tools/emit_milestone_effectiveness_report.py",
+      "weight": 15,
+      "axis": "parts",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "followup_cli",
+      "description": "create_milestone_followup_subtasks.py --help",
+      "check_type": "cli_help",
+      "target": "tools/create_milestone_followup_subtasks.py",
+      "weight": 15,
+      "axis": "parts",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "orchestrator_milestone_ssot",
+      "description": "workflow-orchestrator にマイルストーン締め手順",
+      "check_type": "rg_pattern",
+      "target": "skills/platform/workflow-orchestrator/SKILL.md",
+      "pattern": "milestone",
+      "weight": 20,
+      "axis": "enforcement",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "phase8_ops",
+      "description": "asana-driven-ops Phase 8 節",
+      "check_type": "rg_pattern",
+      "target": "docs/design/asana-driven-ops.md",
+      "pattern": "Phase 8",
+      "weight": 15,
+      "axis": "e2e",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "all_teams_milestone",
+      "description": "all-teams-dryrun に milestone-readiness 節",
+      "check_type": "rg_pattern",
+      "target": "docs/verification/cross-team/all-teams-dryrun.md",
+      "pattern": "milestone-readiness",
+      "weight": 15,
+      "axis": "e2e",
+      "severity_on_fail": "P2"
+    }
+  ]
+}

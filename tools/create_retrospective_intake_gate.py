@@ -108,6 +108,8 @@ def main() -> None:
             )
         )
         return 0
+
+    cmd = [
         sys.executable,
         str(OPTIONAL / "create_approval_subtask.py"),
         "--parent",

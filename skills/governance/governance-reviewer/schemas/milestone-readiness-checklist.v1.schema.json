@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MilestoneReadinessChecklist",
+  "type": "object",
+  "required": ["schema_version", "milestone_id", "title", "checks"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "milestone_id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "work_epic_gid": { "type": "string", "pattern": "^[0-9]+$" },
+    "min_score_achieved": { "type": "number", "minimum": 0, "maximum": 100 },
+    "min_score_warn": { "type": "number", "minimum": 0, "maximum": 100 },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "check_type", "weight", "axis"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": { "type": "string" },
+          "check_type": {
+            "type": "string",
+            "enum": [
+              "cli_help",
+              "unittest",
+              "file_exists",
+              "rg_pattern",
+              "validate_script",
+              "manual_doc"
+            ]
+          },
+          "weight": { "type": "number", "exclusiveMinimum": 0 },
+          "axis": {
+            "type": "string",
+            "enum": ["parts", "enforcement", "e2e"]
+          },
+          "target": { "type": "string" },
+          "pattern": { "type": "string" },
+          "unittest_module": { "type": "string" },
+          "severity_on_fail": {
+            "type": "string",
+            "enum": ["P0", "P1", "P2", "P3"]
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

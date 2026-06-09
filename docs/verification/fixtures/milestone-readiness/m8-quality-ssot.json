@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "milestone_id": "m8-quality-ssot",
+  "title": "M8 100% 品質 SSOT",
+  "min_score_achieved": 80,
+  "min_score_warn": 70,
+  "checks": [
+    {
+      "id": "delivery_standard_v2",
+      "description": "delivery-completion-standard v2（100% 節）",
+      "check_type": "rg_pattern",
+      "target": "docs/design/delivery-completion-standard.md",
+      "pattern": "100%",
+      "weight": 25,
+      "axis": "parts",
+      "severity_on_fail": "P0"
+    },
+    {
+      "id": "validate_ssot",
+      "description": "validate_ssot_contract pass",
+      "check_type": "validate_script",
+      "target": "tools/validate_ssot_contract.py",
+      "weight": 25,
+      "axis": "enforcement",
+      "severity_on_fail": "P0"
+    },
+    {
+      "id": "production_deploy_template",
+      "description": "本番デプロイ AC テンプレ存在",
+      "check_type": "file_exists",
+      "target": "docs/design/production-deploy-ac-template.md",
+      "weight": 20,
+      "axis": "parts",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "edge_case_checklist",
+      "description": "エッジケース checklist 存在",
+      "check_type": "file_exists",
+      "target": "docs/design/edge-case-ac-checklist.md",
+      "weight": 15,
+      "axis": "parts",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "readiness_hook",
+      "description": "epic_milestone_readiness_hook 存在",
+      "check_type": "cli_help",
+      "target": "tools/epic_milestone_readiness_hook.py",
+      "weight": 15,
+      "axis": "enforcement",
+      "severity_on_fail": "P2"
+    }
+  ]
+}

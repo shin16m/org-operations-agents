@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "milestone_id": "m5-learning-loop",
+  "title": "M5 学習ループ閉鎖",
+  "work_epic_gid": "1215475084856660",
+  "min_score_achieved": 80,
+  "min_score_warn": 70,
+  "checks": [
+    {
+      "id": "retro_gate_cli_help",
+      "description": "create_retrospective_intake_gate.py --help が動作する",
+      "check_type": "cli_help",
+      "target": "tools/create_retrospective_intake_gate.py",
+      "weight": 20,
+      "axis": "parts",
+      "severity_on_fail": "P0"
+    },
+    {
+      "id": "retro_phase2_unittest",
+      "description": "M5 関連 unittest 4 モジュールが pass",
+      "check_type": "unittest",
+      "unittest_module": "tools.test_pm_assign_subtasks_retro tools.test_aggregate_epic_retrospective tools.test_epic_retrospective_complete_hook tools.test_intake_from_asana",
+      "weight": 15,
+      "axis": "parts",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "retro_delivery_md",
+      "description": "M5 delivery 記録が存在する",
+      "check_type": "file_exists",
+      "target": "docs/verification/platform/retro-intake-phase2-delivery.md",
+      "weight": 5,
+      "axis": "e2e",
+      "severity_on_fail": "P2"
+    },
+    {
+      "id": "include_retro_in_plan",
+      "description": "assign plan に include_retro_subtasks が展開されている",
+      "check_type": "rg_pattern",
+      "target": "skills",
+      "pattern": "include_retro_subtasks",
+      "weight": 15,
+      "axis": "enforcement",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "retro_json_enforced",
+      "description": "check_task_retrospective が PM complete で必須（exit 1）",
+      "check_type": "rg_pattern",
+      "target": "tools/check_task_retrospective.py",
+      "pattern": "exit 1|sys.exit\\(1\\)",
+      "weight": 15,
+      "axis": "enforcement",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "retro_intake_dryrun",
+      "description": "epic-retrospective-intake dryrun 記録が Phase 2 を含む",
+      "check_type": "rg_pattern",
+      "target": "docs/verification/platform/epic-retrospective-intake-dryrun.md",
+      "pattern": "Phase 2",
+      "weight": 10,
+      "axis": "e2e",
+      "severity_on_fail": "P2"
+    },
+    {
+      "id": "all_teams_audit_section",
+      "description": "all-teams-dryrun に audit 節がある",
+      "check_type": "rg_pattern",
+      "target": "docs/verification/cross-team/all-teams-dryrun.md",
+      "pattern": "audit",
+      "weight": 10,
+      "axis": "e2e",
+      "severity_on_fail": "P2"
+    },
+    {
+      "id": "milestone_readiness_ssot",
+      "description": "マイルストーン実効達成度 SSOT が存在する（MS1+）",
+      "check_type": "file_exists",
+      "target": "docs/design/milestone-effectiveness-standard.md",
+      "weight": 10,
+      "axis": "e2e",
+      "severity_on_fail": "P3"
+    }
+  ]
+}

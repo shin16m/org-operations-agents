@@ -46,6 +46,9 @@ assign plan 例: [`assign-plan.org-meta-v1.json`](../../skills/governance/exampl
 |--------|------|------|
 | 実施記録（任意） | `output/governance/records/<task_gid>-record.md` | ssot-implementer |
 | GovernanceReviewResult | `output/governance/reviews/<task_gid>-governance.review.json` | governance-reviewer |
+| MilestoneEffectivenessReport | `output/governance/milestone-reports/<tracker_gid>-readiness.json` | governance-pm（tracker 締め時） |
+
+**マイルストーン tracker:** [`milestone-effectiveness-standard.md`](milestone-effectiveness-standard.md) · `check_milestone_readiness.py` · `epic_milestone_readiness_hook.py`
 
 ---
 

@@ -43,3 +43,9 @@ python skills/platform/asana-buddy/optional/handoff_to_asana.py `
 ## 着手
 
 `org-ops-watch` 実行中なら Execution Order 1（development 子）から自動 dispatch。前 Epic `1215474826616152` follow-up。
+
+## 完了（2026-06-08）
+
+- 子 3 件 + 親 Epic 完了
+- delivery 記録: [`delivery-quality-followup-delivery.md`](delivery-quality-followup-delivery.md)
+- ロードマップ M4 トラッカー `1215475360031077` complete

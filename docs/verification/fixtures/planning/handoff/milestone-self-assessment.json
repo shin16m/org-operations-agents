@@ -1,0 +1,173 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "マイルストーン自律評価 — 達成度の自己向上",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【組織構築】マイルストーン自律評価 — 達成度の自己向上",
+    "notes_markdown": "## 依頼者向け（人間が最初に読む）\n\n**要約:** M5 で露呈した「マイルストーン ✅ だが実運用に穴」問題に対し、**依頼者の振り返り依頼なし**で達成度を評価・改善する組織能力を段階的に構築する。\n\n**M5.1 との関係:** 学習ループの**個別バグ修復**（gate CLI 等）は M5.1 で別途。本 Epic は**マイルストーン締めの仕組み**そのものを改善する。\n\n**完成度100%ロードマップとの関係:** M6 以降の `[M6]`…`[M9]` トラッカーを閉じる**前**に MS3–MS4 を適用すると、同型の取りこぼしを防げる。推奨着手順は本 Epic MS1 から並行または先行。\n\n| 節目 | 組織能力の到達度 | 要点 |\n|------|------------------|------|\n| **MS1** | ~50% | 何を測るか（実効 done_when · スコアリング）を SSOT 化 |\n| **MS2** | ~65% | 機械検証 CLI · チェックリスト fixture |\n| **MS3** | ~80% | governance-pm complete 前ゲート · ブロック可能化 |\n| **MS4** | ~90% | 完成度100%ロードマップのトラッカーに実効 done_when 適用 |\n| **MS5** | ~100% | 自律レポート · 未達時フォローアップ起票 · orchestrator 統合 |\n\n**着手順:** Execution Order CF 1→20（小さいほど先）。`[MSn]` は節目トラッカー（governance · doc-only）。\n\n**起動:** 和久桶 → planning Handoff 承認 → governance / development 子を PM dispatch。\n\n## 背景・用語（エージェント / 実装者向け）\n\n### 課題（M5 からの教訓）\n\n- **作業 Epic complete** ≠ **マイルストーン意図の達成**\n- トラッカー `done_when` が狭い（子 complete + 限定的 unittest）\n- 振り返りが**依頼者起点**でしか走らない\n- audit は Handoff に audit 子がある Epic のみ\n\n### 設計方針\n\n1. **実効 done_when** — 作業完了に加え E2E · CLI 動作 · plan 展開を含める\n2. **機械優先** — `check_milestone_readiness.py` が exit 1 ならトラッカー complete 不可（MS3 以降）\n3. **段階的 enforcement** — MS1 定義のみ → MS3 ブロック → MS5 自律起票\n4. **既存チーム再利用** — governance（SSOT）· development（CLI）· audit（整合監査）\n\n### 参照\n\n- セッション引き継ぎ: [`output/platform/session-handoff/2026-06-08-completion-roadmap-m4-m5.md`](../../../../output/platform/session-handoff/2026-06-08-completion-roadmap-m4-m5.md)\n- 納品完成度 SSOT: [`docs/design/delivery-completion-standard.md`](../../../design/delivery-completion-standard.md)\n- Handoff SSOT: [`milestone-self-assessment.json`](milestone-self-assessment.json)"
+  },
+  "subtasks": [
+    {
+      "title": "milestone-effectiveness-standard.md — 実効達成度 SSOT",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "マイルストーンの「作業 complete」と「意図達成」の差が文書化されていない。M5 トラッカーは子 Epic complete のみで閉じた。",
+      "summary": "docs/design/milestone-effectiveness-standard.md 新設。実効 done_when · 3 軸スコア（部品/強制/E2E）· 閾値（warn 70 / block 80）· トラッカー vs 作業 Epic の区別を定義。",
+      "done_when": "SSOT md 公開。governance review passed。delivery-completion-standard.md から相互リンク 1 行。"
+    },
+    {
+      "title": "MilestoneEffectivenessReport schema v1",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "マイルストーン評価結果の機械可読形式が無い。audit · orchestrator が再利用できない。",
+      "summary": "skills/governance/governance-reviewer/schemas/milestone-effectiveness-report.v1.schema.json + 例 JSON 1 件。checklist 結果 · score · gaps[] · follow_up_candidates[]。",
+      "done_when": "schema + example。validate_fixture_schemas.py に登録。exit 0。"
+    },
+    {
+      "title": "マイルストーン checklist fixture — M4/M5/M6 テンプレ",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "マイルストーン種別ごとの検証項目がコード化されていない。M5 では gate CLI 破損が検出されなかった。",
+      "summary": "docs/verification/fixtures/milestone-readiness/ に m4-enforcement.json · m5-learning-loop.json · m6-kpi-measurement.json。各項目に check_type（cli_help/unittest/e2e_doc/plan_flag）と weight。",
+      "done_when": "fixture 3 件 + README 1 節。milestone-effectiveness-standard.md からパス参照。"
+    },
+    {
+      "title": "[MS1] 定義整備 — マイルストーン",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "MS1 作業 3 件完了後の節目確認。",
+      "summary": "SSOT · schema · checklist fixture が揃い、M5 トラッカーを人間が読んで手動採点できる状態。",
+      "done_when": "子 1–3 complete。governance トラッカーとして依頼者確認コメント 1 件。本タスク complete。"
+    },
+    {
+      "title": "check_milestone_readiness.py — 機械検証 CLI v1",
+      "pillar": "platform",
+      "department": "development",
+      "background": "マイルストーン締め前の客観チェック手段が無い。unittest だけでは CLI 破損をすり抜ける。",
+      "summary": "tools/check_milestone_readiness.py 新規。--checklist <fixture.json> [--work-epic-gid] [--strict]。cli_help · unittest_list · file_exists · rg_pattern を実行。MilestoneEffectivenessReport JSON を stdout。",
+      "done_when": "CLI + tools/test_check_milestone_readiness.py（≥6 tests）。m5-learning-loop.json で gate CLI SyntaxError を fail 検出できること。"
+    },
+    {
+      "title": "validate_ssot_contract — milestone-readiness 節",
+      "pillar": "platform",
+      "department": "development",
+      "background": "checklist fixture と schema の整合が手動確認のみ。",
+      "summary": "validate_ssot_contract.py に milestone-effectiveness SSOT · schema · fixture 3 件の存在チェックを追加。",
+      "done_when": "validate 更新 + unittest 1 本。CI 相当の 3 validate 本 green。"
+    },
+    {
+      "title": "[MS2] 機械検証 — マイルストーン",
+      "pillar": "platform",
+      "department": "governance",
+      "background": "MS2 作業 2 件完了後の節目。",
+      "summary": "check_milestone_readiness.py が m4/m5/m6 checklist で実行可能。M5 checklist が現状の穴（gate 破損）を score < 80 で報告。",
+      "done_when": "子 5–6 complete。check_milestone_readiness --checklist m5-learning-loop.json exit 1（現状再現）。記録 md 1 件。本タスク complete。"
+    },
+    {
+      "title": "governance-pm SKILL — トラッカー complete 前 readiness 必須",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "governance-pm は作業 Epic の子 complete のみ確認し、実効評価を行っていない。",
+      "summary": "skills/governance/governance-pm/SKILL.md にマイルストーン tracker 手順を追記: complete 前に check_milestone_readiness 実行 · MilestoneEffectivenessReport 保存 · score<80 なら complete 禁止してコメント。",
+      "done_when": "SKILL 更新。governance-delivery-io.md に 1 節。governance review passed。"
+    },
+    {
+      "title": "epic_milestone_readiness_hook.py — complete 前ブロック（opt-in→既定）",
+      "pillar": "platform",
+      "department": "development",
+      "background": "SKILL 依存のみではエージェントが手順をスキップしうる。epic_retrospective_complete_hook と同型のフックが必要。",
+      "summary": "tools/epic_milestone_readiness_hook.py。タイトル `[M` または notes `milestone_tracker: true` の子で checklist 実行。ORG_OPS_MILESTONE_READINESS_BLOCK=1 で exit 1。complete_task 連携は doc + dryrun。",
+      "done_when": "CLI + test_epic_milestone_readiness_hook.py。epic-retrospective-intake-dryrun.md に追記。"
+    },
+    {
+      "title": "MS3 dryrun — M5 トラッカー再評価デモ記録",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "MS3 運用が実際に M5 型の取りこぼしを防げるかの実証が無い。",
+      "summary": "docs/verification/platform/milestone-readiness-ms3-dryrun.md。M5 トラッカー GID を想定し check_milestone_readiness 実行 · レポート · 「complete すべきでなかった」ギャップ表。",
+      "done_when": "dryrun md 保存。score 算出式が SSOT と一致。governance review passed。"
+    },
+    {
+      "title": "[MS3] 運用組込み — マイルストーン",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "MS3 作業 3 件完了後の節目。",
+      "summary": "governance-pm がトラッカー締め前に readiness を必須実行。hook が opt-in で動作。",
+      "done_when": "子 8–10 complete。MS3 dryrun 記録あり。依頼者確認コメント 1 件。本タスク complete。"
+    },
+    {
+      "title": "completion-100-roadmap — トラッカー実効 done_when 更新",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "M6–M9 トラッカーは従来の狭い done_when のまま。MS4 適用前に M6 を閉じると M5 と同型リスク。",
+      "summary": "completion-100-roadmap.json の [M6][M7][M8][M9] トラッカーに check_milestone_readiness exit 0 · MilestoneEffectivenessReport 添付を done_when に追記。対応 checklist fixture を新規または既存から割当。",
+      "done_when": "JSON 更新。completion-100-roadmap-intake.md に変更メモ。validate_fixture_schemas pass。"
+    },
+    {
+      "title": "マイルストーン tracker 用 audit 子テンプレ — assign plan",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "マイルストーン tracker に audit が無く、consistency-auditor が関与しない。",
+      "summary": "skills/audit/examples/assign-plan.milestone-tracker-audit-v1.json。consistency-auditor + audit-reviewer。check_milestone_readiness 結果と validate 3 本を監査対象に。",
+      "done_when": "assign plan JSON + audit-pm-assignment.md 参照 1 行。governance review passed。"
+    },
+    {
+      "title": "マイルストーン readiness — audit 整合監査 dryrun",
+      "pillar": "governance",
+      "department": "audit",
+      "background": "MS4 の checklist · roadmap 更新が audit チームで検証されていない。",
+      "summary": "audit-pm dispatch で本 Epic 子を 1 件実施。ConsistencyAuditReport + AuditReviewResult。run_all_teams_dryrun に audit 経路で milestone checklist 参照を確認。",
+      "done_when": "output/audit/reviews/ に review JSON。verification md 1 件。audit review passed。"
+    },
+    {
+      "title": "[MS4] ロードマップ適用 — マイルストーン",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "MS4 作業 3 件完了後の節目。",
+      "summary": "完成度100%ロードマップの M6 以降トラッカーが実効 done_when を持つ。audit テンプレが利用可能。",
+      "done_when": "子 12–14 complete。M6 トラッカーは check_milestone_readiness 必須で未達なら complete 不可（手順確認）。本タスク complete。"
+    },
+    {
+      "title": "emit_milestone_effectiveness_report.py — 自律レポート生成",
+      "pillar": "platform",
+      "department": "development",
+      "background": "振り返りが依頼者プロンプト起点。トラッカー締め時に自動でレポートを残す必要がある。",
+      "summary": "tools/emit_milestone_effectiveness_report.py。check_milestone_readiness をラップし output/governance/milestone-reports/<gid>.json + 要約 md を生成。gaps に follow_up 文案を含む。",
+      "done_when": "CLI + unittest。governance-pm SKILL から呼び出しパスを記載。"
+    },
+    {
+      "title": "create_milestone_followup_subtasks.py — 未達時改善子起票",
+      "pillar": "platform",
+      "department": "development",
+      "background": "score < 閾値でも改善タスクが自動起票されず、依頼者が M5.1 を手動で切る必要がある。",
+      "summary": "tools/create_milestone_followup_subtasks.py。MilestoneEffectivenessReport の gaps から Asana 子を起票（development/governance）。--min-score 80 未満のみ。M5.1 とは独立（本 Epic の自律ループ）。",
+      "done_when": "CLI + unittest（dryrun モード必須）。task-retrospective-ssot.md に 1 節参照。"
+    },
+    {
+      "title": "workflow-orchestrator — マイルストーン締め手順 SSOT",
+      "pillar": "platform",
+      "department": "governance",
+      "background": "orchestrator は作業 Epic 完了報告のみ。ロードマップトラッカー締め時の readiness 手順が SKILL に無い。",
+      "summary": "workflow-orchestrator SKILL + asana-driven-ops.md にマイルストーン tracker 締めフロー追記: emit_report → score 判定 → followup 起票 or complete。",
+      "done_when": "SKILL + design doc 更新。validate_ssot_contract pass。"
+    },
+    {
+      "title": "run_all_teams_dryrun — milestone-readiness 節",
+      "pillar": "platform",
+      "department": "development",
+      "background": "全チーム dryrun にマイルストーン評価が含まれていない。",
+      "summary": "run_all_teams_dryrun.py / all-teams-dryrun.md に governance トラッカー想定の check_milestone_readiness ステップを追加。",
+      "done_when": "dryrun スクリプト + md 更新。unittest または記録で pass 確認。"
+    },
+    {
+      "title": "[MS5] 自律ループ完結 — マイルストーン",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "MS5 作業 4 件完了後の最終節目。",
+      "summary": "依頼者の振り返り依頼なしで: 評価 → レポート → 未達なら改善子起票 → 達成時のみトラッカー complete、が一連で回る。",
+      "done_when": "子 16–19 complete。MS5 dryrun 記録（m6-kpi checklist で pass シミュレーション）。依頼者承認コメント 1 件。本タスク complete。"
+    }
+  ]
+}

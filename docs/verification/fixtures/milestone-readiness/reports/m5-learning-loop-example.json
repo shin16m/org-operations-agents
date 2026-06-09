@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "milestone_id": "m5-learning-loop",
+  "title": "M5 学習ループ閉鎖",
+  "tracker_gid": "1215475369302645",
+  "work_epic_gid": "1215475084856660",
+  "score": 62.5,
+  "status": "not_achieved",
+  "checklist_path": "docs/verification/fixtures/milestone-readiness/m5-learning-loop.json",
+  "axis_scores": {
+    "parts": 75,
+    "enforcement": 40,
+    "e2e": 55
+  },
+  "checks": [
+    {
+      "id": "retro_gate_cli_help",
+      "description": "create_retrospective_intake_gate.py --help が動作する",
+      "check_type": "cli_help",
+      "weight": 20,
+      "axis": "parts",
+      "result": "pass",
+      "detail": "exit 0"
+    },
+    {
+      "id": "include_retro_in_plan",
+      "description": "assign plan に include_retro_subtasks が展開されている",
+      "check_type": "rg_pattern",
+      "weight": 15,
+      "axis": "enforcement",
+      "result": "fail",
+      "detail": "no match under skills/**/assign-plan*.json"
+    }
+  ],
+  "gaps": [
+    {
+      "check_id": "include_retro_in_plan",
+      "message": "[retro] が assign plan に未展開のまま",
+      "severity": "P1"
+    }
+  ],
+  "follow_up_candidates": [
+    {
+      "title": "assign plan へ include_retro_subtasks 既定展開",
+      "department": "governance",
+      "summary": "lite/full-ui 代表 plan に retro 同梱を ON"
+    }
+  ],
+  "generated_at": "2026-06-09T00:00:00+09:00"
+}

@@ -75,6 +75,26 @@ def _requester_opt_out() -> bool:
 def requester_notes_ok(text: str) -> bool:
     body = (text or "").strip()
     return bool(body) and body != REQUESTER_PLACEHOLDER
+
+
+def requester_notes_from_gate(parent_gid: str, token: str) -> str:
+    """Fetch requester comments from completed 【承認】レトロ改善候補 gate sub stories."""
+    from asana_program_common import fetch_task, list_task_comment_stories  # noqa: WPS433
+    from intake_from_asana import comments_markdown, extract_requester_comments  # noqa: WPS433
+    from retrospective_intake_gate_util import find_retro_intake_gate_sub  # noqa: WPS433
+
+    sub = find_retro_intake_gate_sub(parent_gid, token)
+    if not sub or not sub.get("completed"):
+        return ""
+    gate_gid = str(sub.get("gid"))
+    task = fetch_task(gate_gid, token)
+    comments = list_task_comment_stories(gate_gid, token)
+    matched = extract_requester_comments(task, comments)
+    if not matched:
+        return ""
+    return comments_markdown(matched)
+
+
 def _gate_ok(parent: str) -> bool:
     r = subprocess.run(
         [sys.executable, str(ROOT / "tools/check_retrospective_intake_gate.py"), "--parent", parent],
@@ -153,7 +173,15 @@ def main() -> int:
     p.add_argument("-y", action="store_true")
     args = p.parse_args()
 
+    load_env_from_dotfile()
+    token = get_token() if args.y else None
+
     requester = (args.requester_notes or "").strip()
+    if not requester and token:
+        requester = requester_notes_from_gate(args.parent, token).strip()
+        if requester:
+            print("note: requester notes from gate sub stories", file=sys.stderr)
+
     gate_ok = _gate_ok(args.parent)
     if not gate_ok:
         if args.requester_approved and requester:
@@ -196,8 +224,9 @@ def main() -> int:
     if not requester:
         requester = REQUESTER_PLACEHOLDER
 
-    load_env_from_dotfile()
-    token = get_token()
+    if not token:
+        load_env_from_dotfile()
+        token = get_token()
     project_gid = resolve_project_with_fallback(None)
 
     created: list[str] = []

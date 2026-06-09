@@ -1,0 +1,237 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "完成度100%ロードマップ（M4→M9）",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【組織構築】完成度100%ロードマップ（M4→M9）",
+    "notes_markdown": "## 依頼者向け（人間が最初に読む）\n\n**要約:** Asana ネイティブマイルストーンは使わず、**タスクで M4→M9 の節目と作業**を一本の Epic に集約する。運用インフラ（Phase 7 済）と納品品質（80% SSOT 済）から **依頼者体感 100%** まで計画的に進める。\n\n**現在地:** M3.5（80% 定義完了 · enforcement 進行中）\n\n**着手順:** Execution Order CF 1→28（小さいほど先）。`[M4]` `[M5]` は既存 Epic 完遂の**トラッカー**。\n\n| 節目 | 内容 | 既存 Epic |\n|------|------|----------|\n| M4 | 80% Enforcement 実装 | `1215475080199865` |\n| M5 | 学習ループ閉鎖 | `1215475084856660` |\n| M6 | 80% 実測達成（KPI） | 本 Epic 子 3–7 |\n| M7 | 運用インフラ硬化 | 本 Epic 子 9–14 |\n| M8 | 100% 品質 SSOT | 本 Epic 子 16–21 |\n| M9 | 100% 実測達成 | 本 Epic 子 23–28 |\n\n**起動:** `org-ops-watch` または task-dispatcher。トラッカーは `profile: doc-only`。\n\n## 背景・用語（エージェント / 実装者向け）\n\n### 目的\n\n- **運用 ~88%**（Phase 7）· **品質定義 ~75%**（M3）· **品質実測 ~55%** が現状\n- M4/M5 の作業 Epic は既に起票済み。本 Epic は**ロードマップ統合**と M6–M9 の新規作業を担う\n\n### 完成度定義（SSOT）\n\n[`docs/design/delivery-completion-standard.md`](../../../design/delivery-completion-standard.md)\n\n| レベル | 定義 |\n|--------|------|\n| ~80% | README 起動 · Must AC 100% · Should 60%+ · 代表フロー 1 本 |\n| 100% | Should AC 全 pass · 本番運用 · エッジケース完備 · polish |\n\n### 参照\n\n- ロードマップ整理: Cursor 会話 2026-06-08\n- Handoff SSOT: [`completion-100-roadmap.json`](completion-100-roadmap.json)\n- asana-driven-ops Phase 7: [`docs/design/asana-driven-ops.md`](../../../design/asana-driven-ops.md)"
+  },
+  "subtasks": [
+    {
+      "title": "[M4] 80% Enforcement 実装 — マイルストーン",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "M3 で 80% SSOT は整備済み。ツール enforcement（pm_intake_gate · fix R3 · worker prompt）は別 Epic で進行中。",
+      "summary": "Epic `1215475080199865`（納品品質 follow-up）の全子 3 件完了 + delivery-quality smoke dryrun pass を確認し、本タスクを complete。",
+      "done_when": "1215475080199865 全子 complete。check_milestone_readiness.py --checklist docs/verification/fixtures/milestone-readiness/m4-enforcement.json --strict exit 0。output/governance/milestone-reports/<tracker_gid>-readiness.json 保存。epic_milestone_readiness_hook exit 0。依頼者確認コメント 1 件。"
+    },
+    {
+      "title": "[M5] 学習ループ閉鎖 — マイルストーン",
+      "pillar": "platform",
+      "department": "governance",
+      "background": "レトロ→intake 自動化 Phase 1 は動作するが、[retro] 同梱 · aggregate フィルタ · 依頼者意見必須など Phase 2 が未完了。",
+      "summary": "Epic `1215475084856660`（レトロ/intake Phase 2）の全子 8 件完了 + run_all_teams_dryrun audit 含め pass を確認。",
+      "done_when": "1215475084856660 全子 complete。check_milestone_readiness.py --checklist docs/verification/fixtures/milestone-readiness/m5-learning-loop.json --strict exit 0。milestone-reports JSON 保存。epic_milestone_readiness_hook exit 0。本タスク complete。"
+    },
+    {
+      "title": "直近3エピック品質監査 + ギャップ一覧",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "M4 enforcement 後も実測 KPI（初回 qa pass · fix ラウンド）が未集計。改善優先度が不明。",
+      "summary": "直近 3 Epic の retro JSON · qa verification · smoke を 4 軸（起動・AC・フロー・fix）で監査。`output/governance/records/` にギャップ一覧 md。",
+      "done_when": "監査記録 md 保存。M6 KPI 目標値との差分表あり。governance review passed。"
+    },
+    {
+      "title": "full-ui 代表エピック E2E 80% 実証",
+      "pillar": "development",
+      "department": "development",
+      "background": "80% 定義は文書化済みだが、full-ui 1 本で依頼者が README のみで検証完了した実証が無い。",
+      "summary": "既存または新規 full-ui 子 1 件で Must AC 100% · Should 60%+ · smoke · qa evidence を初回 pass で完走。記録を verification md に残す。",
+      "done_when": "qa verification passed*。smoke.md 添付。依頼者確認コメントまたはサマリ 1 件。dev-reviewer + qa レビュー JSON 保存。"
+    },
+    {
+      "title": "completion_score worker レトロ必須 enforcement",
+      "pillar": "platform",
+      "department": "development",
+      "background": "delivery-completion-standard の KPI completion_score が worker レトロで任意のまま。",
+      "summary": "record_task_retrospective / check_task_retrospective で completion_score（Must AC pass 率）を必須化。欠落時 exit 1。",
+      "done_when": "tools 更新 + unittest。task-retrospective-ssot.md に必須項目追記。"
+    },
+    {
+      "title": "依頼者サマリテンプレ — Should 未達明示",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "epic 完了サマリに Should AC 未達が構造化されず、依頼者が残課題を把握しにくい。",
+      "summary": "`comment_epic_summary.py` 用テンプレに Should 未達一覧 · 検証コマンド · 次アクション節を追加。SSOT 1 節。",
+      "done_when": "テンプレ md + comment_epic_summary 対応。governance review passed。サンプル出力 1 件。"
+    },
+    {
+      "title": "KPI ダッシュボード CLI — レトロ JSON 集約",
+      "pillar": "platform",
+      "department": "development",
+      "background": "初回 qa pass 率 · fix 平均ラウンドの算出が手動。epic レトロで自動集約したい。",
+      "summary": "`tools/aggregate_delivery_kpi.py`（新規）— epic-retro JSON から 3 KPI を算出し stdout/JSON 出力。asana_ops_dashboard 連携は optional。",
+      "done_when": "CLI + unittest 1 本。delivery-completion-standard.md KPI 節と算出式一致。"
+    },
+    {
+      "title": "[M6] 80% 実測達成 — マイルストーン",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "M6 作業（子 3–7）完了後の節目確認。",
+      "summary": "連続 2 Epic で KPI 達成: 初回 qa pass ≥70% · fix ≤1.5/ゲート · Must 100% · Should ≥60%。",
+      "done_when": "aggregate_delivery_kpi 出力が目標達成。依頼者が README のみで検証完了（コメント記録）。check_milestone_readiness.py --checklist docs/verification/fixtures/milestone-readiness/m6-kpi-measurement.json --strict exit 0。epic_milestone_readiness_hook exit 0。本タスク complete。"
+    },
+    {
+      "title": "Webhook 本番 — reverse proxy + secret + SLA metrics",
+      "pillar": "platform",
+      "department": "development",
+      "background": "asana_webhook_handler は dryrun のみ。本番 RESUME 検知の SLA 未整備。",
+      "summary": "reverse proxy 手順 · `--require-secret` 本番設定 · `/metrics` WEBHOOK_SLA を runbook に明文化。staging で latency 計測 1 回。",
+      "done_when": "docs/e2e/ に webhook 本番手順。metrics curl 例。dryrun 記録 1 本。"
+    },
+    {
+      "title": "runner + webhook 常駐統合手順",
+      "pillar": "platform",
+      "department": "development",
+      "background": "webhook と org-ops-watch が別プロセス。運用者の起動負荷が高い。",
+      "summary": "org-ops-start.cmd メニューまたは README に webhook+watch 併用の推奨構成を追記。systemd/タスクスケジューラ例は optional。",
+      "done_when": "scripts/org-ops/README.md 更新。1 コマンドまたは 2 ターミナル手順が明確。"
+    },
+    {
+      "title": "stuck 自動復旧 playbook → CLI 化",
+      "pillar": "platform",
+      "department": "development",
+      "background": "planning_stuck · execution_kick BLOCKED の手動 unblock 手順が asana-driven-ops.md に散在。",
+      "summary": "`tools/unblock_epic.py`（新規）— approval_helper + runner 1 サイクルをラップ。既知 stuck パターンを --reason で分岐。",
+      "done_when": "CLI + unittest。watch-auto-stuck-unblock-delivery.md を更新。"
+    },
+    {
+      "title": "マルチプロジェクト本番運用",
+      "pillar": "platform",
+      "department": "development",
+      "background": "`--projects` は実装済みだが本番 env で未検証。",
+      "summary": "ASANA_PROJECT_ID 複数指定の env 例 · org-ops-watch で 2 プロジェクト dryrun · 記録 md。",
+      "done_when": "dryrun md 1 本。_common.cmd / .env.example に複数 project 例追記。"
+    },
+    {
+      "title": "asana-driven-auto-intake-dryrun 子5/5 完了",
+      "pillar": "platform",
+      "department": "development",
+      "background": "Phase 4 dryrun が予定のまま。auto-intake 経路の E2E 記録が不足。",
+      "summary": "docs/verification/platform/asana-driven-auto-intake-dryrun.md を完遂（snapshot→triage→bootstrap→gate→RESUME）。",
+      "done_when": "dryrun md 全ステップ記録済み。validate または unittest 参照あり。"
+    },
+    {
+      "title": "org-os product リリースゲート",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "products/org-os/RELEASE.md のゲートが未実施のまま運用に載せている可能性。",
+      "summary": "RELEASE.md チェックリストを実施し、org-os CONSUMER.md との整合を governance review で確認。",
+      "done_when": "governance review passed。RELEASE.md に実施日・結果 1 行追記。"
+    },
+    {
+      "title": "[M7] 運用インフラ硬化 — マイルストーン",
+      "pillar": "platform",
+      "department": "governance",
+      "background": "M7 作業（子 9–14）完了後の節目。",
+      "summary": "org-ops-watch 7 日連続稼働（または dryrun 等価）· stuck 手動介入 ≤1/週 · webhook p95<30s を確認。",
+      "done_when": "運用記録 md 1 件。check_milestone_readiness.py --checklist docs/verification/fixtures/milestone-readiness/m7-ops-hardening.json --strict exit 0。epic_milestone_readiness_hook exit 0。asana-driven-ops.md Phase 8 草案メモ（ops 側）。本タスク complete。"
+    },
+    {
+      "title": "delivery-completion-standard v2 — 100% 必須条件",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "v1 は 50/80% のみ。100% のゲート対応が未定義。",
+      "summary": "docs/design/delivery-completion-standard.md v2 — Should 100% · 本番デプロイ · エッジケース · SLA 節を追記。",
+      "done_when": "v2 公開。governance review passed。Handoff 例に 100% 参照 1 行。"
+    },
+    {
+      "title": "Should AC 100% — qa ゲート必須化",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "80% では Should 60% で足りる。100% 到達には qa が Should 全 pass を強制する必要がある。",
+      "summary": "qa-verifier SKILL + VerificationResult schema: profile 別に Should 100% を必須化するルール（full/full-ui）。lite は対象外。",
+      "done_when": "SKILL + schema 更新。validate_fixture_schemas pass。例 JSON 1 件。"
+    },
+    {
+      "title": "本番デプロイ AC テンプレ",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "100% には staging/本番相当での検証が必要だがテンプレが無い。",
+      "summary": "docs/design/production-deploy-ac-template.md 新設（環境 · ロールバック · 監視 · データ移行）。requirements テンプレから参照。",
+      "done_when": "テンプレ md + acceptance-criteria-template からリンク。governance review passed。"
+    },
+    {
+      "title": "エッジケース checklist — dev-reviewer / qa 拡張",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "空データ · 権限なし · タイムアウト等の AC が標準化されていない。",
+      "summary": "docs/design/edge-case-ac-checklist.md + dev-reviewer/qa-verifier SKILL に 100% 時必須カテゴリを追記。",
+      "done_when": "checklist md + SKILL 更新。review fixture 1 件追加。"
+    },
+    {
+      "title": "UX polish ゲート — full-ui accessibility / エラー状態",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "100% には UX polish（a11y · エラー UI · 空状態）が含まれるがゲート未定義。",
+      "summary": "ux-reviewer SKILL 拡張: full-ui 100% プロファイル時に polish チェックリスト必須。ux-delivery-io.md 1 節。",
+      "done_when": "SKILL + io doc 更新。ux review fixture 1 件。"
+    },
+    {
+      "title": "本番 SLA 定義 — uptime / 応答 / データ鮮度",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "delivery-completion-standard の 100% に SLA が含まれるが数値定義が無い。",
+      "summary": "docs/design/production-sla-template.md — uptime · p95 応答 · meta.generated_at 鮮度の既定値と検証方法。",
+      "done_when": "SLA テンプレ md。full-ui + insights 連携節から参照。governance review passed。"
+    },
+    {
+      "title": "[M8] 100% 品質 SSOT — マイルストーン",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "M8 作業（子 16–21）完了後の節目。",
+      "summary": "Handoff · assign plan · reviewer schema が delivery-completion-standard v2 を参照。validate_ssot_contract pass。",
+      "done_when": "validate_ssot_contract.py exit 0。check_milestone_readiness.py --checklist docs/verification/fixtures/milestone-readiness/m8-quality-ssot.json --strict exit 0。epic_milestone_readiness_hook exit 0。本タスク complete。"
+    },
+    {
+      "title": "本番相当エピック 100% 完走 — 監査付き",
+      "pillar": "development",
+      "department": "development",
+      "background": "100% 定義の実証が無い。1 本の Epic で end-to-end 検証が必要。",
+      "summary": "full または full-ui Epic 1 本を Must+Should 100% · エッジケース 80%+ · 本番/staging qa で完走。audit-pm が整合監査。",
+      "done_when": "qa verification passed（Should 含む全 pass）。audit review passed。epic 完了サマリに SLA 達成記載。"
+    },
+    {
+      "title": "初回 qa pass 率 85% 達成検証",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "M6 は 70% 目標。100% 到達には 85% が組織 KPI。",
+      "summary": "直近 N Epic の aggregate_delivery_kpi 出力で初回 qa pass ≥85% を確認。未達時はギャップ分析 md。",
+      "done_when": "KPI 出力 + 記録 md。目標達成または改善 Epic 候補 3 件を retro JSON に。"
+    },
+    {
+      "title": "人間介入最小化検証 — 承認・レビューのみ",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "Phase 7 で L3b は自動化したが、実運用で手動 kick が残っていないか未検証。",
+      "summary": "1 Epic の session ログから手動介入回数を集計。【承認】【レビュー】と R3 エスカレーション以外が 0 であることを記録。",
+      "done_when": "検証 md 1 件。asana-driven-ops.md に実測 1 節追記。"
+    },
+    {
+      "title": "asana-driven-ops.md Phase 8 追記 — 100% 到達宣言",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "Phase 7 までが SSOT。100% 到達後の残非スコープを明文化する必要がある。",
+      "summary": "docs/design/asana-driven-ops.md に Phase 8 節（100% 品質連携 · 残非スコープ · KPI ベースライン）を追記。",
+      "done_when": "Phase 8 節マージ。validate 3 本 pass。"
+    },
+    {
+      "title": "依頼者完了サマリ — SLA / polish 達成明示",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "100% 完了時に依頼者へ何が保証されたかがサマリに載っていない。",
+      "summary": "comment_epic_summary テンプレに SLA 達成 · polish 完了 · 既知制限 節を追加。100% Epic 完了時に必須。",
+      "done_when": "テンプレ + epic-summary サンプル 1 件。governance review passed。"
+    },
+    {
+      "title": "[M9] 完成度100% 達成 — マイルストーン",
+      "pillar": "governance",
+      "department": "governance",
+      "background": "全作業完了後の最終節目。",
+      "summary": "M8 SSOT + M9 実証 + KPI 85% + 人間介入最小化がすべて満たされたことを依頼者と governance が確認。",
+      "done_when": "本 Epic 全子 complete。check_milestone_readiness.py --checklist docs/verification/fixtures/milestone-readiness/m9-completion-100.json --strict exit 0。emit_milestone_effectiveness_report + followup 起票手順確認。依頼者承認コメント 1 件。親 Epic complete · OS State=Done。"
+    }
+  ]
+}

@@ -62,3 +62,43 @@ python -c "from pathlib import Path; import sys; sys.path.insert(0,'skills/platf
 | 既定 | missing / pending → Asana WARN comment · exit 0 |
 | opt-in block | `ORG_OPS_RETRO_COMPLETE_BLOCK=1` |
 | 検証 | `python -m unittest tools.test_epic_retrospective_complete_hook` |
+
+## Phase 2 — aggregate --parent フィルタ（2026-06-08）
+
+| 項目 | 結果 |
+|------|------|
+| Epic 子 | `1215475085127976` |
+| 実装 | `aggregate_epic_retrospective.py --parent` サブツリーのみ集約 |
+| 検証 | `python -m unittest tools.test_aggregate_epic_retrospective` |
+
+## Phase 2 — run_all_teams dryrun audit（2026-06-08）
+
+| 項目 | 結果 |
+|------|------|
+| Epic 子 | `1215491557624250` |
+| 実装 | `run_all_teams_dryrun.py` に `audit` 部門 · `assign-plan.org-governance-v1.json` |
+| 検証 | `rg audit run_all_teams_dryrun.py` · dept_order に audit |
+
+## Phase 2 — default.yaml suspend/resume（2026-06-08）
+
+| 項目 | 結果 |
+|------|------|
+| Epic 子 | `1215475097082132` |
+| 実装 | `workflows/default.yaml` v5 — suspend / resume steps |
+| 検証 | `validate_ssot_contract.py` exit 0 |
+
+## Phase 2 — 依頼者意見必須 · intake stories（2026-06-08）
+
+| 項目 | 結果 |
+|------|------|
+| Epic 子 | `1215475080245914` · `1215475209626800` |
+| 実装 | `create_retrospective_intake_tasks` requester 必須 · `intake_from_asana` requester_comments |
+| 検証 | `python -m unittest tools.test_intake_from_asana` |
+
+## Phase 2 — dashboard / pm_assign lite（2026-06-08）
+
+| 項目 | 結果 |
+|------|------|
+| Epic 子 | `1215475142717078` |
+| 実装 | poller `DASHBOARD ready_total` · `execution_resume_scan` `pm_assign_lite_required` hint |
+| 検証 | `rg pm_assign_lite_required tools/execution_resume_scan.py` |

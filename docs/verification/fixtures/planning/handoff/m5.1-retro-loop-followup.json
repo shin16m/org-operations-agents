@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.2",
+  "meta": {
+    "title": "M5.1 学習ループ精度フォローアップ",
+    "locale": "ja-JP"
+  },
+  "epic": {
+    "title": "【platform】M5.1 学習ループ精度フォローアップ",
+    "notes_markdown": "## 依頼者向け（人間が最初に読む）\n\n**要約:** M5（レトロ/intake Phase 2）で部品は揃ったが、**実運用でループが毎回回る保証**に未達。本 Epic で P0–P1 の穴を塞ぎ、M6 着手前に学習ループを実効化する。\n\n**着手順:** Execution Order CF 1→5。`[M5.1]` は節目トラッカー（governance · doc-only）。\n\n| 順 | 優先 | テーマ |\n|----|------|--------|\n| 1 | **P0** | `create_retrospective_intake_gate.py` SyntaxError 修復 + unittest |\n| 2 | P1 | assign plan 例への `[retro]` 自動同梱展開 |\n| 3 | P1 | gate 承認サブコメント → requester-notes 自動注入 |\n| 4 | P2/P3 | SSOT 整合 · all-teams-dryrun audit 節追記 |\n| 5 | — | [M5.1] マイルストーン complete |\n\n**起動:** 和久桶 → development / governance 子を PM dispatch（org-ops-watch 不要）。\n\n## 背景・用語（エージェント / 実装者向け）\n\n### 課題（M5 振り返りより）\n\n- **P0:** `create_retrospective_intake_gate.py` が SyntaxError で CLI 実行不能 → 【承認】レトロ改善候補が作れない\n- **P1:** `include_retro_subtasks` / `retro: true` が assign plan 例に無い（opt-in のまま）\n- **P1:** gate 承認時 `--requester-notes` 手入力 · stories 自動パースは intake_from_asana のみ\n- **P2/P3:** task-retrospective-ssot.md opt-in/opt-out 矛盾 · all-teams-dryrun audit 節古い\n\n### 参照\n\n- セッション引き継ぎ: [`output/platform/session-handoff/2026-06-08-completion-roadmap-m4-m5.md`](../../../../output/platform/session-handoff/2026-06-08-completion-roadmap-m4-m5.md)\n- M5 delivery: [`docs/verification/platform/retro-intake-phase2-delivery.md`](../../platform/retro-intake-phase2-delivery.md)\n- Handoff SSOT: [`m5.1-retro-loop-followup.json`](m5.1-retro-loop-followup.json)"
+  },
+  "subtasks": [
+    {
+      "title": "create_retrospective_intake_gate.py 修復 + unittest",
+      "pillar": "platform",
+      "department": "development",
+      "background": "M5 完了判定をすり抜けた SyntaxError。return 0 直後に孤立した subprocess 引数があり CLI 実行不能。【承認】レトロ改善候補サブが作れず学習ループ中核が止まる。",
+      "summary": "`create_retrospective_intake_gate.py` の cmd 組み立てを修復。`test_create_retrospective_intake_gate.py` を新設（notes 生成 · opt-out · gate 作成コマンド組み立てを mock 検証）。",
+      "done_when": "CLI が SyntaxError なく import/実行可能。unittest green。epic-retrospective-intake dryrun 手順で gate 作成ステップが再現可能。"
+    },
+    {
+      "title": "assign plan 例への include_retro_subtasks 展開",
+      "pillar": "platform",
+      "department": "development",
+      "background": "Phase 2 で pm_assign_subtasks は retro 同梱を実装済みだが、代表 assign plan JSON（lite / full-ui / dryrun 用）に include_retro_subtasks が無く実運用で [retro] が展開されない。",
+      "summary": "skills/*/examples/assign-plan.*.json の代表例（lite-v1 · full-ui-v1 · run_all_teams_dryrun DEPT_PLANS）に include_retro_subtasks: true を追加。validate_ssot_contract pass。",
+      "done_when": "代表 assign plan 3 件以上更新。test_pm_assign_subtasks_retro green。epic-retrospective-intake dryrun 追記 1 本。"
+    },
+    {
+      "title": "gate 承認サブコメント → requester-notes 自動注入",
+      "pillar": "platform",
+      "department": "development",
+      "background": "intake_from_asana は stories から requester_comments[] を取得するが、create_retrospective_intake_tasks は gate 承認時 --requester-notes 手入力のまま。",
+      "summary": "create_retrospective_intake_tasks（または gate check 連携）が【承認】レトロ改善候補サブの stories から依頼者コメントを自動取得し --requester-notes 省略可能に。unittest 追加。",
+      "done_when": "CLI 更新 + unittest。task-retrospective-ssot.md に自動取得節追記。"
+    },
+    {
+      "title": "task-retrospective-ssot 整合 + all-teams-dryrun audit 追記",
+      "pillar": "platform",
+      "department": "development",
+      "background": "task-retrospective-ssot.md が opt-in のみ記述と Phase 2 default-on が矛盾。all-teams-dryrun.md は 2026-06-06 で audit 節なし。",
+      "summary": "SSOT の gate 節を default-on に統一（legacy opt-in トリガーは別節）。docs/verification/cross-team/all-teams-dryrun.md に audit チーム節追記。",
+      "done_when": "task-retrospective-ssot.md 更新。all-teams-dryrun.md audit 節追記。validate 3 本 exit 0。"
+    },
+    {
+      "title": "[M5.1] 学習ループ精度 — マイルストーン",
+      "pillar": "platform",
+      "department": "governance",
+      "background": "M5.1 子 1–4 完了後の節目。M6 着手前のゲート。",
+      "summary": "本 Epic 子 1–4 complete + unittest/validate pass を確認。依頼者向けコメント 1 件。",
+      "done_when": "子 1–4 complete。test_create_retrospective_intake_gate + 関連 unittest green。本タスク complete。"
+    }
+  ]
+}

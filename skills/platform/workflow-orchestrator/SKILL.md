@@ -125,6 +125,32 @@ python tools/epic_retrospective_complete_hook.py --epic <親GID>
 
 その後 `complete_task.py --gid <親GID> -y`。監査子未完了の親 complete は禁止。
 
+**マイルストーン tracker 締め（MS5+ · ロードマップ `[M4]`…`[M9]` / 自律評価 `[MSn]`）:**
+
+作業 Epic とは別に、節目トラッカー子を complete する前に必ず実行する（依頼者の振り返り依頼不要）。
+
+```powershell
+python tools/emit_milestone_effectiveness_report.py `
+  --checklist docs/verification/fixtures/milestone-readiness/<checklist>.json `
+  --tracker-gid <トラッカー子GID> --strict
+
+python tools/epic_milestone_readiness_hook.py --task <トラッカー子GID>
+```
+
+| score / status | 動作 |
+|----------------|------|
+| achieved（≥80） | comment に summary md 要約 → トラッカー complete 可 |
+| warn（70–79） | complete 可 · `create_milestone_followup_subtasks.py --dry-run` で候補確認 |
+| not_achieved（<70） | **complete 禁止** · `--apply -y` でフォローアップ子起票 |
+
+```powershell
+python tools/create_milestone_followup_subtasks.py `
+  --report output/governance/milestone-reports/<tracker_gid>-readiness.json `
+  --parent <親EpicGID> --apply -y
+```
+
+SSOT: [`docs/design/milestone-effectiveness-standard.md`](../../../docs/design/milestone-effectiveness-standard.md)
+
 ### E. asana_execute 後（execution 系 — 必須分離）
 
 企画 gate で `handoff_to_asana.py` を実行した**後**:

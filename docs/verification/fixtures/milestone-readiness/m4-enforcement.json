@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "milestone_id": "m4-enforcement",
+  "title": "M4 80% Enforcement 実装",
+  "work_epic_gid": "1215475080199865",
+  "min_score_achieved": 80,
+  "min_score_warn": 70,
+  "checks": [
+    {
+      "id": "pm_intake_gate_help",
+      "description": "pm_intake_gate.py --help が動作する",
+      "check_type": "cli_help",
+      "target": "tools/pm_intake_gate.py",
+      "weight": 10,
+      "axis": "parts",
+      "severity_on_fail": "P0"
+    },
+    {
+      "id": "pm_intake_gate_unittest",
+      "description": "test_pm_intake_gate が pass",
+      "check_type": "unittest",
+      "unittest_module": "tools.test_pm_intake_gate",
+      "weight": 15,
+      "axis": "parts",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "fix_r3_unittest",
+      "description": "fix R3 / kick guard 関連 unittest が pass",
+      "check_type": "unittest",
+      "unittest_module": "tools.test_pm_create_fix_subtask",
+      "weight": 15,
+      "axis": "parts",
+      "severity_on_fail": "P1"
+    },
+    {
+      "id": "delivery_followup_delivery_md",
+      "description": "M4 delivery 記録が存在する",
+      "check_type": "file_exists",
+      "target": "docs/verification/governance/delivery-quality-followup-delivery.md",
+      "weight": 10,
+      "axis": "e2e",
+      "severity_on_fail": "P2"
+    },
+    {
+      "id": "intake_gate_full_ui",
+      "description": "full-ui で AC Must / 実行契約チェックが SSOT に記載",
+      "check_type": "rg_pattern",
+      "target": "docs/design/development-delivery-io.md",
+      "pattern": "pm_intake_gate",
+      "weight": 10,
+      "axis": "enforcement",
+      "severity_on_fail": "P2"
+    }
+  ]
+}

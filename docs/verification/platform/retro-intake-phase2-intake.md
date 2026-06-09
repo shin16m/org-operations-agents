@@ -44,3 +44,9 @@ python skills/platform/asana-buddy/optional/handoff_to_asana.py `
 ## 着手順
 
 follow-up Epic（`1215475080199865`）完了後、または並行不可の場合は **follow-up を先**（納品 enforcement が優先）。同一 watch 下では Execution Order 1 から。
+
+## 完了（2026-06-08）
+
+- 子 8 件 + 親 Epic 完了
+- delivery 記録: [`retro-intake-phase2-delivery.md`](retro-intake-phase2-delivery.md)
+- ロードマップ M5 トラッカー `1215475369302645` complete

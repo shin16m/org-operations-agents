@@ -17,6 +17,29 @@
 2. ssot-implementer / governance-reviewer へ委譲
 3. 全サブ完了後 comment → complete → `DeptWorkComplete`（`department: governance`）
 
+## マイルストーン tracker 締め（必須 · MS3+）
+
+タイトルに `[M4]` `[M5]` `[MSn]` または notes に `milestone_tracker: true` がある子は **節目トラッカー**。作業 Epic の子 complete だけでは閉じない。
+
+**complete 前（必須）:**
+
+```powershell
+python tools/check_milestone_readiness.py `
+  --checklist docs/verification/fixtures/milestone-readiness/<checklist>.json `
+  --tracker-gid <子GID> `
+  --out output/governance/milestone-reports/<子GID>-readiness.json `
+  --strict
+python tools/epic_milestone_readiness_hook.py --task <子GID>
+```
+
+| 判定 | 動作 |
+|------|------|
+| score ≥ 80（achieved） | comment にレポート要約 → complete 可 |
+| 70–79（warn） | complete 可だが gaps を comment · follow-up 起票推奨 |
+| < 70（not_achieved） | **complete 禁止**（`--strict` / hook BLOCK 時） |
+
+SSOT: [`docs/design/milestone-effectiveness-standard.md`](../../../docs/design/milestone-effectiveness-standard.md)
+
 ## やらないこと
 
 - Handoff 設計（→ issue-story-planner / 企画）

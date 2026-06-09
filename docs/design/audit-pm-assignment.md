@@ -32,6 +32,8 @@
 
 プラン例: [`assign-plan.org-governance-v1.json`](../../skills/audit/examples/assign-plan.org-governance-v1.json)
 
+マイルストーン tracker 監査: [`assign-plan.milestone-tracker-audit-v1.json`](../../skills/audit/examples/assign-plan.milestone-tracker-audit-v1.json)
+
 ## 参照
 
 - [`audit-delivery-io.md`](audit-delivery-io.md)
