@@ -59,6 +59,7 @@ def _run_cli_help(target: str) -> tuple[bool, str]:
         capture_output=True,
         text=True,
         encoding="utf-8",
+        errors="replace",
     )
     if r.returncode != 0:
         detail = (r.stderr or r.stdout or "").strip()[:300]
@@ -69,7 +70,9 @@ def _run_cli_help(target: str) -> tuple[bool, str]:
 def _run_unittest(module_spec: str) -> tuple[bool, str]:
     modules = module_spec.split()
     cmd = [str(PY), "-m", "unittest", *modules, "-q"]
-    r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+    r = subprocess.run(
+        cmd, cwd=ROOT, capture_output=True, text=True, encoding="utf-8", errors="replace"
+    )
     if r.returncode != 0:
         detail = (r.stderr or r.stdout or "").strip()[:400]
         return False, detail or f"exit {r.returncode}"
@@ -120,7 +123,14 @@ def _check_validate_script(target: str) -> tuple[bool, str]:
     path = ROOT / target
     if not path.is_file():
         return False, f"missing: {target}"
-    r = subprocess.run([str(PY), str(path)], cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+    r = subprocess.run(
+        [str(PY), str(path)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
     if r.returncode != 0:
         detail = (r.stderr or r.stdout or "").strip()[:300]
         return False, detail or f"exit {r.returncode}"

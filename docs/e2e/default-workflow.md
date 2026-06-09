@@ -149,6 +149,7 @@ v2 手順の記録: [`docs/verification/archive/`](../verification/archive/READM
 
 ## 検証記録
 
+- **chat-driven 移行:** [`docs/verification/platform/chat-driven-ops-dryrun.md`](../verification/platform/chat-driven-ops-dryrun.md) · [`chat-driven-ops-migration-handoff.md`](../verification/platform/chat-driven-ops-migration-handoff.md)
 - v3 dryrun: [`docs/verification/planning/planning-dept-v3-dryrun.md`](../verification/planning/planning-dept-v3-dryrun.md) · [`all-teams-dryrun.md`](../verification/cross-team/all-teams-dryrun.md)
 - v2 履歴: [`docs/verification/archive/default-v2-dryrun.md`](../verification/archive/default-v2-dryrun.md) · [`archive/orchestrator-intake-v2-dryrun.md`](../verification/archive/orchestrator-intake-v2-dryrun.md)
 - v3 組織変更: 本ドキュメント · [`docs/design/planning-delivery-io.md`](../design/planning-delivery-io.md)

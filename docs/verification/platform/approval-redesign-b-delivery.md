@@ -1,5 +1,7 @@
 # 承認フロー再設計 B — 承認ヘルパー（監視・CF 更新）— delivery
 
+> **履歴（RETIRED · 2026-06-09）** — `approval_helper.py` 削除済。本番は [chat-driven-ops.md](../../design/chat-driven-ops.md) · [approval-flow.md](../../design/approval-flow.md)（B 段階 RETIRED）。
+
 | 項目 | 値 |
 |------|------|
 | Asana 親 epic | `1215102437909462` |

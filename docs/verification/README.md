@@ -43,13 +43,15 @@
 
 | ファイル | 内容 |
 |----------|------|
-| [`orchestrator-intake-dryrun.md`](platform/orchestrator-intake-dryrun.md) | intake 入口化（v3） |
+| [`platform/README.md`](platform/README.md) | **active / RETIRED 索引** |
+| [`chat-driven-ops-dryrun.md`](platform/chat-driven-ops-dryrun.md) | **現行** — チャット入口移行 dryrun |
+| [`orchestrator-intake-dryrun.md`](platform/orchestrator-intake-dryrun.md) | intake 入口化（v3/v6） |
 | [`org-dispatch-pm-smoke.md`](platform/org-dispatch-pm-smoke.md) | dispatch → PM 配賦 |
 | [`agent-comment-smoke.md`](platform/agent-comment-smoke.md) | 署名付き comment / complete |
-| [`asana-driven-ops-dryrun.md`](platform/asana-driven-ops-dryrun.md) | **履歴** — Asana 自動化 Phase 1 |
 | [`approval-flow-e2e-dryrun.md`](platform/approval-flow-e2e-dryrun.md) | 承認フロー E2E |
+| [`asana-driven-ops-dryrun.md`](platform/asana-driven-ops-dryrun.md) | **履歴** — Asana 自動化 Phase 1 |
 
-→ 全件: [`platform/`](platform/) フォルダ参照
+→ 全件: [`platform/`](platform/) · RETIRED 一覧は [`platform/README.md`](platform/README.md) § 履歴
 
 ### planning（企画）
 

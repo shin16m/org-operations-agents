@@ -92,6 +92,7 @@ class TestCliIntegration(unittest.TestCase):
             capture_output=True,
             text=True,
             encoding="utf-8",
+            errors="replace",
         )
         self.assertEqual(r.returncode, 0)
         self.assertIn("--checklist", r.stdout)
@@ -108,6 +109,7 @@ class TestCliIntegration(unittest.TestCase):
             capture_output=True,
             text=True,
             encoding="utf-8",
+            errors="replace",
         )
         self.assertIn("MILESTONE_READINESS", r.stderr)
         self.assertIn("milestone_id", r.stdout)

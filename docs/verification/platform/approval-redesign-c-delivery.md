@@ -1,5 +1,7 @@
 # 承認フロー再設計 C — Ready 再開ループと NG 差し戻し — delivery
 
+> **履歴（RETIRED · 2026-06-09）** — 再開ループ CLI 削除済。本番は [chat-driven-ops.md](../../design/chat-driven-ops.md) · [approval-flow.md](../../design/approval-flow.md)（C 段階 RETIRED）。
+
 | 項目 | 値 |
 |------|------|
 | Asana 親 epic | `1215089810887005` |
