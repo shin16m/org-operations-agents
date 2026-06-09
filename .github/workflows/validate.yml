@@ -66,8 +66,3 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         run: pytest products/org-os/tests -q
-
-      - name: Run org-os integration smoke test
-        env:
-          PYTHONIOENCODING: utf-8
-        run: python tools/test_org_os_integration.py -v

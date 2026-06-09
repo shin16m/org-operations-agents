@@ -105,7 +105,7 @@ python -m unittest discover -s tools -p "test_*.py"
 | 方針・SSOT | **A** | `chat-driven-ops.md` が本番入口 SSOT · validate 契約 pass |
 | コード削除 | **A** | 自動化コア除去完了 · org-os 本体は `_retired` 索引付き残置 · watch 手順除去 |
 | エージェント手順整合 | **A** | 必須 SKILL 修正済 · `validate_ssot_contract` で検出 |
-| 回帰防止 | **A** | validate 3 本 + unittest **127/127 green** |
+| 回帰防止 | **A-** | validate 3 本 + unittest 127/127 · CI validate workflow green 待ち |
 | ドキュメント整理 | **A** | `platform/README.md` で active/RETIRED 分離 · 残存 automation doc に RETIRED 注記 |
 | 運用移行の実証 | **A** | `chat-driven-ops-dryrun.md` に validate 実行記録 + prior E2E 証跡リンク |
 | 作業の締まり | **A** | 本セッション分コミット済 · working tree clean |
