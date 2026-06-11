@@ -1,7 +1,7 @@
 # product-manager 厳密運用 — チーム内アサインと delivery profile
 
-| 版 | 1.4 |
-| 日付 | 2026-05-23 |
+| 版 | 1.5 |
+| 日付 | 2026-06-11 |
 | 適用 | 開発チーム L3（`development-delivery` v3） |
 
 ## 原則
@@ -43,6 +43,7 @@
 | 技術設計 | `output/development/design/<sub_gid>-design.md` | tech-designer |
 | 実装 | `output/development/app/` ・別リポジトリ | developer |
 | 事後仕様 | `output/development/specs/<sub_gid>-spec.md` | requirements-writer |
+| 説明文書 | `output/development/documents/` · `output/platform/documents/` · `docs/inventory/`（catalog） | document-author |
 | レビュー | `output/development/reviews/` | dev-reviewer / qa-verifier |
 | UX 実装一致 | `output/ux/reviews/`（ux_implementation） | ux-reviewer |
 
@@ -92,13 +93,14 @@ profile: full-ui
 | `full` | なし（ux_implementation 除く） | API / 非 UI |
 | **`full-ui`** | なし | **`## 依存` に UX artifact 必須** |
 | `lite` | tech-designer / design review | **画面タッチの子では禁止** |
-| `doc-only` | 設計・実装・code/ux/verification review | 仕様のみ |
+| `doc-only` | 設計・実装・code/ux/verification review | **仕様整備**（requirements-writer 経路）。**読み手向け説明文書**だけなら `document-author` を assign（workflow step 外） |
 
 ### profile 選定ガイド（依頼文 → profile）
 
 | 依頼のキーワード・状況 | 推奨 profile | 避ける profile |
 |------------------------|--------------|----------------|
 | org-meta · SSOT · SKILL · workflow YAML · 本リポジトリのみ | **doc-only** | full-ui |
+| 依頼者向け企画書 · レポート · カタログのみ | **doc-only** + `担当: document-author` | requirements-writer 経路（仕様 AC 不要なら省略可） |
 | 画面 · UI · Web · Figma · UX 仕様参照 | **full-ui**（UX 子完了後） | lite |
 | API のみ · バックエンド · CLI · 小さな修正 | **full** または **lite** | full-ui |
 | バグ修正 · 1 ファイル · 設計不要 | **lite**（非 UI のみ） | full-ui |

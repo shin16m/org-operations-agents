@@ -1,14 +1,18 @@
 # スキル棚卸し（org-operations-agents）
 
-更新: 企画チーム L3 化（planning-pm ハブ + planning-delivery）後。
+| 版 | 1.1 |
+| 日付 | 2026-06-11 |
+| enabled slug | **33**（[`agent-registry.yaml`](../../workflows/agent-registry.yaml) と同期） |
 
-設計参照: [`workflows/default.yaml`](../../workflows/default.yaml) · [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml) · [`workflows/with-dispatch.yaml`](../../workflows/with-dispatch.yaml) · [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml)
+設計参照: [`workflows/default.yaml`](../../workflows/default.yaml) v6 · [`workflows/planning-delivery.yaml`](../../workflows/planning-delivery.yaml) · [`workflows/with-dispatch.yaml`](../../workflows/with-dispatch.yaml) · [`workflows/agent-registry.yaml`](../../workflows/agent-registry.yaml)
+
+人間向け索引: [`org-operations-agents-system-catalog.md`](org-operations-agents-system-catalog.md)
 
 ## 新規エージェント作成の入口
 
 **`agent-creater` のみ**が `skills/<organization>/<slug>/` の設計・雛形を生成する。他スキル・オーケストレーターは新規フォルダを作らない。
 
-## 標準パイプライン（default v3）
+## 標準パイプライン（default v6）
 
 パイプライン SSOT: [`docs/design/workflow-io-contract.md`](../design/workflow-io-contract.md)
 
@@ -26,6 +30,7 @@
 | `task-dispatcher` | 業務 | `dispatch` | 実装済 | `DispatchRequest` → チーム entry 委譲 |
 | `product-manager` | 業務 | 開発チームハブ | 実装済 | 子 1 件 → `DeptWorkComplete` |
 | `requirements-writer` | 業務 | 開発チーム | 実装済 | 要件定義・事後仕様 |
+| `document-author` | 業務 | 開発チーム | 実装済 | 読み手向け説明文書 · 企画書 · カタログ（[`document_request`](../design/wakuoke-intake-modes.md#d-文書化依頼document_request) / PM doc-only 委譲） |
 | `tech-designer` | 業務 | 開発チーム | 実装済 | 技術設計 |
 | `developer` | 業務 | 開発チーム | 実装済 | 実装・修正 |
 | `dev-reviewer` | 業務 | 開発チーム | 実装済 | 文書・コード・整合レビュー |

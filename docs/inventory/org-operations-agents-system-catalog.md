@@ -1,6 +1,6 @@
 # org-operations-agents — システムカタログ
 
-| 版 | 1.1 |
+| 版 | 1.2 |
 | 日付 | 2026-06-11 |
 | Epic GID | 1215611835710268 |
 | スコープ | Epic「ドキュメント作成ロール・スキル追加」完了時点 |
@@ -28,7 +28,7 @@ flowchart LR
   W --> OUT[output/]
 ```
 
-**エージェント総数:** 37 slug（すべて enabled）
+**エージェント総数:** 33 slug（すべて enabled）
 
 ## 詳細
 
@@ -140,7 +140,7 @@ flowchart LR
 | 種別 | 内容 |
 |------|------|
 | 新 slug | `document-author` |
-| UX テンプレ | `output/ux/document-author/`（4 点） |
+| UX テンプレ | `output/ux/document-author/`（4 点 · **git 管理**） |
 | orchestrator | §A-5 document_request · §D epic_documentation |
 | 設計 doc | `output/governance/document-author-design.md` |
 

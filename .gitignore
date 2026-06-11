@@ -37,3 +37,7 @@ output/**/*
 !output/README.md
 !output/**/README.md
 !output/**/.gitkeep
+# document-author UX templates (SSOT — tracked for clone reproducibility)
+!output/ux/
+!output/ux/document-author/
+!output/ux/document-author/**

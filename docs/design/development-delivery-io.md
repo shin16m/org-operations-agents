@@ -19,11 +19,21 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 |------|------|------|
 | product-manager | dept_orchestrate | 進行・profile・委譲・完了 |
 | requirements-writer | dept_work | 要件定義・事後詳細仕様 |
+| document-author | dept_work | **読み手向け**説明文書 · 企画書 · カタログ（workflow 上は orchestrator 横断 dispatch が主経路） |
 | tech-designer | dept_work | 技術設計（実装前） |
 | developer | dept_work | 実装 |
 | dev-reviewer | dept_review | 要件・設計・コード・mismatch レビュー |
 | qa-verifier | dept_review | 動作検証 |
 | ux-reviewer | dept_review | **full-ui** 時の実装一致 review（UX チーム所属・開発 PM から委譲） |
+
+**`document-author` と `requirements-writer` の棲み分け:**
+
+| slug | 成果物の性質 | 典型経路 |
+|------|--------------|----------|
+| requirements-writer | 要件定義 · 事後詳細仕様（AC · 契約 · 実装向け） | development-delivery · profile `doc-only` 含む |
+| document-author | 依頼者向け企画書 · レポート · システムカタログ（読み手向け） | 和久桶 `document_request` · `epic_documentation` · PM が doc-only 子で明示 assign |
+
+`development-delivery.yaml` に document-author step は載せない（第一版）。PM が読み手向け文書だけ欲しいときは assign plan で `担当: document-author` を指定する。
 
 ---
 
@@ -55,12 +65,22 @@ workflow: [`workflows/development-delivery.yaml`](../../workflows/development-de
 
 ## doc-only 経路（サマリ）
 
+**A. 仕様整備（既定 · development-delivery workflow）**
+
 ```
 product-manager → pm_assign（要件 + review + 事後仕様 + mismatch）→ 【レビュー】人間
   → requirements-writer（要件）→ dev-reviewer → requirements-writer（spec）→ dev-reviewer
 ```
 
-設計・developer・qa-verifier は workflow 上 skip。詳細: [`development-pm-assignment.md`](development-pm-assignment.md) profile 選定ガイド。
+**B. 読み手向け説明文書（workflow step 外 · 明示 assign）**
+
+```
+workflow-orchestrator（document_request / epic_documentation）
+  または product-manager → pm_assign（担当: document-author）
+  → document-author → dev-reviewer（任意）
+```
+
+設計・developer · qa-verifier は workflow 上 skip（A）。B はテンプレ [`output/ux/document-author/`](../../output/ux/document-author/) 準拠。詳細: [`development-pm-assignment.md`](development-pm-assignment.md) · [`document-author` SKILL](../../skills/development/document-author/SKILL.md)
 
 ## チーム内 workflow（v3）
 
@@ -163,6 +183,7 @@ BLOCKED 時は `pm_assign_subtasks` 前に UX / 企画へ差し戻し。参照: 
 | 技術設計 | tech-designer | 設計書 | `output/development/design/<task_gid>-design.md` |
 | 実装 | developer | コード | 別リポジトリまたは本リポジトリ |
 | 事後仕様 | requirements-writer | 詳細仕様書 | `output/development/specs/<task_gid>-spec.md` |
+| 説明文書 | document-author | 企画書 · レポート · カタログ | `output/development/documents/<task_gid>/` · `output/platform/documents/<epic_gid>/` · `docs/inventory/`（catalog 正本） |
 | Asana 添付 | requirements-writer | 要件 / 仕様 md | worker + review サブ attachment（`attach_task_files.py --also-gid`） |
 | レビュー | dev-reviewer / qa-verifier / ux-reviewer | 各 Result JSON | `output/development/reviews/` · `output/ux/reviews/` |
 
