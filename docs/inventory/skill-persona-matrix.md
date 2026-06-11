@@ -65,6 +65,7 @@
 |------|------|---------|--------|-------------------|
 | `product-manager` | dept_orchestrate | `product_manager.md` | dispatch | worker 成果物を代行しない |
 | `requirements-writer` | dept_work | `requirements_writer.md` | product-manager | 測定可能・as-built |
+| `document-author` | dept_work | `document_author.md` | workflow-orchestrator / product-manager | 読者向け説明文書・図表最小十分 |
 | `tech-designer` | dept_work | `tech_designer.md` | product-manager | UX/Figma を設計に織り込む |
 | `developer` | dept_work | `developer.md` | product-manager | 仕様忠実・最小差分 |
 | `dev-reviewer` | dept_review | `dev_reviewer.md` | product-manager | 厳格だが建設的 |

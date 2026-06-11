@@ -41,6 +41,20 @@
 - コントラスト・フォーカス表示方針
 - エラー・空状態の明示
 
+## 100% polish ゲート（ux_implementation · completion_target: 100）
+
+`full-ui` かつ requirements / 親 notes に `completion_target: 100` があるとき、**ux_implementation** レビューで以下を Must 確認:
+
+| 観点 | failed 例 |
+|------|-----------|
+| a11y | フォーカス不可 · コントラスト未考慮 |
+| エラー UI | API 503 等で無反応 · 技術メッセージ直出し |
+| 空状態 | 0 件時に真っ白 · 次アクション無し |
+
+`UxReviewResult` に `polish_checklist_passed: true` を記載。例: [`ux-review-polish-100pct.v1.json`](../../../docs/verification/fixtures/ux/ux-review-polish-100pct.v1.json)
+
+参照: [`delivery-completion-standard.md`](../../../docs/design/delivery-completion-standard.md) v2 · [`ux-delivery-io.md`](../../../docs/design/ux-delivery-io.md) §100% polish
+
 ## Asana
 
 ```powershell

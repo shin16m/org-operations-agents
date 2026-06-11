@@ -115,6 +115,19 @@ agents:
       reads:
         - workflows/development-delivery.yaml
 
+  - slug: document-author
+    slot: dept_work
+    skill_path: skills/development/document-author
+    enabled: true
+    note: 説明文書・レポート・企画書・システムカタログ（読み手向け）
+    io:
+      input_kind: asana_subtask_notes
+      schema_doc: docs/design/development-delivery-io.md
+      artifact_root: output/development/documents/
+      reads:
+        - output/ux/document-author/
+        - workflows/development-delivery.yaml
+
   - slug: tech-designer
     slot: dept_work
     skill_path: skills/development/tech-designer

@@ -1,0 +1,24 @@
+{
+  "parent_title": "UX: 文書構成・図表ガイドライン策定",
+  "profile": "lite",
+  "subtasks": [
+    {
+      "name": "【1/2・UX】文書テンプレ・図表ガイド作成（ux-designer）",
+      "assignee": "ux-designer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "document-author 向けに、汎用説明文書・企画書・システムカタログの 3 種テンプレと図表ガイドを策定する。Figma 新規は不要（lite）。読み手の認知負荷を下げる IA・構成を設計する。",
+      "summary": "`output/ux/document-author/` に 4 点の MD を作成: (1) 汎用説明文書テンプレ (2) 企画書テンプレ (3) システムカタログテンプレ (4) 図表ガイド。各テンプレに背景/概要/詳細/まとめの最小構成と Mermaid・表の使い所を記載。Canvas 活用の可否をコメント。",
+      "done_when": "4 つの MD が保存され、ux-designer が comment_task 完了。"
+    },
+    {
+      "name": "【2/2・UX】文書テンプレ ux_spec レビュー（ux-reviewer）",
+      "assignee": "ux-reviewer",
+      "department": "ux",
+      "status": "assigned",
+      "background": "document-author テンプレの IA・読みやすさ・完了条件充足をレビューする。",
+      "summary": "review_kind: ux_spec。4 テンプレの構成一貫性・図表ガイドの実用性を UxReviewResult で記録。",
+      "done_when": "UxReviewResult が passed または passed_with_notes。comment_task 完了。"
+    }
+  ]
+}

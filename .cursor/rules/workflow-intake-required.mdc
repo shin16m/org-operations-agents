@@ -17,6 +17,7 @@ alwaysApply: true
 |--------|------|
 | 課題受付 / タスク作成依頼 | intake → bootstrap → dispatch |
 | Epic インプット | **intake/bootstrap 省略** → dispatch（既存 Epic） |
+| **文書化依頼** | **「文書化して」→ document-author**（bootstrap 省略 · 同一セッション） |
 
 相談内容が組織変更・新 department・監査強化など **本リポジトリ自身のメタ変更**でも例外にしない（企画 → gate → development / audit 等の execution 子で実施）。
 
@@ -78,7 +79,7 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 ## 禁止（明示指示がない限り）
 
 - Handoff なしで製品実装をこのリポジトリに直接書き始める
-- **和久桶さん相談を受けて intake / bootstrap を飛ばす**（**例外:** `epic_input` — 既存 Epic 遂行のみ）
+- **和久桶さん相談を受けて intake / bootstrap を飛ばす**（**例外:** `epic_input` — 既存 Epic 遂行 · **`document_request` — document-author 文書化**）
 - `plan-reviewer` を飛ばして Asana 投入する
 - **org-ops-watch / asana_ops_poller / org-os watch を本番運用として案内する**
 - `complete_task.py` だけ実行し、署名コメントを省略する
@@ -98,4 +99,6 @@ L1: intake → bootstrap → dispatch（企画） → L3 planning-delivery（Han
 
 ## 開始時の一言（エージェント）
 
-**和久桶さん / 実装・機能追加・組織変更の依頼**を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、plan-reviewer 通過後に Asana 投入まで同一セッションで進める**旨を短く伝える。本体実装・メタ doc 更新は **`asana_execute` 後の execution 系 dispatch**で進める。
+**和久桶さん / 実装・機能追加・組織変更の依頼**を受けたら、最初に **intake として方針を示し**、**bootstrap → dispatch（企画チーム）まで進め、plan-reviewer 通過後に Asana 投入まで同一セッションで進める**旨を短く伝える。
+
+**「文書化して」**を受けたら、Epic 起票せず **document-author として同一セッションで執筆**する（[`wakuoke-intake-modes.md`](docs/design/wakuoke-intake-modes.md) §D）。

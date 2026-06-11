@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "status": "passed_with_notes",
+  "summary": "100% Epic: エッジケース AC 3 カテゴリ（空・403・タイムアウト）が要件に記載。",
+  "review_kind": "requirements",
+  "completion_target": "100",
+  "findings": [
+    {
+      "severity": "low",
+      "category": "edge_case",
+      "message": "AC-EC-1 error-demo 503 でタイムアウト相当をカバー。"
+    }
+  ]
+}

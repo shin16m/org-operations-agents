@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.1",
+  "status": "passed",
+  "summary": "full-ui 100%: a11y · エラー UI · 空状態チェックリスト pass。",
+  "review_kind": "ux_implementation",
+  "polish_checklist_passed": true,
+  "findings": []
+}

@@ -1,7 +1,7 @@
 # 和久桶さん intake モード — SSOT
 
-| 版 | 1.0 |
-| 日付 | 2026-06-09 |
+| 版 | 1.1 |
+| 日付 | 2026-06-11 |
 | 状態 | **本番標準** |
 | SSOT id | `wakuoke-intake-modes` |
 | 親 SSOT | [`chat-driven-ops.md`](chat-driven-ops.md) |
@@ -10,13 +10,14 @@
 
 和久桶さん（`workflow-orchestrator`）の **依頼受付（intake）に幅を持たせる**。依頼の性質に応じて入口を選びつつ、**企画 → gate → Asana 投入 → execution dispatch** の正規パイプラインは維持する。
 
-## 三つの intake モード
+## 四つの intake モード（+ asana_task 変種）
 
 | モード | `intake_mode` | いつ使う | intake | bootstrap | 以降 |
 |--------|---------------|----------|--------|-----------|------|
 | **A. 課題受付** | `natural_language`（既定） | 簡単な依頼・機能追加・組織変更 | 生課題を受け取り方針提示 | 親 Epic + 企画子 1 件 | planning → execution dispatch |
 | **B. タスク作成依頼** | `task_creation_request` | タスク化の相談・起票方針の相談 | 相談内容を整理し Epic 構成を合意 | 合意後に Epic + 子を起票 | planning（必要時）→ dispatch |
 | **C. Epic インプット** | `epic_input` | **既存 Epic** を渡して遂行再開 | **省略**（Epic は既存） | **省略** | 状態確認 → dispatch（企画 or execution） |
+| **D. 文書化依頼** | `document_request` | **説明文書・レポートだけ**欲しい | 短い依頼で可 | **省略** | **document-author**（同一セッション） |
 
 ### 共通原則
 
@@ -118,6 +119,28 @@ Epic 構成とマイルストーン案を提示し、合意後に bootstrap → 
 
 ---
 
+## D. 文書化依頼（`document_request`）
+
+**用途:** **「和久桶さん、文書化して」** だけで説明文書・レポートを得る。Epic 起票 · タスク遂行は不要。
+
+**依頼例:**
+
+```
+和久桶さん、文書化して
+〈Asana URL またはチャット本文〉
+```
+
+**手順:**
+
+1. 和久桶が `document_request` と判定（**「文書化」は Asana URL より優先** — bootstrap / Epic 遂行にしない）
+2. 必要なら `intake_from_asana.py` で snapshot（**入力読取のみ**）
+3. **同一セッション内**で [`document-author`](../../skills/development/document-author/SKILL.md) として執筆
+4. `comment_task.py --agent document-author` · 任意 `attach_task_files.py`
+
+**禁止:** 和久桶（orchestrator）名義で MD を書いて完了する。
+
+---
+
 ## Epic マイルストーンと着実な進行
 
 Epic 遂行では **マイルストーンを設定し、節目ごとに着実に対応を進める** ことを標準とする。
@@ -155,12 +178,13 @@ Epic 遂行では **マイルストーンを設定し、節目ごとに着実に
 
 ## モード判定（エージェント）
 
-依頼文のキーワードで初期 `intake_mode` を推定する。曖昧ならチャットで 1 問確認。
+依頼文のキーワードで初期 `intake_mode` を推定する。**上から順に優先。** 曖昧ならチャットで 1 問確認。
 
 | シグナル | モード |
 |----------|--------|
+| **「文書化」「まとめて」「資料に」「レポート」** | **`document_request`**（Asana URL 添付でも可） |
 | 「タスク化」「起票の相談」「Epic の切り方」 | `task_creation_request` |
-| Epic URL/GID + 「インプット」「遂行」「再開」「dispatch のみ」 | `epic_input` |
+| Epic URL/GID + 「インプット」「遂行」「再開」「dispatch」「すすめて」（**文書化なし**） | `epic_input` |
 | 上記以外（「お願いします」「作って」「課題」） | `natural_language` |
 
 ---
@@ -173,6 +197,7 @@ Epic 遂行では **マイルストーンを設定し、節目ごとに着実に
 |--------|--------------------------|--------------|
 | A / B | `intake` | bootstrap 後に設定 |
 | C | `dispatch` | 依頼時に設定 |
+| D | `dispatch` | 不要（Asana は入力ソースのみ） |
 
 ---
 
@@ -190,3 +215,4 @@ Epic 遂行では **マイルストーンを設定し、節目ごとに着実に
 | 日付 | 内容 |
 |------|------|
 | 2026-06-09 | v1.0 — 三モード（課題受付 · タスク作成依頼 · Epic インプット）とマイルストーン 90 点目標を明文化 |
+| 2026-06-11 | v1.1 — **D. 文書化依頼**（`document_request`）追加。「文書化して」→ document-author 同一セッション委譲 |

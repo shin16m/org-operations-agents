@@ -1,0 +1,24 @@
+{
+  "parent_title": "開発: agent-creater で document-author スキル生成",
+  "profile": "doc-only",
+  "subtasks": [
+    {
+      "name": "【1/2・開発】document-author スキル・registry 実装（developer）",
+      "assignee": "developer",
+      "department": "development",
+      "status": "assigned",
+      "background": "governance 設計 doc と UX テンプレに基づき agent-creater 契約でスキル実体を作成。registry・display-names・orchestrator 追記を含む。",
+      "summary": "skills/development/document-author/ 作成。registry 登録。サンプル3本（単発・企画書・カタログ）。workflow-orchestrator §A-5 / epic_documentation 追記。",
+      "done_when": "SKILL.md 存在。registry enabled。サンプル3本保存。validate_org_registry exit 0。"
+    },
+    {
+      "name": "【2/2・開発】スキル doc review（dev-reviewer）",
+      "assignee": "dev-reviewer",
+      "department": "development",
+      "status": "assigned",
+      "background": "document-author SKILL とサンプル成果物の整合レビュー。",
+      "summary": "review_kind: requirements。DocReviewResult を output/development/reviews/ に保存。",
+      "done_when": "DocReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

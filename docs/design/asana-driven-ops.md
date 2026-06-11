@@ -617,3 +617,13 @@ python tools/asana_ops_poller.py --once --auto-bootstrap -y
 - UX: `output/ux/specs/1215086510974424-ux-spec.md`
 - development dryrun: [`asana-driven-ops-dryrun.md`](../verification/platform/asana-driven-ops-dryrun.md)
 - Agent Type CF: [`asana-assignee-type-field.md`](asana-assignee-type-field.md)
+
+## Phase 8 — 100% 品質連携（2026-06-11 · 履歴文書への追記）
+
+> **本番 SSOT は [`chat-driven-ops.md`](chat-driven-ops.md) v1.3。** 本節は M9 checklist 互換と履歴参照用。
+
+| 項目 | 参照 |
+|------|------|
+| 100% 完成度 | [`delivery-completion-standard.md`](delivery-completion-standard.md) v2 |
+| 残スコープ | M7 運用硬化（watch/Webhook）→ **チャット本番では対象外** |
+| KPI ベースライン | M6 70% → M9 85%（`aggregate_delivery_kpi.py`） |

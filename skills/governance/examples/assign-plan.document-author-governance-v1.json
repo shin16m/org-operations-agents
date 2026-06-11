@@ -1,0 +1,24 @@
+{
+  "parent_title": "組織改善: document-author の registry・workflow 設計",
+  "profile": "org-meta-lite",
+  "subtasks": [
+    {
+      "name": "【1/2・governance】document-author 設計 doc 作成（ssot-implementer）",
+      "assignee": "ssot-implementer",
+      "department": "governance",
+      "status": "assigned",
+      "background": "document-author の registry 配置・2 入口（epic_documentation / document_request）の I/O 契約を設計 doc に落とす。registry 本体の変更は development 子で実施。",
+      "summary": "`output/governance/document-author-design.md` に slug 配置・成果物ルート・委譲元・orchestrator 追記箇所を記載。`output/governance/document-author-intake-proposal.md` に wakuoke-intake-modes 追記案を記載。UX テンプレ `output/ux/document-author/` を参照。",
+      "done_when": "上記 2 MD が output/governance/ に保存。registry 追記項目が箇条書きで確定。validate は未実施（設計のみ）。"
+    },
+    {
+      "name": "【2/2・governance】設計レビュー（governance-reviewer）",
+      "assignee": "governance-reviewer",
+      "department": "governance",
+      "status": "assigned",
+      "background": "設計 doc が Handoff・依頼者の 2 経路要件と整合するかレビュー。",
+      "summary": "review_kind: org_meta。GovernanceReviewResult を output/governance/reviews/ に保存。",
+      "done_when": "GovernanceReviewResult が passed または passed_with_notes。"
+    }
+  ]
+}

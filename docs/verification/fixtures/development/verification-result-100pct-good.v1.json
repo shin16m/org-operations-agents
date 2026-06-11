@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.1",
+  "status": "passed",
+  "summary": "Must+Should 全 AC evidence 付き。completion_target 100。",
+  "review_kind": "verification",
+  "completion_target": "100",
+  "should_gaps": [],
+  "evidence": [
+    {
+      "ac_id": "AC-1",
+      "command": "python output/development/app/m6-full-ui-demo/serve.py",
+      "exit_code": 0,
+      "excerpt": "Listening on :8766"
+    },
+    {
+      "ac_id": "AC-2",
+      "command": "curl -s http://127.0.0.1:8766/api/health",
+      "exit_code": 0,
+      "excerpt": "{\"status\": \"ok\"}"
+    },
+    {
+      "ac_id": "AC-3",
+      "command": "curl -s http://127.0.0.1:8766/",
+      "exit_code": 0,
+      "excerpt": "完成度 80% 代表デモ"
+    },
+    {
+      "ac_id": "AC-EC-1",
+      "command": "curl -s -o NUL -w \"%{http_code}\" http://127.0.0.1:8766/api/error-demo",
+      "exit_code": 0,
+      "excerpt": "503"
+    }
+  ]
+}

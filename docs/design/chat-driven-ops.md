@@ -1,7 +1,7 @@
 # チャットドリブン運用 — org-ops SSOT
 
-| 版 | 1.2 |
-| 日付 | 2026-06-09 |
+| 版 | 1.3 |
+| 日付 | 2026-06-11 |
 | 状態 | **本番標準** |
 | SSOT id | `chat-driven-ops` |
 
@@ -31,11 +31,12 @@
 | **本番依頼** | Cursor チャットで **和久桶さん** に自然言語で依頼 | エージェント起動のトリガー |
 | **タスク作成依頼** | 「タスク化の相談」等で和久桶に相談 | `task_creation_request` — 合意後 Epic 起票 |
 | **Epic インプット** | 既存 Epic の URL/GID を渡して遂行再開 | `epic_input` — intake/bootstrap 省略 |
-| Asana タスク URL 渡し | チャット内で URL/GID を添えて依頼 | **手動** intake-asana（自動スキャンなし） |
+| **文書化** | 「和久桶さん、文書化して」+ URL または本文 | `document_request` — **document-author** へ同一セッション委譲 |
+| Asana タスク URL 渡し（遂行・起票） | チャット内で URL/GID を添えて依頼 | **手動** intake-asana または epic_input（**文書化キーワードが無い場合**） |
 | bootstrap / asana_execute | 和久桶セッション内で `handoff_to_asana.py` | **基本** — Asana 親 + 子の作成・更新 |
 | 子タスク遂行 | 各 PM / worker が Asana 子を消化 | `comment_task` → `complete_task`（署名付き） |
 
-intake 三モードの詳細: [`wakuoke-intake-modes.md`](wakuoke-intake-modes.md)
+intake 四モードの詳細: [`wakuoke-intake-modes.md`](wakuoke-intake-modes.md)
 
 ## 廃止するもの（Asana 自動化）
 
@@ -76,13 +77,22 @@ intake 三モードの詳細: [`wakuoke-intake-modes.md`](wakuoke-intake-modes.m
 
 ## 和久桶さんへの依頼文（テンプレ）
 
+**課題・機能追加:**
+
 ```
 和久桶さん、次の課題をお願いします。
 
 〈自然言語で依頼内容〉
-
-intake から bootstrap → 企画（Handoff → review → gate）→ Asana 投入 → execution 系 dispatch まで進めてください。
 ```
+
+**文書化（短くて OK）:**
+
+```
+和久桶さん、文書化して
+〈Asana URL または本文〉
+```
+
+→ 和久桶は **document-author** として同一セッションで執筆（Epic 起票しない）。
 
 ## ゲート（チャット前提）
 
@@ -119,4 +129,18 @@ opt-in 人間承認は**チャットで確認**。`--record-wait` · org-os Wait
 |------|------|
 | 2026-06-09 | v1.0 — Asana 自動化棄却 · チャット入口を本番標準に固定 |
 | 2026-06-09 | v1.1 — 用語定義追加。Asana タスク運用は基本として明記 |
-| 2026-06-09 | v1.2 — intake 三モード（[`wakuoke-intake-modes.md`](wakuoke-intake-modes.md)）参照追加 |
+| 2026-06-11 | v1.3 — **文書化依頼**（`document_request`）短い依頼例 · document-author 委譲 |
+| 2026-06-11 | v1.3 — **100% 品質連携**（M9）· M7 運用硬化はスコープ外 |
+
+## 100% 品質連携（M8/M9 · チャット本番）
+
+| 項目 | SSOT |
+|------|------|
+| 完成度定義 | [`delivery-completion-standard.md`](delivery-completion-standard.md) v2 |
+| 依頼者サマリ | [`epic-completion-summary-template.md`](epic-completion-summary-template.md) |
+| KPI 集約 | `tools/aggregate_delivery_kpi.py` |
+| 本番入口 | **本ドキュメント**（チャット）— watch / Webhook 無人 kick は不要 |
+
+**人間介入:** 【承認】【レビュー】サブと planning gate（opt-in）· R3 エスカレーションのみ。セッション起動は依頼者チャット → 和久桶。
+
+**M7 スコープ外:** Webhook 常駐 · org-ops-watch · 手動 kick 0 検証は Asana 自動化前提のため、100% ロードマップでは **キャンセルまたは別 Epic** とする。

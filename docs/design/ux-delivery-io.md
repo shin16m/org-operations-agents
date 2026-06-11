@@ -152,6 +152,20 @@ ux-pm（intake・profile・タスク洗い出し）
 
 ---
 
+## 100% polish（M8 · completion_target: 100）
+
+`full-ui` かつ development 側 `completion_target: 100` のとき、ux-reviewer **ux_implementation** で polish ゲート必須。
+
+| 観点 | UX 成果物での確認 |
+|------|-------------------|
+| a11y | spec にキーボード · コントラスト方針 |
+| エラー | 空状態 · API 失敗時の UI 案 |
+| polish | Figma にエラー/空状態フレーム |
+
+SSOT: [`delivery-completion-standard.md`](delivery-completion-standard.md) v2 · [`ux-reviewer` SKILL](../../skills/ux/ux-reviewer/SKILL.md)
+
+---
+
 ## やらないこと
 
 - Handoff 新規作成（→ 企画チーム）

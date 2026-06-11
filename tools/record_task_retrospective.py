@@ -25,7 +25,17 @@ def main() -> int:
     p.add_argument("--improve", action="append", default=[])
     p.add_argument("--intake-candidate", action="append", default=[])
     p.add_argument("--notes", default="")
+    p.add_argument(
+        "--completion-score",
+        type=float,
+        required=True,
+        help="Must AC pass rate 0-100 (delivery-completion-standard KPI)",
+    )
     args = p.parse_args()
+
+    if not 0 <= args.completion_score <= 100:
+        print("completion_score must be between 0 and 100", file=sys.stderr)
+        return 1
 
     OUT.mkdir(parents=True, exist_ok=True)
     path = OUT / f"{args.task}-retro.json"
@@ -38,6 +48,7 @@ def main() -> int:
         "improve": list(args.improve or []),
         "intake_candidates": list(args.intake_candidate or []),
         "notes": (args.notes or "").strip(),
+        "completion_score": round(float(args.completion_score), 2),
     }
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     print(path)

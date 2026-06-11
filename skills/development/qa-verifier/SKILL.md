@@ -21,6 +21,19 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 
 `status: passed*` のとき **Must AC 各行**について `evidence[]` に `{ ac_id, command, exit_code, excerpt? }` を記載。**evidence 無しで passed 禁止**（推測で passed にしない — persona 志向）。
 
+### completion_target: 100%（full / full-ui · M8+）
+
+親 notes または requirements 先頭に `completion_target: 100` があるとき:
+
+| ルール | 内容 |
+|--------|------|
+| Should AC | **全行**について evidence 必須。1 行でも欠落 → `status: failed` |
+| VerificationResult | `completion_target: "100"` を JSON に記載 |
+| should_gaps | 100% 時は **空配列のみ** passed 可。未達 Should は `should_gaps[]` + failed |
+| lite / doc-only | 本節 **対象外**（Should 60% ルールのまま） |
+
+参照: [`delivery-completion-standard.md`](../../../docs/design/delivery-completion-standard.md) v2 · 例: [`verification-result-100pct-good.v1.json`](../../../docs/verification/fixtures/development/verification-result-100pct-good.v1.json)
+
 ### full-ui + DashboardBundle 連携時の追加チェック
 
 notes `## 依存` に `dashboard-bundle.json` がある場合:

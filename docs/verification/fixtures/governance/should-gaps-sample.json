@@ -1,0 +1,14 @@
+[
+  {
+    "ac_id": "AC-3",
+    "priority": "Should",
+    "summary": "ダークモード切替 UI（polish）",
+    "verify_command": "curl -s http://localhost:8766/ | findstr theme-dark"
+  },
+  {
+    "ac_id": "AC-4",
+    "priority": "Should",
+    "summary": "エラー状態のトースト表示",
+    "verify_command": "curl -s -o NUL -w \"%{http_code}\" http://localhost:8766/api/error-demo"
+  }
+]

@@ -39,6 +39,7 @@ PM 委譲: [`docs/design/development-pm-assignment.md`](../../../docs/design/dev
 
 - `requirements`: `*-requirements.md` が **review サブ**一覧に無ければ **failed**（attach 欠落）
 - `requirements`: **§受け入れ基準** の Must AC に検証コマンド列が無い → **failed**（`category: acceptance_criteria`）。参照: [`acceptance-criteria-template.md`](../../../docs/design/acceptance-criteria-template.md)
+- `requirements`: `completion_target: 100` 時 — [`production-deploy-ac-template.md`](../../../docs/design/production-deploy-ac-template.md) · [`edge-case-ac-checklist.md`](../../../docs/design/edge-case-ac-checklist.md) · [`production-sla-template.md`](../../../docs/design/production-sla-template.md) 参照節が無い → **failed**（`category: completion_100_requirements`）
 - `mismatch`: `*-spec.md` が **review サブ**一覧に無ければ **failed**
 - attach 欠落時は PM へ差し戻し（requirements-writer の review サブ伝播手順の欠落修正）。レビュー JSON は `status: failed` + finding に `category: io_contract`
 

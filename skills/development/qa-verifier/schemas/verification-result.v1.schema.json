@@ -12,6 +12,22 @@
     },
     "summary": { "type": "string", "minLength": 1 },
     "review_kind": { "type": "string", "const": "verification" },
+    "completion_target": {
+      "type": "string",
+      "enum": ["80", "100"],
+      "description": "80=Should 60%+ pass可。100=Should 全行 evidence 必須。"
+    },
+    "should_gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["ac_id", "summary"],
+        "properties": {
+          "ac_id": { "type": "string" },
+          "summary": { "type": "string" }
+        }
+      }
+    },
     "evidence": {
       "type": "array",
       "items": {

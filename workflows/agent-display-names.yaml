@@ -10,6 +10,7 @@ display_names:
   task-dispatcher: タスク配賦
   product-manager: 開発 PM
   requirements-writer: 要件担当
+  document-author: ドキュメント作成担当
   tech-designer: 設計担当
   developer: 開発担当
   dev-reviewer: 開発レビュアー

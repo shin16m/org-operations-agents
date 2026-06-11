@@ -52,6 +52,18 @@ Phase 2: assign plan への [retro] 自動同梱 — plan フィールド `inclu
 | タスク単位 | `output/platform/retrospectives/<task_gid>-retro.json` |
 | エピック集約 | `output/platform/retrospectives/<parent_gid>-epic-retro.json` |
 
+### completion_score（Must AC pass 率 · 必須）
+
+worker レトロ JSON には **`completion_score`（0–100）** を必須とする（[`delivery-completion-standard.md`](delivery-completion-standard.md) § KPI）。
+
+| CLI | 動作 |
+|-----|------|
+| `record_task_retrospective.py --completion-score <0-100>` | 必須引数。Must AC pass 率を記録 |
+| `check_task_retrospective.py --task <GID>` | `completion_score` 欠落 · 範囲外で **exit 1** |
+| `check_task_retrospective.py --no-require-completion-score` | legacy 互換（非推奨） |
+
+KPI 集約: `python tools/aggregate_delivery_kpi.py [--parent EPIC_GID] [--json]`
+
 ## comment 必須節
 
 [`agent-asana-comment-signature.md`](agent-asana-comment-signature.md) — ワーカー complete 前に `## レトロスペクティブ`（3 項目テンプレ）。
@@ -76,8 +88,9 @@ Phase 2: assign plan への [retro] 自動同梱 — plan フィールド `inclu
 ## CLI 一覧
 
 ```powershell
-python tools/record_task_retrospective.py --task <GID> --agent <slug> --went-well "..." --improve "..." --intake-candidate "..."
+python tools/record_task_retrospective.py --task <GID> --agent <slug> --completion-score <0-100> --went-well "..." --improve "..." --intake-candidate "..."
 python tools/check_task_retrospective.py --task <GID>
+python tools/aggregate_delivery_kpi.py [--parent <epic_gid>] [--json]
 python skills/platform/asana-buddy/optional/create_retro_subtask.py --parent <worker_sub> --worker <slug> -y
 python tools/aggregate_epic_retrospective.py --parent <epic_gid>
 python tools/create_retrospective_intake_gate.py --parent <epic_gid> --retro output/platform/retrospectives/<epic>-epic-retro.json -y
