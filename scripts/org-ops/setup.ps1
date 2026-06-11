@@ -54,7 +54,7 @@ $envFile = Join-Path $optionalDir ".env"
 $envExample = Join-Path $optionalDir ".env.example"
 $setupVenv = Join-Path $optionalDir "setup_venv.ps1"
 
-Write-Host "SETUP  org-ops venv + .env（チャット入口 · Asana 任意）" -ForegroundColor Cyan
+Write-Host "SETUP  org-ops venv + .env (chat intake, Asana optional)" -ForegroundColor Cyan
 Write-Host "  repo: $root"
 
 # 1. venv
@@ -88,21 +88,21 @@ else {
 $token = Get-DotEnvValue -Key "ASANA_TOKEN" -Path $envFile
 $project = Get-DotEnvValue -Key "ASANA_PROJECT_ID" -Path $envFile
 if (-not $token -or $token -eq "your_personal_access_token") {
-    Write-Host "  WARN  ASANA_TOKEN not configured (manual step — excluded from automation)" -ForegroundColor Yellow
+    Write-Host "  WARN  ASANA_TOKEN not configured (manual step - excluded from automation)" -ForegroundColor Yellow
 }
 
 # 3. optional sync guidance
 Write-Host ""
-Write-Host "[3/3] Asana CF sync（任意）" -ForegroundColor Cyan
+Write-Host "[3/3] Asana CF sync (optional)" -ForegroundColor Cyan
 if ($Sync -and $project -and $token -and $token -ne "your_personal_access_token") {
     Invoke-OrgOpsPython -Args @("tools/sync_all_cf_env.py", "--project", $project, "--write", "-y")
 }
 
 Write-Host ""
 Write-Host "DONE  setup complete." -ForegroundColor Green
-Write-Host "  本番: Cursor チャットで和久桶さんに依頼（docs/design/chat-driven-ops.md）" -ForegroundColor Green
+Write-Host "  prod: chat to wakuoke (docs/design/chat-driven-ops.md)" -ForegroundColor Green
 if (-not $token -or $token -eq "your_personal_access_token") {
-    Write-Host "  Asana 未設定 — Handoff JSON / output/ のみで運用可" -ForegroundColor DarkGray
+    Write-Host "  Asana unset - Handoff JSON / output/ only mode OK" -ForegroundColor DarkGray
 }
 else {
     Write-SyncGuide -ProjectGid $project -Python $py
